@@ -1,10 +1,21 @@
+# Preamble
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
+"OPTIONAL" in this document are to be interpreted as described in
+[[RFC 2119]](https://tools.ietf.org/html/rfc2119).
+
+## Used Abbreviations
+
+TBD = to be determined
+
 # Code specification
 
 ## Motivation
 
 Replace the current APFELcomb code with a simpler and faster tool to generate FK Tables for NNPDF fits.
 
-## APFELcomb design and issues
+## APFELcomb design and issues (Current status)
 
 ### Workflow
 
@@ -38,15 +49,18 @@ The current apfelcomb implementation relies on third-party tools for:
 
 Here a short summary of practical problems we would like to avoid:
 - avoid different data input format, today we have to maintain parsers for APFEL (DIS/FTDY), APPLgrid and PineAPPL,
-- avoid long runtime operations that can be cached and stored in a server a priori, e.g.: DGLAP evolution kernels, DIS and FTDY grids,
+- avoid long runtime operations *Proposed Solution*: use caching and store the elements in a server a priori, e.g.: DGLAP evolution kernels, DIS and FTDY grids,
 - reduce to minimum data input processing,
-- delegate the FK Table construction to a single code/function,
-- provide tools to cache results and upload to server
-- provide tools to optimize the quality of FK tables.
 
 ## Proposal
 
 We propose to develop a code which performs the combination and provide tools to prepare, store and update its requirements.
+
+### Desired Features
+
+- delegate the FK Table construction to a single code/function,
+- provide tools to cache results and upload to server
+- provide tools to optimize the quality of FK tables
 
 ### Input
 
@@ -54,20 +68,46 @@ The program should take as input:
 1. the theory number identification number, using the NNPDF theory database. Note that in opposite to apfelcomb we should take the number and not the full sqlite string.
 2. the dataset name following the NNPDF convention.
 
-### Precomputed objects
-
-The software suite should provide tools for the preparation of:
-- EKO evolution kernels for NNPDF theories.
-- PineAPPL grids predictions for all datasets in NNPDF.
-
-Both objects must be stored in a NNPDF repository (server).
-
 ### Procedure
 
-Starting from the previous two input values the algorithm should:
-- download the precomputed EKO evolution kernel for the specific theory identification number from the NNPDF repositories. Preferably store the kernels in a format which does not require EKO at all.
-- download the corresponding PineAPPL grid from the NNPDF repository.
-- perform the combination and write the FK Table to disk
-- store the generated FKTables in the NNPDF repository.
+1. Retrieve the EKO
+    1. Input: generate runcards
+    2. depends on 1.1: Download: we compute the md5sum or whatever other algorithm on the runcard file and check for a corresponding file in the server, if it doesn't exit.
+    3. depends on 1.1, fires if 1.2 fails: Create: invoke eko with the configuration from (1.1) and let it compute the operator
+    4. depends on 1.3: Upload: uploads the operator from (1.3) (takes the md5sum of the runcard)
+2. Retrieve PineAPPL grid
+    1. **TBD** define an analog of 1.
+3. Operator Application
+    1. do the matrix multiplication
+4. Delivery
+    1. store the generated FKTables in the NNPDF repository
+5. Quality Control
+    1. the PineAPPL predictions
+    2. the predictions using EKO with a reduced number of grid points (measures the compression penalty)
+    3. the prediction of the FK table (measures the effect of the down-evolution)
 
+### Requirements for external programs
+
+#### eko
+- the output MUST be provided in a self-contained format, i.e. the python library `eko` SHOULD NOT be required
+- the current program design fullfills this specification
+
+### Precomputed objects
+
+In order to speed up the computations the code should provide an efficient caching algorithm.
+
+In espacially the two main ingriedients should be covered:
+- EKO evolution kernels for NNPDF theories.
+- PineAPPL grids predictions for all datasets in NNPDF
+
+The caching will be managed by a NNPDF repository that can be interfaced via a public server.
+
+The server is good because:
+- easy & fast access
+- public
+- already implemented with backups
+
+The repo is good because:
+- we can check the revision if bugs are found
+- is an extra source of backup
 
