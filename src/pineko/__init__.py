@@ -35,16 +35,16 @@ def generate_yadism(target_filename):
         observable_card = yaml.safe_load(f)
 
     dis_cf = yadism.run_yadism(theory=theory_card, observables=observable_card)
-    dis_cf.dump_pineappl_to_file(target_filename, "F2total")
+    dis_cf.dump_pineappl_to_file(str(target_filename), "F2total")
 
 
 def load_pineappl():
-    mydis = here.parents[1] / "data" / "mydis.yaml"
+    mydis = here.parents[1] / "data" / "mydis.pineappl"
     if not mydis.exists():
-        generate_eko(mydis)
+        generate_yadism(mydis)
 
-    # grid = pineappl.load_grid(mydis)
-    # return grid
+    grid = pineappl.grid.Grid.read(str(mydis))
+    return grid
 
 
 __import__("ipdb").set_trace()
