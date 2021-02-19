@@ -48,6 +48,7 @@ def setup_package():
             "pineappl",
             "pyyaml",
             "numpy",
+            "pandas",
         ],
         python_requires=">=3.7",
     )

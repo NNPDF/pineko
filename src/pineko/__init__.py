@@ -1,21 +1,29 @@
 # -*- coding: utf-8 -*-
 import pathlib
-
-import numpy as np
+import shutil
+import subprocess
+import io
+import re
 
 import yaml
+import numpy as np
+import pandas as pd
+
+import yadism
 import eko
 import pineappl
 
-import yadism
 
-here = pathlib.Path(__file__).absolute().parent
+data = pathlib.Path(__file__).absolute().parents[2] / "data"
+myoperator_path = data / "myoperator.yaml"
+mydis_path = data / "mydis.pineappl"
+myfktable_path = data / "myfktable.pineappl"
 
-with open(here.parents[1] / "data" / "theory.yaml") as f:
+with open(data / "theory.yaml") as f:
     theory_card = yaml.safe_load(f)
-with open(here.parents[1] / "data" / "operator.yaml") as f:
+with open(data / "operator.yaml") as f:
     operators_card = yaml.safe_load(f)
-with open(here.parents[1] / "data" / "observable-simple.yaml") as f:
+with open(data / "observable-simple.yaml") as f:
     observable_card = yaml.safe_load(f)
 
 
@@ -25,11 +33,10 @@ def generate_eko(target_filename, operators_card):
 
 
 def load_eko(operators_card):
-    myoperator = here.parents[1] / "data" / "myoperator.yaml"
-    if not myoperator.exists():
-        generate_eko(myoperator, operators_card)
+    if not myoperator_path.exists():
+        generate_eko(myoperator_path, operators_card)
 
-    ev_ops = eko.output.Output.load_yaml_from_file(myoperator)
+    ev_ops = eko.output.Output.load_yaml_from_file(myoperator_path)
     return ev_ops
 
 
@@ -39,27 +46,55 @@ def generate_yadism(target_filename):
 
 
 def load_pineappl():
-    mydis = here.parents[1] / "data" / "mydis.pineappl"
-    if not mydis.exists():
-        generate_yadism(mydis)
+    if not mydis_path.exists():
+        generate_yadism(mydis_path)
 
-    grid = pineappl.grid.Grid.read(str(mydis))
+    grid = pineappl.grid.Grid.read(str(mydis_path))
     return grid
 
 
 def load_fake():
     class Grid:
         def get_eko_infos(self):
+            """get_eko_infos.
+
+            .. todo::
+                docs
+            """
             return dict(q2grid=[50], xgrid=[])
 
-        def convolute(self, pdf):
-            return 0.0
+        def convolute_eko(self, operators, q0, pids):
+            """convolute_eko.
 
-        def convolute_eko(self, operators):
+            Parameters
+            ----------
+            operators :
+                operators
+            q0 :
+                q0
+            pids :
+                pids
+
+            .. todo::
+                docs
+            """
             return type(self)()
 
-        def write(self):
-            pass
+        def convolute(self, pdf):
+            """convolute.
+
+            Parameters
+            ----------
+            pdf :
+                pdf
+
+            .. todo::
+                docs
+            """
+            return 0.0
+
+        def write(self, target_filename):
+            shutil.copy2(mydis_path, target_filename)
 
     return Grid()
 
@@ -72,38 +107,53 @@ operators_card["interpolation_xgrid"] = pineappl_info["xgrid"]
 
 # load eko
 operators = load_eko(operators_card)
-pineappl_grid_q0 = pineappl_grid.convolute_eko(operators)
-pineappl_grid_q0.write()
+q2grid = operators["Q2grid"]
+pineappl_grid_q0 = pineappl_grid.convolute_eko(
+    q2grid, operators["q2_ref"], operators["pids"]
+)
+pineappl_grid_q0.write(myfktable_path)
 
 import lhapdf
 
-ct14llo = lhapdf.mkPDF("CT14llo_NF6")
+ct14llo = lhapdf.mkPDF("CT14llo_NF4")
 # do the comparison
-prediction_high = pineappl_grid.convolute(ct14llo)
-prediction_low = pineappl_grid_q0.convolute(ct14llo)
+# prediction_high = pineappl_grid.convolute("CT14llo_NF4")
+# prediction_low = pineappl_grid_q0.convolute("CT14llo_NF4")
+comparison = subprocess.run(
+    ["pineappl", "diff", str(mydis_path), str(myfktable_path), "CT14llo_NF4"],
+    capture_output=True,
+)
 
-print(prediction_low, prediction_high)
+output = comparison.stdout.decode().splitlines()
+stream = io.StringIO()
+columns = "bin  x1      x1_2        x2  x2_2  pine1 pine2 diff".split()
+for line in output:
+    try:
+        int(line.strip().split(" ")[0])
+        isnum = True
+    except ValueError:
+        isnum = False
 
-__import__("ipdb").set_trace()
+    if isnum:
+        stream.write(line.strip() + "\n")
+    elif line[:3] == "bin":
+        pass
+        line = re.sub(
+            r"O\(.*\)",
+            f"{mydis_path.stem}_prediction {myfktable_path.stem}_prediction diff",
+            line.strip(),
+        )
+        columns = re.sub(r"(x\d*)", r"\1 \1_max", line).split()
 
-# def myekos(pids, zs, q2s):
-# ekos = np.random.rand(len(q2s), len(pids), len(zs), len(pids), len(zs))
-# return ekos
+stream.seek(0)
+df = pd.read_table(stream, names=columns, sep=" ")
 
+df.set_index("bin", inplace=True)
+# remove bins' upper edges when bins are trivial
+bin_not_relevant = True
+if bin_not_relevant:
+    obs_labels = np.unique([lab for lab in filter(lambda lab: "_" in lab, df.columns)])
+    df.drop(obs_labels, axis=1, inplace=True)
 
-# x = 0.1
-# pid = 1
-# xin = 0.1
-# pidin = 1
-# q2 = 1.0e4
-# pids = [1]
-# zs = [0.1, 1.0]
-# q2s = [q2]
-# ekos = myekos(pids, zs, q2s)
-# grid = load_pineappl()
-
-# for pid_index, _ in enumerate(pids):
-# for x_index, _ in enumerate(zs):
-# grid.convolute_test(
-# pid, x, q2, pids, zs, q2s, ekos[:, :, :, pid_index, x_index].tolist()
-# )
+print(df)
+__import__("pdb").set_trace()
