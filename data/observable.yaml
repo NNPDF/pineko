@@ -1,5 +1,5 @@
-- interpolation_polynomial_degree: 4
-  interpolation_xgrid:
+interpolation_polynomial_degree: 4
+interpolation_xgrid:
   - 1.9999999999999954e-07
   - 3.034304765867952e-07
   - 4.6035014748963906e-07
@@ -50,8 +50,8 @@
   - 0.8627839323906108
   - 0.9309440808717544
   - 1
-  observables:
-    F2total:
+observables:
+  F2total:
     - Q2: 50.0
       x: 1.9999999999999954e-07
     - Q2: 50.0
@@ -106,4 +106,6 @@
       x: 0.10914375746330703
     - Q2: 1000.0
       x: 0.10914375746330703
-  prDIS: EM
+prDIS: EM
+PolarizationDIS: 0.
+ProjectileDIS: electron
