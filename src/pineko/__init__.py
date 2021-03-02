@@ -41,6 +41,13 @@ def load_eko(operators_card):
     return ev_ops
 
 
+def eko_identity(shape):
+    i, k = np.ogrid[: shape[1], : shape[2]]
+    eko_identity = np.zeros(shape[1:], int)
+    eko_identity[i, k, i, k] = 1
+    return np.broadcast_to(eko_identity[np.newaxis, :, :, :, :], shape)
+
+
 def alpha_s(q2grid):
     sc = eko.strong_coupling.StrongCoupling.from_dict(theory_card)
     return [sc.a_s(q2) * 4 * np.pi for q2 in q2grid]
@@ -116,10 +123,8 @@ operators_card["interpolation_xgrid"] = x_grid
 operators = load_eko(operators_card)
 
 operator_grid = np.array([list(operators["Q2grid"].values())[0]["operators"]])
-i, k = np.ogrid[: operator_grid.shape[1], : operator_grid.shape[2]]
-eko_identity = np.zeros(operator_grid.shape[1:], int)
-eko_identity[i, k, i, k] = 1
-operator_grid = eko_identity[np.newaxis, :, :, :, :]
+# for the time being replace with a fake one, for debugging
+operator_grid = eko_identity(operator_grid.shape)
 
 pineappl_grid_q0 = pineappl_grid.convolute_eko(
     q2_grid[0], alpha_s(q2_grid), operators["pids"], operator_grid
