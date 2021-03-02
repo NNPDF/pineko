@@ -100,10 +100,10 @@ def load_fake():
 
 
 # load pineappl
-pineappl_grid = load_fake()
+pineappl_grid = load_pineappl()
 pineappl_info = pineappl_grid.get_eko_infos()
-operators_card["Q2grid"] = pineappl_info["q2grid"]
-operators_card["interpolation_xgrid"] = pineappl_info["xgrid"]
+#  operators_card["Q2grid"] = pineappl_info["q2grid"]
+#  operators_card["interpolation_xgrid"] = pineappl_info["xgrid"]
 
 # load eko
 operators = load_eko(operators_card)
