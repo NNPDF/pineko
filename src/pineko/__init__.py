@@ -10,13 +10,14 @@ import numpy as np
 import pandas as pd
 
 import yadism
-import eko
+import eko, eko.strong_coupling
 import pineappl
 
 
 data = pathlib.Path(__file__).absolute().parents[2] / "data"
 myoperator_path = data / "myoperator.yaml"
 mydis_path = data / "mydis.pineappl"
+mydis_yaml_path = data / "mydis.yaml"
 myfktable_path = data / "myfktable.pineappl"
 
 with open(data / "theory.yaml") as f:
@@ -40,9 +41,15 @@ def load_eko(operators_card):
     return ev_ops
 
 
+def alpha_s(q2grid):
+    sc = eko.strong_coupling.StrongCoupling.from_dict(theory_card)
+    return [sc.a_s(q2) * 4 * np.pi for q2 in q2grid]
+
+
 def generate_yadism(target_filename):
     dis_cf = yadism.run_yadism(theory=theory_card, observables=observable_card)
     dis_cf.dump_pineappl_to_file(str(target_filename), "F2total")
+    dis_cf.dump_yaml_to_file(str(mydis_yaml_path))
 
 
 def load_pineappl():
@@ -107,9 +114,15 @@ operators_card["interpolation_xgrid"] = x_grid
 
 # load eko
 operators = load_eko(operators_card)
+
 operator_grid = np.array([list(operators["Q2grid"].values())[0]["operators"]])
+i, k = np.ogrid[: operator_grid.shape[1], : operator_grid.shape[2]]
+eko_identity = np.zeros(operator_grid.shape[1:], int)
+eko_identity[i, k, i, k] = 1
+operator_grid = eko_identity[np.newaxis, :, :, :, :]
+
 pineappl_grid_q0 = pineappl_grid.convolute_eko(
-    operators["q2_ref"], [0.1], operators["pids"], operator_grid
+    q2_grid[0], alpha_s(q2_grid), operators["pids"], operator_grid
 )
 pineappl_grid_q0.write(str(myfktable_path))
 
@@ -152,7 +165,9 @@ df.set_index("bin", inplace=True)
 # remove bins' upper edges when bins are trivial
 bin_not_relevant = True
 if bin_not_relevant:
-    obs_labels = np.unique([lab for lab in filter(lambda lab: "_" in lab, df.columns)])
+    obs_labels = np.unique(
+        [lab for lab in filter(lambda lab: "_" in lab and "my" not in lab, df.columns)]
+    )
     df.drop(obs_labels, axis=1, inplace=True)
 
 print(df)
