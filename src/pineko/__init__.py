@@ -55,8 +55,8 @@ def load_pineappl():
 
 def load_fake():
     class Grid:
-        def get_eko_infos(self):
-            """get_eko_infos.
+        def eko_info(self):
+            """eko_info.
 
             .. todo::
                 docs
@@ -101,17 +101,17 @@ def load_fake():
 
 # load pineappl
 pineappl_grid = load_pineappl()
-pineappl_info = pineappl_grid.get_eko_infos()
-#  operators_card["Q2grid"] = pineappl_info["q2grid"]
-#  operators_card["interpolation_xgrid"] = pineappl_info["xgrid"]
+x_grid, q2_grid = pineappl_grid.eko_info()
+operators_card["Q2grid"] = q2_grid
+operators_card["interpolation_xgrid"] = x_grid
 
 # load eko
 operators = load_eko(operators_card)
-q2grid = operators["Q2grid"]
+operator_grid = np.array([list(operators["Q2grid"].values())[0]["operators"]])
 pineappl_grid_q0 = pineappl_grid.convolute_eko(
-    q2grid, operators["q2_ref"], operators["pids"]
+    operators["q2_ref"], [0.1], operators["pids"], operator_grid
 )
-pineappl_grid_q0.write(myfktable_path)
+pineappl_grid_q0.write(str(myfktable_path))
 
 import lhapdf
 
