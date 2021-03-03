@@ -24,7 +24,7 @@ with open(data / "theory.yaml") as f:
     theory_card = yaml.safe_load(f)
 with open(data / "operator.yaml") as f:
     operators_card = yaml.safe_load(f)
-with open(data / "observable-simple.yaml") as f:
+with open(data / "observable.yaml") as f:
     observable_card = yaml.safe_load(f)
 
 
@@ -122,23 +122,23 @@ operators_card["interpolation_xgrid"] = x_grid
 # load eko
 operators = load_eko(operators_card)
 
-operator_grid = np.array([list(operators["Q2grid"].values())[0]["operators"]])
+operator_grid = np.array([op["operators"] for op in operators["Q2grid"].values()])
 # for the time being replace with a fake one, for debugging
-operator_grid = eko_identity(operator_grid.shape)
+#  operator_grid = eko_identity(operator_grid.shape)
 
 pineappl_grid_q0 = pineappl_grid.convolute_eko(
-    q2_grid[0], alpha_s(q2_grid), operators["pids"], operator_grid
+    operators["q2_ref"], alpha_s(q2_grid), operators["pids"], operator_grid
 )
 pineappl_grid_q0.write(str(myfktable_path))
 
 import lhapdf
 
-ct14llo = lhapdf.mkPDF("CT14llo_NF4")
 # do the comparison
 # prediction_high = pineappl_grid.convolute("CT14llo_NF4")
 # prediction_low = pineappl_grid_q0.convolute("CT14llo_NF4")
 comparison = subprocess.run(
     ["pineappl", "diff", str(mydis_path), str(myfktable_path), "CT14llo_NF4"],
+    #  ["pineappl", "diff", str(mydis_path), str(myfktable_path), "uonly"],
     capture_output=True,
 )
 
@@ -175,5 +175,8 @@ if bin_not_relevant:
     )
     df.drop(obs_labels, axis=1, inplace=True)
 
-print(df)
+#  print(df)
+pineappl_output = "\n".join(output)
+print(pineappl_output)
+
 __import__("pdb").set_trace()

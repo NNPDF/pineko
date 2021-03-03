@@ -1,4 +1,5 @@
 interpolation_polynomial_degree: 4
+interpolation_is_log: true
 interpolation_xgrid:
   - 1.9999999999999954e-07
   - 3.034304765867952e-07
