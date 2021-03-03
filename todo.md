@@ -1,0 +1,5 @@
+- interpolation x_grid & q2_grid convention:
+  - eko is sorting increasing
+  - pineappl is decreasing
+  - SOLUTION: pass to `convolute_eko()` the values from eko
+- pass EKO operator as `numpy.array.flatten + numpy.array.shape`

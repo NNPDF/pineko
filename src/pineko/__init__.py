@@ -18,6 +18,7 @@ data = pathlib.Path(__file__).absolute().parents[2] / "data"
 myoperator_path = data / "myoperator.yaml"
 mydis_path = data / "mydis.pineappl"
 mydis_yaml_path = data / "mydis.yaml"
+mydy_path = data / "mydy.pineappl"
 myfktable_path = data / "myfktable.pineappl"
 
 with open(data / "theory.yaml") as f:
@@ -59,7 +60,7 @@ def generate_yadism(target_filename):
     dis_cf.dump_yaml_to_file(str(mydis_yaml_path))
 
 
-def load_pineappl():
+def load_pineappl_dis():
     if not mydis_path.exists():
         generate_yadism(mydis_path)
 
@@ -67,59 +68,20 @@ def load_pineappl():
     return grid
 
 
-def load_fake():
-    class Grid:
-        def eko_info(self):
-            """eko_info.
-
-            .. todo::
-                docs
-            """
-            return dict(q2grid=[50], xgrid=[])
-
-        def convolute_eko(self, operators, q0, pids):
-            """convolute_eko.
-
-            Parameters
-            ----------
-            operators :
-                operators
-            q0 :
-                q0
-            pids :
-                pids
-
-            .. todo::
-                docs
-            """
-            return type(self)()
-
-        def convolute(self, pdf):
-            """convolute.
-
-            Parameters
-            ----------
-            pdf :
-                pdf
-
-            .. todo::
-                docs
-            """
-            return 0.0
-
-        def write(self, target_filename):
-            shutil.copy2(mydis_path, target_filename)
-
-    return Grid()
+def load_pineappl_dy():
+    grid = pineappl.grid.Grid.read(str(mydy_path))
+    return grid
 
 
 # load pineappl
-pineappl_grid = load_pineappl()
+pineappl_grid = load_pineappl_dy()
 x_grid, q2_grid = pineappl_grid.eko_info()
+q2_grid = [5442.305429193529, 7434.731381687921, 10243.85467001917, 14238.990475802799]
 operators_card["Q2grid"] = q2_grid
 operators_card["interpolation_xgrid"] = x_grid
 
 # load eko
+print(q2_grid)
 operators = load_eko(operators_card)
 
 operator_grid = np.array([op["operators"] for op in operators["Q2grid"].values()])
@@ -127,18 +89,21 @@ operator_grid = np.array([op["operators"] for op in operators["Q2grid"].values()
 #  operator_grid = eko_identity(operator_grid.shape)
 
 pineappl_grid_q0 = pineappl_grid.convolute_eko(
-    operators["q2_ref"], alpha_s(q2_grid), operators["pids"], operator_grid
+    operators["q2_ref"],
+    alpha_s(q2_grid),
+    operators["pids"],
+    x_grid,
+    q2_grid,
+    operator_grid,
 )
 pineappl_grid_q0.write(str(myfktable_path))
-
-import lhapdf
 
 # do the comparison
 # prediction_high = pineappl_grid.convolute("CT14llo_NF4")
 # prediction_low = pineappl_grid_q0.convolute("CT14llo_NF4")
 comparison = subprocess.run(
-    ["pineappl", "diff", str(mydis_path), str(myfktable_path), "CT14llo_NF4"],
-    #  ["pineappl", "diff", str(mydis_path), str(myfktable_path), "uonly"],
+    #  ["pineappl", "diff", str(mydis_path), str(myfktable_path), "CT14llo_NF4"],
+    ["pineappl", "diff", str(mydy_path), str(myfktable_path), "CT14llo_NF4"],
     capture_output=True,
 )
 
@@ -158,7 +123,8 @@ for line in output:
         pass
         line = re.sub(
             r"O\(.*\)",
-            f"{mydis_path.stem}_prediction {myfktable_path.stem}_prediction diff",
+            #  f"{mydis_path.stem}_prediction {myfktable_path.stem}_prediction diff",
+            f"{mydy_path.stem}_prediction {myfktable_path.stem}_prediction diff",
             line.strip(),
         )
         columns = re.sub(r"(x\d*)", r"\1 \1_max", line).split()
