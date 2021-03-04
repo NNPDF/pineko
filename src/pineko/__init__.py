@@ -73,10 +73,20 @@ def load_pineappl_dy():
     return grid
 
 
+dis = True
 # load pineappl
-pineappl_grid = load_pineappl_dy()
-x_grid, q2_grid = pineappl_grid.eko_info()
-q2_grid = [5442.305429193529, 7434.731381687921, 10243.85467001917, 14238.990475802799]
+if dis:
+    pineappl_grid = load_pineappl_dis()
+    x_grid, q2_grid = pineappl_grid.eko_info()
+else:
+    pineappl_grid = load_pineappl_dy()
+    x_grid, q2_grid = pineappl_grid.eko_info()
+    q2_grid = [
+        5442.305429193529,
+        7434.731381687921,
+        10243.85467001917,
+        14238.990475802799,
+    ]
 operators_card["Q2grid"] = q2_grid
 operators_card["interpolation_xgrid"] = x_grid
 
@@ -102,8 +112,13 @@ pineappl_grid_q0.write(str(myfktable_path))
 # prediction_high = pineappl_grid.convolute("CT14llo_NF4")
 # prediction_low = pineappl_grid_q0.convolute("CT14llo_NF4")
 comparison = subprocess.run(
-    #  ["pineappl", "diff", str(mydis_path), str(myfktable_path), "CT14llo_NF4"],
-    ["pineappl", "diff", str(mydy_path), str(myfktable_path), "CT14llo_NF4"],
+    [
+        "pineappl",
+        "diff",
+        str(mydis_path if dis else mydy_path),
+        str(myfktable_path),
+        "CT14llo_NF4",
+    ],
     capture_output=True,
 )
 
