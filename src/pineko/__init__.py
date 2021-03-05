@@ -49,11 +49,6 @@ def eko_identity(shape):
     return np.broadcast_to(eko_identity[np.newaxis, :, :, :, :], shape)
 
 
-def alpha_s(q2grid):
-    sc = eko.strong_coupling.StrongCoupling.from_dict(theory_card)
-    return [sc.a_s(q2) * 4 * np.pi for q2 in q2grid]
-
-
 def generate_yadism(target_filename):
     dis_cf = yadism.run_yadism(theory=theory_card, observables=observable_card)
     dis_cf.dump_pineappl_to_file(str(target_filename), "F2total")
@@ -74,6 +69,7 @@ def load_pineappl_dy():
 
 
 dis = True
+#  dis = False
 # load pineappl
 if dis:
     pineappl_grid = load_pineappl_dis()
@@ -95,17 +91,16 @@ print(q2_grid)
 operators = load_eko(operators_card)
 
 operator_grid = np.array([op["operators"] for op in operators["Q2grid"].values()])
+alpha_s = (
+    lambda q2: eko.strong_coupling.StrongCoupling.from_dict(theory_card).a_s(q2)
+    * 4
+    * np.pi
+)
+
 # for the time being replace with a fake one, for debugging
 #  operator_grid = eko_identity(operator_grid.shape)
 
-pineappl_grid_q0 = pineappl_grid.convolute_eko(
-    operators["q2_ref"],
-    alpha_s(q2_grid),
-    operators["pids"],
-    x_grid,
-    q2_grid,
-    operator_grid,
-)
+pineappl_grid_q0 = pineappl_grid.convolute_eko(alpha_s, operators)
 pineappl_grid_q0.write(str(myfktable_path))
 
 # do the comparison
