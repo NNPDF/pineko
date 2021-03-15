@@ -49,6 +49,7 @@ def setup_package():
             "pyyaml",
             "numpy",
             "pandas",
+            "rich",
         ],
         python_requires=">=3.7",
     )
