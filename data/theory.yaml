@@ -21,7 +21,7 @@ SxOrd: "LL"
 HQ: "POLE"
 mc: 1.4142135623730951
 Qmc: 1.4142135623730951
-kcThr: 0.
+kcThr: 0.001
 kcDISThr: 1.0
 mb: 4.5
 Qmb: 4.5

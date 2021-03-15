@@ -25,7 +25,7 @@ with open(data / "theory.yaml") as f:
     theory_card = yaml.safe_load(f)
 with open(data / "operator.yaml") as f:
     operators_card = yaml.safe_load(f)
-with open(data / "observable.yaml") as f:
+with open(data / "observable-f2c.yaml") as f:
     observable_card = yaml.safe_load(f)
 
 
@@ -50,8 +50,10 @@ def eko_identity(shape):
 
 
 def generate_yadism(target_filename):
+    t = theory_card.copy()
+    t["PTO"] = 1
     dis_cf = yadism.run_yadism(theory=theory_card, observables=observable_card)
-    dis_cf.dump_pineappl_to_file(str(target_filename), "F2total")
+    dis_cf.dump_pineappl_to_file(str(target_filename), "F2bottom")
     dis_cf.dump_yaml_to_file(str(mydis_yaml_path))
 
 
@@ -77,12 +79,12 @@ if dis:
 else:
     pineappl_grid = load_pineappl_dy()
     x_grid, q2_grid = pineappl_grid.eko_info()
-    q2_grid = [
-        5442.305429193529,
-        7434.731381687921,
-        10243.85467001917,
-        14238.990475802799,
-    ]
+    #q2_grid = [
+    #    5442.305429193529,
+    #    7434.731381687921,
+    #    10243.85467001917,
+    #    14238.990475802799,
+    #]
 operators_card["Q2grid"] = q2_grid
 operators_card["interpolation_xgrid"] = x_grid
 
