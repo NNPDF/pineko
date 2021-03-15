@@ -110,6 +110,7 @@ comparison = subprocess.run(
     [
         "pineappl",
         "diff",
+        "--ignore_orders",
         str(mydis_path if dis else mydy_path),
         str(myfktable_path),
         "CT14llo_NF4",
