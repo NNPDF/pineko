@@ -8,6 +8,7 @@ import re
 import yaml
 import numpy as np
 import pandas as pd
+import rich, rich.box, rich.panel
 
 import yadism
 import eko, eko.strong_coupling
@@ -15,17 +16,20 @@ import pineappl
 
 
 data = pathlib.Path(__file__).absolute().parents[2] / "data"
-myoperator_path = data / "myoperator.yaml"
+myoperator_base_path = data / "myoperator.yaml"
 mydis_path = data / "mydis.pineappl"
 mydis_yaml_path = data / "mydis.yaml"
-mydy_path = data / "mydy.pineappl"
-myfktable_path = data / "myfktable.pineappl"
+mydy_path = data / "ATLASZHIGHMASS49FB.pineappl.lz4"
+mydylo_path = data / "ATLASZHIGHMASS49FB-LO.pineappl.lz4"
+myttbar_path = data / "CMSTTBARTOT5TEV.pineappl.lz4"
+myttbarlo_path = data / "CMSTTBARTOT5TEV-LO.pineappl.lz4"
+myfktable_base_path = data / "myfktable.pineappl"
 
 with open(data / "theory.yaml") as f:
     theory_card = yaml.safe_load(f)
 with open(data / "operator.yaml") as f:
     operators_card = yaml.safe_load(f)
-with open(data / "observable-f2c.yaml") as f:
+with open(data / "observable.yaml") as f:
     observable_card = yaml.safe_load(f)
 
 
@@ -34,7 +38,9 @@ def generate_eko(target_filename, operators_card):
     ops.dump_yaml_to_file(target_filename)
 
 
-def load_eko(operators_card):
+def load_eko(operators_card, mangle):
+    myoperator_path = myoperator_base_path.with_suffix(f".{mangle}.yaml")
+
     if not myoperator_path.exists():
         generate_eko(myoperator_path, operators_card)
 
@@ -52,45 +58,37 @@ def eko_identity(shape):
 def generate_yadism(target_filename):
     t = theory_card.copy()
     t["PTO"] = 1
-    dis_cf = yadism.run_yadism(theory=theory_card, observables=observable_card)
-    dis_cf.dump_pineappl_to_file(str(target_filename), "F2bottom")
+    dis_cf = yadism.run_yadism(theory=t, observables=observable_card)
+    dis_cf.dump_pineappl_to_file(str(target_filename), "F2total")
     dis_cf.dump_yaml_to_file(str(mydis_yaml_path))
 
 
-def load_pineappl_dis():
-    if not mydis_path.exists():
-        generate_yadism(mydis_path)
-
-    grid = pineappl.grid.Grid.read(str(mydis_path))
+def load_pineappl(path):
+    if "dis" in str(path):
+        generate_yadism(path)
+    grid = pineappl.grid.Grid.read(str(path))
     return grid
 
 
-def load_pineappl_dy():
-    grid = pineappl.grid.Grid.read(str(mydy_path))
-    return grid
+#  pineappl_grid_path = mydis_path
+#  pineappl_grid_path = mydylo_path
+#  pineappl_grid_path = mydy_path
+#  pineappl_grid_path = myttbarlo_path
+pineappl_grid_path = myttbar_path
+rich.print(
+    rich.panel.Panel.fit(
+        f"Computing: [i]{pineappl_grid_path}[/]", style="magenta", box=rich.box.SQUARE
+    )
+)
 
-
-dis = True
-#  dis = False
 # load pineappl
-if dis:
-    pineappl_grid = load_pineappl_dis()
-    x_grid, q2_grid = pineappl_grid.eko_info()
-else:
-    pineappl_grid = load_pineappl_dy()
-    x_grid, q2_grid = pineappl_grid.eko_info()
-    #q2_grid = [
-    #    5442.305429193529,
-    #    7434.731381687921,
-    #    10243.85467001917,
-    #    14238.990475802799,
-    #]
+pineappl_grid = load_pineappl(pineappl_grid_path)
+x_grid, q2_grid = pineappl_grid.eko_info()
 operators_card["Q2grid"] = q2_grid
 operators_card["interpolation_xgrid"] = x_grid
 
 # load eko
-print(q2_grid)
-operators = load_eko(operators_card)
+operators = load_eko(operators_card, pineappl_grid_path.stem)
 
 operator_grid = np.array([op["operators"] for op in operators["Q2grid"].values()])
 alpha_s = (
@@ -98,11 +96,15 @@ alpha_s = (
     * 4
     * np.pi
 )
+print(alpha_s(q2_grid[0]))
 
 # for the time being replace with a fake one, for debugging
 #  operator_grid = eko_identity(operator_grid.shape)
 
 pineappl_grid_q0 = pineappl_grid.convolute_eko(alpha_s, operators)
+myfktable_path = myfktable_base_path.with_suffix(
+    "." + pineappl_grid_path.stem + "." + myfktable_base_path.suffix
+)
 pineappl_grid_q0.write(str(myfktable_path))
 
 # do the comparison
@@ -113,7 +115,7 @@ comparison = subprocess.run(
         "pineappl",
         "diff",
         "--ignore_orders",
-        str(mydis_path if dis else mydy_path),
+        str(pineappl_grid_path),
         str(myfktable_path),
         "CT14llo_NF4",
     ],
