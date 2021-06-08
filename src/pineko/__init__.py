@@ -59,7 +59,7 @@ def generate_yadism(target_filename):
     t = theory_card.copy()
     t["PTO"] = 1
     dis_cf = yadism.run_yadism(theory=t, observables=observable_card)
-    dis_cf.dump_pineappl_to_file(str(target_filename), "F2total")
+    dis_cf.dump_pineappl_to_file(str(target_filename), "F2_total")
     dis_cf.dump_yaml_to_file(str(mydis_yaml_path))
 
 
@@ -70,11 +70,11 @@ def load_pineappl(path):
     return grid
 
 
-#  pineappl_grid_path = mydis_path
+pineappl_grid_path = mydis_path
 #  pineappl_grid_path = mydylo_path
 #  pineappl_grid_path = mydy_path
 #  pineappl_grid_path = myttbarlo_path
-pineappl_grid_path = myttbar_path
+#  pineappl_grid_path = myttbar_path
 rich.print(
     rich.panel.Panel.fit(
         f"Computing: [i]{pineappl_grid_path}[/]", style="magenta", box=rich.box.SQUARE

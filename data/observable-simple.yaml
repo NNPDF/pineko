@@ -52,9 +52,11 @@ interpolation_xgrid:
   - 1
 interpolation_is_log: true
 observables:
-  F2total:
+  F2_total:
     - Q2: 50.0
       x: 0.10914375746330703
 prDIS: EM
 PolarizationDIS: 0.
 ProjectileDIS: electron
+TargetDIS: proton
+PropagatorCorrection: 0.
