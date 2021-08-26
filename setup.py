@@ -2,12 +2,12 @@
 import pathlib
 
 import packutil as pack
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 # write version on the fly - inspired by numpy
 MAJOR = 0
-MINOR = 0
-MICRO = 1
+MINOR = 1
+MICRO = 0
 
 repo_path = pathlib.Path(__file__).absolute().parent
 
@@ -44,9 +44,7 @@ def setup_package():
             "Topic :: Scientific/Engineering :: Physics",
         ],
         install_requires=[
-            "eko<0.7",
-            "yadism",
-            "pineappl",
+            "eko<0.8",
             "pyyaml",
             "numpy",
             "pandas",

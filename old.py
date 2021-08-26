@@ -1,21 +1,20 @@
 # -*- coding: utf-8 -*-
-import pathlib
-import shutil
-import subprocess
 import io
+import pathlib
 import re
+import subprocess
 
-import yaml
+import eko
 import numpy as np
 import pandas as pd
-import rich, rich.box, rich.panel
-
-import yadism
-import eko, eko.strong_coupling
 import pineappl
+import rich
+import rich.box
+import rich.panel
+import yadism
+import yaml
 
-
-data = pathlib.Path(__file__).absolute().parents[2] / "data"
+data = pathlib.Path(__file__).absolute().parent / "data"
 myoperator_base_path = data / "myoperator.yaml"
 mydis_path = data / "mydis.pineappl"
 mydis_yaml_path = data / "mydis.yaml"
@@ -101,15 +100,13 @@ print(alpha_s(q2_grid[0]))
 # for the time being replace with a fake one, for debugging
 #  operator_grid = eko_identity(operator_grid.shape)
 
-pineappl_grid_q0 = pineappl_grid.convolute_eko(alpha_s, operators)
+pineappl_grid_q0 = pineappl_grid.convolute_eko(operators)
 myfktable_path = myfktable_base_path.with_suffix(
     "." + pineappl_grid_path.stem + "." + myfktable_base_path.suffix
 )
 pineappl_grid_q0.write(str(myfktable_path))
 
 # do the comparison
-# prediction_high = pineappl_grid.convolute("CT14llo_NF4")
-# prediction_low = pineappl_grid_q0.convolute("CT14llo_NF4")
 comparison = subprocess.run(
     [
         "pineappl",
