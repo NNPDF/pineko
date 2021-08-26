@@ -47,6 +47,7 @@ def generate_yadism(target_filename):
     dis_cf.dump_pineappl_to_file(str(target_filename), "F2_total")
     dis_cf.dump_yaml_to_file(str(mydis_yaml_path))
 
+
 # collect all path and fake the objects
 pineappl_path = mydis_path
 if "dis" in str(pineappl_path):
