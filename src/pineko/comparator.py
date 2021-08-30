@@ -35,7 +35,7 @@ def build_data_frame(full_output):
 
 def compare(pineappl_path, fktable_path, pdf):
     """
-    Print comparison table via `pineappl diff`.
+    Build comparison table via `pineappl diff`.
 
     Parameters
     ----------
@@ -45,6 +45,11 @@ def compare(pineappl_path, fktable_path, pdf):
             convoluted grid
         pdf : str
             PDF set name
+
+    Returns
+    -------
+        df : pd.DataFrame
+            comparison table
     """
     # get the output
     comparison = subprocess.run(
