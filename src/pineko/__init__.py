@@ -5,7 +5,7 @@ import rich
 import rich.box
 import rich.panel
 
-from .comparator import compare
+from .comparator import compare2
 
 
 def check_grid_and_eko_compatible(pineappl_grid, operators):
@@ -59,4 +59,5 @@ def convolute(pineappl_path, eko_path, fktable_path, comparison_pdf=None):
     fktable.write(str(fktable_path))
     # compare before after
     if comparison_pdf is not None:
-        print(compare(pineappl_path, fktable_path, comparison_pdf))
+        #print(compare(pineappl_path, fktable_path, comparison_pdf))
+        compare2(pineappl_grid, fktable, comparison_pdf)

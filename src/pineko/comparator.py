@@ -73,3 +73,19 @@ def compare(pineappl_path, fktable_path, pdf):
     df.drop(obs_labels, axis=1, inplace=True)
     # print("\n".join(output))
     return df
+
+def compare2(pineappl, fktable, pdf):
+    """
+    """
+    import lhapdf
+    pdfset = lhapdf.mkPDF(pdf, 0)
+    print(pineappl.convolute(
+        lambda pdg_id, x, q2: 1.0,
+        lambda pdg_id, x, q2: pdfset.xfxQ2(pdg_id, x, q2),
+        lambda q2: pdfset.alphasQ2(q2)
+    ))
+    print(fktable.convolute(
+        lambda pdg_id, x, q2: 1.0,
+        lambda pdg_id, x, q2: pdfset.xfxQ2(pdg_id, x, q2),
+        lambda q2: pdfset.alphasQ2(q2)
+    ))
