@@ -6,7 +6,7 @@ import pineappl
 import yadism
 import yaml
 
-from pineko.runner import from_files
+from pineko import convolute
 
 data = pathlib.Path(__file__).absolute().parent / "data"
 myoperator_base_path = data / "myoperator.yaml"
@@ -58,4 +58,4 @@ myfktable_path = myfktable_base_path.with_suffix(
     "." + pineappl_path.stem + myfktable_base_path.suffix
 )
 # doit
-from_files(pineappl_path, myoperator_path, myfktable_path, "CT14llo_NF4")
+convolute(pineappl_path, myoperator_path, myfktable_path, "CT14llo_NF4")
