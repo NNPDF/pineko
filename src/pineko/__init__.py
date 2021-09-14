@@ -60,4 +60,4 @@ def convolute(pineappl_path, eko_path, fktable_path, comparison_pdf=None):
     # compare before after
     if comparison_pdf is not None:
         #print(compare(pineappl_path, fktable_path, comparison_pdf))
-        compare2(pineappl_grid, fktable, comparison_pdf)
+        print(compare2(pineappl_grid, fktable, comparison_pdf))

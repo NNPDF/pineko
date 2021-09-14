@@ -76,16 +76,40 @@ def compare(pineappl_path, fktable_path, pdf):
 
 def compare2(pineappl, fktable, pdf):
     """
+    Build comparison table.
+
+    Parameters
+    ----------
+        pineappl_path : str
+            uncovoluted grid
+        fktable_path : str
+            convoluted grid
+        pdf : str
+            PDF set name
+
+    Returns
+    -------
+        df : pd.DataFrame
+            comparison table
     """
     import lhapdf
     pdfset = lhapdf.mkPDF(pdf, 0)
-    print(pineappl.convolute(
+    before = pineappl.convolute(
+        pdfset.xfxQ2,
         lambda pdg_id, x, q2: 1.0,
+        pdfset.alphasQ2
+    )
+    after = fktable.convolute(
         lambda pdg_id, x, q2: pdfset.xfxQ2(pdg_id, x, q2),
-        lambda q2: pdfset.alphasQ2(q2)
-    ))
-    print(fktable.convolute(
         lambda pdg_id, x, q2: 1.0,
-        lambda pdg_id, x, q2: pdfset.xfxQ2(pdg_id, x, q2),
         lambda q2: pdfset.alphasQ2(q2)
-    ))
+    )
+    df = pd.DataFrame()
+    # add bin info
+    for d in range(pineappl.bin_dimensions()):
+        df[f"O{d} left"] = pineappl.bin_left(d)
+        df[f"O{d} right"] = pineappl.bin_right(d)
+    # add data
+    df["PineAPPL"] = before
+    df["FkTable"] = after
+    return df
