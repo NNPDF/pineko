@@ -1,80 +1,34 @@
-import io
-import subprocess
-
 import numpy as np
 import pandas as pd
+import eko.basis_rotation as br
 
 
-def build_data_frame(full_output):
+def evol_xfxQ2(pdfset):
     """
-    Parse a Rust table into a `pd.DataFrame`.
+    Rotate lhapdf-like callable to evolution basis.
 
     Parameters
     ----------
-        full_output : str
-            console output
+        pdfset : callable
+            lhapdf-like callable providing a `xfxQ2` method
 
     Returns
     -------
-        df : pd.DataFrame
-            data frame
+        xfxQ2 : callable
+            lhapdf-like callable accepting `eko` evolution basis pids
     """
-    # split by lines
-    output = full_output.splitlines()
-    stream = io.StringIO()
-    # determine columns
-    columns = [[e.strip(), e.strip() + "_2"] for e in output[2].split()[1:]]
-    columns = ["bin"] + [f for e in columns for f in e] + ["pine", "fk", "reldiff"]
-    # get rid of all the white space
-    for line in output[4:-2]:
-        stream.write(" ".join([e.strip() for e in line.split()]) + "\n")
-    # setup dataframe
-    stream.seek(0)
-    return pd.read_table(stream, names=columns, sep=" ")
+
+    def xfxQ2(fake_pdg_id, x, Q2):
+        flav = np.array(
+            [pdfset.xfxQ2(pdg_id, x, Q2) for pdg_id in br.flavor_basis_pids]
+        )
+        evol = br.rotate_flavor_to_evolution @ flav
+        return evol[br.evol_basis_pids.index(fake_pdg_id)]
+
+    return xfxQ2
 
 
-def compare(pineappl_path, fktable_path, pdf):
-    """
-    Build comparison table via `pineappl diff`.
-
-    Parameters
-    ----------
-        pineappl_path : str
-            uncovoluted grid
-        fktable_path : str
-            convoluted grid
-        pdf : str
-            PDF set name
-
-    Returns
-    -------
-        df : pd.DataFrame
-            comparison table
-    """
-    # get the output
-    comparison = subprocess.run(
-        [
-            "pineappl",
-            "diff",
-            "--ignore_orders",
-            str(pineappl_path),
-            str(fktable_path),
-            pdf,
-        ],
-        capture_output=True,
-    )
-    # parse to data frame
-    df = build_data_frame(comparison.stdout.decode())
-    df.set_index("bin", inplace=True)
-    # remove bins' upper edges when bins are trivial
-    obs_labels = np.unique(
-        [lab for lab in filter(lambda lab: "_" in lab and "my" not in lab, df.columns)]
-    )
-    df.drop(obs_labels, axis=1, inplace=True)
-    # print("\n".join(output))
-    return df
-
-def compare2(pineappl, fktable, pdf):
+def compare(pineappl, fktable, pdf):
     """
     Build comparison table.
 
@@ -92,17 +46,18 @@ def compare2(pineappl, fktable, pdf):
         df : pd.DataFrame
             comparison table
     """
-    import lhapdf
+    import lhapdf  # pylint: disable=import-outside-toplevel
+
     pdfset = lhapdf.mkPDF(pdf, 0)
-    before = pineappl.convolute(
-        pdfset.xfxQ2,
-        lambda pdg_id, x, q2: 1.0,
-        pdfset.alphasQ2
+    before = np.array(
+        pineappl.convolute(pdfset.xfxQ2, lambda pdg_id, x, q2: 1.0, pdfset.alphasQ2)
     )
-    after = fktable.convolute(
-        lambda pdg_id, x, q2: pdfset.xfxQ2(pdg_id, x, q2),
-        lambda pdg_id, x, q2: 1.0,
-        lambda q2: pdfset.alphasQ2(q2)
+    after = np.array(
+        fktable.convolute(
+            evol_xfxQ2(pdfset),
+            lambda pdg_id, x, q2: 1.0,
+            pdfset.alphasQ2,
+        )
     )
     df = pd.DataFrame()
     # add bin info
@@ -112,4 +67,5 @@ def compare2(pineappl, fktable, pdf):
     # add data
     df["PineAPPL"] = before
     df["FkTable"] = after
+    df["percent_error"] = (after / before - 1.0) * 100.0
     return df

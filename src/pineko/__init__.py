@@ -4,8 +4,9 @@ import pineappl
 import rich
 import rich.box
 import rich.panel
+import eko.basis_rotation as br
 
-from .comparator import compare2
+from .comparator import compare
 
 
 def check_grid_and_eko_compatible(pineappl_grid, operators):
@@ -53,11 +54,15 @@ def convolute(pineappl_path, eko_path, fktable_path, comparison_pdf=None):
     pineappl_grid = pineappl.grid.Grid.read(str(pineappl_path))
     operators = eko.output.Output.load_yaml_from_file(eko_path)
     check_grid_and_eko_compatible(pineappl_grid, operators)
+    # rotate to evolution (if doable and necessary)
+    if np.allclose(operators["inputpids"], br.flavor_basis_pids):
+        operators.to_evol()
+    elif not np.allclose(operators["inputpids"], br.evol_basis_pids):
+        raise ValueError("The EKO is neither in flavor nor in evolution basis.")
     # do it
     fktable = pineappl_grid.convolute_eko(operators)
     # write
     fktable.write(str(fktable_path))
     # compare before after
     if comparison_pdf is not None:
-        #print(compare(pineappl_path, fktable_path, comparison_pdf))
-        print(compare2(pineappl_grid, fktable, comparison_pdf))
+        print(compare(pineappl_grid, fktable, comparison_pdf))

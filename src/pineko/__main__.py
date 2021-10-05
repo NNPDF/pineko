@@ -14,6 +14,7 @@ cmds = ap.add_subparsers()
 def cli_convolute(args):
     return convolute(args.pineappl, args.eko, args.fktable, args.pdf)
 
+
 conv = cmds.add_parser("convolute")
 conv.add_argument("pineappl", help="Path to PineAPPL grid")
 conv.add_argument("eko", help="Path to EKO output")
@@ -29,7 +30,8 @@ def cli_check(args):
         check_grid_and_eko_compatible(pineappl_grid, operators)
         rich.print("[green]Success:[/] grids are compatible")
     except ValueError as e:
-        rich.print("[red]Error:[/]",e)
+        rich.print("[red]Error:[/]", e)
+
 
 conv = cmds.add_parser("check")
 conv.add_argument("pineappl", help="Path to PineAPPL grid")
@@ -39,6 +41,7 @@ conv.set_defaults(func=cli_check)
 # compare
 def cli_compare(args):
     print(compare(args.pineappl, args.fktable, args.pdf))
+
 
 conv = cmds.add_parser("compare")
 conv.add_argument("pineappl", help="Path to PineAPPL grid")
