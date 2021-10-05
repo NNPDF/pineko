@@ -46,9 +46,9 @@ def convolute(pineappl_path, eko_path, fktable_path, comparison_pdf=None):
     """
     rich.print(
         rich.panel.Panel.fit(f"Computing ...", style="magenta", box=rich.box.SQUARE),
-        f"  {pineappl_path}",
-        f"\n+ {eko_path}",
-        f"\n= {fktable_path}",
+        f"   {pineappl_path}\n",
+        f"+ {eko_path}\n",
+        f"= {fktable_path}",
     )
     # load
     pineappl_grid = pineappl.grid.Grid.read(str(pineappl_path))
@@ -60,7 +60,7 @@ def convolute(pineappl_path, eko_path, fktable_path, comparison_pdf=None):
     elif not np.allclose(operators["inputpids"], br.evol_basis_pids):
         raise ValueError("The EKO is neither in flavor nor in evolution basis.")
     # do it
-    fktable = pineappl_grid.convolute_eko(operators)
+    fktable = pineappl_grid.convolute_eko(operators, dict(lumi_id_types="evol"))
     # write
     fktable.write(str(fktable_path))
     # compare before after
