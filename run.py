@@ -32,8 +32,8 @@ def ensure_eko(pineappl_path, target_filename):
         operators_card = yaml.safe_load(f)
 
     pineappl_grid = pineappl.grid.Grid.read(str(pineappl_path))
-    x_grid, q2_grid = pineappl_grid.eko_info()
-    operators_card["Q2grid"] = q2_grid
+    x_grid,_pids,muf2_grid = pineappl_grid.axes() 
+    operators_card["Q2grid"] = muf2_grid
     operators_card["interpolation_xgrid"] = x_grid
     ops = eko.run_dglap(theory_card=theory_card, operators_card=operators_card)
     ops.dump_yaml_to_file(target_filename)

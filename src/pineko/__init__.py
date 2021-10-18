@@ -20,9 +20,9 @@ def check_grid_and_eko_compatible(pineappl_grid, operators):
         operators : eko.output.Output
             operators
     """
-    x_grid, q2_grid = pineappl_grid.eko_info()
+    x_grid,_pids,muf2_grid = pineappl_grid.axes()    
     # Q2 grid
-    if not np.allclose(list(operators["Q2grid"].keys()), q2_grid):
+    if not np.allclose(list(operators["Q2grid"].keys()), muf2_grid):
         raise ValueError("Q2 grid in pineappl grid and eko operator are NOT the same!")
     # x-grid
     if not np.allclose(operators["interpolation_xgrid"], x_grid):
@@ -60,7 +60,8 @@ def convolute(pineappl_path, eko_path, fktable_path, comparison_pdf=None):
     elif not np.allclose(operators["inputpids"], br.evol_basis_pids):
         raise ValueError("The EKO is neither in flavor nor in evolution basis.")
     # do it
-    fktable = pineappl_grid.convolute_eko(operators, dict(lumi_id_types="evol"))
+    fktable = pineappl_grid.convolute_eko(operators, "evol")
+    fktable.optimize()
     # write
     fktable.write(str(fktable_path))
     # compare before after
