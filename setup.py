@@ -49,6 +49,7 @@ def setup_package():
             "numpy",
             "pandas",
             "rich",
+            "lz4",
         ],
         python_requires=">=3.7",
     )
