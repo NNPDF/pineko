@@ -1,4 +1,5 @@
 import argparse
+import pathlib
 
 import pineappl
 import eko
@@ -12,7 +13,7 @@ cmds = ap.add_subparsers()
 
 # convolute
 def cli_convolute(args):
-    return convolute(args.pineappl, args.eko, args.fktable, args.pdf)
+    return convolute(args.pineappl, args.eko, pathlib.Path(args.fktable), args.pdf)
 
 
 conv = cmds.add_parser("convolute")
@@ -40,7 +41,9 @@ conv.set_defaults(func=cli_check)
 
 # compare
 def cli_compare(args):
-    print(compare(args.pineappl, args.fktable, args.pdf))
+    pineappl_grid = pineappl.grid.Grid.read(args.pineappl)
+    fk_table = pineappl.fk_table.FkTable.read(args.fktable)
+    print(compare(pineappl_grid, fk_table, args.pdf))
 
 
 conv = cmds.add_parser("compare")

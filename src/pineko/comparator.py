@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import eko.basis_rotation as br
 
 
 def compare(pineappl, fktable, pdf):
