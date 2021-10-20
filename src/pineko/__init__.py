@@ -29,6 +29,7 @@ def check_grid_and_eko_compatible(pineappl_grid, operators):
     if not np.allclose(operators["interpolation_xgrid"], x_grid):
         raise ValueError("x grid in pineappl grid and eko operator are NOT the same!")
 
+
 def compress(path):
     """
     Compress a file into lz4.
@@ -50,6 +51,7 @@ def compress(path):
         fd.write(path.read_bytes())
 
     return compressed_path
+
 
 def convolute(pineappl_path, eko_path, fktable_path, comparison_pdf=None):
     """
