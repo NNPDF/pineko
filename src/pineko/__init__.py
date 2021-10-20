@@ -93,4 +93,4 @@ def convolute(pineappl_path, eko_path, fktable_path, comparison_pdf=None):
         fktable_path.unlink()
     # compare before after
     if comparison_pdf is not None:
-        print(compare(pineappl_grid, fktable, comparison_pdf))
+        print(compare(pineappl_grid, fktable, comparison_pdf).to_string())
