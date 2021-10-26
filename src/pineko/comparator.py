@@ -23,15 +23,9 @@ def compare(pineappl, fktable, pdf):
     import lhapdf  # pylint: disable=import-outside-toplevel
 
     pdfset = lhapdf.mkPDF(pdf, 0)
-    before = np.array(
-        pineappl.convolute(pdfset.xfxQ2, lambda pdg_id, x, q2: 1.0, pdfset.alphasQ2)
-    )
-    after = np.array(
-        fktable.convolute(
-            pdfset.xfxQ2,
-            lambda pdg_id, x, q2: 1.0,
-        )
-    )
+    pdgid = int(pdfset.set().get_entry("Particle"))
+    before = np.array(pineappl.convolute_with_one(pdgid, pdfset.xfxQ2, pdfset.alphasQ2))
+    after = np.array(fktable.convolute_with_one(pdgid, pdfset.xfxQ2))
     df = pd.DataFrame()
     # add bin info
     for d in range(pineappl.bin_dimensions()):
