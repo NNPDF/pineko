@@ -16,11 +16,11 @@ mydis_path = data / "mydis.pineappl"
 mydis_yaml_path = data / "mydis.yaml"
 mydy_path = data / "ATLASZHIGHMASS49FB.pineappl.lz4"
 mydylo_path = data / "ATLASZHIGHMASS49FB-LO.pineappl.lz4"
-myttbar_path = data / "CMSTTBARTOT5TEV.pineappl.lz4"
+myttbar_path = data / "ATLAS_TTB_8TEV_TOT.pineappl.lz4"
 myttbarlo_path = data / "CMSTTBARTOT5TEV-LO.pineappl.lz4"
 myfktable_base_path = data / "myfktable.pineappl"
 
-with open(data / "theory.yaml") as f:
+with open(data / "theory_208.yaml") as f:
     theory_card = yaml.safe_load(f)
 
 
@@ -34,7 +34,7 @@ def ensure_eko(pineappl_path, target_filename):
     pineappl_grid = pineappl.grid.Grid.read(str(pineappl_path))
     x_grid, _pids, muf2_grid = pineappl_grid.axes()
     operators_card["Q2grid"] = muf2_grid
-    operators_card["interpolation_xgrid"] = x_grid
+    operators_card["targetgrid"] = x_grid
     ops = eko.run_dglap(theory_card=theory_card, operators_card=operators_card)
     ops.dump_yaml_to_file(target_filename)
 
@@ -51,7 +51,7 @@ def generate_yadism(target_filename):
 
 
 # collect all path and fake the objects
-pineappl_path = mydis_path
+pineappl_path = myttbar_path
 if "dis" in str(pineappl_path):
     generate_yadism(pineappl_path)
 myoperator_path = myoperator_base_path.with_suffix(f".{pineappl_path.stem}.yaml")
@@ -60,4 +60,4 @@ myfktable_path = myfktable_base_path.with_suffix(
     "." + pineappl_path.stem + myfktable_base_path.suffix
 )
 # doit
-convolute(pineappl_path, myoperator_path, myfktable_path, "CT14llo_NF4")
+convolute(pineappl_path, myoperator_path, myfktable_path, "NNPDF40_nlo_as_01180")

@@ -26,7 +26,7 @@ def check_grid_and_eko_compatible(pineappl_grid, operators):
     if not np.allclose(list(operators["Q2grid"].keys()), muf2_grid):
         raise ValueError("Q2 grid in pineappl grid and eko operator are NOT the same!")
     # x-grid
-    if not np.allclose(operators["interpolation_xgrid"], x_grid):
+    if not np.allclose(operators["targetgrid"], x_grid):
         raise ValueError("x grid in pineappl grid and eko operator are NOT the same!")
 
 

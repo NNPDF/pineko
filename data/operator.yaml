@@ -1,5 +1,5 @@
 ev_op_max_order: 10
-ev_op_iterations: 10
+ev_op_iterations: 1
 backward_inversion: "exact"
 Q2grid: [50.]
 # interpolation
