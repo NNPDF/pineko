@@ -45,6 +45,7 @@ def setup_package():
         ],
         install_requires=[
             "eko<0.8",
+            "pineappl==0.5.0-beta.2",
             "pyyaml",
             "numpy",
             "pandas",
