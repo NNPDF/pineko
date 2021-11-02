@@ -53,6 +53,36 @@ def compress(path):
     return compressed_path
 
 
+def order_finder(pine):
+    """
+    Returns masks for LO+QCD and EW.
+    
+    Parameters
+    ----------
+        pine : pineappl.grid.Grid
+            PineAPPL grid
+
+    Returns
+    -------
+        mask_qcd : list(bool)
+            LO + QCD
+        mask_ew : list(bool)
+            EW
+    """
+    qcd = np.array([1,0,0,0])
+    ew = np.array([0,1,0,0])
+    orders = [np.array(orde.as_tuple()) for orde in pine.orders()]
+    LO = orders[0]
+    mask_qcd = [True] + [False]*(len(orders)-1)
+    mask_ew = [False] + [False]*(len(orders)-1)
+    for i, order in enumerate(orders):
+        if np.allclose(order, LO+qcd):
+            mask_qcd[i] = True
+        if np.allclose(order, LO+ew):
+            mask_ew[i] = True
+    return mask_qcd, mask_ew
+
+
 def convolute(pineappl_path, eko_path, fktable_path, comparison_pdf=None):
     """
     Invoke steps from file paths.
@@ -84,7 +114,8 @@ def convolute(pineappl_path, eko_path, fktable_path, comparison_pdf=None):
     elif not np.allclose(operators["inputpids"], br.evol_basis_pids):
         raise ValueError("The EKO is neither in flavor nor in evolution basis.")
     # do it
-    fktable = pineappl_grid.convolute_eko(operators, "evol")
+    order_mask_qcd, _ = order_finder(pineappl_grid)
+    fktable = pineappl_grid.convolute_eko(operators, "evol", order_mask=order_mask_qcd)
     # write
     fktable.write(str(fktable_path))
     # compress
