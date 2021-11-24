@@ -10,6 +10,23 @@ import eko.basis_rotation as br
 from .comparator import compare
 
 
+def in1d(a, b, rtol=1e-05, atol=1e-08):
+    """
+    Improved version of np.in1d.
+
+    Thanks: https://github.com/numpy/numpy/issues/7784#issuecomment-848036186
+    """
+    if len(a) == 1:
+        for be in b:
+            if np.isclose(be, a[0], rtol=rtol, atol=atol):
+                return [True]
+        return [False]
+    ss = np.searchsorted(a[1:-1], b, side="left")
+    return np.isclose(a[ss], b, rtol=rtol, atol=atol) | np.isclose(
+        a[ss + 1], b, rtol=rtol, atol=atol
+    )
+
+
 def check_grid_and_eko_compatible(pineappl_grid, operators):
     """
     Raises a `ValueError` if the EKO operators and the PineAPPL grid are NOT compatible.
@@ -23,40 +40,21 @@ def check_grid_and_eko_compatible(pineappl_grid, operators):
     """
     x_grid, _pids, muf2_grid = pineappl_grid.axes()
     # Q2 grid
-    if not np.allclose(list(operators["Q2grid"].keys()), muf2_grid):
-        raise ValueError("Q2 grid in pineappl grid and eko operator are NOT the same!")
+    if not np.all(
+        in1d(np.unique(list(operators["Q2grid"].keys())), np.array(muf2_grid))
+    ):
+        raise ValueError(
+            "Q2 grid in pineappl grid and eko operator are NOT compatible!"
+        )
     # x-grid
-    if not np.allclose(operators["targetgrid"], x_grid):
-        raise ValueError("x grid in pineappl grid and eko operator are NOT the same!")
-
-
-def compress(path):
-    """
-    Compress a file into lz4.
-
-    Parameters
-    ----------
-        path : pathlib.Path
-            input path
-
-    Returns
-    -------
-        pathlib.Path
-            path to compressed file
-    """
-    compressed_path = path.with_suffix(".pineappl.lz4")
-    with lz4.frame.open(
-        compressed_path, "wb", compression_level=lz4.frame.COMPRESSIONLEVEL_MAX
-    ) as fd:
-        fd.write(path.read_bytes())
-
-    return compressed_path
+    if not np.all(in1d(np.unique(operators["targetgrid"]), np.array(x_grid))):
+        raise ValueError("x grid in pineappl grid and eko operator are NOT compatible!")
 
 
 def order_finder(pine):
     """
     Returns masks for LO+QCD and EW.
-    
+
     Parameters
     ----------
         pine : pineappl.grid.Grid
@@ -69,16 +67,16 @@ def order_finder(pine):
         mask_ew : list(bool)
             EW
     """
-    qcd = np.array([1,0,0,0])
-    ew = np.array([0,1,0,0])
+    qcd = np.array([1, 0, 0, 0])
+    ew = np.array([0, 1, 0, 0])
     orders = [np.array(orde.as_tuple()) for orde in pine.orders()]
     LO = orders[0]
-    mask_qcd = [True] + [False]*(len(orders)-1)
-    mask_ew = [False] + [False]*(len(orders)-1)
+    mask_qcd = [True] + [False] * (len(orders) - 1)
+    mask_ew = [False] + [False] * (len(orders) - 1)
     for i, order in enumerate(orders):
-        if np.allclose(order, LO+qcd):
+        if np.allclose(order, LO + qcd):
             mask_qcd[i] = True
-        if np.allclose(order, LO+ew):
+        if np.allclose(order, LO + ew):
             mask_ew[i] = True
     return mask_qcd, mask_ew
 
@@ -106,7 +104,7 @@ def convolute(pineappl_path, eko_path, fktable_path, comparison_pdf=None):
     )
     # load
     pineappl_grid = pineappl.grid.Grid.read(str(pineappl_path))
-    operators = eko.output.Output.load_yaml_from_file(eko_path)
+    operators = eko.output.Output.load_tar(eko_path)
     check_grid_and_eko_compatible(pineappl_grid, operators)
     # rotate to evolution (if doable and necessary)
     if np.allclose(operators["inputpids"], br.flavor_basis_pids):
@@ -117,11 +115,7 @@ def convolute(pineappl_path, eko_path, fktable_path, comparison_pdf=None):
     order_mask_qcd, _ = order_finder(pineappl_grid)
     fktable = pineappl_grid.convolute_eko(operators, "evol", order_mask=order_mask_qcd)
     # write
-    fktable.write(str(fktable_path))
-    # compress
-    compressed_path = compress(fktable_path)
-    if compressed_path.exists():
-        fktable_path.unlink()
+    fktable.write_lz4(str(fktable_path))
     # compare before after
     if comparison_pdf is not None:
         print(compare(pineappl_grid, fktable, comparison_pdf).to_string())
