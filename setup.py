@@ -44,8 +44,8 @@ def setup_package():
             "Topic :: Scientific/Engineering :: Physics",
         ],
         install_requires=[
-            "eko<0.8",
-            "pineappl==0.5.0-beta.2",
+            "eko<0.9",
+            "pineappl==0.5.0-beta.5",
             "pyyaml",
             "numpy",
             "pandas",
