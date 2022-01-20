@@ -37,3 +37,6 @@ ktThr: 1.0
 mb: 4.92
 mc: 1.51
 mt: 172.5
+nfref: null
+nf0: null
+fact_to_ren_scale_ratio: 1.0
