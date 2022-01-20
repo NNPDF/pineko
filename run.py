@@ -5,7 +5,6 @@ import pathlib
 
 import eko
 import pineappl
-import yadism
 import yaml
 
 from pineko import convolute
@@ -36,25 +35,26 @@ def ensure_eko(pineappl_path, target_filename):
     operators_card["Q2grid"] = muf2_grid
     operators_card["targetgrid"] = x_grid
     ops = eko.run_dglap(theory_card=theory_card, operators_card=operators_card)
-    ops.dump_yaml_to_file(target_filename)
+    ops.dump_tar(target_filename)
 
 
 def generate_yadism(target_filename):
     """Generate yadism on the fly"""
+    import yadism
     t = theory_card.copy()
     t["PTO"] = 1
     with open(data / "observable.yaml") as f:
         observable_card = yaml.safe_load(f)
     dis_cf = yadism.run_yadism(theory=t, observables=observable_card)
     dis_cf.dump_pineappl_to_file(str(target_filename), "F2_total")
-    dis_cf.dump_yaml_to_file(str(mydis_yaml_path))
+    dis_cf.dump_tar(str(mydis_yaml_path))
 
 
 # collect all path and fake the objects
 pineappl_path = myttbar_path
 if "dis" in str(pineappl_path):
     generate_yadism(pineappl_path)
-myoperator_path = myoperator_base_path.with_suffix(f".{pineappl_path.stem}.yaml")
+myoperator_path = myoperator_base_path.with_suffix(f".{pineappl_path.stem}.tar")
 ensure_eko(pineappl_path, myoperator_path)
 myfktable_path = myfktable_base_path.with_suffix(
     "." + pineappl_path.stem + myfktable_base_path.suffix
