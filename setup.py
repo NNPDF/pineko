@@ -31,7 +31,7 @@ def setup_package():
         description="Combine PineAPPLgrids and EKOs",
         long_description=long_description,
         long_description_content_type="text/markdown",
-        author="A. Candido, S. Carrazza, J. Cruz Martinez, F. Hekhorn, C. Schwan",
+        author="A. Candido, J. Cruz Martinez, F. Hekhorn, C. Schwan",
         author_email="stefano.carrazza@cern.ch",
         url="https://github.com/N3PDF/pineko",
         package_dir={"": "src"},
@@ -45,7 +45,7 @@ def setup_package():
         ],
         install_requires=[
             "eko<0.9",
-            "pineappl==0.5.0-beta.5",
+            "pineappl==0.5.0-beta.6",
             "pyyaml",
             "numpy",
             "pandas",

@@ -41,3 +41,7 @@ MP: 0.938
 Comments: NNPDF4.0 NLO alphas=0.118
 global_nx: 0
 EScaleVar: 1
+kDIScThr: 1.0
+kDISbThr: 1.0
+kDIStThr: 1.0
+IB: 0

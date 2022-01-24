@@ -40,3 +40,7 @@ mt: 172.5
 nfref: null
 nf0: null
 fact_to_ren_scale_ratio: 1.0
+kDIScThr: 1.0
+kDISbThr: 1.0
+kDIStThr: 1.0
+IB: 0
