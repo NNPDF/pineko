@@ -13,13 +13,15 @@ cmds = ap.add_subparsers()
 
 # convolute
 def cli_convolute(args):
-    return convolute(args.pineappl, args.eko, pathlib.Path(args.fktable), args.pdf)
+    return convolute(args.pineappl, args.eko, pathlib.Path(args.fktable), args.max_as, args.max_al, args.pdf)
 
 
 conv = cmds.add_parser("convolute")
 conv.add_argument("pineappl", help="Path to PineAPPL grid")
 conv.add_argument("eko", help="Path to EKO output")
 conv.add_argument("fktable", help="Target path for FK table")
+conv.add_argument("max_as", help="QCD coupling order")
+conv.add_argument("max_al", help="EW coupling order")
 conv.add_argument("--pdf", default=None, help="if given, print comparison table")
 conv.set_defaults(func=cli_convolute)
 
@@ -43,12 +45,14 @@ conv.set_defaults(func=cli_check)
 def cli_compare(args):
     pineappl_grid = pineappl.grid.Grid.read(args.pineappl)
     fk_table = pineappl.fk_table.FkTable.read(args.fktable)
-    print(compare(pineappl_grid, fk_table, args.pdf))
+    print(compare(pineappl_grid, fk_table, args.max_as, args.max_al, args.pdf))
 
 
 conv = cmds.add_parser("compare")
 conv.add_argument("pineappl", help="Path to PineAPPL grid")
 conv.add_argument("fktable", help="Path to FK table grid")
+conv.add_argument("max_as", help="QCD coupling order")
+conv.add_argument("max_al", help="EW coupling order")
 conv.add_argument("pdf", help="PDF set name")
 conv.set_defaults(func=cli_compare)
 

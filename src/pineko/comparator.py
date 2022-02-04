@@ -4,7 +4,7 @@ import pandas as pd
 import pineappl
 
 
-def compare(pine, fktable, pdf):
+def compare(pine, fktable, max_as, max_al, pdf):
     """
     Build comparison table.
 
@@ -14,6 +14,10 @@ def compare(pine, fktable, pdf):
             uncovoluted grid
         fktable : pineappl.fktable.FkTable
             convoluted grid
+        max_as : int
+            maximum power of strong coupling
+        max_al : int
+            maximum power of electro-weak coupling
         pdf : str
             PDF set name
 
@@ -26,7 +30,7 @@ def compare(pine, fktable, pdf):
 
     pdfset = lhapdf.mkPDF(pdf, 0)
     pdgid = int(pdfset.set().get_entry("Particle"))
-    order_mask = pineappl.grid.Order.create_mask(pine.orders(), 2, 0)
+    order_mask = pineappl.grid.Order.create_mask(pine.orders(), max_as, max_al)
     before = np.array(
         pine.convolute_with_one(
             pdgid, pdfset.xfxQ2, pdfset.alphasQ2, order_mask=order_mask

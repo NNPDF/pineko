@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 # -*- coding: utf-8 -*-
+import logging
 import pathlib
+import sys
 
 import eko
 import pineappl
@@ -21,6 +23,14 @@ myfktable_base_path = data / "myfktable.pineappl.lz4"
 
 with open(data / "theory_213.yaml") as f:
     theory_card = yaml.safe_load(f)
+
+# activate logging
+logStdout = logging.StreamHandler(sys.stdout)
+logStdout.setLevel(logging.INFO)
+logStdout.setFormatter(logging.Formatter("%(message)s"))
+logging.getLogger("eko").handlers = []
+logging.getLogger("eko").addHandler(logStdout)
+logging.getLogger("eko").setLevel(logging.INFO)
 
 
 def ensure_eko(pineappl_path, target_filename):
@@ -53,7 +63,8 @@ def generate_yadism(target_filename):
 
 
 # collect all path and fake the objects
-pineappl_path = mydis_path
+pineappl_path = myttbar_path
+# pineappl_path = mydis_path
 if "dis" in str(pineappl_path):
     generate_yadism(pineappl_path)
 pine_stem = str(pineappl_path.stem).rsplit(".", 1)[0]
@@ -62,4 +73,4 @@ ensure_eko(pineappl_path, myoperator_path)
 fk_stem = str(myfktable_base_path.stem).rsplit(".", 1)[0]
 myfktable_path = data / (fk_stem + "-" + pine_stem + ".pineappl.lz4")
 # doit
-convolute(pineappl_path, myoperator_path, myfktable_path, "NNPDF40_lo_as_01180")
+convolute(pineappl_path, myoperator_path, myfktable_path, 1+theory_card["PTO"], 0, "NNPDF40_lo_as_01180")

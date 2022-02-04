@@ -51,37 +51,9 @@ def check_grid_and_eko_compatible(pineappl_grid, operators):
         raise ValueError("x grid in pineappl grid and eko operator are NOT compatible!")
 
 
-def order_finder(pine):
-    """
-    Returns masks for LO+QCD and EW.
-
-    Parameters
-    ----------
-        pine : pineappl.grid.Grid
-            PineAPPL grid
-
-    Returns
-    -------
-        mask_qcd : list(bool)
-            LO + QCD
-        mask_ew : list(bool)
-            EW
-    """
-    qcd = np.array([1, 0, 0, 0])
-    ew = np.array([0, 1, 0, 0])
-    orders = [np.array(orde.as_tuple()) for orde in pine.orders()]
-    LO = orders[0]
-    mask_qcd = [True] + [False] * (len(orders) - 1)
-    mask_ew = [False] + [False] * (len(orders) - 1)
-    for i, order in enumerate(orders):
-        if np.allclose(order, LO + qcd):
-            mask_qcd[i] = True
-        if np.allclose(order, LO + ew):
-            mask_ew[i] = True
-    return mask_qcd, mask_ew
-
-
-def convolute(pineappl_path, eko_path, fktable_path, comparison_pdf=None):
+def convolute(
+    pineappl_path, eko_path, fktable_path, max_as, max_al, comparison_pdf=None
+):
     """
     Invoke steps from file paths.
 
@@ -93,6 +65,10 @@ def convolute(pineappl_path, eko_path, fktable_path, comparison_pdf=None):
             evolution operator
         fktable_path : str
             target path for convoluted grid
+        max_as : int
+            maximum power of strong coupling
+        max_al : int
+            maximum power of electro-weak coupling
         comparison_pdf : None or str
             if given, a comparison table (with / without evolution) will be printed
     """
@@ -112,10 +88,12 @@ def convolute(pineappl_path, eko_path, fktable_path, comparison_pdf=None):
     elif not np.allclose(operators["inputpids"], br.evol_basis_pids):
         raise ValueError("The EKO is neither in flavor nor in evolution basis.")
     # do it
-    order_mask_qcd, _ = order_finder(pineappl_grid)
-    fktable = pineappl_grid.convolute_eko(operators, "evol", order_mask=order_mask_qcd)
+    order_mask = pineappl.grid.Order.create_mask(pineappl_grid.orders(), max_as, max_al)
+    fktable = pineappl_grid.convolute_eko(operators, "evol", order_mask=order_mask)
     # write
     fktable.write_lz4(str(fktable_path))
     # compare before after
     if comparison_pdf is not None:
-        print(compare(pineappl_grid, fktable, comparison_pdf).to_string())
+        print(
+            compare(pineappl_grid, fktable, max_as, max_al, comparison_pdf).to_string()
+        )
