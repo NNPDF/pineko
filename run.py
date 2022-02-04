@@ -73,4 +73,11 @@ ensure_eko(pineappl_path, myoperator_path)
 fk_stem = str(myfktable_base_path.stem).rsplit(".", 1)[0]
 myfktable_path = data / (fk_stem + "-" + pine_stem + ".pineappl.lz4")
 # doit
-convolute(pineappl_path, myoperator_path, myfktable_path, 1+theory_card["PTO"], 0, "NNPDF40_lo_as_01180")
+convolute(
+    pineappl_path,
+    myoperator_path,
+    myfktable_path,
+    1 + theory_card["PTO"],
+    0,
+    "NNPDF40_lo_as_01180",
+)
