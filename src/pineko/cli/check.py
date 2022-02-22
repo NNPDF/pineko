@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import click
+import eko.output
+import pineappl
 import rich
 
 from .. import check
@@ -7,16 +9,16 @@ from ._base import command
 
 
 @command.command("check")
-@click.argument("pineappl", type=click.Path(exists=True))
-@click.argument("eko", type=click.Path(exists=True))
-def subcommand(pineappl, eko):
+@click.argument("pineappl_path", metavar="PINEAPPL", type=click.Path(exists=True))
+@click.argument("eko_path", metavar="EKO", type=click.Path(exists=True))
+def subcommand(pineappl_path, eko_path):
     """Check PineAPPL grid and EKO compatibility.
 
     In order to be compatible, the grid provided in PINEAPPL and the operator
     provided in EKO, have to expose the same: x grid, Q2 grid.
     """
-    pineappl_grid = pineappl.grid.Grid.read(pineappl)
-    operators = eko.output.Output.load_yaml_from_file(eko)
+    pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
+    operators = eko.output.Output.load_yaml_from_file(eko_path)
     try:
         check.check_grid_and_eko_compatible(pineappl_grid, operators)
         rich.print("[green]Success:[/] grids are compatible")

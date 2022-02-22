@@ -30,6 +30,7 @@ def check_grid_and_eko_compatible(pineappl_grid, operators):
         operators : eko.output.Output
             operators
     """
+    __import__("pdb").set_trace()
     x_grid, _pids, muf2_grid = pineappl_grid.axes()
     # Q2 grid
     if not np.all(
