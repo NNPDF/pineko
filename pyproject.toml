@@ -38,6 +38,9 @@ pytest = "^6.2.4"
 pytest-cov = "^2.12.1"
 pytest-env = "^0.6.2"
 
+[tool.poetry.scripts]
+pineko = "pineko:command"
+
 [tool.poe.tasks]
 test = "pytest tests"
 lint = "pylint src/*/*.py -E"
@@ -45,6 +48,7 @@ lint-warnings = "pylint src/*/*.py --exit-zero"
 black = "black ."
 isort = "isort ."
 format = ["black", "isort"]
+pineko = "pineko"
 
 [tool.poetry-dynamic-versioning]
 enable = true

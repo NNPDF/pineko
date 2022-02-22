@@ -1,12 +1,10 @@
+# -*- coding: utf-8 -*-
 import argparse
 import pathlib
 
-import pineappl
 import eko
+import pineappl
 import rich
-
-from . import convolute, check_grid_and_eko_compatible
-from .comparator import compare
 
 ap = argparse.ArgumentParser()
 cmds = ap.add_subparsers()
