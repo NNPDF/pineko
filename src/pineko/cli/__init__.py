@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
-from . import convolute
+from . import check, convolute
 from ._base import command
