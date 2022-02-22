@@ -1,5 +1,4 @@
 import eko
-import lz4
 import numpy as np
 import pineappl
 import rich
@@ -8,6 +7,8 @@ import rich.panel
 import eko.basis_rotation as br
 
 from .comparator import compare
+
+__version__ = "0.0.0"
 
 
 def in1d(a, b, rtol=1e-05, atol=1e-08):

@@ -1,3 +1,53 @@
 [build-system]
-requires = ['setuptools >= 40.9.0', 'wheel', 'packutil']
-build-backend = 'setuptools.build_meta'
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "pineko"
+version = "0.1.0"
+description = "Combine PineAPPL grids and EKOs"
+authors = [
+  "Alessandro Candido <alessandro.candido@mi.infn.it>",
+  "Juan Cruz Martinez <juan.cruz@mi.infn.it>",
+  "Felix Hekhorn <felix.hekhorn@mi.infn.it>",
+  "Christopher Schwan <christopher.schwan@physik.uni-wuerzburg.de>",
+]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.11"
+eko = "^0.8.5"
+pineappl = "^0.5.0"
+PyYAML = "^6.0"
+numpy = "^1.21.0"
+pandas = "^1.4.1"
+rich = "^11.2.0"
+
+[tool.poetry.dev-dependencies]
+# code review
+black = "^21.6b0"
+isort = "^5.9.2"
+pylint = "^2.9.3"
+# debug / explore
+pdbpp = "^0.10.3"
+ipython = "^7.28.0"
+# test
+pytest = "^6.2.4"
+pytest-cov = "^2.12.1"
+pytest-env = "^0.6.2"
+
+[tool.poe.tasks]
+test = "pytest tests"
+lint = "pylint src/*/*.py -E"
+lint-warnings = "pylint src/*/*.py --exit-zero"
+black = "black ."
+isort = "isort ."
+format = ["black", "isort"]
+
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+style = "semver"
+dirty = true
+
+[tool.poetry-dynamic-versioning.substitution]
+files = ["src/pineko/__init__.py"]
