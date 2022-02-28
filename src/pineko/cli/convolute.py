@@ -15,7 +15,7 @@ from ._base import command
     "--pdf", default=None, help="if given, print comparison table", show_default=True
 )
 def subcommand(pineappl, eko, fktable, max_as, max_al, pdf):
-    """Convolute PineAPPL grid and EKO, to obtain the resulting fktable.
+    """Convolute PineAPPL grid and EKO.
 
     PINEAPPL and EKO are the path to the respective elements to convolute, and
     FKTABLE is the path where to dump the output.

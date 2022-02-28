@@ -13,26 +13,6 @@ import yaml
 
 from . import check, comparator
 
-def write_operator_card_from_file(pineappl_path, default_card_path, card_path):
-    """Generate operator card for a grid.
-    
-    Parameters
-    ----------
-    pineappl_path : str or os.PathLike
-        path to grid to evolve
-    default_card : str or os.PathLike
-        base operator card
-    card_path : str or os.PathLike
-        target path
-    """
-    # raise in python rather then rust
-    if not pathlib.Path(pineappl_path).exists():
-        raise FileNotFoundError(pineappl_path)
-    pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
-    with open(default_card_path, "r", encoding="UTF-8") as f:
-        default_card = yaml.safe_load(f)
-    write_operator_card(pineappl_grid, default_card, card_path)
-
 def write_operator_card(pineappl_grid, default_card, card_path):
     """Generate operator card for this grid.
     
@@ -49,9 +29,9 @@ def write_operator_card(pineappl_grid, default_card, card_path):
     x_grid, _pids, q2_grid = pineappl_grid.axes()
     operators_card["targetgrid"] = x_grid.tolist()
     operators_card["Q2grid"] = q2_grid.tolist()
-    print(f"Writing card with {len(q2_grid)} Q2 points to {card_path}")
     with open(card_path, "w", encoding="UTF-8") as f:
         yaml.safe_dump(operators_card, f)
+    return x_grid, q2_grid
 
 def evolve_grid(
     pineappl_path, eko_path, fktable_path, max_as, max_al, comparison_pdf=None

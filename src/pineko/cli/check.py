@@ -15,7 +15,7 @@ def subcommand(pineappl_path, eko_path):
     """Check PineAPPL grid and EKO compatibility.
 
     In order to be compatible, the grid provided in PINEAPPL and the operator
-    provided in EKO, have to expose the same: x grid, Q2 grid.
+    provided in EKO, have to expose the same x grid and Q2 grid.
     """
     pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
     operators = eko.output.Output.load_yaml_from_file(eko_path)
