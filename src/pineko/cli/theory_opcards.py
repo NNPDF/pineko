@@ -2,7 +2,7 @@
 import click
 import rich
 
-from .. import parser, configs, evolve
+from .. import configs, evolve, parser
 from ._base import command
 
 
@@ -14,15 +14,13 @@ def subcommand(theory_id, datasets):
     paths = configs.configs.paths
     for ds in datasets:
         rich.print(f"Analyze {ds}")
-        try:
-            _info, grids = parser.get_yaml_information(paths.ymldb / f"{ds}.yaml", paths.grids / str(theory_id))
-        except FileNotFoundError:
-            _info, grids = parser.get_yaml_information(paths.ymldb / f"{ds}.yaml", paths.grids_common)
-        # the list is still nested, so flatten
-        grids = [grid for opgrids in grids for grid in opgrids]
-        for grid in grids:
-            name = grid.stem.rsplit(".",1)[0]
-            opcard_path = paths.opcards / f"{name}.yaml"
-            x_grid, q2_grid = evolve.write_operator_card_from_file(grid, paths.opcard_template,opcard_path)
-            rich.print(f"[green]Success:[/] Wrote card with {len(q2_grid)} Q2 points to {opcard_path}")
+        grids = parser.load_grids(theory_id, ds)
+        for name, grid in grids.items():
+            opcard_path = paths.operator_cards / f"{name}.yaml"
+            x_grid, q2_grid = evolve.write_operator_card_from_file(
+                grid, paths.opcard_template, opcard_path
+            )
+            rich.print(
+                f"[green]Success:[/] Wrote card with {len(q2_grid)} Q2 points to {opcard_path}"
+            )
         print()

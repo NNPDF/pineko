@@ -1,9 +1,13 @@
-import yaml
-# ATTENTION: this is a partial copy from 
+# -*- coding: utf-8 -*-
+# ATTENTION: this is a partial copy from
 # https://github.com/NNPDF/nnpdf/blob/ec73c9c5d3765c8b600e3015d3f5d6238dd89400/validphys2/src/validphys/fkparser.py
 
+import yaml
+
+from . import configs
 
 ext = "pineappl.lz4"
+
 
 class PineAPPLEquivalentNotKnown(Exception):
     pass
@@ -13,9 +17,13 @@ class YamlFileNotFound(FileNotFoundError):
     pass
 
 
+class GridFileNotFound(FileNotFoundError):
+    pass
+
+
 def _load_yaml(yaml_file):
     """Load a dataset.yaml file.
-    
+
     Parameters
     ----------
     yaml_file : Path
@@ -70,7 +78,7 @@ def get_yaml_information(yaml_file, grids_folder, check_pineappl=False):
         for member in operand:
             p = grids_folder / f"{member}.{ext}"
             if not p.exists():
-                raise FileNotFoundError(f"Failed to find {p}")
+                raise GridFileNotFound(f"Failed to find {p}")
             tmp.append(p)
         ret.append(tmp)
 
@@ -82,3 +90,34 @@ def get_yaml_information(yaml_file, grids_folder, check_pineappl=False):
         yaml_content["operation_function"] = yaml_content["operation"]
 
     return yaml_content, ret
+
+
+def load_grids(theory_id, ds):
+    """Load all grids (i.e. process scale) of a dataset.
+
+    Parameters
+    ----------
+    theory_id : int
+        theory id
+    ds : str
+        dataset name
+
+    Returns
+    -------
+    grids : dict
+        mapping basename to path
+    """
+    paths = configs.configs.paths
+    try:
+        _info, grids = get_yaml_information(
+            paths.ymldb / f"{ds}.yaml", paths.grids / str(theory_id)
+        )
+    except GridFileNotFound:
+        _info, grids = get_yaml_information(
+            paths.ymldb / f"{ds}.yaml", paths.grids_common
+        )
+    # the list is still nested, so flatten
+    grids = [grid for opgrids in grids for grid in opgrids]
+    # then turn into a map name -> path
+    grids = {grid.stem.rsplit(".", 1)[0]: grid for grid in grids}
+    return grids

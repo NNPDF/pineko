@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import pathlib
 import typing
-import appdirs
-import tomli
 
+import appdirs
 import rich
+import tomli
 
 name = "pineko.toml"
 "Name of the config while (wherever it is placed)"
@@ -83,7 +83,16 @@ def defaults(base_configs):
 
 
 def add_paths(configs):
-    for key in ["ymldb", "opcards", "grids", "grids_common", "opcard_template"]:
+    for key in [
+        "ymldb",
+        "operator_cards",
+        "grids",
+        "grids_common",
+        "opcard_template",
+        "theory_cards",
+        "fktables",
+        "ekos",
+    ]:
         if key not in configs.paths:
             raise ValueError(f"Configuration is missing a '{key}' key")
         elif pathlib.Path(configs.paths[key]).anchor == "":
@@ -92,6 +101,7 @@ def add_paths(configs):
             configs.paths[key] = pathlib.Path(configs.paths[key])
 
     return configs
+
 
 def detect(path=None):
     paths = []
