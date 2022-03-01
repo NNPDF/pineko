@@ -13,9 +13,10 @@ import yaml
 
 from . import check, comparator
 
+
 def write_operator_card(pineappl_grid, default_card, card_path):
     """Generate operator card for this grid.
-    
+
     Parameters
     ----------
     pineappl_grid : pineappl.grid.Grid
@@ -32,6 +33,7 @@ def write_operator_card(pineappl_grid, default_card, card_path):
     with open(card_path, "w", encoding="UTF-8") as f:
         yaml.safe_dump(operators_card, f)
     return x_grid, q2_grid
+
 
 def evolve_grid(
     pineappl_path, eko_path, fktable_path, max_as, max_al, comparison_pdf=None
@@ -72,6 +74,7 @@ def evolve_grid(
     # do it
     order_mask = pineappl.grid.Order.create_mask(pineappl_grid.orders(), max_as, max_al)
     fktable = pineappl_grid.convolute_eko(operators, "evol", order_mask=order_mask)
+    fktable.optimize()
     # write
     fktable.write_lz4(str(fktable_path))
     # compare before after
