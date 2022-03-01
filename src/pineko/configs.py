@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import pathlib
+import pdb
 import typing
 
 import appdirs
@@ -94,11 +95,24 @@ def add_paths(configs):
         "ekos",
     ]:
         if key not in configs.paths:
-            raise ValueError(f"Configuration is missing a '{key}' key")
+            raise ValueError(f"Configuration is missing a 'paths.{key}' key")
         elif pathlib.Path(configs.paths[key]).anchor == "":
             configs.paths[key] = configs.paths.root / configs.paths[key]
         else:
             configs.paths[key] = pathlib.Path(configs.paths[key])
+
+    if "logs" not in configs.paths:
+        configs.paths["logs"] = Configurations()
+
+    for key in [
+        "eko",
+    ]:
+        if key not in configs.paths.logs:
+            configs.paths.logs[key] = None
+        elif pathlib.Path(configs.paths[key]).anchor == "":
+            configs.paths.logs[key] = configs.paths.root / configs.paths[key]
+        else:
+            configs.paths.logs[key] = pathlib.Path(configs.paths[key])
 
     return configs
 
