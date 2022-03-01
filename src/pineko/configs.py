@@ -83,9 +83,9 @@ def defaults(base_configs):
 
 
 def add_paths(configs):
-    for key, default in dict(grids="grids", ekos="ekos").items():
+    for key in ["ymldb", "opcards"]:
         if key not in configs.paths:
-            configs.paths[key] = configs.paths.root / default
+            raise ValueError(f"Configuration is missing a '{key}' key")
         elif pathlib.Path(configs.paths[key]).anchor == "":
             configs.paths[key] = configs.paths.root / configs.paths[key]
         else:

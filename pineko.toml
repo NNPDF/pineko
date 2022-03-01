@@ -1,0 +1,3 @@
+[paths]
+ymldb = "data/ymldb"
+opcards = "data/operator_cards"
