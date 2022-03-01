@@ -18,8 +18,5 @@ def subcommand(pineappl_path, default_card_path, opcard_path):
     Writes a copy of the default card from DEFAULT_CARD to OPCARD
     with the adjusted x grid and Q2 grid read from PINEAPPL.
     """
-    pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
-    with open(default_card_path, "r", encoding="UTF-8") as f:
-        default_card = yaml.safe_load(f)
-    _x_grid,q2_grid = evolve.write_operator_card(pineappl_grid, default_card, opcard_path)
+    _x_grid,q2_grid = evolve.write_operator_card_from_file(pineappl_path, default_card_path, opcard_path)
     rich.print(f"[green]Success:[/] Wrote card with {len(q2_grid)} Q2 points to {opcard_path}")

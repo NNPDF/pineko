@@ -83,7 +83,7 @@ def defaults(base_configs):
 
 
 def add_paths(configs):
-    for key in ["ymldb", "opcards"]:
+    for key in ["ymldb", "opcards", "grids", "grids_common", "opcard_template"]:
         if key not in configs.paths:
             raise ValueError(f"Configuration is missing a '{key}' key")
         elif pathlib.Path(configs.paths[key]).anchor == "":

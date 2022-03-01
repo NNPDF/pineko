@@ -1,3 +1,6 @@
 [paths]
 ymldb = "data/ymldb"
+grids = "data/grids"
+grids_common = "data/grids/common"
 opcards = "data/operator_cards"
+opcard_template = "data/operator_cards/_template.yaml"
