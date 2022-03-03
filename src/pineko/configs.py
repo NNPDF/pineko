@@ -60,9 +60,7 @@ def add_paths(configs):
     if "logs" not in configs["paths"]:
         configs["paths"]["logs"] = {}
 
-    for key in [
-        "eko",
-    ]:
+    for key in ["eko", "fk"]:
         if key not in configs["paths"]["logs"]:
             configs["paths"]["logs"][key] = None
         elif pathlib.Path(configs["paths"]["logs"][key]).anchor == "":

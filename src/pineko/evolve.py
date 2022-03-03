@@ -118,3 +118,4 @@ def evolve_grid(
                 pineappl_grid, fktable, max_as, max_al, comparison_pdf
             ).to_string()
         )
+    return pineappl_grid, fktable
