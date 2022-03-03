@@ -107,14 +107,14 @@ def load_grids(theory_id, ds):
     grids : dict
         mapping basename to path
     """
-    paths = configs.configs.paths
+    paths = configs.configs["paths"]
     try:
         _info, grids = get_yaml_information(
-            paths.ymldb / f"{ds}.yaml", paths.grids / str(theory_id)
+            paths["ymldb"] / f"{ds}.yaml", paths["grids"] / str(theory_id)
         )
     except GridFileNotFound:
         _info, grids = get_yaml_information(
-            paths.ymldb / f"{ds}.yaml", paths.grids_common
+            paths["ymldb"] / f"{ds}.yaml", paths["grids_common"]
         )
     # the list is still nested, so flatten
     grids = [grid for opgrids in grids for grid in opgrids]

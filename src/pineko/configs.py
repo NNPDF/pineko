@@ -1,61 +1,16 @@
 # -*- coding: utf-8 -*-
 import pathlib
-import pdb
-import typing
+import copy
 
 import appdirs
-import rich
 import tomli
 
 name = "pineko.toml"
 "Name of the config while (wherever it is placed)"
 
 
-class Configurations:
-    def __init__(self, dictionary=None):
-        if isinstance(dictionary, Configurations):
-            self._dict = dictionary._dict
-        elif dictionary is None:
-            self._dict = {}
-        else:
-            self._dict = dictionary
-
-    def __repr__(self):
-        return self._dict.__repr__()
-
-    def __getattribute__(self, name) -> typing.Any:
-        if name[0] == "_":
-            return super().__getattribute__(name)
-
-        value = self._dict[name]
-        if isinstance(value, dict):
-            value = Configurations(value)
-        return value
-
-    def __getitem__(self, key):
-        return self.__getattribute__(key)
-
-    def __setattribute__(self, name, value):
-        self._dict[name] = value
-
-    def __setitem__(self, key, value):
-        if key[0] == "_":
-            raise LookupError(
-                "Elements with leading '_' can not be retrieved later, so you"
-                f" can not set (attempted: '{key}')"
-            )
-
-        self._dict[key] = value
-
-    def __contains__(self, item):
-        return item in self._dict
-
-    def _pprint(self):
-        rich.print(self._dict)
-
-
 # better to declare immediately the correct type
-configs = Configurations()
+configs = {}
 "Holds loaded configurations"
 
 
@@ -76,11 +31,11 @@ def defaults(base_configs):
     ----
     The general rule is to never replace user provided input.
     """
-    configs = Configurations(base_configs)
+    configs = copy.deepcopy(base_configs)
 
     configs = add_paths(configs)
 
-    return Configurations(configs)
+    return configs
 
 
 def add_paths(configs):
@@ -94,25 +49,25 @@ def add_paths(configs):
         "fktables",
         "ekos",
     ]:
-        if key not in configs.paths:
+        if key not in configs["paths"]:
             raise ValueError(f"Configuration is missing a 'paths.{key}' key")
-        elif pathlib.Path(configs.paths[key]).anchor == "":
-            configs.paths[key] = configs.paths.root / configs.paths[key]
+        elif pathlib.Path(configs["paths"][key]).anchor == "":
+            configs["paths"][key] = configs["paths"]["root"] / configs["paths"][key]
         else:
-            configs.paths[key] = pathlib.Path(configs.paths[key])
+            configs["paths"][key] = pathlib.Path(configs["paths"][key])
 
-    if "logs" not in configs.paths:
-        configs.paths["logs"] = Configurations()
+    if "logs" not in configs["paths"]:
+        configs["paths"]["logs"] = {}
 
     for key in [
         "eko",
     ]:
-        if key not in configs.paths.logs:
-            configs.paths.logs[key] = None
-        elif pathlib.Path(configs.paths[key]).anchor == "":
-            configs.paths.logs[key] = configs.paths.root / configs.paths[key]
+        if key not in configs["paths"]["logs"]:
+            configs["paths"]["logs"][key] = None
+        elif pathlib.Path(configs["paths"][key]).anchor == "":
+            configs["paths"]["logs"][key] = configs["paths"]["root"] / configs["paths"][key]
         else:
-            configs.paths.logs[key] = pathlib.Path(configs.paths[key])
+            configs["paths"]["logs"][key] = pathlib.Path(configs["paths"][key])
 
     return configs
 

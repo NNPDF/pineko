@@ -16,11 +16,11 @@ from ._base import command
 def subcommand(theory_id, datasets, logs):
     """Compute EKOs for all FK tables in all datasets."""
     # setup data
-    paths = configs.configs.paths
-    tcard_path = paths.theory_cards / f"{theory_id}.yaml"
+    paths = configs.configs["paths"]
+    tcard_path = paths["theory_cards"] / f"{theory_id}.yaml"
     with open(tcard_path, encoding="utf-8") as f:
         theory_card = yaml.safe_load(f)
-    eko_path = paths.ekos / str(theory_id)
+    eko_path = paths["ekos"] / str(theory_id)
     eko_path.mkdir(exist_ok=True)
     # iterate datasets
     for ds in datasets:
@@ -28,13 +28,13 @@ def subcommand(theory_id, datasets, logs):
         # iterate grids
         grids = parser.load_grids(theory_id, ds)
         for name, grid in grids.items():
-            opcard_path = paths.operator_cards / f"{name}.yaml"
+            opcard_path = paths["operator_cards"] / f"{name}.yaml"
             with open(opcard_path, encoding="utf-8") as f:
                 operators_card = yaml.safe_load(f)
             eko_filename = eko_path / f"{name}.tar"
             # activate logging
-            if logs and paths.logs.eko:
-                log_path = paths.logs.eko / f"{theory_id}-{ds}-{name}.log"
+            if logs and paths["logs"]["eko"]:
+                log_path = paths["logs"]["eko"] / f"{theory_id}-{ds}-{name}.log"
                 logStdout = logging.FileHandler(log_path)
                 logStdout.setLevel(logging.INFO)
                 logStdout.setFormatter(logging.Formatter("%(message)s"))

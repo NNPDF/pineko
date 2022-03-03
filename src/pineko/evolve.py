@@ -71,7 +71,7 @@ def evolve_grid(
     pineappl_path, eko_path, fktable_path, max_as, max_al, comparison_pdf=None
 ):
     """
-    Invoke steps from file paths.
+    Convolute grid with EKO from file paths.
 
     Parameters
     ----------
