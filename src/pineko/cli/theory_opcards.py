@@ -17,7 +17,7 @@ def subcommand(theory_id, datasets):
         grids = parser.load_grids(theory_id, ds)
         for name, grid in grids.items():
             opcard_path = paths["operator_cards"] / f"{name}.yaml"
-            x_grid, q2_grid = evolve.write_operator_card_from_file(
+            _x_grid, q2_grid = evolve.write_operator_card_from_file(
                 grid, paths["opcard_template"], opcard_path
             )
             rich.print(

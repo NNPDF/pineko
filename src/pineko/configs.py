@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-import pathlib
 import copy
+import pathlib
+import sys
 
 import appdirs
 import tomli
@@ -51,7 +52,7 @@ def add_paths(configs):
     ]:
         if key not in configs["paths"]:
             raise ValueError(f"Configuration is missing a 'paths.{key}' key")
-        elif pathlib.Path(configs["paths"][key]).anchor == "":
+        if pathlib.Path(configs["paths"][key]).anchor == "":
             configs["paths"][key] = configs["paths"]["root"] / configs["paths"][key]
         else:
             configs["paths"][key] = pathlib.Path(configs["paths"][key])
@@ -65,7 +66,9 @@ def add_paths(configs):
         if key not in configs["paths"]["logs"]:
             configs["paths"]["logs"][key] = None
         elif pathlib.Path(configs["paths"]["logs"][key]).anchor == "":
-            configs["paths"]["logs"][key] = configs["paths"]["root"] / configs["paths"]["logs"][key]
+            configs["paths"]["logs"][key] = (
+                configs["paths"]["root"] / configs["paths"]["logs"][key]
+            )
         else:
             configs["paths"]["logs"][key] = pathlib.Path(configs["paths"]["logs"][key])
 
@@ -101,7 +104,7 @@ def load(path=None):
             return {"paths": {"root": pathlib.Path.cwd()}}
         else:
             print("Configuration path specified is not valid.")
-            quit()
+            sys.exit()
 
     with open(path, "rb") as fd:
         loaded = tomli.load(fd)

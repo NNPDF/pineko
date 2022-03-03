@@ -13,9 +13,10 @@ import yaml
 
 from . import check, comparator
 
+
 def write_operator_card_from_file(pineappl_path, default_card_path, card_path):
     """Generate operator card for a grid.
-    
+
     Parameters
     ----------
     pineappl_path : str or os.PathLike
@@ -40,9 +41,10 @@ def write_operator_card_from_file(pineappl_path, default_card_path, card_path):
         default_card = yaml.safe_load(f)
     return write_operator_card(pineappl_grid, default_card, card_path)
 
+
 def write_operator_card(pineappl_grid, default_card, card_path):
     """Generate operator card for this grid.
-    
+
     Parameters
     ----------
     pineappl_grid : pineappl.grid.Grid
@@ -67,6 +69,7 @@ def write_operator_card(pineappl_grid, default_card, card_path):
         yaml.safe_dump(operators_card, f)
     return x_grid, q2_grid
 
+
 def evolve_grid(
     pineappl_path, eko_path, fktable_path, max_as, max_al, comparison_pdf=None
 ):
@@ -89,7 +92,7 @@ def evolve_grid(
             if given, a comparison table (with / without evolution) will be printed
     """
     rich.print(
-        rich.panel.Panel.fit(f"Computing ...", style="magenta", box=rich.box.SQUARE),
+        rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
         f"   {pineappl_path}\n",
         f"+ {eko_path}\n",
         f"= {fktable_path}",
