@@ -27,7 +27,7 @@ def subcommand(theory_id, datasets, logs):
         rich.print(f"Analyze {ds}")
         # iterate grids
         grids = parser.load_grids(theory_id, ds)
-        for name, grid in grids.items():
+        for name, _grid in grids.items():
             opcard_path = paths["operator_cards"] / f"{name}.yaml"
             with open(opcard_path, encoding="utf-8") as f:
                 operators_card = yaml.safe_load(f)

@@ -64,10 +64,10 @@ def add_paths(configs):
     ]:
         if key not in configs["paths"]["logs"]:
             configs["paths"]["logs"][key] = None
-        elif pathlib.Path(configs["paths"][key]).anchor == "":
-            configs["paths"]["logs"][key] = configs["paths"]["root"] / configs["paths"][key]
+        elif pathlib.Path(configs["paths"]["logs"][key]).anchor == "":
+            configs["paths"]["logs"][key] = configs["paths"]["root"] / configs["paths"]["logs"][key]
         else:
-            configs["paths"]["logs"][key] = pathlib.Path(configs["paths"][key])
+            configs["paths"]["logs"][key] = pathlib.Path(configs["paths"]["logs"][key])
 
     return configs
 

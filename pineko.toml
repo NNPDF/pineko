@@ -8,5 +8,5 @@ opcard_template = "data/operator_cards/_template.yaml"
 ekos = "data/ekos"
 fktables = "data/fktables"
 
-[path.logs]
-ekos = "logs/eko"
+[paths.logs]
+eko = "logs/eko"
