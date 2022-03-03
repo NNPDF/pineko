@@ -6,7 +6,7 @@ import eko
 import rich
 import yaml
 
-from .. import configs, parser
+from .. import configs, parser, theory_card
 from ._base import command
 
 
@@ -18,9 +18,7 @@ def subcommand(theory_id, datasets, logs):
     """Compute EKOs for all FK tables in all datasets."""
     # setup data
     paths = configs.configs["paths"]
-    tcard_path = paths["theory_cards"] / f"{theory_id}.yaml"
-    with open(tcard_path, encoding="utf-8") as f:
-        theory_card = yaml.safe_load(f)
+    tcard = theory_card.load(theory_id)
     eko_path = paths["ekos"] / str(theory_id)
     eko_path.mkdir(exist_ok=True)
     # iterate datasets
@@ -28,10 +26,10 @@ def subcommand(theory_id, datasets, logs):
         rich.print(f"Analyze {ds}")
         # iterate grids
         grids = parser.load_grids(theory_id, ds)
-        for name, _grid in grids.items():
+        for name in grids.keys():
             opcard_path = paths["operator_cards"] / f"{name}.yaml"
             with open(opcard_path, encoding="utf-8") as f:
-                operators_card = yaml.safe_load(f)
+                ocard = yaml.safe_load(f)
             eko_filename = eko_path / f"{name}.tar"
             # activate logging
             if logs and paths["logs"]["eko"]:
@@ -43,7 +41,7 @@ def subcommand(theory_id, datasets, logs):
                 logging.getLogger("eko").addHandler(logStdout)
                 logging.getLogger("eko").setLevel(logging.INFO)
             # do it!
-            ops = eko.run_dglap(theory_card=theory_card, operators_card=operators_card)
+            ops = eko.run_dglap(theory_card=tcard, operators_card=ocard)
             ops.dump_tar(eko_filename)
-            rich.print(f"[green]Success:[/] Write EKO to {eko_filename}")
+            rich.print(f"[green]Success:[/] Wrote EKO to {eko_filename}")
         print()
