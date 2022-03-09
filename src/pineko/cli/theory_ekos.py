@@ -33,7 +33,7 @@ def subcommand(theory_id, datasets, logs):
             eko_filename = eko_path / f"{name}.tar"
             # activate logging
             if logs and paths["logs"]["eko"]:
-                log_path = paths["logs"]["eko"] / f"{theory_id}-{ds}-{name}.log"
+                log_path = paths["logs"]["eko"] / f"{theory_id}-{name}.log"
                 logStdout = logging.FileHandler(log_path)
                 logStdout.setLevel(logging.INFO)
                 logStdout.setFormatter(logging.Formatter("%(message)s"))

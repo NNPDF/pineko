@@ -110,13 +110,14 @@ def evolve_grid(
     order_mask = pineappl.grid.Order.create_mask(pineappl_grid.orders(), max_as, max_al)
     fktable = pineappl_grid.convolute_eko(operators, "evol", order_mask=order_mask)
     fktable.optimize()
+    # compare before after
+    comparison = None
+    if comparison_pdf is not None:
+        comparison = comparator.compare(
+                pineappl_grid, fktable, max_as, max_al, comparison_pdf
+            )
+        fktable.set_key_value("results_fk", comparison.to_string())
+        fktable.set_key_value("results_fk_pdfset", comparison_pdf)
     # write
     fktable.write_lz4(str(fktable_path))
-    # compare before after
-    if comparison_pdf is not None:
-        print(
-            comparator.compare(
-                pineappl_grid, fktable, max_as, max_al, comparison_pdf
-            ).to_string()
-        )
-    return pineappl_grid, fktable
+    return pineappl_grid, fktable, comparison

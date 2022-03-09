@@ -22,4 +22,6 @@ def subcommand(pineappl, eko, fktable, max_as, max_al, pdf):
     Moreover, MAX_AS and MAX_AL are used to specify the order in QCD and QED
     couplings (i.e. the maximum power allowed for each correction).
     """
-    evolve.evolve_grid(pineappl, eko, fktable, max_as, max_al, pdf)
+    _grid, _fk, comp = evolve.evolve_grid(pineappl, eko, fktable, max_as, max_al, pdf)
+    if (comp):
+        print(comp.to_string())

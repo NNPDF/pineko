@@ -26,17 +26,16 @@ def subcommand(theory_id, datasets, logs, pdf):
         grids = parser.load_grids(theory_id, ds)
         for name, grid_path in grids.items():
             eko_filename = eko_path / f"{name}.tar"
-            fk_filename = fk_path / f"{ds}-{name}.{parser.ext}"
+            fk_filename = fk_path / f"{name}.{parser.ext}"
             max_as = 1 + int(tcard["PTO"])
             max_al = 0
             # do it!
-            grid, fk = evolve.evolve_grid(
-                grid_path, eko_filename, fk_filename, max_as, max_al
+            _grid, _fk, comparison = evolve.evolve_grid(
+                grid_path, eko_filename, fk_filename, max_as, max_al, pdf
             )
             # activate logging
-            if logs and pdf is not None and paths["logs"]["fk"]:
-                df = comparator.compare(grid, fk, max_as, max_al, pdf)
-                logfile = paths["logs"]["fk"] / f"{theory_id}-{ds}-{name}.log"
-                logfile.write_text(df.to_string())
+            if logs and paths["logs"]["fk"] and comparison:
+                logfile = paths["logs"]["fk"] / f"{theory_id}-{name}-{pdf}.log"
+                logfile.write_text(comparison.to_string())
             rich.print(f"[green]Success:[/] Wrote FK table to {fk_filename}")
         print()
