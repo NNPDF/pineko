@@ -5,7 +5,7 @@ import eko
 import rich
 import yaml
 
-from . import configs, parser, theory_card
+from . import configs, parser, theory_card, evolve
 
 class TheoryBuilder:
     """Common builder application to create the ingredients for a theory.
@@ -25,6 +25,24 @@ class TheoryBuilder:
     def eko_path(self):
         """Suffix path with theory id"""
         return configs.configs["paths"]["ekos"] / str(self.theory_id)
+
+    def opcards(self):
+        """Write operator cards."""
+        paths = configs.configs["paths"]
+        for ds in self.datasets:
+            rich.print(f"Analyze {ds}")
+            grids = parser.load_grids(self.theory_id, ds)
+            for name, grid in grids.items():
+                opcard_path = paths["operator_cards"] / f"{name}.yaml"
+                _x_grid, q2_grid = evolve.write_operator_card_from_file(
+                    grid, paths["opcard_template"], opcard_path
+                )
+                if opcard_path.exists():
+                    rich.print(
+                        f"[green]Success:[/] Wrote card with {len(q2_grid)} Q2 points to {opcard_path}"
+                    )
+            rich.print()
+
 
     def ekos(self, logs):
         """Compute all ekos.
