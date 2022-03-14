@@ -5,7 +5,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 name = "pineko"
 version = "0.1.0"
-description = "Combine PineAPPL grids and EKOs"
+description = "Combine PineAPPL grids and EKOs into FK tables"
 authors = [
   "Alessandro Candido <alessandro.candido@mi.infn.it>",
   "Juan Cruz Martinez <juan.cruz@mi.infn.it>",
