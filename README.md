@@ -35,7 +35,7 @@ or reusing existing ones.
 
 #### Generate new Grids with `rr`
 
-You need to run [`rr`](https://github.com/NNPDF/runcards) with a given theory runcard and put the generated grid file with the same name
+You need to run `rr` with a given theory runcard and put the generated grid file with the same name
 inside the `<paths.grids>/<theory_id>` folder.
 
 #### Inherit Grids from Existing Theory
@@ -60,8 +60,13 @@ You need to have the EKO computed in the previous step.
 Then you can convolute the EKO with the grid by `pineko theory fks THEORY_ID DATASET1 DATASET2 ...`
 
 ---
+
 [1] Actually, instead we should provide a concise description here - but let's wait to be stable first
+
 [2] this is to be replaced by the new CommonData format
+
 [3] this is to be replaced by a binding to the true theory DB
+
 [4] I'm thinking how to improve this, because how could we provide a study on the interpolation accuracy? at the moment there just equal
+
 [5] examples being SV, different evolution settings, etc. - I'm thinking whether it might be worth to add an `inherit-eko` option
