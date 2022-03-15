@@ -5,7 +5,7 @@ import eko
 import rich
 import yaml
 
-from . import configs, evolve, parser, theory_card
+from . import configs, evolve, parser, theory_card, parser
 
 
 class TheoryBuilder:
@@ -25,13 +25,67 @@ class TheoryBuilder:
 
     @property
     def eko_path(self):
-        """Suffix path with theory id"""
+        """Suffix paths.ekos with theory id."""
         return configs.configs["paths"]["ekos"] / str(self.theory_id)
 
     @property
     def fk_path(self):
-        """Suffix path with theory id"""
+        """Suffix paths.fktables with theory id."""
         return configs.configs["paths"]["fktables"] / str(self.theory_id)
+
+    def grids_scoped_path(self, tid = None):
+        """Suffix paths.grids with theory id."""
+        if tid is None:
+            tid = self.theory_id
+        return configs.configs["paths"]["grids"] / str(tid)
+
+    def load_grids(self, ds):
+        """Load all grids (i.e. process scale) of a dataset.
+
+        Parameters
+        ----------
+        ds : str
+            dataset name
+
+        Returns
+        -------
+        grids : dict
+            mapping basename to path
+        """
+        paths = configs.configs["paths"]
+        try:
+            _info, grids = parser.get_yaml_information(
+                paths["ymldb"] / f"{ds}.yaml", self.grids_scoped_path()
+            )
+        except parser.GridFileNotFound:
+            _info, grids = parser.get_yaml_information(
+                paths["ymldb"] / f"{ds}.yaml", paths["grids_common"]
+            )
+        # the list is still nested, so flatten
+        grids = [grid for opgrids in grids for grid in opgrids]
+        # then turn into a map name -> path
+        grids = {grid.stem.rsplit(".", 1)[0]: grid for grid in grids}
+        return grids
+
+    def inherit_scoped_grids(self, target_theory_id):
+        """Inherit all scoped grids to a new theory.
+
+        Parameters
+        ----------
+        target_theory_id : int
+            target theory id
+        """
+        other = self.grids_scoped_path(target_theory_id)
+        other.mkdir(exist_ok=True)
+        for p in self.grids_scoped_path().glob(f"*.{parser.ext}"):
+            name = p.stem.rsplit(".", 1)[0]
+            new = other / f"{name}.{parser.ext}"
+            # skip existing grids
+            if new.exists():
+                continue
+            # link
+            rich.print(f"Linking {name}")
+            new.symlink_to(p)
 
     def iterate(self, f, **kwargs):
         """Iterated grids in datasets.
@@ -45,7 +99,7 @@ class TheoryBuilder:
         """
         for ds in self.datasets:
             rich.print(f"Analyze {ds}")
-            grids = parser.load_grids(self.theory_id, ds)
+            grids = self.load_grids(ds)
             for name, grid in grids.items():
                 f(name, grid, **kwargs)
             rich.print()
