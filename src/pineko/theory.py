@@ -53,14 +53,9 @@ class TheoryBuilder:
             mapping basename to path
         """
         paths = configs.configs["paths"]
-        try:
-            _info, grids = parser.get_yaml_information(
-                paths["ymldb"] / f"{ds}.yaml", self.grids_scoped_path()
-            )
-        except parser.GridFileNotFound:
-            _info, grids = parser.get_yaml_information(
-                paths["ymldb"] / f"{ds}.yaml", paths["grids_common"]
-            )
+        _info, grids = parser.get_yaml_information(
+            paths["ymldb"] / f"{ds}.yaml", self.grids_scoped_path()
+        )
         # the list is still nested, so flatten
         grids = [grid for opgrids in grids for grid in opgrids]
         # then turn into a map name -> path
@@ -117,7 +112,7 @@ class TheoryBuilder:
         paths = configs.configs["paths"]
         opcard_path = paths["operator_cards"] / f"{name}.yaml"
         _x_grid, q2_grid = evolve.write_operator_card_from_file(
-            grid, paths["opcard_template"], opcard_path
+            grid, paths["operator_card_template"], opcard_path
         )
         if opcard_path.exists():
             rich.print(

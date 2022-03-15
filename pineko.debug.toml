@@ -1,10 +1,11 @@
 [paths]
+# inputs
 ymldb = "data/ymldb"
 grids = "data/grids"
-grids_common = "data/grids/common"
-operator_cards = "data/operator_cards"
 theory_cards = "data/theory_cards"
-opcard_template = "data/operator_cards/_template.yaml"
+operator_card_template = "data/operator_cards/_template.yaml"
+# outputs
+operator_cards = "data/operator_cards"
 ekos = "data/ekos"
 fktables = "data/fktables"
 
