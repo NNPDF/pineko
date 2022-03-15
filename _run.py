@@ -11,7 +11,7 @@ import yaml
 
 from pineko import convolute
 
-data = pathlib.Path(__file__).absolute().parent / "data1"
+data = pathlib.Path(__file__).absolute().parent / "_data"
 myoperator_base_path = data / "myoperator.tar"
 mydis_path = data / "mydis.pineappl.lz4"
 mydis_yaml_path = data / "mydis.yaml"
