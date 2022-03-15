@@ -17,11 +17,14 @@ class TheoryBuilder:
         theory identifier
     datsets : list(str)
         list of datasets
+    overwrite : bool
+        allow files to be overwritten instead of skipping
     """
 
-    def __init__(self, theory_id, datasets):
+    def __init__(self, theory_id, datasets, overwrite=False):
         self.theory_id = theory_id
         self.datasets = datasets
+        self.overwrite = overwrite
 
     @property
     def eko_path(self):
@@ -111,6 +114,10 @@ class TheoryBuilder:
         """
         paths = configs.configs["paths"]
         opcard_path = paths["operator_cards"] / f"{name}.yaml"
+        if opcard_path.exists():
+            if not self.overwrite:
+                rich.print(f"Skipping existing operator card {opcard_path}")
+                return
         _x_grid, q2_grid = evolve.write_operator_card_from_file(
             grid, paths["operator_card_template"], opcard_path
         )
@@ -143,6 +150,10 @@ class TheoryBuilder:
         with open(opcard_path, encoding="utf-8") as f:
             ocard = yaml.safe_load(f)
         eko_filename = self.eko_path / f"{name}.tar"
+        if eko_filename.exists():
+            if not self.overwrite:
+                rich.print(f"Skipping existing operator {eko_filename}")
+                return
         # activate logging
         if logs and paths["logs"]["eko"]:
             log_path = paths["logs"]["eko"] / f"{self.theory_id}-{name}.log"
@@ -190,6 +201,10 @@ class TheoryBuilder:
         paths = configs.configs["paths"]
         eko_filename = self.eko_path / f"{name}.tar"
         fk_filename = self.fk_path / f"{name}.{parser.ext}"
+        if fk_filename.exists():
+            if not self.overwrite:
+                rich.print(f"Skipping existing FK Table {fk_filename}")
+                return
         max_as = 1 + int(tcard["PTO"])
         max_al = 0
         # do it!

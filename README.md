@@ -12,7 +12,7 @@ Since combines several ingredients into a new object one needs to provide a bunc
 ### pineko.toml
 
 You need to provide a `pineko.toml`, that provides all necessary paths to the respective tools and output folders.
-Look at the example in this repo, that is provided for debug reasons[1].
+Look at the example in this repo, that is provided for debug reasons [1].
 
 ### ymldb
 
