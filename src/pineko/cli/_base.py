@@ -18,7 +18,8 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     help="Explicitly specify config file (it has to be a valid TOML file).",
 )
 def command(cfg):
-    base_configs = configs.load(cfg)
+    path = configs.detect(cfg)
+    base_configs = configs.load(path)
     configs.configs = configs.defaults(base_configs)
     if cfg is not None:
-        print(f"Configurations loaded from '{cfg}'")
+        print(f"Configurations loaded from '{path}'")

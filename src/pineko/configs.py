@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import copy
 import pathlib
-import sys
 
 import appdirs
 import tomli
@@ -28,18 +27,38 @@ def add_scope(base, scope_id, scope):
 def defaults(base_configs):
     """Provide additional defaults.
 
+    Parameters
+    ----------
+    base_config : dict
+        user provided configuration
+    
+    Returns
+    -------
+    configs : dict
+        enhanced configuration
+
     Note
     ----
     The general rule is to never replace user provided input.
     """
     configs = copy.deepcopy(base_configs)
 
-    configs = add_paths(configs)
+    enhance_paths(configs)
 
     return configs
 
 
-def add_paths(configs):
+def enhance_paths(configs):
+    """Check required path and enhance them with root path.
+    
+    The changes are done inplace.
+
+    Parameters
+    ----------
+    configs : dict
+        configuration
+    """
+    # required keys without default
     for key in [
         "ymldb",
         "operator_cards",
@@ -57,6 +76,7 @@ def add_paths(configs):
         else:
             configs["paths"][key] = pathlib.Path(configs["paths"][key])
 
+    # optional keys which are by default None
     if "logs" not in configs["paths"]:
         configs["paths"]["logs"] = {}
 
@@ -70,10 +90,20 @@ def add_paths(configs):
         else:
             configs["paths"]["logs"][key] = pathlib.Path(configs["paths"]["logs"][key])
 
-    return configs
-
 
 def detect(path=None):
+    """Autodetect configuration file path.
+
+    Parameters
+    ----------
+    path : str or os.PathLike
+        user provided guess
+
+    Returns
+    -------
+    pathlib.Path :
+        file path
+    """
     paths = []
 
     if path is not None:
@@ -95,14 +125,19 @@ def detect(path=None):
 
 
 def load(path=None):
-    try:
-        path = detect(path)
-    except FileNotFoundError:
-        if path is None:
-            return {"paths": {"root": pathlib.Path.cwd()}}
-        else:
-            print("Configuration path specified is not valid.")
-            sys.exit()
+    """Load config file.
+
+    Parameters
+    ----------
+    path : str or os.PathLike
+        file path
+
+    Returns
+    -------
+    loaded : dict
+        configuration dictionary
+    """
+    path = detect(path)
 
     with open(path, "rb") as fd:
         loaded = tomli.load(fd)
