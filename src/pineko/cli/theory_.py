@@ -16,8 +16,10 @@ def theory_():
 @click.argument("datasets", type=click.STRING, nargs=-1)
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
 def inherit_grids(source_theory_id, target_theory_id, datasets, overwrite):
-    """Inherit grids from one theory to another."""
-    theory.TheoryBuilder(source_theory_id, datasets, overwrite).inherit_grids(target_theory_id)
+    """Inherit grids for datasets from one theory to another."""
+    theory.TheoryBuilder(source_theory_id, datasets, overwrite).inherit_grids(
+        target_theory_id
+    )
 
 
 @theory_.command()
@@ -32,11 +34,19 @@ def opcards(theory_id, datasets, overwrite):
 @theory_.command()
 @click.argument("theory_id", type=click.INT)
 @click.argument("datasets", type=click.STRING, nargs=-1)
-@click.option("--no-logs", is_flag=True, help="suppress logs")
+@click.option("--silent", is_flag=True, help="Suppress logs")
+@click.option(
+    "-cl",
+    "--clear-logs",
+    is_flag=True,
+    help="Erease previos logs (instead of appending)",
+)
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
-def ekos(theory_id, datasets, no_logs, overwrite):
+def ekos(theory_id, datasets, silent, clear_logs, overwrite):
     """Compute EKOs for all FK tables in all datasets."""
-    theory.TheoryBuilder(theory_id, datasets, overwrite).ekos(no_logs)
+    theory.TheoryBuilder(
+        theory_id, datasets, silent=silent, clear_logs=clear_logs, overwrite=overwrite
+    ).ekos()
 
 
 @theory_.command()
@@ -45,15 +55,26 @@ def ekos(theory_id, datasets, no_logs, overwrite):
 @click.argument("datasets", type=click.STRING, nargs=-1)
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
 def inherit_ekos(source_theory_id, target_theory_id, datasets, overwrite):
-    """Inherit eko from one theory to another."""
-    theory.TheoryBuilder(source_theory_id, datasets, overwrite).inherit_ekos(target_theory_id)
+    """Inherit ekos from one theory to another."""
+    theory.TheoryBuilder(source_theory_id, datasets, overwrite=overwrite).inherit_ekos(
+        target_theory_id
+    )
+
 
 @theory_.command()
 @click.argument("theory_id", type=click.INT)
 @click.argument("datasets", type=click.STRING, nargs=-1)
-@click.option("--pdf", "-p", default=None, help="comparison PDF")
-@click.option("--no-logs", is_flag=True, help="suppress logs with comparison")
+@click.option("--pdf", "-p", default=None, help="PDF set used for comparison")
+@click.option("--silent", is_flag=True, help="Suppress logs with comparison")
+@click.option(
+    "-cl",
+    "--clear-logs",
+    is_flag=True,
+    help="Erease previos logs (instead of appending)",
+)
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
-def fks(theory_id, datasets, pdf, no_logs, overwrite):
+def fks(theory_id, datasets, pdf, silent, clear_logs, overwrite):
     """Compute FK tables in all datasets."""
-    theory.TheoryBuilder(theory_id, datasets, overwrite).fks(pdf, no_logs)
+    theory.TheoryBuilder(
+        theory_id, datasets, silent=silent, clear_logs=clear_logs, overwrite=overwrite
+    ).fks(pdf)
