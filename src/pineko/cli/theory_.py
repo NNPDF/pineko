@@ -13,9 +13,10 @@ def theory_():
 @theory_.command()
 @click.argument("source_theory_id", type=click.INT)
 @click.argument("target_theory_id", type=click.INT)
-def inherit_grids(source_theory_id, target_theory_id):
+@click.argument("datasets", type=click.STRING, nargs=-1)
+def inherit_grids(source_theory_id, target_theory_id, datasets):
     """Inherit grids from one theory to another."""
-    theory.TheoryBuilder(source_theory_id, ()).inherit_scoped_grids(target_theory_id)
+    theory.TheoryBuilder(source_theory_id, datasets).inherit_grids(target_theory_id)
 
 @theory_.command()
 @click.argument("theory_id", type=click.INT)

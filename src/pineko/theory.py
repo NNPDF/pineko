@@ -25,6 +25,11 @@ class TheoryBuilder:
         self.theory_id = theory_id
         self.datasets = datasets
         self.overwrite = overwrite
+        
+    @property
+    def operator_cards_path(self):
+        """Suffix paths.operator_cards with theory id."""
+        return configs.configs["paths"]["operator_cards"] / str(self.theory_id)
 
     @property
     def eko_path(self):
@@ -36,7 +41,7 @@ class TheoryBuilder:
         """Suffix paths.fktables with theory id."""
         return configs.configs["paths"]["fktables"] / str(self.theory_id)
 
-    def grids_scoped_path(self, tid = None):
+    def grids_path(self, tid = None):
         """Suffix paths.grids with theory id."""
         if tid is None:
             tid = self.theory_id
@@ -57,7 +62,7 @@ class TheoryBuilder:
         """
         paths = configs.configs["paths"]
         _info, grids = parser.get_yaml_information(
-            paths["ymldb"] / f"{ds}.yaml", self.grids_scoped_path()
+            paths["ymldb"] / f"{ds}.yaml", self.grids_path()
         )
         # the list is still nested, so flatten
         grids = [grid for opgrids in grids for grid in opgrids]
@@ -65,25 +70,33 @@ class TheoryBuilder:
         grids = {grid.stem.rsplit(".", 1)[0]: grid for grid in grids}
         return grids
 
-    def inherit_scoped_grids(self, target_theory_id):
-        """Inherit all scoped grids to a new theory.
+    def inherit_grid(self, name, grid, other):
+        """Inherit grids to a new theory.
 
         Parameters
         ----------
         target_theory_id : int
             target theory id
         """
-        other = self.grids_scoped_path(target_theory_id)
+        new = other / f"{name}.{parser.ext}"
+        # skip existing grids
+        if new.exists():
+            return
+        # link
+        rich.print(f"Linking {name}")
+        new.symlink_to(grid)
+
+    def inherit_grids(self, target_theory_id):
+        """Inherit grids to a new theory.
+
+        Parameters
+        ----------
+        target_theory_id : int
+            target theory id
+        """
+        other = self.grids_path(target_theory_id)
         other.mkdir(exist_ok=True)
-        for p in self.grids_scoped_path().glob(f"*.{parser.ext}"):
-            name = p.stem.rsplit(".", 1)[0]
-            new = other / f"{name}.{parser.ext}"
-            # skip existing grids
-            if new.exists():
-                continue
-            # link
-            rich.print(f"Linking {name}")
-            new.symlink_to(p)
+        self.iterate(self.inherit_grid, other=other)
 
     def iterate(self, f, **kwargs):
         """Iterated grids in datasets.
@@ -112,14 +125,13 @@ class TheoryBuilder:
         grid : pathlib.Path
             path to grid
         """
-        paths = configs.configs["paths"]
-        opcard_path = paths["operator_cards"] / f"{name}.yaml"
+        opcard_path = self.operator_cards_path / f"{name}.yaml"
         if opcard_path.exists():
             if not self.overwrite:
                 rich.print(f"Skipping existing operator card {opcard_path}")
                 return
         _x_grid, q2_grid = evolve.write_operator_card_from_file(
-            grid, paths["operator_card_template"], opcard_path
+            grid, configs.configs["paths"]["operator_card_template"], opcard_path
         )
         if opcard_path.exists():
             rich.print(
@@ -146,7 +158,7 @@ class TheoryBuilder:
         """
         # setup data
         paths = configs.configs["paths"]
-        opcard_path = paths["operator_cards"] / f"{name}.yaml"
+        opcard_path = self.operator_cards_path / f"{name}.yaml"
         with open(opcard_path, encoding="utf-8") as f:
             ocard = yaml.safe_load(f)
         eko_filename = self.eko_path / f"{name}.tar"
