@@ -79,12 +79,16 @@ class TheoryBuilder:
             target theory id
         """
         new = other / f"{name}.{parser.ext}"
-        # skip existing grids
         if new.exists():
-            return
+            if not self.overwrite:
+                rich.print(f"Skipping existing grid {new}")
+                return
+            else:
+                new.unlink()
         # link
-        rich.print(f"Linking {name}")
         new.symlink_to(grid)
+        if new.exists():
+            rich.print(f"[green]Success:[/] Created link at {new}")
 
     def inherit_grids(self, target_theory_id):
         """Inherit grids to a new theory.
@@ -169,11 +173,11 @@ class TheoryBuilder:
         # activate logging
         if logs and paths["logs"]["eko"]:
             log_path = paths["logs"]["eko"] / f"{self.theory_id}-{name}.log"
-            logFile = logging.FileHandler(log_path)
-            logFile.setLevel(logging.INFO)
-            logFile.setFormatter(logging.Formatter("%(message)s"))
+            log_file = logging.FileHandler(log_path)
+            log_file.setLevel(logging.INFO)
+            log_file.setFormatter(logging.Formatter("%(message)s"))
             logging.getLogger("eko").handlers = []
-            logging.getLogger("eko").addHandler(logFile)
+            logging.getLogger("eko").addHandler(log_file)
             logging.getLogger("eko").setLevel(logging.INFO)
         # do it!
         ops = eko.run_dglap(theory_card=tcard, operators_card=ocard)
