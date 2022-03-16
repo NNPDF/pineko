@@ -11,8 +11,8 @@ Since combines several ingredients into a new object one needs to provide a bunc
 
 ### pineko.toml
 
-You need to provide a `pineko.toml`, that provides all necessary paths to the respective tools and output folders.
-[DEBUG: Look at the debug example in this repo [1]].
+You need to provide a `pineko.toml`, that provides all necessary paths to the input and output folders.
+[DEBUG: Look at the debug example in this repo [1].]
 
 ### ymldb
 
@@ -21,7 +21,7 @@ This defines the mapping from datasets to FK tables.
 
 ### Theory Runcards
 
-You need to provide the necessary theory runcards named with their respective theory ID inside the `theory_cards` paths [3].
+You need to provide the necessary theory runcards named with their respective theory ID inside the `<paths.theory_cards>` folder [3].
 
 ### Default Operator Card
 
@@ -41,7 +41,7 @@ inside the `<paths.grids>/<theory_id>` folder. The name has to match the `ymldb`
 
 #### Inherit Grids from Existing Theory
 
-You can reuse the grids from a different theory by using `pineko theory inherit-grids SOURCE_THEORY_ID TARGET_THEORY_ID DATASET1 DATASET2 ...`.
+You can reuse the grids from a different theory by running `pineko theory inherit-grids SOURCE_THEORY_ID TARGET_THEORY_ID DATASET1 DATASET2 ...`.
 The relation between the source theory and the target theory is non-trivial [5].
 
 ## Running `pineko`
@@ -51,14 +51,21 @@ computing the EKO and convoluting the EKO with the grid.
 
 ### Computing the EKO
 
-Again this is a two step process:
+#### Generating new EKOs
+
+This is a two step process:
 1. Generate the necessary operator cards with `pineko theory opcards THEORY_ID DATASET1 DATASET2 ...`
 2. Generate the actual EKOs with `pineko theory ekos THEORY_ID DATASET1 DATASET2 ...`
 
+#### Inherit EKOs from Existing Theory
+
+You can reuse the EKOs from a different theory by running `pineko theory inherit-ekos SOURCE_THEORY_ID TARGET_THEORY_ID DATASET1 DATASET2 ...`.
+The relation between the source theory and the target theory is non-trivial [6].
+
 ### Generating the FK Table
 
-You need to have the EKO computed in the previous step.
-Then you can convolute the EKO with the grid by `pineko theory fks THEORY_ID DATASET1 DATASET2 ...`
+You need to have the EKOs computed in the previous step.
+Then you can convolute the EKOs with the grids by running `pineko theory fks THEORY_ID DATASET1 DATASET2 ...`
 
 ---
 
@@ -70,4 +77,6 @@ Then you can convolute the EKO with the grid by `pineko theory fks THEORY_ID DAT
 
 [4] I'm thinking how to improve this, because how could we provide a study on the interpolation accuracy? at the moment there just equal
 
-[5] examples being SV, different evolution settings, etc. - I'm thinking whether it might be worth to add an `inherit-eko` option
+[5] examples being SV, different evolution settings, etc.
+
+[6] examples being SV, different DIS settings, etc.

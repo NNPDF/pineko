@@ -31,10 +31,22 @@ class TheoryBuilder:
         """Suffix paths.operator_cards with theory id."""
         return configs.configs["paths"]["operator_cards"] / str(self.theory_id)
 
-    @property
-    def eko_path(self):
-        """Suffix paths.ekos with theory id."""
-        return configs.configs["paths"]["ekos"] / str(self.theory_id)
+    def eko_path(self, tid=None):
+        """Suffix paths.ekos with theory id.
+        
+        Parameters
+        ----------
+        tid : int
+            theory id, defaults to my theory id
+
+        Returns
+        -------
+        pathlib.Path :
+            true path
+        """
+        if tid is None:
+            tid = self.theory_id
+        return configs.configs["paths"]["ekos"] / str(tid)
 
     @property
     def fk_path(self):
@@ -42,7 +54,18 @@ class TheoryBuilder:
         return configs.configs["paths"]["fktables"] / str(self.theory_id)
 
     def grids_path(self, tid = None):
-        """Suffix paths.grids with theory id."""
+        """Suffix paths.grids with theory id.
+        
+        Parameters
+        ----------
+        tid : int
+            theory id, defaults to my theory id
+
+        Returns
+        -------
+        pathlib.Path :
+            true path
+        """
         if tid is None:
             tid = self.theory_id
         return configs.configs["paths"]["grids"] / str(tid)
@@ -71,12 +94,16 @@ class TheoryBuilder:
         return grids
 
     def inherit_grid(self, name, grid, other):
-        """Inherit grids to a new theory.
+        """Inherit a grid to a new theory.
 
         Parameters
         ----------
-        target_theory_id : int
-            target theory id
+        name : str
+            grid name, i.e. it's true stem
+        grid : pathlib.Path
+            path to grid
+        other : pathlib.Path
+            new folder
         """
         new = other / f"{name}.{parser.ext}"
         if new.exists():
@@ -101,6 +128,43 @@ class TheoryBuilder:
         other = self.grids_path(target_theory_id)
         other.mkdir(exist_ok=True)
         self.iterate(self.inherit_grid, other=other)
+
+    def inherit_eko(self, name, _grid, other):
+        """Inherit a EKO to a new theory.
+
+        Parameters
+        ----------
+        name : str
+            grid name, i.e. it's true stem
+        grid : pathlib.Path
+            path to grid
+        other : pathlib.Path
+            new folder
+        """
+        eko = self.eko_path() / f"{name}.tar"
+        new = other / f"{name}.tar"
+        if new.exists():
+            if not self.overwrite:
+                rich.print(f"Skipping existing eko {new}")
+                return
+            else:
+                new.unlink()
+        # link
+        new.symlink_to(eko)
+        if new.exists():
+            rich.print(f"[green]Success:[/] Created link at {new}")
+
+    def inherit_ekos(self, target_theory_id):
+        """Inherit ekos to a new theory.
+
+        Parameters
+        ----------
+        target_theory_id : int
+            target theory id
+        """
+        other = self.eko_path(target_theory_id)
+        other.mkdir(exist_ok=True)
+        self.iterate(self.inherit_eko, other=other)
 
     def iterate(self, f, **kwargs):
         """Iterated grids in datasets.
@@ -165,7 +229,7 @@ class TheoryBuilder:
         opcard_path = self.operator_cards_path / f"{name}.yaml"
         with open(opcard_path, encoding="utf-8") as f:
             ocard = yaml.safe_load(f)
-        eko_filename = self.eko_path / f"{name}.tar"
+        eko_filename = self.eko_path() / f"{name}.tar"
         if eko_filename.exists():
             if not self.overwrite:
                 rich.print(f"Skipping existing operator {eko_filename}")
@@ -194,7 +258,7 @@ class TheoryBuilder:
             save eko logs?
         """
         tcard = theory_card.load(self.theory_id)
-        self.eko_path.mkdir(exist_ok=True)
+        self.eko_path().mkdir(exist_ok=True)
         self.iterate(self.eko, tcard=tcard, logs=logs)
 
     def fk(self, name, grid_path, tcard, pdf, logs):
@@ -215,7 +279,7 @@ class TheoryBuilder:
         """
         # setup data
         paths = configs.configs["paths"]
-        eko_filename = self.eko_path / f"{name}.tar"
+        eko_filename = self.eko_path() / f"{name}.tar"
         fk_filename = self.fk_path / f"{name}.{parser.ext}"
         if fk_filename.exists():
             if not self.overwrite:

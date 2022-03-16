@@ -40,6 +40,15 @@ def ekos(theory_id, datasets, logs, overwrite):
 
 
 @theory_.command()
+@click.argument("source_theory_id", type=click.INT)
+@click.argument("target_theory_id", type=click.INT)
+@click.argument("datasets", type=click.STRING, nargs=-1)
+@click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
+def inherit_ekos(source_theory_id, target_theory_id, datasets, overwrite):
+    """Inherit eko from one theory to another."""
+    theory.TheoryBuilder(source_theory_id, datasets, overwrite).inherit_ekos(target_theory_id)
+
+@theory_.command()
 @click.argument("theory_id", type=click.INT)
 @click.argument("datasets", type=click.STRING, nargs=-1)
 @click.option("--pdf", "-p", default=None, help="comparison PDF")
