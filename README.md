@@ -12,11 +12,11 @@ Since combines several ingredients into a new object one needs to provide a bunc
 ### pineko.toml
 
 You need to provide a `pineko.toml`, that provides all necessary paths to the respective tools and output folders.
-Look at the example in this repo, that is provided for debug reasons [1].
+[DEBUG: Look at the debug example in this repo [1]].
 
 ### ymldb
 
-You need all files of the `ymldb` [2] - look at the respective `load.sh` script.
+You need all files of the `ymldb` [2].  [DEBUG: Look at the respective `load.sh` script to load from dom.]
 This defines the mapping from datasets to FK tables.
 
 ### Theory Runcards
@@ -26,6 +26,7 @@ You need to provide the necessary theory runcards named with their respective th
 ### Default Operator Card
 
 You need to provide a default operator card for `eko` [4].
+[DEBUG: Look at the respective `load.sh` script to load from dom.]
 
 ### Coefficient Functions Grids
 
@@ -36,11 +37,11 @@ or reusing existing ones.
 #### Generate new Grids with `rr`
 
 You need to run `rr` with a given theory runcard and put the generated grid file with the same name
-inside the `<paths.grids>/<theory_id>` folder.
+inside the `<paths.grids>/<theory_id>` folder. The name has to match the `ymldb` which is the case by default.
 
 #### Inherit Grids from Existing Theory
 
-You can reuse the grids from a different theory by using `pineko theory inherit-grids SOURCE_THEORY_ID TARGET_THEORY_ID`.
+You can reuse the grids from a different theory by using `pineko theory inherit-grids SOURCE_THEORY_ID TARGET_THEORY_ID DATASET1 DATASET2 ...`.
 The relation between the source theory and the target theory is non-trivial [5].
 
 ## Running `pineko`
