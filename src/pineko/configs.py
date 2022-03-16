@@ -14,16 +14,6 @@ configs = {}
 "Holds loaded configurations"
 
 
-def add_scope(base, scope_id, scope):
-    "Do not override."
-    if scope_id not in base:
-        base[scope_id] = scope
-    else:
-        for key, value in scope.items():
-            if key not in base[scope_id]:
-                base[scope_id] = value
-
-
 def defaults(base_configs):
     """Provide additional defaults.
 
