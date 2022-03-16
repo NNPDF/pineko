@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 import logging
+import time
 
 import eko
 import rich
 import yaml
 
 from . import configs, evolve, parser, theory_card, parser
+
+
+logger = logging.getLogger(__name__)
 
 
 class TheoryBuilder:
@@ -31,7 +35,7 @@ class TheoryBuilder:
         """Suffix paths.operator_cards with theory id."""
         return configs.configs["paths"]["operator_cards"] / str(self.theory_id)
 
-    def eko_path(self, tid=None):
+    def ekos_path(self, tid=None):
         """Suffix paths.ekos with theory id.
         
         Parameters
@@ -49,7 +53,7 @@ class TheoryBuilder:
         return configs.configs["paths"]["ekos"] / str(tid)
 
     @property
-    def fk_path(self):
+    def fks_path(self):
         """Suffix paths.fktables with theory id."""
         return configs.configs["paths"]["fktables"] / str(self.theory_id)
 
@@ -141,7 +145,7 @@ class TheoryBuilder:
         other : pathlib.Path
             new folder
         """
-        eko = self.eko_path() / f"{name}.tar"
+        eko = self.ekos_path() / f"{name}.tar"
         new = other / f"{name}.tar"
         if new.exists():
             if not self.overwrite:
@@ -162,7 +166,7 @@ class TheoryBuilder:
         target_theory_id : int
             target theory id
         """
-        other = self.eko_path(target_theory_id)
+        other = self.ekos_path(target_theory_id)
         other.mkdir(exist_ok=True)
         self.iterate(self.inherit_eko, other=other)
 
@@ -208,9 +212,10 @@ class TheoryBuilder:
 
     def opcards(self):
         """Write operator cards."""
+        self.operator_cards_path.mkdir(exist_ok=True)
         self.iterate(self.opcard)
 
-    def eko(self, name, _grid, tcard, logs):
+    def eko(self, name, _grid, tcard, no_logs):
         """Compute a single eko.
 
         Parameters
@@ -222,46 +227,50 @@ class TheoryBuilder:
         tcard : dict
             theory card
         logs : bool
-            save eko logs?
+            save logs?
         """
-        # setup data
         paths = configs.configs["paths"]
+        # activate logging
+        if not no_logs and paths["logs"]["eko"]:
+            log_path = paths["logs"]["eko"] / f"{self.theory_id}-{name}.log"
+            log_file = logging.FileHandler(log_path)
+            log_file.setLevel(logging.INFO)
+            log_file.setFormatter(logging.Formatter("%(asctime)s %(name)s/%(levelname)s: %(message)s"))
+            for logger_ in (logger, logging.getLogger("eko")):
+                logger_.handlers = []
+                logger_.addHandler(log_file)
+                logger_.setLevel(logging.INFO)
+        # setup data
         opcard_path = self.operator_cards_path / f"{name}.yaml"
         with open(opcard_path, encoding="utf-8") as f:
             ocard = yaml.safe_load(f)
-        eko_filename = self.eko_path() / f"{name}.tar"
+        eko_filename = self.ekos_path() / f"{name}.tar"
         if eko_filename.exists():
             if not self.overwrite:
                 rich.print(f"Skipping existing operator {eko_filename}")
                 return
-        # activate logging
-        if logs and paths["logs"]["eko"]:
-            log_path = paths["logs"]["eko"] / f"{self.theory_id}-{name}.log"
-            log_file = logging.FileHandler(log_path)
-            log_file.setLevel(logging.INFO)
-            log_file.setFormatter(logging.Formatter("%(message)s"))
-            logging.getLogger("eko").handlers = []
-            logging.getLogger("eko").addHandler(log_file)
-            logging.getLogger("eko").setLevel(logging.INFO)
         # do it!
+        logger.info("Start computation of %s", name)
+        start_time = time.perf_counter()
         ops = eko.run_dglap(theory_card=tcard, operators_card=ocard)
         ops.dump_tar(eko_filename)
+        logger.info("Finished computation of %s - took %f s", name, time.perf_counter() - start_time)
         if eko_filename.exists():
             rich.print(f"[green]Success:[/] Wrote EKO to {eko_filename}")
 
-    def ekos(self, logs):
+    def ekos(self, no_logs):
         """Compute all ekos.
 
         Parameters
         ----------
-        logs : bool
-            save eko logs?
+        no_logs : bool
+            suppress logs?
         """
         tcard = theory_card.load(self.theory_id)
-        self.eko_path().mkdir(exist_ok=True)
-        self.iterate(self.eko, tcard=tcard, logs=logs)
+        self.ekos_path().mkdir(exist_ok=True)
+        self.iterate(self.eko, tcard=tcard, no_logs=no_logs)
 
-    def fk(self, name, grid_path, tcard, pdf, logs):
+    def fk(self, name, grid_path, tcard, pdf, no_logs):
         """Compute a single FK table.
 
         Parameters
@@ -274,13 +283,24 @@ class TheoryBuilder:
             theory card
         pdf : str
             comparison PDF
-        logs : bool
-            save eko logs?
+        no_logs : bool
+            suppress logs?
         """
-        # setup data
+        # activate logging
         paths = configs.configs["paths"]
-        eko_filename = self.eko_path() / f"{name}.tar"
-        fk_filename = self.fk_path / f"{name}.{parser.ext}"
+        do_log = not no_logs and paths["logs"]["fk"]
+        if do_log:
+            log_path = paths["logs"]["fk"] / f"{self.theory_id}-{name}-{pdf}.log"
+            log_file = logging.FileHandler(log_path)
+            log_file.setLevel(logging.INFO)
+            log_file.setFormatter(logging.Formatter("%(asctime)s %(name)s/%(levelname)s: %(message)s"))
+            logger.handlers = []
+            logger.addHandler(log_file)
+            logger.setLevel(logging.INFO)
+
+        # setup data
+        eko_filename = self.ekos_path() / f"{name}.tar"
+        fk_filename = self.fks_path / f"{name}.{parser.ext}"
         if fk_filename.exists():
             if not self.overwrite:
                 rich.print(f"Skipping existing FK Table {fk_filename}")
@@ -288,26 +308,27 @@ class TheoryBuilder:
         max_as = 1 + int(tcard["PTO"])
         max_al = 0
         # do it!
+        logger.info("Start computation of %s", name)
+        start_time = time.perf_counter()
         _grid, _fk, comparison = evolve.evolve_grid(
             grid_path, eko_filename, fk_filename, max_as, max_al, pdf
         )
-        # activate logging
-        if logs and paths["logs"]["fk"] and comparison:
-            logfile = paths["logs"]["fk"] / f"{self.theory_id}-{name}-{pdf}.log"
-            logfile.write_text(comparison.to_string())
+        logger.info("Finished computation of %s - took %f s", name, time.perf_counter() - start_time)
+        if do_log and comparison is not None:
+            logger.info("Comparison with %s:\n %s", pdf, comparison.to_string())
         if fk_filename.exists():
             rich.print(f"[green]Success:[/] Wrote FK table to {fk_filename}")
 
-    def fks(self, pdf, logs):
+    def fks(self, pdf, no_logs):
         """Compute all FK tables.
 
         Parameters
         ----------
         pdf : str
             comparison PDF
-        logs : bool
-            save eko logs?
+        no_logs : bool
+            suppress logs?
         """
         tcard = theory_card.load(self.theory_id)
-        self.fk_path.mkdir(exist_ok=True)
-        self.iterate(self.fk, tcard=tcard, pdf=pdf, logs=logs)
+        self.fks_path.mkdir(exist_ok=True)
+        self.iterate(self.fk, tcard=tcard, pdf=pdf, no_logs=no_logs)

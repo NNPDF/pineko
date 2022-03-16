@@ -32,11 +32,11 @@ def opcards(theory_id, datasets, overwrite):
 @theory_.command()
 @click.argument("theory_id", type=click.INT)
 @click.argument("datasets", type=click.STRING, nargs=-1)
-@click.option("--logs", is_flag=True, help="dump logs")
+@click.option("--no-logs", is_flag=True, help="suppress logs")
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
-def ekos(theory_id, datasets, logs, overwrite):
+def ekos(theory_id, datasets, no_logs, overwrite):
     """Compute EKOs for all FK tables in all datasets."""
-    theory.TheoryBuilder(theory_id, datasets, overwrite).ekos(logs)
+    theory.TheoryBuilder(theory_id, datasets, overwrite).ekos(no_logs)
 
 
 @theory_.command()
@@ -52,8 +52,8 @@ def inherit_ekos(source_theory_id, target_theory_id, datasets, overwrite):
 @click.argument("theory_id", type=click.INT)
 @click.argument("datasets", type=click.STRING, nargs=-1)
 @click.option("--pdf", "-p", default=None, help="comparison PDF")
-@click.option("--logs", is_flag=True, help="dump comparison")
+@click.option("--no-logs", is_flag=True, help="suppress logs with comparison")
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
-def fks(theory_id, datasets, pdf, logs, overwrite):
+def fks(theory_id, datasets, pdf, no_logs, overwrite):
     """Compute FK tables in all datasets."""
-    theory.TheoryBuilder(theory_id, datasets, overwrite).fks(pdf, logs)
+    theory.TheoryBuilder(theory_id, datasets, overwrite).fks(pdf, no_logs)
