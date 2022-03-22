@@ -116,7 +116,7 @@ class TheoryBuilder:
         other : pathlib.Path
             new folder
         """
-        new = other / f"{name}.{parser.ext}"
+        new = other / f"{name}.{parser.EXT}"
         if new.exists():
             if not self.overwrite:
                 rich.print(f"Skipping existing grid {new}")
@@ -317,7 +317,7 @@ class TheoryBuilder:
         )
         # setup data
         eko_filename = self.ekos_path() / f"{name}.tar"
-        fk_filename = self.fks_path / f"{name}.{parser.ext}"
+        fk_filename = self.fks_path / f"{name}.{parser.EXT}"
         if fk_filename.exists():
             if not self.overwrite:
                 rich.print(f"Skipping existing FK Table {fk_filename}")
