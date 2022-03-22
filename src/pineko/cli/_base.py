@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Adds global CLI options."""
 import pathlib
 
 import click
@@ -18,6 +19,7 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     help="Explicitly specify config file (it has to be a valid TOML file).",
 )
 def command(cfg):
+    """Explicitly specify config file (it has to be a valid TOML file)."""
     path = configs.detect(cfg)
     base_configs = configs.load(path)
     configs.configs = configs.defaults(base_configs)
