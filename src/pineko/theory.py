@@ -121,8 +121,7 @@ class TheoryBuilder:
             if not self.overwrite:
                 rich.print(f"Skipping existing grid {new}")
                 return
-            else:
-                new.unlink()
+            new.unlink()
         # link
         new.symlink_to(grid)
         if new.exists():
@@ -152,16 +151,15 @@ class TheoryBuilder:
         other : pathlib.Path
             new folder
         """
-        eko = self.ekos_path() / f"{name}.tar"
+        eko_path = self.ekos_path() / f"{name}.tar"
         new = other / f"{name}.tar"
         if new.exists():
             if not self.overwrite:
                 rich.print(f"Skipping existing eko {new}")
                 return
-            else:
-                new.unlink()
+            new.unlink()
         # link
-        new.symlink_to(eko)
+        new.symlink_to(eko_path)
         if new.exists():
             rich.print(f"[green]Success:[/] Created link at {new}")
 

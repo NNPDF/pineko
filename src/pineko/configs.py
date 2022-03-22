@@ -21,31 +21,31 @@ def defaults(base_configs):
     ----------
     base_config : dict
         user provided configuration
-    
+
     Returns
     -------
-    configs : dict
+    configs_ : dict
         enhanced configuration
 
     Note
     ----
     The general rule is to never replace user provided input.
     """
-    configs = copy.deepcopy(base_configs)
+    configs_ = copy.deepcopy(base_configs)
 
-    enhance_paths(configs)
+    enhance_paths(configs_)
 
-    return configs
+    return configs_
 
 
-def enhance_paths(configs):
+def enhance_paths(configs_):
     """Check required path and enhance them with root path.
-    
+
     The changes are done inplace.
 
     Parameters
     ----------
-    configs : dict
+    configs_ : dict
         configuration
     """
     # required keys without default
@@ -58,26 +58,28 @@ def enhance_paths(configs):
         "fktables",
         "ekos",
     ]:
-        if key not in configs["paths"]:
+        if key not in configs_["paths"]:
             raise ValueError(f"Configuration is missing a 'paths.{key}' key")
-        if pathlib.Path(configs["paths"][key]).anchor == "":
-            configs["paths"][key] = configs["paths"]["root"] / configs["paths"][key]
+        if pathlib.Path(configs_["paths"][key]).anchor == "":
+            configs_["paths"][key] = configs_["paths"]["root"] / configs_["paths"][key]
         else:
-            configs["paths"][key] = pathlib.Path(configs["paths"][key])
+            configs_["paths"][key] = pathlib.Path(configs_["paths"][key])
 
     # optional keys which are by default None
-    if "logs" not in configs["paths"]:
-        configs["paths"]["logs"] = {}
+    if "logs" not in configs_["paths"]:
+        configs_["paths"]["logs"] = {}
 
     for key in ["eko", "fk"]:
-        if key not in configs["paths"]["logs"]:
-            configs["paths"]["logs"][key] = None
-        elif pathlib.Path(configs["paths"]["logs"][key]).anchor == "":
-            configs["paths"]["logs"][key] = (
-                configs["paths"]["root"] / configs["paths"]["logs"][key]
+        if key not in configs_["paths"]["logs"]:
+            configs_["paths"]["logs"][key] = None
+        elif pathlib.Path(configs_["paths"]["logs"][key]).anchor == "":
+            configs_["paths"]["logs"][key] = (
+                configs_["paths"]["root"] / configs_["paths"]["logs"][key]
             )
         else:
-            configs["paths"]["logs"][key] = pathlib.Path(configs["paths"]["logs"][key])
+            configs_["paths"]["logs"][key] = pathlib.Path(
+                configs_["paths"]["logs"][key]
+            )
 
 
 def detect(path=None):

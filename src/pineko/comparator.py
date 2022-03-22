@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+"""Provide tools to compare grids and FK tables"""
+
 import numpy as np
 import pandas as pd
 import pineappl

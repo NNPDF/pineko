@@ -23,5 +23,5 @@ def subcommand(pineappl, eko, fktable, max_as, max_al, pdf):
     couplings (i.e. the maximum power allowed for each correction).
     """
     _grid, _fk, comp = evolve.evolve_grid(pineappl, eko, fktable, max_as, max_al, pdf)
-    if (comp):
+    if comp:
         print(comp.to_string())
