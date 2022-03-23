@@ -7,10 +7,10 @@ from ._base import command
 
 @command.command("compare")
 @click.argument("pineappl", type=click.Path(exists=True))
-@click.argument("eko", type=click.Path(exists=True))
 @click.argument("fktable", type=click.Path())
 @click.argument("max_as", type=int)
 @click.argument("max_al", type=int)
+@click.argument("pdf", type=str)
 def subcommand(pineappl, fktable, max_as, max_al, pdf):
     """Compare process level PineAPPL grid and derived FkTable.
 
