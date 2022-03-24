@@ -18,7 +18,7 @@ def subcommand(pineappl_path, eko_path):
     provided in EKO, have to expose the same x grid and Q2 grid.
     """
     pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
-    operators = eko.output.Output.load_yaml_from_file(eko_path)
+    operators = eko.output.Output.load_tar(eko_path)
     try:
         check.check_grid_and_eko_compatible(pineappl_grid, operators)
         rich.print("[green]Success:[/] grids are compatible")

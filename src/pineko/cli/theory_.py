@@ -1,13 +1,28 @@
 # -*- coding: utf-8 -*-
+import pathlib
+
 import click
 
-from .. import theory
+from .. import configs, theory
 from ._base import command
 
 
 @command.group("theory")
-def theory_():
+@click.option(
+    "-c",
+    "--configs",
+    "cfg",
+    default=None,
+    type=click.Path(resolve_path=True, path_type=pathlib.Path),
+    help="Explicitly specify config file (it has to be a valid TOML file).",
+)
+def theory_(cfg):
     """Iterate a subcommand on a given theory and list of datasets"""
+    path = configs.detect(cfg)
+    base_configs = configs.load(path)
+    configs.configs = configs.defaults(base_configs)
+    if cfg is not None:
+        print(f"Configurations loaded from '{path}'")
 
 
 @theory_.command()
