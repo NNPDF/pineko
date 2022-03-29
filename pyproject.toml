@@ -16,7 +16,7 @@ authors = [
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
 eko = "^0.8.5"
-pineappl = "^0.5.1"
+pineappl = "^0.5.2"
 PyYAML = "^6.0"
 numpy = "^1.21.0"
 pandas = "^1.4.1"
@@ -73,7 +73,7 @@ ignore-paths = ["benchmarks/", "doc/", "tests/", "data/"]
 # jobs has to be 1 as pylint is NOT threadsafe
 jobs = 1
 [tool.pylint.messages_control]
-disable = ["invalid-name","fixme"]
+disable = ["invalid-name", "fixme"]
 [tool.pylint.reports]
 # Available formats are:
 # text, parseable, colorized, json and msvs (visual studio).
