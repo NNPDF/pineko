@@ -4,14 +4,24 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "pineko"
-version = "0.1.0"
+version = "0.0.0"
 description = "Combine PineAPPL grids and EKOs into FK tables"
+readme = "README.md"
 authors = [
   "Alessandro Candido <alessandro.candido@mi.infn.it>",
   "Juan Cruz Martinez <juan.cruz@mi.infn.it>",
   "Felix Hekhorn <felix.hekhorn@mi.infn.it>",
   "Christopher Schwan <christopher.schwan@physik.uni-wuerzburg.de>",
 ]
+classifiers = [
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Physics",
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+]
+repository = "https://github.com/N3PDF/pineko"
+packages = [{ include = "pineko", from = "src" }]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
