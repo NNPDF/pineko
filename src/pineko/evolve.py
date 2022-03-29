@@ -14,6 +14,34 @@ import yaml
 from . import check, comparator
 
 
+def write_operator_card_from_file(pineappl_path, default_card_path, card_path):
+    """Generate operator card for a grid.
+
+    Parameters
+    ----------
+    pineappl_path : str or os.PathLike
+        path to grid to evolve
+    default_card : str or os.PathLike
+        base operator card
+    card_path : str or os.PathLike
+        target path
+
+    Returns
+    -------
+    x_grid : np.ndarray
+        written x grid
+    q2_grid : np.ndarray
+        written Q2 grid
+    """
+    # raise in python rather then rust
+    if not pathlib.Path(pineappl_path).exists():
+        raise FileNotFoundError(pineappl_path)
+    pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
+    with open(default_card_path, "r", encoding="UTF-8") as f:
+        default_card = yaml.safe_load(f)
+    return write_operator_card(pineappl_grid, default_card, card_path)
+
+
 def write_operator_card(pineappl_grid, default_card, card_path):
     """Generate operator card for this grid.
 
@@ -25,6 +53,13 @@ def write_operator_card(pineappl_grid, default_card, card_path):
         base operator card
     card_path : str or os.PathLike
         target path
+
+    Returns
+    -------
+    x_grid : np.ndarray
+        written x grid
+    q2_grid : np.ndarray
+        written Q2 grid
     """
     operators_card = copy.deepcopy(default_card)
     x_grid, _pids, q2_grid = pineappl_grid.axes()
@@ -39,7 +74,7 @@ def evolve_grid(
     pineappl_path, eko_path, fktable_path, max_as, max_al, comparison_pdf=None
 ):
     """
-    Invoke steps from file paths.
+    Convolute grid with EKO from file paths.
 
     Parameters
     ----------
@@ -57,7 +92,7 @@ def evolve_grid(
             if given, a comparison table (with / without evolution) will be printed
     """
     rich.print(
-        rich.panel.Panel.fit(f"Computing ...", style="magenta", box=rich.box.SQUARE),
+        rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
         f"   {pineappl_path}\n",
         f"+ {eko_path}\n",
         f"= {fktable_path}",
@@ -75,12 +110,14 @@ def evolve_grid(
     order_mask = pineappl.grid.Order.create_mask(pineappl_grid.orders(), max_as, max_al)
     fktable = pineappl_grid.convolute_eko(operators, "evol", order_mask=order_mask)
     fktable.optimize()
+    # compare before after
+    comparison = None
+    if comparison_pdf is not None:
+        comparison = comparator.compare(
+                pineappl_grid, fktable, max_as, max_al, comparison_pdf
+            )
+        fktable.set_key_value("results_fk", comparison.to_string())
+        fktable.set_key_value("results_fk_pdfset", comparison_pdf)
     # write
     fktable.write_lz4(str(fktable_path))
-    # compare before after
-    if comparison_pdf is not None:
-        print(
-            comparator.compare(
-                pineappl_grid, fktable, max_as, max_al, comparison_pdf
-            ).to_string()
-        )
+    return pineappl_grid, fktable, comparison

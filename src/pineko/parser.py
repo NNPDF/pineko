@@ -1,21 +1,22 @@
+# -*- coding: utf-8 -*-
+# ATTENTION: this is a partial copy from
+# https://github.com/NNPDF/nnpdf/blob/7cb96fc05ca2a2914bc1ccc864865e0ca4e66983/validphys2/src/validphys/pineparser.py
+
 import yaml
-# ATTENTION: this is a partial copy from 
-# https://github.com/NNPDF/nnpdf/blob/ec73c9c5d3765c8b600e3015d3f5d6238dd89400/validphys2/src/validphys/fkparser.py
 
-
-ext = "pineappl.lz4"
-
-class PineAPPLEquivalentNotKnown(Exception):
-    pass
-
+EXT = "pineappl.lz4"
 
 class YamlFileNotFound(FileNotFoundError):
-    pass
+    """ymldb file for dataset not found."""
+
+
+class GridFileNotFound(FileNotFoundError):
+    """PineAPPL file for FK table not found."""
 
 
 def _load_yaml(yaml_file):
     """Load a dataset.yaml file.
-    
+
     Parameters
     ----------
     yaml_file : Path
@@ -34,21 +35,18 @@ def _load_yaml(yaml_file):
     return ret
 
 
-def get_yaml_information(yaml_file, grids_folder, check_pineappl=False):
-    """Given a yaml_file, returns the corresponding dictionary.
+def get_yaml_information(yaml_file, grids_folder):
+    """Given a yaml_file, returns the corresponding dictionary and grids.
 
-    The dictionary contains all information and an extra field "paths"
+    The dictionary contains all information and we return an extra field
     with all the grids to be loaded for the given dataset.
-    Checks whether the grid is apfelcomb or pineappl:
-    if check_pineappl is True this function will raise PineAPPLEquivalentNotKnown
-    if a pineappl grid is not found.
 
     Parameters
     ----------
-    yaml_file : Path
+    yaml_file : pathlib.Path
         path of the yaml file for the given dataset
-    grids_folder : Path
-        path of the theory folder where to find the grids
+    grids_folder : pathlib.Path
+        path of the grids folder
 
     Returns
     -------
@@ -59,26 +57,15 @@ def get_yaml_information(yaml_file, grids_folder, check_pineappl=False):
     """
     yaml_content = _load_yaml(yaml_file)
 
-    if yaml_content.get("appl") and check_pineappl:
-        # This might be useful to use the "legacy loader" when there is no actual pineappl available
-        raise PineAPPLEquivalentNotKnown(yaml_content["target_dataset"])
-
     # Turn the operands and the members into paths (and check all of them exist)
     ret = []
     for operand in yaml_content["operands"]:
         tmp = []
         for member in operand:
-            p = grids_folder / f"{member}.{ext}"
+            p = grids_folder / f"{member}.{EXT}"
             if not p.exists():
-                raise FileNotFoundError(f"Failed to find {p}")
+                raise GridFileNotFound(f"Failed to find {p}")
             tmp.append(p)
         ret.append(tmp)
-
-    # We have added a new operation, "NORM" so we need to play this game here:
-    if yaml_content["operation"] == "NORM":
-        # Case not yet considered in VP
-        yaml_content["operation_function"] = "NULL"
-    else:
-        yaml_content["operation_function"] = yaml_content["operation"]
 
     return yaml_content, ret

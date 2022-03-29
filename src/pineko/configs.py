@@ -1,99 +1,100 @@
 # -*- coding: utf-8 -*-
+import copy
 import pathlib
-import typing
+
 import appdirs
 import tomli
-
-import rich
 
 name = "pineko.toml"
 "Name of the config while (wherever it is placed)"
 
 
-class Configurations:
-    def __init__(self, dictionary=None):
-        if isinstance(dictionary, Configurations):
-            self._dict = dictionary._dict
-        elif dictionary is None:
-            self._dict = {}
-        else:
-            self._dict = dictionary
-
-    def __repr__(self):
-        return self._dict.__repr__()
-
-    def __getattribute__(self, name) -> typing.Any:
-        if name[0] == "_":
-            return super().__getattribute__(name)
-
-        value = self._dict[name]
-        if isinstance(value, dict):
-            value = Configurations(value)
-        return value
-
-    def __getitem__(self, key):
-        return self.__getattribute__(key)
-
-    def __setattribute__(self, name, value):
-        self._dict[name] = value
-
-    def __setitem__(self, key, value):
-        if key[0] == "_":
-            raise LookupError(
-                "Elements with leading '_' can not be retrieved later, so you"
-                f" can not set (attempted: '{key}')"
-            )
-
-        self._dict[key] = value
-
-    def __contains__(self, item):
-        return item in self._dict
-
-    def _pprint(self):
-        rich.print(self._dict)
-
-
 # better to declare immediately the correct type
-configs = Configurations()
+configs = {}
 "Holds loaded configurations"
-
-
-def add_scope(base, scope_id, scope):
-    "Do not override."
-    if scope_id not in base:
-        base[scope_id] = scope
-    else:
-        for key, value in scope.items():
-            if key not in base[scope_id]:
-                base[scope_id] = value
 
 
 def defaults(base_configs):
     """Provide additional defaults.
 
+    Parameters
+    ----------
+    base_config : dict
+        user provided configuration
+
+    Returns
+    -------
+    configs_ : dict
+        enhanced configuration
+
     Note
     ----
     The general rule is to never replace user provided input.
     """
-    configs = Configurations(base_configs)
+    configs_ = copy.deepcopy(base_configs)
 
-    configs = add_paths(configs)
+    enhance_paths(configs_)
 
-    return Configurations(configs)
+    return configs_
 
 
-def add_paths(configs):
-    for key, default in dict(grids="grids", ekos="ekos").items():
-        if key not in configs.paths:
-            configs.paths[key] = configs.paths.root / default
-        elif pathlib.Path(configs.paths[key]).anchor == "":
-            configs.paths[key] = configs.paths.root / configs.paths[key]
+def enhance_paths(configs_):
+    """Check required path and enhance them with root path.
+
+    The changes are done inplace.
+
+    Parameters
+    ----------
+    configs_ : dict
+        configuration
+    """
+    # required keys without default
+    for key in [
+        "ymldb",
+        "operator_cards",
+        "grids",
+        "operator_card_template",
+        "theory_cards",
+        "fktables",
+        "ekos",
+    ]:
+        if key not in configs_["paths"]:
+            raise ValueError(f"Configuration is missing a 'paths.{key}' key")
+        if pathlib.Path(configs_["paths"][key]).anchor == "":
+            configs_["paths"][key] = configs_["paths"]["root"] / configs_["paths"][key]
         else:
-            configs.paths[key] = pathlib.Path(configs.paths[key])
+            configs_["paths"][key] = pathlib.Path(configs_["paths"][key])
 
-    return configs
+    # optional keys which are by default None
+    if "logs" not in configs_["paths"]:
+        configs_["paths"]["logs"] = {}
+
+    for key in ["eko", "fk"]:
+        if key not in configs_["paths"]["logs"]:
+            configs_["paths"]["logs"][key] = None
+        elif pathlib.Path(configs_["paths"]["logs"][key]).anchor == "":
+            configs_["paths"]["logs"][key] = (
+                configs_["paths"]["root"] / configs_["paths"]["logs"][key]
+            )
+        else:
+            configs_["paths"]["logs"][key] = pathlib.Path(
+                configs_["paths"]["logs"][key]
+            )
+
 
 def detect(path=None):
+    """Autodetect configuration file path.
+
+    Parameters
+    ----------
+    path : str or os.PathLike
+        user provided guess
+
+    Returns
+    -------
+    pathlib.Path :
+        file path
+    """
     paths = []
 
     if path is not None:
@@ -115,14 +116,19 @@ def detect(path=None):
 
 
 def load(path=None):
-    try:
-        path = detect(path)
-    except FileNotFoundError:
-        if path is None:
-            return {"paths": {"root": pathlib.Path.cwd()}}
-        else:
-            print("Configuration path specified is not valid.")
-            quit()
+    """Load config file.
+
+    Parameters
+    ----------
+    path : str or os.PathLike
+        file path
+
+    Returns
+    -------
+    loaded : dict
+        configuration dictionary
+    """
+    path = detect(path)
 
     with open(path, "rb") as fd:
         loaded = tomli.load(fd)

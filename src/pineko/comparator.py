@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
+"""Provide tools to compare grids and FK tables"""
+
 import numpy as np
 import pandas as pd
-
 import pineappl
 
 
@@ -40,10 +42,14 @@ def compare(pine, fktable, max_as, max_al, pdf):
     df = pd.DataFrame()
     # add bin info
     for d in range(pine.bin_dimensions()):
-        df[f"O{d} left"] = pine.bin_left(d)
-        df[f"O{d} right"] = pine.bin_right(d)
+        try:
+            label = pine.key_values()[f"x{d+1}_label"]
+        except KeyError:
+            label = f"O{d+1}"
+        df[f"{label} left"] = pine.bin_left(d)
+        df[f"{label} right"] = pine.bin_right(d)
     # add data
     df["PineAPPL"] = before
     df["FkTable"] = after
-    df["percent_error"] = (after / before - 1.0) * 100.0
+    df["permille_error"] = (after / before - 1.0) * 1000.0
     return df
