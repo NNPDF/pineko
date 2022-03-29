@@ -198,12 +198,17 @@ def pineappl_to_fktable(metadata, pinepaths):
     of a 14x(14) matrix in the evolution basis.
     The indices of the dataframe are [data, x1, (x2)].
 
+    Note: the metadata correspond to a commondata file and so it can contain many partial
+    observables as operators that, at the end, give raise to a single observable
+    (for instance a differential cross section normalized to the total)
+    The paths correspond to only one of these observables.
+
     Parameters
     ----------
-        pinepaths: list(pathlib.Path)
-            list of paths to pineappl grids
         metadata: dict
             metadata information for the dataset (usually the output of get_yaml_information)
+        pinepaths: list(pathlib.Path)
+            list of paths to pineappl grids
     """
     # Read each of the pineappl fktables
     pines = [FkTable.read(i) for i in pinepaths]
