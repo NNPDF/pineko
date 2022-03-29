@@ -55,6 +55,17 @@ dirty = true
 [tool.poetry-dynamic-versioning.substitution]
 files = ["src/pineko/__init__.py"]
 
+[tool.pytest.ini_options]
+testpaths = ['tests/', 'benchmarks/']
+addopts = [
+  '--cov=eko',
+  '--cov=ekobox',
+  '--cov-report=html',
+  '--cov-report=xml',
+  '--strict-markers',
+]
+env = ["D:NUMBA_DISABLE_JIT=1"]
+
 [tool.pylint.master]
 # extensions not to check
 extension-pkg-whitelist = ["numpy", "numba", "lhapdf", "pineappl"]
