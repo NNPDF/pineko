@@ -155,7 +155,7 @@ def get_yaml_information(yaml_file, grids_folder, check_grid_existence=True):
     return yaml_content, ret
 
 
-def _pinelumi_to_columns(pine_luminosity, hadronic, flav_size=14):
+def _pinelumi_to_columns(pine_luminosity, hadronic):
     """Makes the pineappl luminosity into the column indices of a dataframe
     These corresponds to the indices of a flat (14x14) matrix for hadronic observables
     and the non-zero indices of the 14-flavours for DIS
@@ -169,21 +169,22 @@ def _pinelumi_to_columns(pine_luminosity, hadronic, flav_size=14):
 
     Returns
     -------
-        list(int): list of indices
+        list(int): list of labels for the columns
     """
-    co = []
+    flav_size = len(evol_basis_pids)
+    columns = []
     if hadronic:
         for i, j in pine_luminosity:
             idx = evol_basis_pids.index(i)
             jdx = evol_basis_pids.index(j)
-            co.append(flav_size * idx + jdx)
+            columns.append(flav_size * idx + jdx)
     else:
         # The proton might come from both sides
         try:
-            co = [evol_basis_pids.index(i) for _, i in pine_luminosity]
+            columns = [evol_basis_pids.index(i) for _, i in pine_luminosity]
         except ValueError:
-            co = [evol_basis_pids.index(i) for i, _ in pine_luminosity]
-    return co
+            columns = [evol_basis_pids.index(i) for i, _ in pine_luminosity]
+    return columns
 
 
 def pineappl_to_fktable(metadata, pinepaths):
