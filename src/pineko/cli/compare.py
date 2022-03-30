@@ -26,4 +26,5 @@ def subcommand(pineappl_path, fktable_path, max_as, max_al, pdf):
     """
     pine = pineappl.grid.Grid.read(pineappl_path)
     fk = pineappl.fk_table.FkTable.read(fktable_path)
-    rich.print(comparator.compare(pine, fk, max_as, max_al, pdf))
+    # Note that we need to cast to string before printing to avoid ellipsis ...
+    rich.print(comparator.compare(pine, fk, max_as, max_al, pdf).to_string())
