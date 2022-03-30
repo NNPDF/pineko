@@ -29,17 +29,14 @@ data x1 x2                                           ...
         98  0.000000  -0.841811  0.000018  0.000349  ... -0.002255  0.000000 -0.016986  0.000000
         99 -0.004565  74.340392  0.001172 -0.002813  ... -0.015495 -0.000411 -0.000548 -0.000183
 """
-from collections import namedtuple
+from dataclasses import dataclass
 import yaml
 import numpy as np
-import pandas as pd
 
 from eko.basis_rotation import evol_basis_pids
 from pineappl.fk_table import FkTable
 
 EXT = "pineappl.lz4"
-
-FkData = namedtuple("FkData", ["dataframe", "q0", "xgrid", "protected"])
 
 
 class YamlFileNotFound(FileNotFoundError):
@@ -74,6 +71,28 @@ def _load_yaml(yaml_file):
 def _apfelcomb_compatibility_flags(gridpaths, metadata):
     """
     Prepare the apfelcomb-pineappl compatibility fixes
+
+    These fixes can be of only three types:
+
+    - normalization:
+        normalization per subgrid
+
+        normalization:
+            grid_name: factor
+
+    - repetition_flag:
+        when a grid was actually the same point repeated X times
+        NNPDF cfactors and cuts are waiting for this repetition and so we need to keep track of it
+
+        repetition_flag:
+            grid_name
+
+    - shifts:
+        only for ATLASZPT8TEVMDIST
+        at some point a grid was eliminated in the middle and so the indices for the points are shifted
+
+        shifts:
+            grid_name: shift_int
 
     Returns
     -------
@@ -187,6 +206,38 @@ def _pinelumi_to_columns(pine_luminosity, hadronic):
     return columns
 
 
+@dataclass
+class FkData:
+    """The FkData contains information to regenerate a dataframe
+
+    It contains:
+
+        fktables: list(np.ndarray)
+            list of rank-4 tensors with (data, channels, x, x)
+        luminosities: list(list(int))
+            luminosity channels active for each of the previous fktables
+        data_indices: list(np.ndarray)
+            list of data indices for each of the fktables
+        q0: float
+            scale for this fktable
+        hadronic: bool
+            whether the observable is hadronic
+        protected: bool
+            whether the observable accepts cuts
+    """
+
+    fktables: list
+    luminosities: list
+    data_indices: list  # needed because of the shifts!
+    q0: float
+    xgrid: np.ndarray
+    hadronic: bool = False
+    protected: bool = False
+
+    def __iter__(self):
+        return zip(self.fktables, self.luminosities, self.data_indices)
+
+
 def pineappl_to_fktable(metadata, pinepaths):
     """Receives a list of paths to pineappl grids and returns the information
     in the form of a pandas dataframe that can be easily parsed by external progams
@@ -223,27 +274,29 @@ def pineappl_to_fktable(metadata, pinepaths):
         )
     Q0 = np.sqrt(pine_rep.muf2())
     xgrid = pine_rep.x_grid()
-    # fktables in pineapplgrid are for o = fk * f while previous fktables were o = fk * xf
-    # prepare the grid all tables will be divided by
-    if hadronic:
-        xdivision = (xgrid[:, None] * xgrid[None, :]).flatten()
-    else:
-        xdivision = xgrid
 
     protected = False
-    # TODO: why is there a dataset with repetition_flag in both sides?!?!??!
     apfelcomb = _apfelcomb_compatibility_flags(pinepaths, metadata)
 
     # Read each separated grid and luminosity
     fktables = []
+    luminosity_channels = []
+    data_indices = []
     ndata = 0
+
+    # fktables in pineapplgrid are for o = fk * f while previous fktables were o = fk * xf
+    # prepare the grid all tables will be divided by
+    if hadronic:
+        xdivision = np.prod(np.meshgrid(xgrid, xgrid), axis=0)
+    else:
+        xdivision = xgrid[:, np.newaxis]
+
     for i, p in enumerate(pines):
         luminosity_columns = _pinelumi_to_columns(p.lumi(), hadronic)
 
         # Remove the bin normalization
         raw_fktable = (p.table().T / p.bin_normalizations()).T
         n = raw_fktable.shape[0]
-        lf = len(luminosity_columns)
 
         # Apply the apfelcomb fixes if they are needed
         if apfelcomb is not None:
@@ -257,25 +310,13 @@ def pineappl_to_fktable(metadata, pinepaths):
                 ndata += apfelcomb["shifts"][i]
         ###
 
-        partial_fktable = raw_fktable.reshape(n, lf, -1) / xdivision
+        # Check conversion factors and remove the x* from the fktable
+        raw_fktable *= metadata.get("conversion_factor", 1.0) / xdivision
 
-        # Now concatenate (data, x1, x2) and move the flavours to the columns
-        df_fktable = partial_fktable.swapaxes(0, 1).reshape(lf, -1).T
+        luminosity_channels.append(luminosity_columns)
+        fktables.append(raw_fktable)
+        data_indices.append(np.arange(ndata, ndata + n))
 
-        # Create the multi-index for the dataframe
-        ni = np.arange(ndata, n + ndata)
-        xi = np.arange(len(xgrid))
-        if hadronic:
-            idx = pd.MultiIndex.from_product([ni, xi, xi], names=["data", "x1", "x2"])
-        else:
-            idx = pd.MultiIndex.from_product([ni, xi], names=["data", "x"])
-
-        df_fktable *= metadata.get("conversion_factor", 1.0)
-
-        fktables.append(pd.DataFrame(df_fktable, columns=luminosity_columns, index=idx))
         ndata += n
 
-    # Finallly concatenate all fktables, sort by flavours and fill any holes
-    df = pd.concat(fktables, sort=True, copy=False).fillna(0.0)
-
-    return FkData(df, Q0, xgrid, protected)
+    return FkData(fktables, luminosity_channels, data_indices, Q0, xgrid, hadronic, protected)
