@@ -39,7 +39,7 @@ from pineappl.fk_table import FkTable
 
 EXT = "pineappl.lz4"
 
-FkData = namedtuple("FkData", ["dataframe", "q0", "xgrid"])
+FkData = namedtuple("FkData", ["dataframe", "q0", "xgrid", "protected"])
 
 
 class YamlFileNotFound(FileNotFoundError):
@@ -86,36 +86,35 @@ def _apfelcomb_compatibility_flags(gridpaths, metadata):
         shift: list(int)
             Shift in the data index for each grid that forms the fktable
     """
-    operands = metadata["operands"]
-    apfelcomb_norm = None
-    if norms := metadata.get("apfelcomb_norm"):
-        # There's no easy way for an fktable to know its role in given operation:
-        for factors, grids in zip(norms, operands):
-            # Now check, in case of an operation, what is our index in this operation
-            if len(grids) == len(gridpaths) and all(
-                f.name == f"{o}.{EXT}" for f, o in zip(gridpaths, grids)
-            ):
-                apfelcomb_norm = np.array(factors)
+    if metadata.get("apfelcomb") is None:
+        return None
 
-    # Check for the repetition flag, meaning we only want the first datapoint for this fktable
-    apfelcomb_repetition_flag = False
-    if metadata.get("repetition_flag"):
-        valid_targets = []
-        for operand, flagged in zip(operands, metadata["repetition_flag"]):
-            if flagged:
-                valid_targets.append(f"{operand[0]}.{EXT}")
-        # Now check whether the current fktable is part of the valid targets
-        apfelcomb_repetition_flag = gridpaths[0].name in valid_targets
-        if apfelcomb_repetition_flag and len(gridpaths) > 1:
-            raise ValueError(f"Repetition set for a group of fktables at once: {gridpaths}")
+    # Can't pathlib understand double suffixes?
+    operands = [i.name.replace(f".{EXT}", "") for i in gridpaths]
+    ret = {}
 
-    # afaik there's only dataset with shifts, but it needs to be considered
-    shifts = None
-    if metadata.get("shifts"):
-        if len(operands) > 1:
-            raise ValueError("Wrong shifts for {metadata['target_dataset']}")
-        shifts = [0 if shift is None else shift for shift in metadata["shifts"][0]]
-    return apfelcomb_norm, apfelcomb_repetition_flag, shifts
+    # Check whether we have a normalization active and whether it affects any of the grids
+    if metadata["apfelcomb"].get("normalization") is not None:
+        norm_info = metadata["apfelcomb"]["normalization"]
+        # Now fill the operands that need normalization
+        ret["normalization"] = [norm_info.get(op, 1.0) for op in operands]
+
+    # Check whether the repetition flag is active
+    if metadata["apfelcomb"].get("repetition_flag") is not None:
+        if len(operands) == 1:
+            ret["repetition_flag"] = operands[0] in metadata["apfelcomb"]["repetition_flag"]
+        else:
+            # Just for the sake of it, let's check whether we did something stupid
+            if any(op in metadata["apfelcomb"]["repetition_flag"] for op in operands):
+                raise ValueError(f"The yaml info for {metadata['target_dataset']} is broken")
+
+    # Check whether the dataset has shifts
+    # Note: this only happens for ATLASZPT8TEVMDIST, if that gets fixed we might as well remove it
+    if metadata["apfelcomb"].get("shifts") is not None:
+        shift_info = metadata["apfelcomb"]["shifts"]
+        ret["shifts"] = [shift_info.get(op, 0) for op in operands]
+
+    return ret
 
 
 def get_yaml_information(yaml_file, grids_folder, check_grid_existence=True):
@@ -230,9 +229,9 @@ def pineappl_to_fktable(metadata, pinepaths):
     else:
         xdivision = xgrid
 
-    apfelcomb_norm, apfelcomb_repetition_flag, shifts = _apfelcomb_compatibility_flags(
-        pinepaths, metadata
-    )
+    protected = False
+    # TODO: why is there a dataset with repetition_flag in both sides?!?!??!
+    apfelcomb = _apfelcomb_compatibility_flags(pinepaths, metadata)
 
     # Read each separated grid and luminosity
     fktables = []
@@ -245,14 +244,16 @@ def pineappl_to_fktable(metadata, pinepaths):
         n = raw_fktable.shape[0]
         lf = len(luminosity_columns)
 
-        # Apply the apfelcomb fixes
-        if apfelcomb_norm is not None:
-            raw_fktable = (raw_fktable.T * apfelcomb_norm[ndata : ndata + n]).T
-        if apfelcomb_repetition_flag:
-            raw_fktable = raw_fktable[0:1]
-            n = 1
-        if shifts is not None:
-            ndata += shifts[i]
+        # Apply the apfelcomb fixes if they are needed
+        if apfelcomb is not None:
+            if apfelcomb.get("normalization") is not None:
+                raw_fktable = raw_fktable * apfelcomb["normalization"][i]
+            if apfelcomb.get("repetition_flag", False):
+                raw_fktable = raw_fktable[0:1]
+                n = 1
+                protected = True
+            if apfelcomb.get("shifts") is not None:
+                ndata += apfelcomb["shifts"][i]
         ###
 
         partial_fktable = raw_fktable.reshape(n, lf, -1) / xdivision
@@ -276,4 +277,4 @@ def pineappl_to_fktable(metadata, pinepaths):
     # Finallly concatenate all fktables, sort by flavours and fill any holes
     df = pd.concat(fktables, sort=True, copy=False).fillna(0.0)
 
-    return FkData(df, Q0, xgrid)
+    return FkData(df, Q0, xgrid, protected)
