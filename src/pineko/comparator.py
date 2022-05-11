@@ -7,26 +7,25 @@ import pineappl
 
 
 def compare(pine, fktable, max_as, max_al, pdf):
-    """
-    Build comparison table.
+    """Build comparison table.
 
     Parameters
     ----------
-        pine : pineappl.grid.Grid
-            uncovoluted grid
-        fktable : pineappl.fktable.FkTable
-            convoluted grid
-        max_as : int
-            maximum power of strong coupling
-        max_al : int
-            maximum power of electro-weak coupling
-        pdf : str
-            PDF set name
+    pine : pineappl.grid.Grid
+        uncovoluted grid
+    fktable : pineappl.fktable.FkTable
+        convoluted grid
+    max_as : int
+        maximum power of strong coupling
+    max_al : int
+        maximum power of electro-weak coupling
+    pdf : str
+        PDF set name
 
     Returns
     -------
-        df : pd.DataFrame
-            comparison table
+    df : pd.DataFrame
+        comparison table
     """
     import lhapdf  # pylint: disable=import-outside-toplevel
 
