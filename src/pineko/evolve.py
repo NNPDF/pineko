@@ -71,7 +71,7 @@ def write_operator_card(pineappl_grid, default_card, card_path):
 
 
 def evolve_grid(
-    pineappl_path, eko_path, fktable_path, max_as, max_al, comparison_pdf=None
+    pineappl_path, eko_path, fktable_path, max_as, max_al, xir, xif, comparison_pdf=None
 ):
     """
     Convolute grid with EKO from file paths.
@@ -88,6 +88,10 @@ def evolve_grid(
             maximum power of strong coupling
         max_al : int
             maximum power of electro-weak coupling
+        xir : float
+            renormalization scale variation
+        xif : float
+            factorization scale variation
         comparison_pdf : None or str
             if given, a comparison table (with / without evolution) will be printed
     """
@@ -95,7 +99,8 @@ def evolve_grid(
         rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
         f"   {pineappl_path}\n",
         f"+ {eko_path}\n",
-        f"= {fktable_path}",
+        f"= {fktable_path}\n",
+        f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}"
     )
     # load
     pineappl_grid = pineappl.grid.Grid.read(str(pineappl_path))
@@ -108,7 +113,13 @@ def evolve_grid(
         raise ValueError("The EKO is neither in flavor nor in evolution basis.")
     # do it
     order_mask = pineappl.grid.Order.create_mask(pineappl_grid.orders(), max_as, max_al)
-    fktable = pineappl_grid.convolute_eko(operators, "evol", order_mask=order_mask)
+    # TODO this is a hack to not break the CLI
+    # the problem is that the EKO output still does not contain the theory/operators card and
+    # so I can't compute alpha_s here if xir != 1
+    if np.isclose(xir, 1.):
+        mur2_grid = list(operators["Q2grid"].keys())
+        alphas_values = [op["alphas"] for op in operators["Q2grid"].values()]
+    fktable = pineappl_grid.convolute_eko(operators, mur2_grid, alphas_values, "evol", order_mask=order_mask,xi=(xir, xif))
     fktable.optimize()
     # compare before after
     comparison = None

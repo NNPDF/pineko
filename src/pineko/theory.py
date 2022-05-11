@@ -326,9 +326,10 @@ class TheoryBuilder:
         max_al = 0
         # do it!
         logger.info("Start computation of %s", name)
+        logger.info("max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}")
         start_time = time.perf_counter()
         _grid, _fk, comparison = evolve.evolve_grid(
-            grid_path, eko_filename, fk_filename, max_as, max_al, pdf
+            grid_path, eko_filename, fk_filename, max_as, max_al, xir=tcard["XIR"],xif=tcard["XIF"],comparison_pdf=pdf
         )
         logger.info(
             "Finished computation of %s - took %f s",
