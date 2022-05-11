@@ -100,7 +100,7 @@ def evolve_grid(
         f"   {pineappl_path}\n",
         f"+ {eko_path}\n",
         f"= {fktable_path}\n",
-        f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}"
+        f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
     )
     # load
     pineappl_grid = pineappl.grid.Grid.read(str(pineappl_path))
@@ -116,10 +116,17 @@ def evolve_grid(
     # TODO this is a hack to not break the CLI
     # the problem is that the EKO output still does not contain the theory/operators card and
     # so I can't compute alpha_s here if xir != 1
-    if np.isclose(xir, 1.):
+    if np.isclose(xir, 1.0):
         mur2_grid = list(operators["Q2grid"].keys())
         alphas_values = [op["alphas"] for op in operators["Q2grid"].values()]
-    fktable = pineappl_grid.convolute_eko(operators, mur2_grid, alphas_values, "evol", order_mask=order_mask,xi=(xir, xif))
+    fktable = pineappl_grid.convolute_eko(
+        operators,
+        mur2_grid,
+        alphas_values,
+        "evol",
+        order_mask=order_mask,
+        xi=(xir, xif),
+    )
     fktable.optimize()
     # compare before after
     comparison = None
