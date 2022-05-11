@@ -30,7 +30,7 @@ def check_grid_and_eko_compatible(pineappl_grid, operators):
         operators : eko.output.Output
             operators
     """
-    x_grid, _pids, muf2_grid = pineappl_grid.axes()
+    x_grid, _pids, _mur2_grid, muf2_grid = pineappl_grid.axes()
     # Q2 grid
     if not np.all(
         in1d(np.unique(list(operators["Q2grid"].keys())), np.array(muf2_grid))

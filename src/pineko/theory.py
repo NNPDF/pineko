@@ -5,6 +5,7 @@ import time
 import eko
 import rich
 import yaml
+from eko import strong_coupling as sc
 
 from . import configs, evolve, parser, theory_card
 
@@ -220,6 +221,24 @@ class TheoryBuilder:
         self.operator_cards_path.mkdir(exist_ok=True)
         self.iterate(self.opcard)
 
+    def load_operator_card(self, name):
+        """Read current operator card.
+
+        Parameters
+        ----------
+        name : str
+            grid name, i.e. it's true stem
+
+        Returns
+        -------
+        ocard : dict
+            operator card
+        """
+        opcard_path = self.operator_cards_path / f"{name}.yaml"
+        with open(opcard_path, encoding="utf-8") as f:
+            ocard = yaml.safe_load(f)
+        return ocard
+
     def activate_logging(self, path, filename, activated_loggers=()):
         """Activate the logging facilities.
 
@@ -269,9 +288,7 @@ class TheoryBuilder:
             paths["logs"]["eko"], f"{self.theory_id}-{name}.log", ("eko",)
         )
         # setup data
-        opcard_path = self.operator_cards_path / f"{name}.yaml"
-        with open(opcard_path, encoding="utf-8") as f:
-            ocard = yaml.safe_load(f)
+        ocard = self.load_operator_card(name)
         eko_filename = self.ekos_path() / f"{name}.tar"
         if eko_filename.exists():
             if not self.overwrite:
@@ -324,8 +341,12 @@ class TheoryBuilder:
                 return
         max_as = 1 + int(tcard["PTO"])
         max_al = 0
-        # Obtain the assumptions hash
-        assumptions = theory_card.construct_assumption(tcard)
+        # collect alpha_s
+        astrong = sc.StrongCoupling.from_dict(tcard)
+        ocard = self.load_operator_card(name)
+        xir = tcard["XIR"]
+        xif = tcard["XIF"]
+        alphas_values = [astrong.a_s(xir * xir * Q2) for Q2 in ocard["Q2grid"]]
         # do it!
         logger.info("Start computation of %s", name)
         logger.info("max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}")
@@ -336,8 +357,9 @@ class TheoryBuilder:
             fk_filename,
             max_as,
             max_al,
-            xir=tcard["XIR"],
-            xif=tcard["XIF"],
+            xir=xir,
+            xif=xif,
+            alphas_values=alphas_values,
             comparison_pdf=pdf,
         )
         logger.info(

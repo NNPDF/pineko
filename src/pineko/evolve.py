@@ -62,16 +62,24 @@ def write_operator_card(pineappl_grid, default_card, card_path):
         written Q2 grid
     """
     operators_card = copy.deepcopy(default_card)
-    x_grid, _pids, q2_grid = pineappl_grid.axes()
+    x_grid, _pids, _mur2_grid, muf2_grid = pineappl_grid.axes()
     operators_card["targetgrid"] = x_grid.tolist()
-    operators_card["Q2grid"] = q2_grid.tolist()
+    operators_card["Q2grid"] = muf2_grid.tolist()
     with open(card_path, "w", encoding="UTF-8") as f:
         yaml.safe_dump(operators_card, f)
-    return x_grid, q2_grid
+    return x_grid, muf2_grid
 
 
 def evolve_grid(
-    pineappl_path, eko_path, fktable_path, max_as, max_al, xir, xif, comparison_pdf=None
+    pineappl_path,
+    eko_path,
+    fktable_path,
+    max_as,
+    max_al,
+    xir,
+    xif,
+    alphas_values=None,
+    comparison_pdf=None,
 ):
     """
     Convolute grid with EKO from file paths.
@@ -92,6 +100,8 @@ def evolve_grid(
             renormalization scale variation
         xif : float
             factorization scale variation
+        alphas_values : None or list
+            values of strong coupling used to collapse grids
         comparison_pdf : None or str
             if given, a comparison table (with / without evolution) will be printed
     """
@@ -104,6 +114,7 @@ def evolve_grid(
     )
     # load
     pineappl_grid = pineappl.grid.Grid.read(str(pineappl_path))
+    _x_grid, _pids, mur2_grid, _muf2_grid = pineappl_grid.axes()
     operators = eko.output.Output.load_tar(eko_path)
     check.check_grid_and_eko_compatible(pineappl_grid, operators)
     # rotate to evolution (if doable and necessary)
@@ -116,12 +127,12 @@ def evolve_grid(
     # TODO this is a hack to not break the CLI
     # the problem is that the EKO output still does not contain the theory/operators card and
     # so I can't compute alpha_s here if xir != 1
-    if np.isclose(xir, 1.0):
+    if np.isclose(xir, 1.0) and alphas_values is None:
         mur2_grid = list(operators["Q2grid"].keys())
         alphas_values = [op["alphas"] for op in operators["Q2grid"].values()]
     fktable = pineappl_grid.convolute_eko(
         operators,
-        mur2_grid,
+        xir * xir * mur2_grid,
         alphas_values,
         "evol",
         order_mask=order_mask,
