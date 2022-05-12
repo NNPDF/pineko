@@ -3,10 +3,25 @@ import numpy as np
 
 
 def in1d(a, b, rtol=1e-05, atol=1e-08):
-    """
-    Improved version of np.in1d.
+    """Improved version of np.in1d.
 
     Thanks: https://github.com/numpy/numpy/issues/7784#issuecomment-848036186
+
+    Parameters
+    ----------
+    a : list
+        needle
+    b : list
+        haystack
+    rtol : float
+        allowed relative error
+    atol : float
+        allowed absolute error
+
+    Returns
+    -------
+    list
+        mask of found elements
     """
     if len(a) == 1:
         for be in b:
@@ -19,21 +34,24 @@ def in1d(a, b, rtol=1e-05, atol=1e-08):
     )
 
 
-def check_grid_and_eko_compatible(pineappl_grid, operators):
-    """
-    Raises a `ValueError` if the EKO operators and the PineAPPL grid are NOT compatible.
+def check_grid_and_eko_compatible(pineappl_grid, operators, xif):
+    """Raises a `ValueError` if the EKO operators and the PineAPPL grid are NOT compatible.
 
     Parameters
     ----------
-        pineappl_grid : pineappl.grid.Grid
-            grid
-        operators : eko.output.Output
-            operators
+    pineappl_grid : pineappl.grid.Grid
+        grid
+    operators : eko.output.Output
+        operators
+    xif : float
+        factorization scale variation
     """
     x_grid, _pids, _mur2_grid, muf2_grid = pineappl_grid.axes()
     # Q2 grid
     if not np.all(
-        in1d(np.unique(list(operators["Q2grid"].keys())), np.array(muf2_grid))
+        in1d(
+            np.unique(list(operators["Q2grid"].keys())), xif * xif * np.array(muf2_grid)
+        )
     ):
         raise ValueError(
             "Q2 grid in pineappl grid and eko operator are NOT compatible!"

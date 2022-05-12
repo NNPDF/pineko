@@ -14,7 +14,7 @@ import yaml
 from . import check, comparator
 
 
-def write_operator_card_from_file(pineappl_path, default_card_path, card_path):
+def write_operator_card_from_file(pineappl_path, default_card_path, card_path, xif):
     """Generate operator card for a grid.
 
     Parameters
@@ -25,6 +25,8 @@ def write_operator_card_from_file(pineappl_path, default_card_path, card_path):
         base operator card
     card_path : str or os.PathLike
         target path
+    xif : float
+        factorization scale variation
 
     Returns
     -------
@@ -39,10 +41,10 @@ def write_operator_card_from_file(pineappl_path, default_card_path, card_path):
     pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
     with open(default_card_path, "r", encoding="UTF-8") as f:
         default_card = yaml.safe_load(f)
-    return write_operator_card(pineappl_grid, default_card, card_path)
+    return write_operator_card(pineappl_grid, default_card, card_path, xif)
 
 
-def write_operator_card(pineappl_grid, default_card, card_path):
+def write_operator_card(pineappl_grid, default_card, card_path, xif):
     """Generate operator card for this grid.
 
     Parameters
@@ -53,6 +55,8 @@ def write_operator_card(pineappl_grid, default_card, card_path):
         base operator card
     card_path : str or os.PathLike
         target path
+    xif : float
+        factorization scale variation
 
     Returns
     -------
@@ -63,11 +67,12 @@ def write_operator_card(pineappl_grid, default_card, card_path):
     """
     operators_card = copy.deepcopy(default_card)
     x_grid, _pids, _mur2_grid, muf2_grid = pineappl_grid.axes()
+    q2_grid = (xif * xif * muf2_grid).tolist()
     operators_card["targetgrid"] = x_grid.tolist()
-    operators_card["Q2grid"] = muf2_grid.tolist()
+    operators_card["Q2grid"] = q2_grid
     with open(card_path, "w", encoding="UTF-8") as f:
         yaml.safe_dump(operators_card, f)
-    return x_grid, muf2_grid
+    return x_grid, q2_grid
 
 
 def evolve_grid(
@@ -116,7 +121,7 @@ def evolve_grid(
     pineappl_grid = pineappl.grid.Grid.read(str(pineappl_path))
     _x_grid, _pids, mur2_grid, _muf2_grid = pineappl_grid.axes()
     operators = eko.output.Output.load_tar(eko_path)
-    check.check_grid_and_eko_compatible(pineappl_grid, operators)
+    check.check_grid_and_eko_compatible(pineappl_grid, operators, xif)
     # rotate to evolution (if doable and necessary)
     if np.allclose(operators["inputpids"], br.flavor_basis_pids):
         operators.to_evol()
@@ -126,7 +131,7 @@ def evolve_grid(
     order_mask = pineappl.grid.Order.create_mask(pineappl_grid.orders(), max_as, max_al)
     # TODO this is a hack to not break the CLI
     # the problem is that the EKO output still does not contain the theory/operators card and
-    # so I can't compute alpha_s here if xir != 1
+    # so I can't compute alpha_s *here* if xir != 1
     if np.isclose(xir, 1.0) and alphas_values is None:
         mur2_grid = list(operators["Q2grid"].keys())
         alphas_values = [op["alphas"] for op in operators["Q2grid"].values()]
