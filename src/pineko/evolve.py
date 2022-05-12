@@ -144,14 +144,14 @@ def evolve_grid(
         xi=(xir, xif),
     )
     fktable.optimize()
-    # compare before after
+    # write
+    fktable.write_lz4(str(fktable_path))
+    # compare before/after
     comparison = None
     if comparison_pdf is not None:
         comparison = comparator.compare(
-            pineappl_grid, fktable, max_as, max_al, comparison_pdf
+            pineappl_grid, fktable, max_as, max_al, comparison_pdf, xir, xif
         )
         fktable.set_key_value("results_fk", comparison.to_string())
         fktable.set_key_value("results_fk_pdfset", comparison_pdf)
-    # write
-    fktable.write_lz4(str(fktable_path))
     return pineappl_grid, fktable, comparison
