@@ -6,7 +6,7 @@ import pandas as pd
 import pineappl
 
 
-def compare(pine, fktable, max_as, max_al, pdf):
+def compare(pine, fktable, max_as, max_al, pdf, xir, xif):
     """Build comparison table.
 
     Parameters
@@ -21,6 +21,10 @@ def compare(pine, fktable, max_as, max_al, pdf):
         maximum power of electro-weak coupling
     pdf : str
         PDF set name
+    xir : float
+        renormalization scale variation
+    xif : float
+        factorization scale variation
 
     Returns
     -------
@@ -34,7 +38,11 @@ def compare(pine, fktable, max_as, max_al, pdf):
     order_mask = pineappl.grid.Order.create_mask(pine.orders(), max_as, max_al)
     before = np.array(
         pine.convolute_with_one(
-            pdgid, pdfset.xfxQ2, pdfset.alphasQ2, order_mask=order_mask
+            pdgid,
+            pdfset.xfxQ2,
+            pdfset.alphasQ2,
+            order_mask=order_mask,
+            xi=((xir, xif),),
         )
     )
     after = np.array(fktable.convolute_with_one(pdgid, pdfset.xfxQ2))

@@ -3,6 +3,7 @@ import logging
 import time
 
 import eko
+import numpy as np
 import rich
 import yaml
 from eko import strong_coupling as sc
@@ -193,7 +194,7 @@ class TheoryBuilder:
                 f(name, grid, **kwargs)
             rich.print()
 
-    def opcard(self, name, grid):
+    def opcard(self, name, grid, tcard):
         """Write a single operator card.
 
         Parameters
@@ -202,6 +203,8 @@ class TheoryBuilder:
             grid name, i.e. it's true stem
         grid : pathlib.Path
             path to grid
+        tcard : dict
+            theory card
         """
         opcard_path = self.operator_cards_path / f"{name}.yaml"
         if opcard_path.exists():
@@ -209,7 +212,10 @@ class TheoryBuilder:
                 rich.print(f"Skipping existing operator card {opcard_path}")
                 return
         _x_grid, q2_grid = evolve.write_operator_card_from_file(
-            grid, configs.configs["paths"]["operator_card_template"], opcard_path
+            grid,
+            configs.configs["paths"]["operator_card_template"],
+            opcard_path,
+            tcard["XIF"],
         )
         if opcard_path.exists():
             rich.print(
@@ -218,8 +224,9 @@ class TheoryBuilder:
 
     def opcards(self):
         """Write operator cards."""
+        tcard = theory_card.load(self.theory_id)
         self.operator_cards_path.mkdir(exist_ok=True)
-        self.iterate(self.opcard)
+        self.iterate(self.opcard, tcard=tcard)
 
     def load_operator_card(self, name):
         """Read current operator card.
@@ -342,14 +349,18 @@ class TheoryBuilder:
         max_as = 1 + int(tcard["PTO"])
         max_al = 0
         # collect alpha_s
+        # TODO: move this down to evolve.evolve_grid when output contains cards
         astrong = sc.StrongCoupling.from_dict(tcard)
         ocard = self.load_operator_card(name)
         xir = tcard["XIR"]
         xif = tcard["XIF"]
-        alphas_values = [astrong.a_s(xir * xir * Q2) for Q2 in ocard["Q2grid"]]
+        # PineAPPL wants alpha_s = 4*pi*a_s
+        alphas_values = [
+            4.0 * np.pi * astrong.a_s(xir * xir * Q2) for Q2 in ocard["Q2grid"]
+        ]
         # do it!
         logger.info("Start computation of %s", name)
-        logger.info("max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}")
+        logger.info("max_as=%d, max_al=%d, xir=%f, xif=%f", max_as, max_al, xir, xif)
         start_time = time.perf_counter()
         _grid, _fk, comparison = evolve.evolve_grid(
             grid_path,
