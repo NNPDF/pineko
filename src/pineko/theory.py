@@ -351,12 +351,15 @@ class TheoryBuilder:
         # collect alpha_s
         # TODO: move this down to evolve.evolve_grid when output contains cards
         astrong = sc.StrongCoupling.from_dict(tcard)
-        ocard = self.load_operator_card(name)
+        # ocard = self.load_operator_card(name)
+        # q2_grid = ocard["Q2grid"]
+        operators = eko.output.Output.load_tar(eko_filename)
+        q2_grid = operators["Q2grid"].keys()
         xir = tcard["XIR"]
         xif = tcard["XIF"]
         # PineAPPL wants alpha_s = 4*pi*a_s
         alphas_values = [
-            4.0 * np.pi * astrong.a_s(xir * xir * Q2) for Q2 in ocard["Q2grid"]
+            4.0 * np.pi * astrong.a_s(xir * xir * Q2 / xif / xif) for Q2 in q2_grid
         ]
         # do it!
         logger.info("Start computation of %s", name)
