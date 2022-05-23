@@ -34,6 +34,7 @@ rich = "^11.2.0"
 appdirs = "^1.4.4"
 click = "^8.0.4"
 tomli = "^2.0.1"
+a3b2bbc3ced97675ac3a71df45f55ba = "^6.4.0"
 
 
 [tool.poetry.dev-dependencies]
