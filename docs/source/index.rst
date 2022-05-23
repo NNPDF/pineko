@@ -8,8 +8,22 @@
 *****************************
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+    :maxdepth: 1
+    :caption: Overview:
+    :hidden:
+
+    overview/features
+    overview/examples
+    overview/indices
+
+.. toctree::
+    :caption: Theory:
+    :maxdepth: 1
+    :hidden:
+
+    theory/Schemes
+    
+    zzz-refs
 
 **pineko** converts
 
@@ -20,6 +34,15 @@
 
 into fast-kernel (**FK**) tables. The collection of all FK tables constitute the
 theory predictions for a PDF fit and therefore is often simply called *theory*.
+
+*pineko* is:
+
+* open-source since the beginning - allowing a community effort for writing a new generation of code
+
+* written in Python - opting for a popular, high-level langauge to facilitate other authors to participate in the project
+
+* part of the N3PDF software compendium: `eko <https://github.com/N3PDF/eko/>`_, `banana <https://github.com/N3PDF/banana/>`_, 
+  `PineAPPL <https://github.com/N3PDF/pineappl/>`_ and `yadism <https://github.com/N3PDF/yadism/>`_
 
 `pineko` replaces `APFELcomb <https://github.com/NNPDF/apfelcomb/>`_ , which was
 used up to NNPDF4.0.
@@ -138,10 +161,3 @@ Notes
 
 .. [6] examples being SV, different DIS settings, etc.
 
-##################
-Indices and tables
-##################
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
