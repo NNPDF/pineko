@@ -21,7 +21,8 @@
     :maxdepth: 1
     :hidden:
 
-    theory/Schemes
+    theory/Scalevar
+
     
     zzz-refs
 
