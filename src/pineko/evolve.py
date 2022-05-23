@@ -44,7 +44,7 @@ def write_operator_card_from_file(pineappl_path, default_card_path, card_path, x
     return write_operator_card(pineappl_grid, default_card, card_path, xif)
 
 
-def write_operator_card(pineappl_grid, default_card, card_path, xif):
+def write_operator_card(pineappl_grid, default_card, card_path, xi):
     """Generate operator card for this grid.
 
     Parameters
@@ -55,7 +55,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, xif):
         base operator card
     card_path : str or os.PathLike
         target path
-    xif : float
+    xi : float
         factorization scale variation
 
     Returns
@@ -67,7 +67,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, xif):
     """
     operators_card = copy.deepcopy(default_card)
     x_grid, _pids, _mur2_grid, muf2_grid = pineappl_grid.axes()
-    q2_grid = (xif * xif * muf2_grid).tolist()
+    q2_grid = (xi * xi * muf2_grid).tolist()
     operators_card["targetgrid"] = x_grid.tolist()
     operators_card["Q2grid"] = q2_grid
     with open(card_path, "w", encoding="UTF-8") as f:
@@ -83,6 +83,7 @@ def evolve_grid(
     max_al,
     xir,
     xif,
+    xiev,
     alphas_values=None,
     comparison_pdf=None,
 ):
@@ -115,13 +116,13 @@ def evolve_grid(
         f"   {pineappl_path}\n",
         f"+ {eko_path}\n",
         f"= {fktable_path}\n",
-        f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
+        f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}, xiev={xiev}",
     )
     # load
     pineappl_grid = pineappl.grid.Grid.read(str(pineappl_path))
     _x_grid, _pids, mur2_grid, _muf2_grid = pineappl_grid.axes()
     operators = eko.output.Output.load_tar(eko_path)
-    check.check_grid_and_eko_compatible(pineappl_grid, operators, xif)
+    check.check_grid_and_eko_compatible(pineappl_grid, operators, xif * xiev)
     # rotate to evolution (if doable and necessary)
     if np.allclose(operators["inputpids"], br.flavor_basis_pids):
         operators.to_evol()
@@ -142,6 +143,7 @@ def evolve_grid(
         "evol",
         order_mask=order_mask,
         xi=(xir, xif),
+        xiev=xiev,
     )
     fktable.optimize()
     # write

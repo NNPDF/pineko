@@ -215,7 +215,7 @@ class TheoryBuilder:
             grid,
             configs.configs["paths"]["operator_card_template"],
             opcard_path,
-            tcard["XIF"],
+            tcard["XIF"] * tcard["fact_to_ren_scale_ratio"],
         )
         if opcard_path.exists():
             rich.print(
@@ -357,13 +357,22 @@ class TheoryBuilder:
         q2_grid = operators["Q2grid"].keys()
         xir = tcard["XIR"]
         xif = tcard["XIF"]
+        xiev = tcard["fact_to_ren_scale_ratio"]
         # PineAPPL wants alpha_s = 4*pi*a_s
         alphas_values = [
-            4.0 * np.pi * astrong.a_s(xir * xir * Q2 / xif / xif) for Q2 in q2_grid
+            4.0 * np.pi * astrong.a_s(xir * xir * Q2 / xif / xif / xiev / xiev)
+            for Q2 in q2_grid
         ]
         # do it!
         logger.info("Start computation of %s", name)
-        logger.info("max_as=%d, max_al=%d, xir=%f, xif=%f", max_as, max_al, xir, xif)
+        logger.info(
+            "max_as=%d, max_al=%d, xir=%f, xif=%f, xiev=%f",
+            max_as,
+            max_al,
+            xir,
+            xif,
+            xiev,
+        )
         start_time = time.perf_counter()
         _grid, _fk, comparison = evolve.evolve_grid(
             grid_path,
@@ -373,6 +382,7 @@ class TheoryBuilder:
             max_al,
             xir=xir,
             xif=xif,
+            xiev=xiev,
             alphas_values=alphas_values,
             comparison_pdf=pdf,
         )
