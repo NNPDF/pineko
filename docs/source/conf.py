@@ -15,6 +15,12 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+import inspect
+import pathlib
+
+import pineko
+
+here = pathlib.Path(__file__).absolute().parent
 
 # -- Project information -----------------------------------------------------
 
@@ -43,7 +49,10 @@ extensions = [
     "sphinx.ext.graphviz",
     "sphinx.ext.extlinks",
 ]
-
+autosectionlabel_prefix_document = True
+# autosectionlabel_maxdepth = 10
+# Allow to embed rst syntax in  markdown files.
+enable_eval_rst = True
 # The master toctree document.
 master_doc = "index"
 bibtex_bibfiles = ["refs.bib"]
@@ -51,11 +60,31 @@ bibtex_bibfiles = ["refs.bib"]
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
+# The suffix(es) of source filenames.
+# You can specify multiple suffix as a list of string:
+#
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".txt": "restructuredtext",
+}
+
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = ["shared/*"]
 
+# A string to be included at the beginning of all files
+shared = here / "shared"
+rst_prolog = "\n".join(
+    [x.read_text(encoding="utf-8") for x in pathlib.Path(shared).glob("*.rst")]
+)
+
+extlinks = {
+    "yadism": ("https://n3pdf.github.io/yadism/%s", "yadism"),
+    "banana": ("https://n3pdf.github.io/banana/%s", "banana"),
+    "pineappl": ("https://n3pdf.github.io/pineappl/%s", "pineappl"),
+    "eko": ("https://github.com/N3PDF/eko/%s", "eko"),
+}
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
