@@ -55,6 +55,9 @@
 .. |QED| replace::
    :abbr:`QED (Quantum Electrodynamics)`
 
+.. |DIS| replace::
+    :abbr:`DIS (Deep inelastic scattering)`
+
 .. external
 .. |yadism| replace::
    :yadism:`\ `
