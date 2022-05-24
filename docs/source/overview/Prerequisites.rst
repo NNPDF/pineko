@@ -50,9 +50,9 @@ You can reuse the grids from a different theory by running::
 
 The relation between the source theory and the target theory is non-trivial [5]_.
 
-#####
+
 Notes
-#####
+-----
 
 .. [1] Actually, instead we should provide a concise description here - but let's wait to be stable first
 

@@ -22,6 +22,7 @@
     :maxdepth: 1
     :hidden:
 
+    theory/fktables
     theory/Scalevar
 
     
