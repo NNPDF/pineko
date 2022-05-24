@@ -116,7 +116,7 @@ Doing the same for the hadronic cross-sections lead to
 .. math::
 
     \begin{align}
-    \label{eq:ev_interp}
+    \label{eq:ev_interp_had}
     \sigma(Q^2) &= \sum_i^{n_f} \sum_{\alpha}^{n_x} \text{FK}_{i\alpha j \beta}(x_{\alpha}, x_{\beta},Q^2,Q^2_0) \, \mathcal{L}_{ij}(x_{\alpha}, x_{\beta},Q_0^2). 
     \end{align}
 
@@ -125,4 +125,6 @@ express the series of convolutions by a matrix
 multiplication, increasing the numerical 
 calculation speed by up to several orders
 of magnitude.
+
+For a more detailed report on the **FKtables** maethod please see :cite:`Ball:2010`
 
