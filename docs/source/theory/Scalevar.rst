@@ -118,6 +118,13 @@ than :math:`\mathcal{O}(\alpha_{s}^{0})`.
 Scale variation for |PDF| evolution
 ###########################################
 
+A completely independent source of |MHOU| arises from the truncation of the perturbative expansion of the anomalous dimensions governing the evolution
+of the |PDF|. Again, this uncertainties can be estimated trough scale variation but, in this case, there are three equivalent ways in which it can be
+performed: at the level of anomalous dimensions, at |PDF| level or even at the level of the partonic cross-sections. We will address these different 
+methods as *schemes*. 
+
+Consider a |PDF| evaluated at the scale :math:`\mu`, :math:`f(\mu^2)`.
+
 Schemes
 =======
 
