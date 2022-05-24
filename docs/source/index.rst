@@ -12,7 +12,8 @@
     :caption: Overview:
     :hidden:
 
-    overview/User-guide
+    overview/Prerequisites
+    overview/running
     overview/examples
     overview/indices
 
