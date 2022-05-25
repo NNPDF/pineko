@@ -171,9 +171,10 @@ which is the perturbative expansion of the scale-varied |PDF| defined as
 
     \overline{f}(\alpha_{s}(t+\kappa), \kappa) = \exp{\bigg(\int^{t}dt' \overline{\gamma}(\alpha_{s}(t'+\kappa),\kappa)\bigg)}f_{0}.
 
-The last equation provides us a way to estimate the |MHOU| coming from the anomalous dimensions at the |PDF| level (this way of doing it will be later 
+This provides us a way to estimate the |MHOU| coming from the anomalous dimensions at the |PDF| level (this way of doing it will be later 
 called *scheme B*). Moreover, it indicates that the :math:`\kappa` dependence can be factorized out of the PDF. Therefore we have yet another way to 
-estimate this |MHOU| just including this factorized terms in the coefficients functions. 
+estimate this |MHOU| just including this factorized terms in the coefficients functions (this way of doing it will be later 
+called *scheme C*). 
 
 Let's for example consider electroproduction, the scale-varied structure function assumes the form
 
@@ -201,10 +202,21 @@ we can obtain the explicit perturbative expansion
 
      \hat{C}(t,\kappa) = c_{0} + \alpha_{s}(t)(c_{1}-\kappa\gamma_{0})+\alpha_{s}^{2}(t)(c_{2}-\kappa(\gamma_{0}c_{1} + \gamma{1}c_{0}) + \frac{1}{2}\kappa^2
      \gamma_{0}(\gamma_{0}+\beta_{0})c_{0})+ \dots
-
-       
-
+      
 Schemes
 =======
+
+Let's now summarize the three different ways of estimating the |MHOU| coming from the anomalous dimensions 
+
+* **Scheme A:** The renormalization scale of the anomalous dimensions is varied directly obtaining their scale-varied version. Then, it is used to compute the evolution operator which will produce the scale-varied PDF. However using this scheme requires refitting the |PDF| as the scale is varied. 
+
+* **Scheme B:** The scale-dependence of the anomalous dimensions is factored out of the |PDF| in such a way the scale-varied |PDF| is simply obtained by the product of the central |PDF| evolved to the varied scale (:math:`t+\kappa`) with a term which is function of the central anomalous dimensions computed in the varied scale. In this case there is no need to refit the initial |PDF|. Moreover, this scheme is the most suited one for |VFNS|, since the |MHOU| in the |PDF| with different numbers of active flavors can each be estimated separately. 
+
+* **Scheme C:** The factored scale-dependence of the anomalous dimensions is included in the definition of scale-varied coefficients functions. Then, a scale-varied observable is computed trough the convolution of these scale-varied coefficients functions with the |PDF| evolved to the varied scale :math:`t+\kappa`.
+
+Note that, even if these schemes are formally equivalent, they can differ by subleading terms depending on the convention used to truncate the perturbative expansion.
+In fact, in **scheme A** some higher order terms of the anomalous dimensions expansion can be retained according to the kind of solution adopted for the evolution equation.
+In **scheme B** the exponential has been expanded so that it corresponds to a linearized solution of the evolution equations and in **scheme C** some terms coming from the 
+cross-expansion of the coefficients functions and the linearized solution of the evolution equations have been dropped.  
 
 
