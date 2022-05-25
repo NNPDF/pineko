@@ -123,7 +123,86 @@ of the |PDF|. Again, this uncertainties can be estimated trough scale variation 
 performed: at the level of anomalous dimensions, at |PDF| level or even at the level of the partonic cross-sections. We will address these different 
 methods as *schemes*. 
 
-Consider a |PDF| evaluated at the scale :math:`\mu`, :math:`f(\mu^2)`.
+Consider a |PDF| evaluated at the scale :math:`\mu`, :math:`f(\mu^2)`. Neglecting all the flavor indices and assuming a Mellin space formalism, the scale 
+dependence of the |PDF| is fixed by 
+
+.. math::
+
+    f(\mu^2) = \exp{\bigg(\int^{\mu^2}\frac{d\mu'^2}{\mu'^2}\gamma(\alpha_{s}(\mu'^2))\bigg)}f_{0}
+
+where the anomalous dimensions admit the perturbative expansion 
+
+.. math::
+
+    \gamma(t) = \alpha_{s}(t)\gamma_{0} + \alpha_{s}^{2}(t)\gamma_{1} + \dots 
+
+With the same definition of the previous part we can define the scale-dependent anomalous dimensions as 
+
+.. math::
+
+    \overline{\gamma}(\alpha_{s}(t), \kappa) = \gamma(t) - \kappa \frac{d}{dt}\gamma(t) + \dots 
+
+so that their perturbative expansion is 
+
+.. math::
+
+    \overline{\gamma}(\alpha_{s}(t+\kappa), \kappa) = \alpha_{s}(t+\kappa)\gamma_{0} + \alpha_{s}^2 (t+\kappa)(\gamma{1} - \kappa \beta_{0}\gamma_{0}) + \dots 
+
+Then, using this expression, one can estimate the |MHOU| coming from the perturbative expansion of the anomalous dimensions (this way of doing it will be later 
+called *scheme A*).
+
+However, the same result can be obtained by scale variation at the |PDF| level. In fact, inserting the last equation in the |PDF| evolution equation we get 
+
+.. math::
+
+    & \exp{\bigg(\int^{t}dt'\overline{\gamma}(\alpha_{s}(t' + \kappa), \kappa)\bigg)} = \exp{\bigg(\int^{t+\kappa}dt'\overline{\gamma}(\alpha_{s}(t'), \kappa)\bigg)} \\
+    &= \exp{\bigg(\bigg[\int^{t+\kappa}dt'\gamma(t')\bigg] - \kappa\gamma(t+\kappa) + \frac{1}{2}\kappa^2\frac{d}{dt}\gamma(t+\kappa) + \dots\bigg)} \\
+    &= \bigg[1 - \kappa\gamma(t+\kappa) + \frac{1}{2}\kappa^2(\gamma^2(t+\kappa)+\frac{d}{dt}\gamma(t+\kappa)) + \dots \bigg]\exp{\bigg(\int^{t+\kappa}dt'\gamma(t')\bigg)}, 
+
+that can be used to obtain 
+
+.. math::
+
+    \overline{f}(\alpha_{s}(t+\kappa), \kappa) = [1 - \kappa \gamma(t+\kappa) + \frac{1}{2}\kappa^2(\gamma^2(t+k) + \frac{d}{dt}\gamma(t+\kappa)) + \dots]f(t+\kappa)
+
+which is the perturbative expansion of the scale-varied |PDF| defined as 
+
+.. math::
+
+    \overline{f}(\alpha_{s}(t+\kappa), \kappa) = \exp{\bigg(\int^{t}dt' \overline{\gamma}(\alpha_{s}(t'+\kappa),\kappa)\bigg)}f_{0}.
+
+The last equation provides us a way to estimate the |MHOU| coming from the anomalous dimensions at the |PDF| level (this way of doing it will be later 
+called *scheme B*). Moreover, it indicates that the :math:`\kappa` dependence can be factorized out of the PDF. Therefore we have yet another way to 
+estimate this |MHOU| just including this factorized terms in the coefficients functions. 
+
+Let's for example consider electroproduction, the scale-varied structure function assumes the form
+
+.. math::
+
+   \hat{F}(t,\kappa) &= C(t)\overline{f}(\alpha_{s}(t+\kappa),\kappa) \\
+                     &= C(t)[1-\kappa\gamma(t+\kappa) + \frac{1}{2}\kappa^2(\gamma^2(t+\kappa)+\frac{d}{dt}\gamma(t+\kappa))+\dots]f(t+\kappa) \\
+                     &= \hat{C}(t,\kappa)f(t+\kappa)
+
+where the last line is the definition of the scale-varied coefficients functions :math:`\hat{C}(t,\kappa)`. Note that they are different from the 
+:math:`\overline{C}(t+\kappa,\kappa)` because, while the latter are obtained from the variation of the renormalization scale of the hard coefficients
+functions (and thus they estimate the |MHOU| coming from the perturbative expansion of the coefficients functions), the former are obtained from the 
+variation of the renormalization scale inside the anomalous dimensions (and thus they estimate completely different |MHOU|, i.e. the ones coming from 
+the perturbative expansion of the anomalous dimensions).
+
+Using the fact that 
+
+.. math::
+
+    \frac{d}{dt}\gamma(\alpha_{s}) = \beta(\alpha_{s})\frac{d\gamma}{d\alpha_{s}}
+
+we can obtain the explicit perturbative expansion
+
+ .. math::
+
+     \hat{C}(t,\kappa) = c_{0} + \alpha_{s}(t)(c_{1}-\kappa\gamma_{0})+\alpha_{s}^{2}(t)(c_{2}-\kappa(\gamma_{0}c_{1} + \gamma{1}c_{0}) + \frac{1}{2}\kappa^2
+     \gamma_{0}(\gamma_{0}+\beta_{0})c_{0})+ \dots
+
+       
 
 Schemes
 =======

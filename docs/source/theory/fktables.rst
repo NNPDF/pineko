@@ -42,12 +42,10 @@ active quarks and antiquarks flavors at a given scale :math:`Q`, as well as over
 In the same way, the hadronic cross-section :math:`\sigma` can be written as,
 
 .. math::
-
-    \begin{align} 
+ 
     \sigma(Q^2) &= \hat{\sigma}(x_{1},x_{2},Q^2) \otimes f(x_{1},Q^2) \otimes f(x_{2},Q^2) \nonumber \\
     &= \hat{\sigma}(x_{1},x_{2},Q^2) \otimes \mathcal{L}(x_{1},x_{2},Q^2) \nonumber \\
     &= \hat{\sigma}(x_{1},x_{2},Q^2) \otimes \text{E}(Q^2 \leftarrow Q_0^2) \otimes \mathcal{L}(x_{1}.x_{2},Q_0^2),
-    \end{align}
 
 where :math:`\hat{\sigma}(x_{1},x_{2},Q^2)` are the process-dependent partonic cross-sections and
 :math:`\mathcal{L} = f \otimes f` is called luminosity.
