@@ -56,11 +56,10 @@ pytest-env = "^0.6.2"
 Sphinx = "^4.3.2"
 sphinx-rtd-theme = "^1.0.0"
 sphinxcontrib-bibtex = "^2.4.1"
-nbsphinx = "^0.8.8"
 ipykernel = "^6.13.0"
 
 [tool.poetry.extras]
-docs = ["sphinx", "sphinx-rtd-theme", "sphinxcontrib-bibtex", "nbsphinx"]
+docs = ["sphinx", "sphinx-rtd-theme", "sphinxcontrib-bibtex"]
 
 [tool.poetry.scripts]
 pineko = "pineko:command"
