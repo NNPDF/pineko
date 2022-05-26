@@ -35,6 +35,11 @@ appdirs = "^1.4.4"
 click = "^8.0.4"
 tomli = "^2.0.1"
 a3b2bbc3ced97675ac3a71df45f55ba = "^6.4.0"
+# docs dependencies (for readthedocs, https://github.com/readthedocs/readthedocs.org/issues/4912#issuecomment-664002569)
+Sphinx = { version = "^4.3.2", optional = true }
+sphinx-rtd-theme = { version = "^1.0.0", optional = true }
+sphinxcontrib-bibtex = { version = "^2.4.1", optional = true }
+nbsphinx = { version = "^0.8.8", optional = true }
 
 
 [tool.poetry.dev-dependencies]
