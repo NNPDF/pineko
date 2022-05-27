@@ -1,6 +1,7 @@
 ************************************************************************************
 Missing Higher Order Uncertainties (MHOU) from Scale Variations
 ************************************************************************************
+
 The variation of the **renormalization** and **factorization** scales is one of the most used method to estimate |MHOU| in |QCD|.
 
 This is due to the simplicity of both their calculation and their implementation, the former given by the fact that the scale dependence

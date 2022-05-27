@@ -18,8 +18,8 @@
     overview/indices
 
 .. toctree::
-    :caption: Theory:
     :maxdepth: 1
+    :caption: Theory:
     :hidden:
 
     theory/fktables
