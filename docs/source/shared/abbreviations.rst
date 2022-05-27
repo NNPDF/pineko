@@ -58,6 +58,9 @@
 .. |DIS| replace::
     :abbr:`DIS (Deep inelastic scattering)`
 
+.. |FK| replace::
+    :abbr:`FK (Fast Kernel)`
+
 .. external
 .. |yadism| replace::
    :yadism:`\ `
