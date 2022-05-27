@@ -69,6 +69,11 @@ test = "pytest tests"
 lint = "pylint src/**/*.py -E"
 lint-warnings = "pylint src/**/*.py --exit-zero"
 pineko = "pineko"
+docs = { "shell" = "cd docs; make html" }
+docs-view = { "shell" = "cd docs; make view" }
+docs-server = { "shell" = "cd docs; make server" }
+docs-clean = { "shell" = "cd docs; make clean" }
+docs-cleanall = { "shell" = "cd docs; make cleanall" }
 
 [tool.poetry-dynamic-versioning]
 enable = true
