@@ -12,7 +12,7 @@
     :caption: Overview:
     :hidden:
 
-    overview/Prerequisites
+    overview/prerequisites
     overview/running
     overview/examples
     overview/indices
@@ -23,7 +23,7 @@
     :hidden:
 
     theory/fktables
-    theory/Scalevar
+    theory/scalevar
 
     
     zzz-refs
