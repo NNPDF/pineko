@@ -113,5 +113,5 @@ multiplication, increasing the numerical
 calculation speed by up to several orders
 of magnitude.
 
-For a more detailed report on the **FKtables** maethod please see :cite:`Ball:2010`
+For a more detailed report on the **FKtables** method please see :cite:`Ball:2010`
 
