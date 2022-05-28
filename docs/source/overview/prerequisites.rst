@@ -44,7 +44,7 @@ inside the *paths.grids/theory_id* folder. The name has to match the *ymldb* whi
 Inherit Grids from Existing Theory
 """"""""""""""""""""""""""""""""""
 
-You can reuse the grids from a different theory by running:: 
+You can reuse the grids from a different theory by running::
 
   pineko theory inherit-grids SOURCE_THEORY_ID TARGET_THEORY_ID DATASET1 DATASET2 ...
 
@@ -63,5 +63,3 @@ Notes
 .. [4] I'm thinking how to improve this, because how could we provide a study on the interpolation accuracy? at the moment there just equal
 
 .. [5] examples being SV, different evolution settings, etc.
-
-
