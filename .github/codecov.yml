@@ -18,6 +18,7 @@ coverage:
           - develop
           - "feature/*"
           - "release/*"
+          - "change_readme"
 
 parsers:
   gcov:
