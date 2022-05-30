@@ -27,15 +27,6 @@ language, however, please read a "Please" in front of everything.
   automation and standardize the tools for all developers; if you want
   to contribute to this project, install it and setup
 
-## Docs
-
-- :books: in order to run the notebooks in the environment, you need first to install
-  the environment kernel:
-  ```sh
-  poe docs-install-nb
-  ```
-  thanks to [Nikolai Janakiev](https://janakiev.com/blog/jupyter-virtual-envs/#add-virtual-environment-to-jupyter-notebook)
-
 ## Testing
 
 - :elephant: Make sure to not break the old tests (unless there was a

@@ -9,9 +9,8 @@ description = "Combine PineAPPL grids and EKOs into FK tables"
 readme = "README.md"
 authors = [
   "Alessandro Candido <alessandro.candido@mi.infn.it>",
-  "Juan Cruz Martinez <juan.cruz@mi.infn.it>",
+  "Andrea Barontini <andrea.barontini@mi.infn.it>",
   "Felix Hekhorn <felix.hekhorn@mi.infn.it>",
-  "Christopher Schwan <christopher.schwan@physik.uni-wuerzburg.de>",
 ]
 classifiers = [
   "Programming Language :: Python",
