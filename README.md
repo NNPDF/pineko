@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://github.com/N3PDF/pineko/actions/workflows/unittests.yml"><img alt="Tests" src="https://github.com/N3PDF/pineko/actions/workflows/unittests.yml/badge.svg" /></a>
   <a href="https://pineko.readthedocs.io/en/latest/?badge=latest"><img alt="Docs" src="https://readthedocs.org/projects/pineko/badge/?version=latest"></a>
-  <a href="https://codecov.io/gh/N3PDF/pineko"><img src="https://codecov.io/gh/N3PDF/pineko/branch/main/graph/badge.svg" /></a>
+  <a href="https://codecov.io/gh/N3PDF/pineko"><img src="https://codecov.io/gh/N3PDF/pineko/branch/change_readme/graph/badge.svg" /></a>
   <a href="https://www.codefactor.io/repository/github/n3pdf/pineko"><img src="https://www.codefactor.io/repository/github/n3pdf/pineko/badge" alt="CodeFactor" /></a>
 </p>
 
