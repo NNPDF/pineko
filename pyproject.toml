@@ -85,7 +85,7 @@ dirty = true
 files = ["src/pineko/__init__.py"]
 
 [tool.pytest.ini_options]
-testpaths = ['tests/', 'benchmarks/']
+testpaths = ['tests/']
 addopts = [
   '--cov=eko',
   '--cov=ekobox',
