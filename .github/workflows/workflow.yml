@@ -32,7 +32,7 @@ jobs:
           ${PIP} install poetry-dynamic-versioning
       - name: Install project
         run: |
-          poetry install --no-interaction -E mark 
+          poetry install --no-interaction 
       - name: Run tests
         run: |
           poetry run pytest
