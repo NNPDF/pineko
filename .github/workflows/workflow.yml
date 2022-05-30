@@ -32,14 +32,14 @@ jobs:
           ${PIP} install poetry-dynamic-versioning
       - name: Install project
         run: |
-          poetry install --no-interaction 
+          poetry install --no-interaction
       - name: Run tests
         run: |
           poetry run pytest
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
         with:
-          files: ././coverage.xml
+          files: ./coverage.xml
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: true
