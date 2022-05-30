@@ -1,3 +1,6 @@
+<p align="center">
+  <a href="https://pineko.readthedocs.io/"><img alt="PINEKO" src="https://raw.githubusercontent.com/N3PDF/pineko/change_readme/docs/source/img/Logo.png" width=300></a>
+</p>
 
 <p align="center">
   <a href="https://github.com/N3PDF/pineko/actions/workflows/unittests.yml"><img alt="Tests" src="https://github.com/N3PDF/pineko/actions/workflows/unittests.yml/badge.svg" /></a>
