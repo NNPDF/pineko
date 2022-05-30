@@ -100,3 +100,9 @@ Then you can convolute the EKOs with the grids by running `pineko theory fks THE
 [5] examples being SV, different evolution settings, etc.
 
 [6] examples being SV, different DIS settings, etc.
+
+
+## Contributing
+- Your feedback is welcome! If you want to report a (possible) bug or want to ask for a new feature, please raise an issue: <a href="https://github.com/N3PDF/pineko/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/N3PDF/pineko"/></a>
+- Please follow our [Code of Conduct](https://github.com/N3PDF/pineko/blob/master/.github/CODE_OF_CONDUCT.md) and read the
+  [Contribution Guidelines](https://github.com/N3PDF/pineko/blob/master/.github/CONTRIBUTING.md)
