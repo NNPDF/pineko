@@ -4,7 +4,6 @@
 codecov:
   require_ci_to_pass: yes
   token: 04a33761-a2f2-4ed2-b2ae-0a2638a4c9bc
-  
 coverage:
   precision: 2
   round: down
