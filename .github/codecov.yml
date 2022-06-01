@@ -7,18 +7,7 @@ coverage:
   precision: 2
   round: down
   range: "70...100"
-  status:
-    project:
-      default:
-        # check only master and branches that should be merged directly into
-        # master
-        branches:
-          - main
-          - develop
-          - "feature/*"
-          - "release/*"
-          - "change_readme"
-
+  
 parsers:
   gcov:
     branch_detection:
