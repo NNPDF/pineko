@@ -7,7 +7,7 @@ coverage:
   precision: 2
   round: down
   range: "70...100"
-  
+
 parsers:
   gcov:
     branch_detection:
