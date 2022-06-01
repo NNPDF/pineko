@@ -40,7 +40,6 @@ sphinx-rtd-theme = { version = "^1.0.0", optional = true }
 sphinxcontrib-bibtex = { version = "^2.4.1", optional = true }
 
 
-
 [tool.poetry.dev-dependencies]
 # code review
 pylint = "^2.9.3"
@@ -86,8 +85,7 @@ files = ["src/pineko/__init__.py"]
 [tool.pytest.ini_options]
 testpaths = ['tests/']
 addopts = [
-  '--cov=eko',
-  '--cov=ekobox',
+  '--cov=pineko',
   '--cov-report=html',
   '--cov-report=xml',
   '--strict-markers',
