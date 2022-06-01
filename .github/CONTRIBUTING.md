@@ -47,8 +47,3 @@ language, however, please read a "Please" in front of everything.
 - :octocat: Make sure the commit message is written properly ([This
   blogpost](https://chris.beams.io/posts/git-commit/) explains it
   nicely)
-- :sailboat: Use [git-flow](https://github.com/nvie/gitflow) - note
-  there is a [cheat
-  sheet](https://danielkummer.github.io/git-flow-cheatsheet/index.html)
-  and [shell
-  completion](https://github.com/bobthecow/git-flow-completion)
