@@ -83,7 +83,6 @@ def evolve_grid(
     max_al,
     xir,
     xif,
-    xiev,
     alphas_values=None,
     comparison_pdf=None,
 ):
@@ -116,13 +115,13 @@ def evolve_grid(
         f"   {pineappl_path}\n",
         f"+ {eko_path}\n",
         f"= {fktable_path}\n",
-        f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}, xiev={xiev}",
+        f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
     )
     # load
     pineappl_grid = pineappl.grid.Grid.read(str(pineappl_path))
     _x_grid, _pids, mur2_grid, _muf2_grid = pineappl_grid.axes()
     operators = eko.output.Output.load_tar(eko_path)
-    check.check_grid_and_eko_compatible(pineappl_grid, operators, xif * xiev)
+    check.check_grid_and_eko_compatible(pineappl_grid, operators, xif)
     # rotate to evolution (if doable and necessary)
     if np.allclose(operators["inputpids"], br.flavor_basis_pids):
         operators.to_evol()
@@ -143,7 +142,6 @@ def evolve_grid(
         "evol",
         order_mask=order_mask,
         xi=(xir, xif),
-        xiev=xiev,
     )
     fktable.optimize()
     # write
