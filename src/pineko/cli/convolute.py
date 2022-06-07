@@ -15,7 +15,10 @@ from ._base import command
     "--pdf", default=None, help="if given, print comparison table", show_default=True
 )
 @click.option(
-    "--assumption", default='Nf6Ind', help="the assumption to be used", show_default=True
+    "--assumption",
+    default="Nf6Ind",
+    help="the assumption to be used",
+    show_default=True,
 )
 def subcommand(pineappl, eko, fktable, max_as, max_al, pdf, assumption):
     """Convolute PineAPPL grid and EKO.
@@ -25,6 +28,8 @@ def subcommand(pineappl, eko, fktable, max_as, max_al, pdf, assumption):
     Moreover, MAX_AS and MAX_AL are used to specify the order in QCD and QED
     couplings (i.e. the maximum power allowed for each correction).
     """
-    _grid, _fk, comp = evolve.evolve_grid(pineappl, eko, fktable, max_as, max_al, pdf, assumption)
+    _grid, _fk, comp = evolve.evolve_grid(
+        pineappl, eko, fktable, max_as, max_al, pdf, assumption
+    )
     if comp:
         print(comp.to_string())
