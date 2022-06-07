@@ -44,12 +44,14 @@ def construct_assumption(tcard):
     ic = tcard["IC"]
     hash = 'Nf'
     act_flav = 6
-    mod = 'Sym'
+    mod = 'Ind'
     if Q0 < match_scales['t']:
         act_flav = 5
     if Q0 < match_scales['b']:
         act_flav = 4
     if Q0 < match_scales['c']:
         act_flav = 3
+        if ic:
+            act_flav += 1
     hash += str(act_flav) + mod
     return hash
