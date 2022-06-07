@@ -25,7 +25,7 @@
     theory/fktables
     theory/scalevar
 
-    
+
     zzz-refs
 
 **pineko** converts
@@ -43,16 +43,7 @@ theory predictions for a PDF fit and therefore is often simply called *theory*.
 
 * written in Python - opting for a popular, high-level langauge to facilitate other authors to participate in the project
 
-* part of the N3PDF software compendium: |eko|, |banana|, |pineappl| and |yadism| 
+* part of the N3PDF software compendium: |eko|, |banana|, |pineappl| and |yadism|
 
 `pineko` replaces `APFELcomb <https://github.com/NNPDF/apfelcomb/>`_ , which was
 used up to NNPDF4.0.
-
-
-
-
-
-
-
-
-
