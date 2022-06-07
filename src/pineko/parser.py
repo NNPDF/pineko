@@ -6,6 +6,7 @@ import yaml
 
 EXT = "pineappl.lz4"
 
+
 class YamlFileNotFound(FileNotFoundError):
     """ymldb file for dataset not found."""
 

@@ -71,7 +71,13 @@ def write_operator_card(pineappl_grid, default_card, card_path):
 
 
 def evolve_grid(
-    pineappl_path, eko_path, fktable_path, max_as, max_al, comparison_pdf=None
+    pineappl_path,
+    eko_path,
+    fktable_path,
+    max_as,
+    max_al,
+    assumptions="Nf6Ind",
+    comparison_pdf=None,
 ):
     """
     Convolute grid with EKO from file paths.
@@ -109,13 +115,13 @@ def evolve_grid(
     # do it
     order_mask = pineappl.grid.Order.create_mask(pineappl_grid.orders(), max_as, max_al)
     fktable = pineappl_grid.convolute_eko(operators, "evol", order_mask=order_mask)
-    fktable.optimize()
+    fktable.optimize(assumptions)
     # compare before after
     comparison = None
     if comparison_pdf is not None:
         comparison = comparator.compare(
-                pineappl_grid, fktable, max_as, max_al, comparison_pdf
-            )
+            pineappl_grid, fktable, max_as, max_al, comparison_pdf
+        )
         fktable.set_key_value("results_fk", comparison.to_string())
         fktable.set_key_value("results_fk_pdfset", comparison_pdf)
     # write

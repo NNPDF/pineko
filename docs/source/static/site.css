@@ -7,12 +7,12 @@ span.eqno {
     z-index: 1;
     position: relative;
   }
-  
+
   span.eqno .headerlink {
     display: none;
     visibility: hidden;
   }
-  
+
   span.eqno:hover .headerlink {
     display: inline-block;
     visibility: visible;

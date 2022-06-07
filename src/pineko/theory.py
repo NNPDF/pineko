@@ -324,11 +324,13 @@ class TheoryBuilder:
                 return
         max_as = 1 + int(tcard["PTO"])
         max_al = 0
+        # Obtain the assumptions hash
+        assumptions = theory_card.construct_assumption(tcard)
         # do it!
         logger.info("Start computation of %s", name)
         start_time = time.perf_counter()
         _grid, _fk, comparison = evolve.evolve_grid(
-            grid_path, eko_filename, fk_filename, max_as, max_al, pdf
+            grid_path, eko_filename, fk_filename, max_as, max_al, pdf, assumptions
         )
         logger.info(
             "Finished computation of %s - took %f s",
