@@ -76,7 +76,7 @@ def evolve_grid(
     fktable_path,
     max_as,
     max_al,
-    assumptions='Nf6Ind',
+    assumptions="Nf6Ind",
     comparison_pdf=None,
 ):
     """
