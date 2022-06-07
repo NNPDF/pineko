@@ -41,7 +41,7 @@ def construct_assumption(tcard):
     # retrive the relevant info from theory card
     Q0 = tcard['Q0']
     match_scales = {'c' : tcard['kcThr']*tcard['mc'], 'b' : tcard['kbThr']*tcard['mb'] , 't' : tcard['ktThr']*tcard['mt'] }
-    ic = tcard["IC"]
+    ic = tcard['IC']
     hash = 'Nf'
     act_flav = 6
     mod = 'Ind'
@@ -53,5 +53,6 @@ def construct_assumption(tcard):
         act_flav = 3
         if ic:
             act_flav += 1
+            mod = 'Sym'
     hash += str(act_flav) + mod
     return hash
