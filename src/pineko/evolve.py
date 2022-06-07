@@ -71,7 +71,7 @@ def write_operator_card(pineappl_grid, default_card, card_path):
 
 
 def evolve_grid(
-    pineappl_path, eko_path, fktable_path, max_as, max_al, comparison_pdf=None, assumptions = 'Nf6Ind'
+    pineappl_path, eko_path, fktable_path, max_as, max_al, assumptions, comparison_pdf=None
 ):
     """
     Convolute grid with EKO from file paths.

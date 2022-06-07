@@ -24,19 +24,18 @@ def load(theory_id):
     return theory_card
 
 def construct_assumption(tcard):
-    """
-    This function return the appropriate assumption hash according to the scale Q0 of the fktable,
+    """This function return the appropriate assumption hash according to the scale Q0 of the fktable,
     the matching scales of the heavy quarks and whether an intrinsic component of the charm is
     allowed.
 
     Parameters
     ----------
-        tcard : dict
-            theory card
+    tcard : dict
+        theory card
 
     Returns
     -------
-            : str
+    str
         assumption hash
     """
     # retrive the relevant info from theory card
@@ -45,12 +44,12 @@ def construct_assumption(tcard):
     ic = tcard["IC"]
     hash = 'Nf'
     act_flav = 6
-    mod = 'Ind'
+    mod = 'Sym'
     if Q0 < match_scales['t']:
         act_flav = 5
-        if Q0 < match_scales['b']:
-            act_flav = 4
-            if Q0 < match_scales['c']:
-                act_flav = 3
+    if Q0 < match_scales['b']:
+        act_flav = 4
+    if Q0 < match_scales['c']:
+        act_flav = 3
     hash += str(act_flav) + mod
     return hash
