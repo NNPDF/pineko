@@ -84,31 +84,33 @@ def evolve_grid(
     xir,
     xif,
     alphas_values=None,
+    assumptions="Nf6Ind",
     comparison_pdf=None,
 ):
-    """
-    Convolute grid with EKO from file paths.
+    """Convolute grid with EKO from file paths.
 
     Parameters
     ----------
-        pineappl_path : str
-            unconvoluted grid
-        eko_path : str
-            evolution operator
-        fktable_path : str
-            target path for convoluted grid
-        max_as : int
-            maximum power of strong coupling
-        max_al : int
-            maximum power of electro-weak coupling
-        xir : float
-            renormalization scale variation
-        xif : float
-            factorization scale variation
-        alphas_values : None or list
-            values of strong coupling used to collapse grids
-        comparison_pdf : None or str
-            if given, a comparison table (with / without evolution) will be printed
+    pineappl_path : str
+        unconvoluted grid
+    eko_path : str
+        evolution operator
+    fktable_path : str
+        target path for convoluted grid
+    max_as : int
+        maximum power of strong coupling
+    max_al : int
+        maximum power of electro-weak coupling
+    xir : float
+        renormalization scale variation
+    xif : float
+        factorization scale variation
+    alphas_values : None or list
+        values of strong coupling used to collapse grids
+    assumptions : str
+        assumtions on the flavor dimension
+    comparison_pdf : None or str
+        if given, a comparison table (with / without evolution) will be printed
     """
     rich.print(
         rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
@@ -143,7 +145,7 @@ def evolve_grid(
         order_mask=order_mask,
         xi=(xir, xif),
     )
-    fktable.optimize()
+    fktable.optimize(assumptions)
     # write
     fktable.write_lz4(str(fktable_path))
     # compare before/after

@@ -178,7 +178,7 @@ class TheoryBuilder:
         self.iterate(self.inherit_eko, other=other)
 
     def iterate(self, f, **kwargs):
-        """Iterated grids in datasets.
+        """Iterate grids in datasets.
 
         Additional keyword arguments are simply passed down.
 
@@ -361,6 +361,8 @@ class TheoryBuilder:
         alphas_values = [
             4.0 * np.pi * astrong.a_s(xir * xir * Q2 / xif / xif) for Q2 in q2_grid
         ]
+        # Obtain the assumptions hash
+        assumptions = theory_card.construct_assumptions(tcard)
         # do it!
         logger.info("Start computation of %s", name)
         logger.info("max_as=%d, max_al=%d, xir=%f, xif=%f", max_as, max_al, xir, xif)
@@ -374,6 +376,7 @@ class TheoryBuilder:
             xir=xir,
             xif=xif,
             alphas_values=alphas_values,
+            assumptions=assumptions,
             comparison_pdf=pdf,
         )
         logger.info(

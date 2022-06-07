@@ -16,7 +16,13 @@ from ._base import command
 @click.option(
     "--pdf", default=None, help="if given, print comparison table", show_default=True
 )
-def subcommand(pineappl, eko, fktable, max_as, max_al, xir, xif, pdf):
+@click.option(
+    "--assumptions",
+    default="Nf6Ind",
+    help="the flavor assumptions to be used",
+    show_default=True,
+)
+def subcommand(pineappl, eko, fktable, max_as, max_al, xir, xif, pdf, assumptions):
     """Convolute PineAPPL grid and EKO into an FK table.
 
     PINEAPPL and EKO are the path to the respective elements to convolute, and
@@ -27,10 +33,20 @@ def subcommand(pineappl, eko, fktable, max_as, max_al, xir, xif, pdf):
 
     XIR and XIF represent the renormalization and factorization scale in the grid respectively.
 
+    ASSUMPTIONS represent the assumptions on the flavor dimension.
+
     PDF is an optional PDF set compatible with the EKO to compare grid and FK table.
     """
     _grid, _fk, comp = evolve.evolve_grid(
-        pineappl, eko, fktable, max_as, max_al, xir, xif, comparison_pdf=pdf
+        pineappl,
+        eko,
+        fktable,
+        max_as,
+        max_al,
+        xir,
+        xif,
+        assumptions=assumptions,
+        comparison_pdf=pdf,
     )
     if comp:
         print(comp.to_string())
