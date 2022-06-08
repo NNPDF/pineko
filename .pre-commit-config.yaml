@@ -29,6 +29,9 @@ repos:
     hooks:
       - id: pyupgrade
   - repo: https://github.com/pycqa/pydocstyle
-    rev: 6.1.1  # pick a git hash / tag to point to
+    rev: 6.1.1
     hooks:
     -   id: pydocstyle
+        files: ^src/
+        additional_dependencies:
+          - toml

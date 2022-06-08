@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+"""Tools related to generation of a list of FK tables.
+
+The typical use case of pineko is the generation of a list of FK tables,
+all with common theory parameters. The collective list of this FK tables
+together with other theory ingredients (such as C-factors) are often
+commenly refered to as 'theory'.
+"""
 import logging
 import time
 
@@ -249,8 +256,8 @@ class TheoryBuilder:
     def activate_logging(self, path, filename, activated_loggers=()):
         """Activate the logging facilities.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         path : pathlib.Path
             source directory
         filename : str

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Tools related to evolution/eko."""
 import copy
 import pathlib
 

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""CLI entry point to check compatibility."""
 import click
 import eko.output
 import pineappl

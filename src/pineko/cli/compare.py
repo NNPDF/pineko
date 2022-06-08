@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""CLI entry point to comparison grid vs. FK Table."""
 import click
 import pineappl
 import rich
@@ -16,7 +17,7 @@ from ._base import command
 @click.option("--xir", default=1.0, help="renormalization scale variation")
 @click.option("--xif", default=1.0, help="factorization scale variation")
 def subcommand(pineappl_path, fktable_path, max_as, max_al, pdf, xir, xif):
-    """Compare process level PineAPPL grid and derived FkTable.
+    """Compare process level PineAPPL grid and derived FK Table.
 
     The comparison between the grid stored at PINEAPPL_PATH, and the FK table
     stored at FKTABLE_PATH, is performed by convoluting both the grids with the PDF

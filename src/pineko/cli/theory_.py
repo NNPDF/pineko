@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""'theory' mode of CLI."""
 import pathlib
 
 import click
@@ -17,7 +18,7 @@ from ._base import command
     help="Explicitly specify config file (it has to be a valid TOML file).",
 )
 def theory_(cfg):
-    """Iterate a subcommand on a given theory and list of datasets"""
+    """Iterate a subcommand on a given theory and list of datasets."""
     path = configs.detect(cfg)
     base_configs = configs.load(path)
     configs.configs = configs.defaults(base_configs)
