@@ -110,3 +110,6 @@ max-line-length = 100
 [tool.pylint.design]
 # Maximum number of arguments for function / method
 max-args = 10
+
+[tool.pydocstyle]
+convention = "numpy"
