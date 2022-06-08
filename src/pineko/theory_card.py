@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
+"""Tools related to theory cards."""
 import yaml
 
 from . import configs
 
 
 def load(theory_id):
-    """
-    Load a theory card.
+    """Load a theory card.
 
     Parameters
     ----------
@@ -24,8 +24,10 @@ def load(theory_id):
     return theory_card
 
 
-def construct_assumption(tcard):
-    """This function return the appropriate assumption hash according to the scale Q0 of the fktable,
+def construct_assumptions(tcard):
+    """Compute the assumptions hash from the theory settings.
+
+    The used informations are the scale :math:`Q_0` of the FK table,
     the matching scales of the heavy quarks and whether an intrinsic component of the charm is
     allowed.
 

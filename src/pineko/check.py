@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Tools to check compatibility of EKO and grid."""
 import numpy as np
 
 
@@ -35,7 +36,7 @@ def in1d(a, b, rtol=1e-05, atol=1e-08):
 
 
 def check_grid_and_eko_compatible(pineappl_grid, operators, xif):
-    """Raises a `ValueError` if the EKO operators and the PineAPPL grid are NOT compatible.
+    """Check whether the EKO operators and the PineAPPL grid are compatible.
 
     Parameters
     ----------
@@ -45,6 +46,11 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif):
         operators
     xif : float
         factorization scale variation
+
+    Raises
+    ------
+    ValueError
+        If the operators and the grid are not compatible.
     """
     x_grid, _pids, _mur2_grid, muf2_grid = pineappl_grid.axes()
     # Q2 grid
