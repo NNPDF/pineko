@@ -32,7 +32,7 @@ Guidelines](https://github.com/N3PDF/pineko/blob/main/.github/CONTRIBUTING.md).
 
 ## Documentation
 - The documentation is available here: <a href="https://pineko.readthedocs.io/en/latest/"><img alt="Docs" src="https://readthedocs.org/projects/pineko/badge/?version=latest"></a>
-- To build the documentation from source run 
+- To build the documentation from source run
 ```bash
 cd docs
 poetry run make html
