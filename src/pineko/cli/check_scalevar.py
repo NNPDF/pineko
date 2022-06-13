@@ -13,5 +13,8 @@ from ._base import command
 def subcommand(pineappl_path, theory_ID):
     """Check if PineAPPL grid contains scale variations if theory card needs them"""
     t_card = theory_card.load(theory_ID)
+    xir = t_card["XIR"]
+    xif = t_card["XIF"]
+    ftr = t_card["fact_to_ren_scale_ratio"]
     pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
-    check.check_grid_contains_sv(pineappl_grid, t_card)
+    check.check_grid_contains_sv(pineappl_grid, xir, xif, ftr)
