@@ -67,21 +67,21 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif):
         raise ValueError("x grid in pineappl grid and eko operator are NOT compatible!")
 
 
-def check_grid_contains_sv(pineappl_grid, theory_card):
-    """
-    Raises a `ValueError if the theory_card asks for scale-variations but they are not
+def check_grid_contains_sv(pineappl_grid, xir, xif, ftr):
+    """Raises a `ValueError if the theory_card asks for scale-variations but they are not
     available in the pineappl grid.
 
     Parameters
     ----------
         pineappl_grid : pineappl.grid.Grid
             grid
-        theory_card : dict
-            theory card
+        xir : float
+            log of renormalization scale ratio to central 
+        xif : float
+            log of factorization scale ratio to central (scheme-C)
+        ftr : float
+            log of factorization scale ratio to central (scheme-B)     
     """
-    xir = theory_card["XIR"]
-    xif = theory_card["XIF"]
-    ftr = theory_card["fact_to_ren_scale_ratio"]
     if xir == 1 and xif == 1 and ftr == 1:
         return 0
     order_list = [order.as_tuple() for order in pineappl_grid.orders()]
