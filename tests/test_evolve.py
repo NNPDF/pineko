@@ -20,3 +20,18 @@ def test_write_operator_card_from_file(tmp_path):
         x_grid, q2_grid = pineko.evolve.write_operator_card_from_file(
             wrong_pine_path, default_path, target_path
         )
+
+
+def test_evolve_grid(tmp_path):
+    pine_path = test_files / "data/grids/208/HERA_CC_318GEV_EM_SIGMARED.pineappl.lz4"
+    eko_path = test_files / "data/ekos/208/HERA_CC_318GEV_EM_SIGMARED.tar"
+    target_path = pathlib.Path(tmp_path / "test_fktable.pineappl.lz4")
+    max_as = 1
+    max_al = 0
+    base_configs = pineko.configs.load(test_files)
+    pineko.configs.configs = pineko.configs.defaults(base_configs)
+    tcard = pineko.theory_card.load(208)
+    assumptions = pineko.theory_card.construct_assumption(tcard)
+    pineko.evolve.evolve_grid(
+        pine_path, eko_path, target_path, max_as, max_al, assumptions
+    )
