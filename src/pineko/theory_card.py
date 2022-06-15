@@ -41,7 +41,7 @@ def construct_assumptions(tcard):
     str
         assumptions hash
     """
-    # retrive the relevant info from theory card
+    # retrieve the relevant info from theory card
     Q0 = tcard["Q0"]
     match_scales = {
         "c": tcard["kcThr"] * tcard["mc"],
@@ -56,6 +56,8 @@ def construct_assumptions(tcard):
         act_flav = 5
     if Q0 < match_scales["b"]:
         act_flav = 4
+        if ic:
+            mod = "Sym"
     if Q0 < match_scales["c"]:
         act_flav = 3
         if ic:
