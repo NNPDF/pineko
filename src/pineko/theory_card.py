@@ -49,19 +49,17 @@ def construct_assumptions(tcard):
         "t": tcard["ktThr"] * tcard["mt"],
     }
     ic = tcard["IC"]
-    hash = "Nf"
+    hash_ = "Nf"
     act_flav = 6
     mod = "Ind"
     if Q0 < match_scales["t"]:
         act_flav = 5
     if Q0 < match_scales["b"]:
         act_flav = 4
-        if ic:
-            mod = "Sym"
     if Q0 < match_scales["c"]:
         act_flav = 3
         if ic:
             act_flav += 1
             mod = "Sym"
-    hash += str(act_flav) + mod
-    return hash
+    hash_ += str(act_flav) + mod
+    return hash_
