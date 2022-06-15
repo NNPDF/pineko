@@ -31,3 +31,24 @@ def test_enhance_paths():
     assert test_configs["paths"]["logs"]["fk"] == pathlib.Path(
         "/my/root/path/my/fk/logs/"
     )
+
+def test_default():
+    test_configs = {
+        "paths": {
+            "ymldb": pathlib.Path(""),
+            "grids": pathlib.Path(""),
+            "operator_cards" : pathlib.Path("my/ope/cards/"),
+            "operator_card_template": pathlib.Path(""),
+            "theory_cards": pathlib.Path(""),
+            "fktables": pathlib.Path(""),
+            "ekos": pathlib.Path(""),
+            "root": pathlib.Path("/my/root/path/"),
+            "logs": {"fk": pathlib.Path("my/fk/logs/")},
+        },
+    }
+    configs = pineko.configs.defaults(test_configs)
+    assert configs["paths"]["ymldb"] == pathlib.Path("/my/root/path")
+
+def test_detect():
+    with pytest.raises(FileNotFoundError):
+        pineko.configs.detect()
