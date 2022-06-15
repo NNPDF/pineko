@@ -144,7 +144,8 @@ def evolve_grid(
         order_mask=order_mask,
         xi=(xir, xif),
     )
-    fktable.optimize()
+    rich.print(f"Optimizing for {assumptions}")
+    fktable.optimize(assumptions)
     # write
     fktable.write_lz4(str(fktable_path))
     # compare before/after
