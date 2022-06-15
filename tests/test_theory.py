@@ -33,3 +33,13 @@ def test_load_grids():
     assert grids["HERA_CC_318GEV_EM_SIGMARED"] == pathlib.Path(
         test_files / "data/grids/208/HERA_CC_318GEV_EM_SIGMARED.pineappl.lz4"
     )
+
+
+def test_inherit_grid(tmp_path):
+    from_grid = theory_obj.grids_path()
+    theory_obj.inherit_grid("TestGrid", from_grid, tmp_path)
+
+
+def test_inherit_eko(tmp_path):
+    from_eko = theory_obj.ekos_path()
+    theory_obj.inherit_eko("TestEko", from_eko, tmp_path)
