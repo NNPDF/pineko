@@ -15,7 +15,7 @@ import rich
 import yaml
 from eko import strong_coupling as sc
 
-from . import configs, evolve, parser, theory_card
+from . import check, configs, evolve, parser, theory_card
 
 logger = logging.getLogger(__name__)
 
