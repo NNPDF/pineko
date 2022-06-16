@@ -6,7 +6,7 @@ import eko
 import rich
 import yaml
 
-from . import configs, evolve, parser, theory_card
+from . import check, configs, evolve, parser, theory_card
 
 logger = logging.getLogger(__name__)
 
@@ -315,6 +315,11 @@ class TheoryBuilder:
         do_log = self.activate_logging(
             paths["logs"]["fk"], f"{self.theory_id}-{name}-{pdf}.log"
         )
+        # check if grid contains SV if theory is requesting them
+        xir = t_card["XIR"]
+        xif = t_card["XIF"]
+        ftr = t_card["fact_to_ren_scale_ratio"]
+        check.check_grid_contains_sv(grid_path, xir, xif, ftr)
         # setup data
         eko_filename = self.ekos_path() / f"{name}.tar"
         fk_filename = self.fks_path / f"{name}.{parser.EXT}"

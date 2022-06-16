@@ -16,5 +16,4 @@ def subcommand(pineappl_path, theory_ID):
     xir = t_card["XIR"]
     xif = t_card["XIF"]
     ftr = t_card["fact_to_ren_scale_ratio"]
-    pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
-    check.check_grid_contains_sv(pineappl_grid, xir, xif, ftr)
+    check.check_grid_contains_sv(pineappl_path, xir, xif, ftr)
