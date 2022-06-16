@@ -1,0 +1,70 @@
+2022-06-16 11:19:58,734 pineko.theory/INFO: Start computation of HERA_CC_318GEV_EM_SIGMARED
+2022-06-16 11:27:04,574 pineko.theory/INFO: Start computation of HERA_CC_318GEV_EM_SIGMARED
+2022-06-16 11:28:31,445 pineko.theory/INFO: Start computation of HERA_CC_318GEV_EM_SIGMARED
+2022-06-16 11:34:40,056 pineko.theory/INFO: Start computation of HERA_CC_318GEV_EM_SIGMARED
+2022-06-16 11:52:25,888 pineko.theory/INFO: Start computation of HERA_CC_318GEV_EM_SIGMARED
+2022-06-16 11:54:30,084 pineko.theory/INFO: Start computation of HERA_CC_318GEV_EM_SIGMARED
+2022-06-16 11:54:30,084 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2022-06-16 11:54:30,089 eko.thresholds/INFO: ThresholdsAtlas [0.00e+00 - 2.28e+00 - 2.42e+01 - inf], ref=2.7224999999999997 @ None
+2022-06-16 11:54:30,089 eko.thresholds/INFO: ThresholdsAtlas [0.00e+00 - 2.28e+00 - 2.42e+01 - inf], ref=8317.44 @ None
+2022-06-16 11:54:30,089 eko.strong_coupling/INFO: Strong Coupling: a_s(µ_R^2=8317.440000)=0.009390=0.118000/(4π)
+2022-06-16 11:54:30,089 eko.evolution_operator.grid/INFO: Prepare threshold operator
+2022-06-16 11:54:30,090 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 2.420640e+01, nf=4
+2022-06-16 11:54:30,090 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 2.420640e+01
+2022-06-16 11:54:30,090 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581773e-02 -> 1.692281e-02
+2022-06-16 11:54:30,090 eko.evolution_operator/INFO: Evolution: order: 1, solution strategy: truncated
+2022-06-16 11:54:30,090 eko.evolution_operator/INFO: Evolution: computing operators - 0/50
+2022-06-16 11:54:51,806 eko.evolution_operator/INFO: Evolution: computing operators - 1/50 took: 21.716174 s
+2022-06-16 11:55:13,870 eko.evolution_operator/INFO: Evolution: computing operators - 2/50 took: 22.063919 s
+2022-06-16 11:55:35,176 eko.evolution_operator/INFO: Evolution: computing operators - 3/50 took: 21.305463 s
+2022-06-16 11:55:56,731 eko.evolution_operator/INFO: Evolution: computing operators - 4/50 took: 21.554053 s
+2022-06-16 11:56:17,513 eko.evolution_operator/INFO: Evolution: computing operators - 5/50 took: 20.780927 s
+2022-06-16 11:56:38,075 eko.evolution_operator/INFO: Evolution: computing operators - 6/50 took: 20.561999 s
+2022-06-16 11:56:57,630 eko.evolution_operator/INFO: Evolution: computing operators - 7/50 took: 19.554161 s
+2022-06-16 11:57:16,629 eko.evolution_operator/INFO: Evolution: computing operators - 8/50 took: 18.999530 s
+2022-06-16 11:57:35,431 eko.evolution_operator/INFO: Evolution: computing operators - 9/50 took: 18.801955 s
+2022-06-16 11:57:53,983 eko.evolution_operator/INFO: Evolution: computing operators - 10/50 took: 18.559030 s
+2022-06-16 11:58:12,344 eko.evolution_operator/INFO: Evolution: computing operators - 11/50 took: 18.364339 s
+2022-06-16 11:58:29,949 eko.evolution_operator/INFO: Evolution: computing operators - 12/50 took: 17.605963 s
+2022-06-16 11:58:46,747 eko.evolution_operator/INFO: Evolution: computing operators - 13/50 took: 16.797464 s
+2022-06-16 11:59:03,042 eko.evolution_operator/INFO: Evolution: computing operators - 14/50 took: 16.295447 s
+2022-06-16 11:59:18,537 eko.evolution_operator/INFO: Evolution: computing operators - 15/50 took: 15.494228 s
+2022-06-16 11:59:33,699 eko.evolution_operator/INFO: Evolution: computing operators - 16/50 took: 15.161059 s
+2022-06-16 11:59:48,504 eko.evolution_operator/INFO: Evolution: computing operators - 17/50 took: 14.804194 s
+2022-06-16 12:00:02,695 eko.evolution_operator/INFO: Evolution: computing operators - 18/50 took: 14.190695 s
+2022-06-16 12:00:15,916 eko.evolution_operator/INFO: Evolution: computing operators - 19/50 took: 13.220124 s
+2022-06-16 12:00:28,300 eko.evolution_operator/INFO: Evolution: computing operators - 20/50 took: 12.384662 s
+2022-06-16 12:00:40,350 eko.evolution_operator/INFO: Evolution: computing operators - 21/50 took: 12.049585 s
+2022-06-16 12:00:52,069 eko.evolution_operator/INFO: Evolution: computing operators - 22/50 took: 11.718598 s
+2022-06-16 12:01:03,438 eko.evolution_operator/INFO: Evolution: computing operators - 23/50 took: 11.368894 s
+2022-06-16 12:01:14,257 eko.evolution_operator/INFO: Evolution: computing operators - 24/50 took: 10.818601 s
+2022-06-16 12:01:24,424 eko.evolution_operator/INFO: Evolution: computing operators - 25/50 took: 10.166343 s
+2022-06-16 12:01:34,281 eko.evolution_operator/INFO: Evolution: computing operators - 26/50 took: 9.857379 s
+2022-06-16 12:01:43,864 eko.evolution_operator/INFO: Evolution: computing operators - 27/50 took: 9.582446 s
+2022-06-16 12:01:52,934 eko.evolution_operator/INFO: Evolution: computing operators - 28/50 took: 9.070517 s
+2022-06-16 12:02:01,980 eko.evolution_operator/INFO: Evolution: computing operators - 29/50 took: 9.045077 s
+2022-06-16 12:02:10,308 eko.evolution_operator/INFO: Evolution: computing operators - 30/50 took: 8.327123 s
+2022-06-16 12:02:17,718 eko.evolution_operator/INFO: Evolution: computing operators - 31/50 took: 7.410312 s
+2022-06-16 12:02:24,847 eko.evolution_operator/INFO: Evolution: computing operators - 32/50 took: 7.128751 s
+2022-06-16 12:02:31,408 eko.evolution_operator/INFO: Evolution: computing operators - 33/50 took: 6.560488 s
+2022-06-16 12:02:37,564 eko.evolution_operator/INFO: Evolution: computing operators - 34/50 took: 6.156325 s
+2022-06-16 12:02:43,367 eko.evolution_operator/INFO: Evolution: computing operators - 35/50 took: 5.803107 s
+2022-06-16 12:02:48,756 eko.evolution_operator/INFO: Evolution: computing operators - 36/50 took: 5.389022 s
+2022-06-16 12:02:53,842 eko.evolution_operator/INFO: Evolution: computing operators - 37/50 took: 5.085013 s
+2022-06-16 12:02:58,595 eko.evolution_operator/INFO: Evolution: computing operators - 38/50 took: 4.752280 s
+2022-06-16 12:03:03,045 eko.evolution_operator/INFO: Evolution: computing operators - 39/50 took: 4.450003 s
+2022-06-16 12:03:07,164 eko.evolution_operator/INFO: Evolution: computing operators - 40/50 took: 4.118938 s
+2022-06-16 12:03:10,888 eko.evolution_operator/INFO: Evolution: computing operators - 41/50 took: 3.724384 s
+2022-06-16 12:03:14,384 eko.evolution_operator/INFO: Evolution: computing operators - 42/50 took: 3.494988 s
+2022-06-16 12:03:17,486 eko.evolution_operator/INFO: Evolution: computing operators - 43/50 took: 3.102542 s
+2022-06-16 12:03:20,167 eko.evolution_operator/INFO: Evolution: computing operators - 44/50 took: 2.680059 s
+2022-06-16 12:03:22,422 eko.evolution_operator/INFO: Evolution: computing operators - 45/50 took: 2.255112 s
+2022-06-16 12:03:24,315 eko.evolution_operator/INFO: Evolution: computing operators - 46/50 took: 1.892634 s
+2022-06-16 12:03:25,973 eko.evolution_operator/INFO: Evolution: computing operators - 47/50 took: 1.658397 s
+2022-06-16 12:03:27,558 eko.evolution_operator/INFO: Evolution: computing operators - 48/50 took: 1.584504 s
+2022-06-16 12:03:29,058 eko.evolution_operator/INFO: Evolution: computing operators - 49/50 took: 1.499783 s
+2022-06-16 12:03:29,061 eko.evolution_operator/INFO: Evolution: computing operators - 50/50 took: 0.003048 s
+2022-06-16 12:03:29,062 eko.evolution_operator/INFO: Evolution: Total time 538.990745 s
+2022-06-16 12:03:29,062 eko.matching_conditions.operator_matrix_element/INFO: Matching: computing operators - 0/50
+2022-06-16 12:04:02,462 eko.matching_conditions.operator_matrix_element/INFO: Matching: computing operators - 1/50 took: 33.399966 s
+2022-06-16 12:04:34,926 eko.matching_conditions.operator_matrix_element/INFO: Matching: computing operators - 2/50 took: 32.463747 s
