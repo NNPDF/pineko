@@ -330,7 +330,7 @@ class TheoryBuilder:
         logger.info("Start computation of %s", name)
         start_time = time.perf_counter()
         _grid, _fk, comparison = evolve.evolve_grid(
-            grid_path, eko_filename, fk_filename, max_as, max_al, pdf, assumptions
+            grid_path, eko_filename, fk_filename, max_as, max_al, assumptions, pdf
         )
         logger.info(
             "Finished computation of %s - took %f s",

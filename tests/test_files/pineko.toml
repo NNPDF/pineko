@@ -11,3 +11,4 @@ fktables = "data/fktables"
 
 [paths.logs]
 fk = "logs/fk"
+eko = "logs/eko"
