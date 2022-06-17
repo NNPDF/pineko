@@ -346,6 +346,14 @@ class TheoryBuilder:
         do_log = self.activate_logging(
             paths["logs"]["fk"], f"{self.theory_id}-{name}-{pdf}.log"
         )
+        # check if grid contains SV if theory is requesting them
+        xir = tcard["XIR"]
+        xif = tcard["XIF"]
+        ftr = tcard["fact_to_ren_scale_ratio"]
+        if not np.isclose(xir, 1.0):
+            check.check_grid_contains_ren_sv(grid_path)
+        if not (np.isclose(xif, 1.0) and np.isclose(ftr, 1.0)):
+            check_grid_contains_fact_sv(grid_path)
         # setup data
         eko_filename = self.ekos_path() / f"{name}.tar"
         fk_filename = self.fks_path / f"{name}.{parser.EXT}"

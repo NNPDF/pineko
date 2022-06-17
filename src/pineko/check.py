@@ -65,3 +65,32 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif):
     # x-grid
     if not np.all(in1d(np.unique(operators["targetgrid"]), np.array(x_grid))):
         raise ValueError("x grid in pineappl grid and eko operator are NOT compatible!")
+
+def check_grid_contains_fact_sv(grid_path):
+    """Checks whether factorization scale-variations are available in the pineappl grid.
+    Parameters
+    ----------
+        grid_path : pathlib.Path
+            path to grid
+    """
+    pineappl_grid = pineappl.grid.Grid.read(grid_path)
+    order_list = [order.as_tuple() for order in pineappl_grid.orders()]
+    for order in order_list:
+        if order[-1] != 0:
+            return
+    raise ValueError("Factorization scale variations are not available for this grid")
+
+
+def check_grid_contains_ren_sv(grid_path):
+    """Checks whether renormalization scale-variations are available in the pineappl grid.
+    Parameters
+    ----------
+        grid_path : pathlib.Path
+            path to grid
+    """
+    pineappl_grid = pineappl.grid.Grid.read(grid_path)
+    order_list = [order.as_tuple() for order in pineappl_grid.orders()]
+    for order in order_list:
+        if order[-2] != 0:
+            return
+    raise ValueError("Renormalization scale variations are not available for this grid")
