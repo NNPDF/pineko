@@ -81,7 +81,6 @@ def check_grid_contains_fact_sv(grid_path):
             return
     raise ValueError("Factorization scale variations are not available for this grid")
 
-
 def check_grid_contains_ren_sv(grid_path):
     """Checks whether renormalization scale-variations are available in the pineappl grid.
     Parameters
