@@ -44,28 +44,31 @@ def check_grid_and_eko_compatible(pineappl_grid, operators):
         raise ValueError("x grid in pineappl grid and eko operator are NOT compatible!")
 
 
-def check_grid_contains_sv(grid_path, xir, xif, ftr):
-    """Raises a `ValueError if the theory_card asks for scale-variations but they are not
-    available in the pineappl grid.
-
+def check_grid_contains_fact_sv(grid_path):
+    """Checks whether factorization scale-variations are available in the pineappl grid.
     Parameters
     ----------
         grid_path : pathlib.Path
             path to grid
-        xir : float
-            log of renormalization scale ratio to central
-        xif : float
-            log of factorization scale ratio to central (scheme-C)
-        ftr : float
-            log of factorization scale ratio to central (scheme-B)
     """
-    if xir == 1 and xif == 1 and ftr == 1:
-        return 0
     pineappl_grid = pineappl.grid.Grid.read(grid_path)
     order_list = [order.as_tuple() for order in pineappl_grid.orders()]
     for order in order_list:
-        if order[-1] != 0 or order[-2] != 0:
-            return 0
-    raise ValueError(
-        "Theory card is requesting scale variations but they are not available for this grid!"
-    )
+        if order[-1] != 0:
+            return
+    raise ValueError("Factorization scale variations are not available for this grid")
+
+
+def check_grid_contains_ren_sv(grid_path):
+    """Checks whether renormalization scale-variations are available in the pineappl grid.
+    Parameters
+    ----------
+        grid_path : pathlib.Path
+            path to grid
+    """
+    pineappl_grid = pineappl.grid.Grid.read(grid_path)
+    order_list = [order.as_tuple() for order in pineappl_grid.orders()]
+    for order in order_list:
+        if order[-2] != 0:
+            return
+    raise ValueError("Renormalization scale variations are not available for this grid")
