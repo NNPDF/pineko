@@ -5,6 +5,7 @@ import time
 import eko
 import rich
 import yaml
+import numpy as np
 
 from . import check, configs, evolve, parser, theory_card
 
@@ -322,7 +323,7 @@ class TheoryBuilder:
         if not np.isclose(xir, 1.0):
             check.check_grid_contains_ren_sv(grid_path)
         if not (np.isclose(xif, 1.0) and np.isclose(ftr, 1.0)):
-            check_grid_contains_fact_sv(grid_path)
+            check.check_grid_contains_fact_sv(grid_path)
         # setup data
         eko_filename = self.ekos_path() / f"{name}.tar"
         fk_filename = self.fks_path / f"{name}.{parser.EXT}"
