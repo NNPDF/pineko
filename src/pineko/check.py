@@ -67,31 +67,19 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif):
         raise ValueError("x grid in pineappl grid and eko operator are NOT compatible!")
 
 
-def contains_fact(grid):
-    """Check whether factorization scale-variations are available in the pineappl grid.
+def check_fonll_b(fns):
+    """Checks if the fktable we are computing is a DIS FONLL-B fktable
 
     Parameters
     ----------
-        grid: pineappl.grid.Grid
-            Pineappl grid
+        fns : str
+            flavor number scheme (from the theory card)
+
+    Returns
+    -------
+            : bool
+            true if the fktable is a FONLL-B DIS fktable
     """
-    order_list = [order.as_tuple() for order in grid.orders()]
-    for order in order_list:
-        if order[-1] != 0:
-            return
-    raise ValueError("Factorization scale variations are not available for this grid")
-
-
-def contains_ren(grid):
-    """Check whether renormalization scale-variations are available in the pineappl grid.
-
-    Parameters
-    ----------
-        grid: pineappl.grid.Grid
-            Pineappl grid
-    """
-    order_list = [order.as_tuple() for order in grid.orders()]
-    for order in order_list:
-        if order[-2] != 0:
-            return
-    raise ValueError("Renormalization scale variations are not available for this grid")
+    if fns == "FONLL-B":
+        return True
+    return False
