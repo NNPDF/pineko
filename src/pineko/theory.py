@@ -323,6 +323,11 @@ class TheoryBuilder:
                 rich.print(f"Skipping existing FK Table {fk_filename}")
                 return
         max_as = 1 + int(tcard["PTO"])
+        # Check if we are computing FONLL-B fktable and eventually change max_as
+        if check.check_fonll_b(
+            tcard["FNS"],
+        ):
+            max_as += 1
         max_al = 0
         # Obtain the assumptions hash
         assumptions = theory_card.construct_assumption(tcard)
