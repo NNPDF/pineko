@@ -78,7 +78,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, xi):
 
 def evolve_grid(
     grid,
-    eko_path,
+    operators,
     fktable_path,
     max_as,
     max_al,
@@ -94,7 +94,7 @@ def evolve_grid(
     ----------
     grid : pineappl.grid.Grid
         unconvoluted grid
-    eko_path : str
+    operators : eko.output.Output
         evolution operator
     fktable_path : str
         target path for convoluted grid
@@ -114,7 +114,6 @@ def evolve_grid(
         if given, a comparison table (with / without evolution) will be printed
     """
     _x_grid, _pids, mur2_grid, _muf2_grid = grid.axes()
-    operators = eko.output.Output.load_tar(eko_path)
     check.check_grid_and_eko_compatible(grid, operators, xif)
     # rotate to evolution (if doable and necessary)
     if np.allclose(operators["inputpids"], br.flavor_basis_pids):
