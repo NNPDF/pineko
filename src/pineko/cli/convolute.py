@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """CLI entry point to convolution."""
 import click
+import pineappl as pine 
+import rich
 
 from .. import evolve
 from ._base import command
@@ -30,8 +32,24 @@ def subcommand(pineappl, eko, fktable, max_as, max_al, xir, xif, pdf):
 
     PDF is an optional PDF set compatible with the EKO to compare grid and FK table.
     """
+    pineappl_grid = pine.grid.Grid.read(pineappl)
+    rich.print(
+        rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
+        f"   {pineappl}\n",
+        f"+ {eko}\n",
+        f"= {fktable}\n",
+        f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
+    )
     _grid, _fk, comp = evolve.evolve_grid(
-        pineappl, eko, fktable, max_as, max_al, xir, xif, comparison_pdf=pdf
+        pineappl_grid,
+        eko,
+        fktable,
+        max_as,
+        max_al,
+        xir,
+        xif,
+        assumptions=assumptions,
+        comparison_pdf=pdf,
     )
     if comp:
         print(comp.to_string())
