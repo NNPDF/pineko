@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Tools to check compatibility of EKO and grid."""
 import numpy as np
-import pineappl
 
 
 def in1d(a, b, rtol=1e-05, atol=1e-08):
