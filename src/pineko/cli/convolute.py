@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """CLI entry point to convolution."""
 import click
-import pineappl as pine
+import pineappl
 import rich
 
 from .. import evolve
@@ -9,7 +9,7 @@ from ._base import command
 
 
 @command.command("convolute")
-@click.argument("pineappl", type=click.Path(exists=True))
+@click.argument("pine", type=click.Path(exists=True))
 @click.argument("eko", type=click.Path(exists=True))
 @click.argument("fktable", type=click.Path())
 @click.argument("max_as", type=int)
@@ -19,10 +19,16 @@ from ._base import command
 @click.option(
     "--pdf", default=None, help="if given, print comparison table", show_default=True
 )
-def subcommand(pineappl, eko, fktable, max_as, max_al, xir, xif, pdf):
+@click.option(
+    "--assumptions",
+    default="Nf6Ind",
+    help="the flavor assumptions to be used",
+    show_default=True,
+)
+def subcommand(pine, eko, fktable, max_as, max_al, xir, xif, pdf, assumptions):
     """Convolute PineAPPL grid and EKO into an FK table.
 
-    PINEAPPL and EKO are the path to the respective elements to convolute, and
+    PINE and EKO are the path to the respective elements to convolute, and
     FKTABLE is the path where to dump the output.
 
     MAX_AS and MAX_AL are used to specify the order in QCD and QED
@@ -32,7 +38,7 @@ def subcommand(pineappl, eko, fktable, max_as, max_al, xir, xif, pdf):
 
     PDF is an optional PDF set compatible with the EKO to compare grid and FK table.
     """
-    pineappl_grid = pine.grid.Grid.read(pineappl)
+    pineappl_grid = pineappl.grid.Grid.read(pine)
     rich.print(
         rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
         f"   {pineappl}\n",
