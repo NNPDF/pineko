@@ -93,6 +93,7 @@ def evolve_grid(
     Parameters
     ----------
 <<<<<<< HEAD
+<<<<<<< HEAD
         pineappl_path : str
             unconvoluted grid
         eko_path : str
@@ -112,6 +113,8 @@ def evolve_grid(
         comparison_pdf : None or str
             if given, a comparison table (with / without evolution) will be printed
 =======
+=======
+>>>>>>> 8c14399 (put the grid as argument of evolve)
     pineappl_grid : pineappl.grid.Grid
         unconvoluted grid
     eko_path : str
