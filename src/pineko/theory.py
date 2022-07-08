@@ -350,7 +350,7 @@ class TheoryBuilder:
         xir = tcard["XIR"]
         xif = tcard["XIF"]
         ftr = tcard["fact_to_ren_scale_ratio"]
-        #loading grid
+        # loading grid
         pineappl_grid = pineappl.grid.Grid.read(grid_path)
         if not np.isclose(xir, 1.0):
             check.check_grid_contains_ren_sv(pineappl_grid)
@@ -370,7 +370,8 @@ class TheoryBuilder:
         astrong = sc.StrongCoupling.from_dict(tcard)
         # ocard = self.load_operator_card(name)
         # q2_grid = ocard["Q2grid"]
-        #loading ekos
+
+        # loading ekos
         operators = eko.output.Output.load_tar(eko_filename)
         q2_grid = operators["Q2grid"].keys()
         # PineAPPL wants alpha_s = 4*pi*a_s
