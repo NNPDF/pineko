@@ -373,8 +373,6 @@ class TheoryBuilder:
         #loading ekos
         operators = eko.output.Output.load_tar(eko_filename)
         q2_grid = operators["Q2grid"].keys()
-        xir = tcard["XIR"]
-        xif = tcard["XIF"]
         # PineAPPL wants alpha_s = 4*pi*a_s
         alphas_values = [
             4.0 * np.pi * astrong.a_s(xir * xir * Q2 / xif / xif) for Q2 in q2_grid
