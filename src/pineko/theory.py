@@ -383,12 +383,12 @@ class TheoryBuilder:
         start_time = time.perf_counter()
 
         rich.print(
-        rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
-        f"   {grid_path}\n",
-        f"+ {eko_filename}\n",
-        f"= {fk_filename}\n",
-        f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
-    )
+            rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
+            f"   {grid_path}\n",
+            f"+ {eko_filename}\n",
+            f"= {fk_filename}\n",
+            f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
+        )
         _grid, _fk, comparison = evolve.evolve_grid(
             pineappl_grid,
             eko_filename,
