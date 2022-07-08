@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """CLI entry point to convolution."""
 import click
-import pineappl as pine
-import eko as ek
+import eko
+import pineappl
 import rich
 
 from .. import evolve
