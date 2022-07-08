@@ -77,7 +77,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, xi):
 
 
 def evolve_grid(
-    grid,
+    pineappl_grid,
     operators,
     fktable_path,
     max_as,
@@ -111,8 +111,8 @@ def evolve_grid(
     comparison_pdf : None or str
         if given, a comparison table (with / without evolution) will be printed
     """
-    _x_grid, _pids, mur2_grid, _muf2_grid = grid.axes()
-    check.check_grid_and_eko_compatible(grid, operators, xif)
+    _x_grid, _pids, mur2_grid, _muf2_grid = pineappl_grid.axes()
+    check.check_grid_and_eko_compatible(pineappl_grid, operators, xif)
     # rotate to evolution (if doable and necessary)
     if np.allclose(operators["inputpids"], br.flavor_basis_pids):
         operators.to_evol()
