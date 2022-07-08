@@ -67,19 +67,29 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif):
         raise ValueError("x grid in pineappl grid and eko operator are NOT compatible!")
 
 
-def check_fonll_b(fns):
+def check_fonll_b(fns, lumi):
     """Checks if the fktable we are computing is a DIS FONLL-B fktable
 
     Parameters
     ----------
         fns : str
             flavor number scheme (from the theory card)
+        lumi : list(list(tuple))
+            luminosity info
 
     Returns
     -------
             : bool
             true if the fktable is a FONLL-B DIS fktable
     """
-    if fns == "FONLL-B":
+    import ipdb
+
+    ipdb.set_trace()
+    isDIS = True
+    for lists in lumi:
+        for el in lists:
+            if el[1] != 11:
+                isDIS = False
+    if fns == "FONLL-B" and isDIS:
         return True
     return False
