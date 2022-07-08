@@ -58,9 +58,6 @@ def check_fonll_b(fns, lumi):
             : bool
             true if the fktable is a FONLL-B DIS fktable
     """
-    import ipdb
-
-    ipdb.set_trace()
     isDIS = True
     for lists in lumi:
         for el in lists:
