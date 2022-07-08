@@ -383,8 +383,16 @@ class TheoryBuilder:
         logger.info("Start computation of %s", name)
         logger.info("max_as=%d, max_al=%d, xir=%f, xif=%f", max_as, max_al, xir, xif)
         start_time = time.perf_counter()
+
+        rich.print(
+        rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
+        f"   {grid_path}\n",
+        f"+ {eko_filename}\n",
+        f"= {fk_filename}\n",
+        f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
+    )
         _grid, _fk, comparison = evolve.evolve_grid(
-            grid_path,
+            pineappl_grid,
             eko_filename,
             fk_filename,
             max_as,
