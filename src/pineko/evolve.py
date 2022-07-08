@@ -77,7 +77,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, xi):
 
 
 def evolve_grid(
-    pineappl_path,
+    pineappl_grid,
     eko_path,
     fktable_path,
     max_as,
@@ -92,7 +92,7 @@ def evolve_grid(
 
     Parameters
     ----------
-    pineappl_path : str
+    pineappl_grid : pineappl.grid.Grid
         unconvoluted grid
     eko_path : str
         evolution operator
@@ -113,15 +113,6 @@ def evolve_grid(
     comparison_pdf : None or str
         if given, a comparison table (with / without evolution) will be printed
     """
-    rich.print(
-        rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
-        f"   {pineappl_path}\n",
-        f"+ {eko_path}\n",
-        f"= {fktable_path}\n",
-        f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
-    )
-    # load
-    pineappl_grid = pineappl.grid.Grid.read(str(pineappl_path))
     _x_grid, _pids, mur2_grid, _muf2_grid = pineappl_grid.axes()
     operators = eko.output.Output.load_tar(eko_path)
     check.check_grid_and_eko_compatible(pineappl_grid, operators, xif)
