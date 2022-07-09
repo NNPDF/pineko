@@ -77,7 +77,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, xi):
 
 
 def evolve_grid(
-    pineappl_grid,
+    grid,
     eko_path,
     fktable_path,
     max_as,
@@ -92,30 +92,7 @@ def evolve_grid(
 
     Parameters
     ----------
-<<<<<<< HEAD
-<<<<<<< HEAD
-        pineappl_path : str
-            unconvoluted grid
-        eko_path : str
-            evolution operator
-        fktable_path : str
-            target path for convoluted grid
-        max_as : int
-            maximum power of strong coupling
-        max_al : int
-            maximum power of electro-weak coupling
-        xir : float
-            renormalization scale variation
-        xif : float
-            factorization scale variation
-        alphas_values : None or list
-            values of strong coupling used to collapse grids
-        comparison_pdf : None or str
-            if given, a comparison table (with / without evolution) will be printed
-=======
-=======
->>>>>>> 8c14399 (put the grid as argument of evolve)
-    pineappl_grid : pineappl.grid.Grid
+    grid : pineappl.grid.Grid
         unconvoluted grid
     eko_path : str
         evolution operator
@@ -131,29 +108,26 @@ def evolve_grid(
         factorization scale variation
     alphas_values : None or list
         values of strong coupling used to collapse grids
-    assumptions : str
-        assumtions on the flavor dimension
     comparison_pdf : None or str
         if given, a comparison table (with / without evolution) will be printed
->>>>>>> 1928fcf (put the grid as argument of evolve)
     """
-    _x_grid, _pids, mur2_grid, _muf2_grid = pineappl_grid.axes()
+    _x_grid, _pids, mur2_grid, _muf2_grid = grid.axes()
     operators = eko.output.Output.load_tar(eko_path)
-    check.check_grid_and_eko_compatible(pineappl_grid, operators, xif)
+    check.check_grid_and_eko_compatible(grid, operators, xif)
     # rotate to evolution (if doable and necessary)
     if np.allclose(operators["inputpids"], br.flavor_basis_pids):
         operators.to_evol()
     elif not np.allclose(operators["inputpids"], br.evol_basis_pids):
         raise ValueError("The EKO is neither in flavor nor in evolution basis.")
     # do it
-    order_mask = pineappl.grid.Order.create_mask(pineappl_grid.orders(), max_as, max_al)
+    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
     # TODO this is a hack to not break the CLI
     # the problem is that the EKO output still does not contain the theory/operators card and
     # so I can't compute alpha_s *here* if xir != 1
     if np.isclose(xir, 1.0) and alphas_values is None:
         mur2_grid = list(operators["Q2grid"].keys())
         alphas_values = [op["alphas"] for op in operators["Q2grid"].values()]
-    fktable = pineappl_grid.convolute_eko(
+    fktable = grid.convolute_eko(
         operators,
         xir * xir * mur2_grid,
         alphas_values,
@@ -169,8 +143,8 @@ def evolve_grid(
     comparison = None
     if comparison_pdf is not None:
         comparison = comparator.compare(
-            pineappl_grid, fktable, max_as, max_al, comparison_pdf, xir, xif
+            grid, fktable, max_as, max_al, comparison_pdf, xir, xif
         )
         fktable.set_key_value("results_fk", comparison.to_string())
         fktable.set_key_value("results_fk_pdfset", comparison_pdf)
-    return pineappl_grid, fktable, comparison
+    return grid, fktable, comparison
