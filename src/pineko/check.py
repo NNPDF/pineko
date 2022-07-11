@@ -67,8 +67,9 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif):
         raise ValueError("x grid in pineappl grid and eko operator are NOT compatible!")
 
 
-def check_grid_contains_fact_sv(grid):
-    """Checks whether factorization scale-variations are available in the pineappl grid.
+def contains_fact(grid):
+    """Check whether factorization scale-variations are available in the pineappl grid.
+
     Parameters
     ----------
         grid: pineappl.grid.Grid
@@ -81,8 +82,9 @@ def check_grid_contains_fact_sv(grid):
     raise ValueError("Factorization scale variations are not available for this grid")
 
 
-def check_grid_contains_ren_sv(grid):
-    """Checks whether renormalization scale-variations are available in the pineappl grid.
+def contains_ren(grid):
+    """Check whether renormalization scale-variations are available in the pineappl grid.
+
     Parameters
     ----------
         grid: pineappl.grid.Grid
