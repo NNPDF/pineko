@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""'theory' mode of CLI."""
 import pathlib
 
 import click
@@ -17,7 +18,7 @@ from ._base import command
     help="Explicitly specify config file (it has to be a valid TOML file).",
 )
 def theory_(cfg):
-    """Iterate a subcommand on a given theory and list of datasets"""
+    """Iterate a subcommand on a given theory and list of datasets."""
     path = configs.detect(cfg)
     base_configs = configs.load(path)
     configs.configs = configs.defaults(base_configs)
@@ -32,7 +33,7 @@ def theory_(cfg):
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
 def inherit_grids(source_theory_id, target_theory_id, datasets, overwrite):
     """Inherit grids for datasets from one theory to another."""
-    theory.TheoryBuilder(source_theory_id, datasets, overwrite).inherit_grids(
+    theory.TheoryBuilder(source_theory_id, datasets, overwrite=overwrite).inherit_grids(
         target_theory_id
     )
 
@@ -43,7 +44,7 @@ def inherit_grids(source_theory_id, target_theory_id, datasets, overwrite):
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
 def opcards(theory_id, datasets, overwrite):
     """Write EKO card for all FK tables in all datasets."""
-    theory.TheoryBuilder(theory_id, datasets, overwrite).opcards()
+    theory.TheoryBuilder(theory_id, datasets, overwrite=overwrite).opcards()
 
 
 @theory_.command()
