@@ -202,7 +202,7 @@ class TheoryBuilder:
                 f(name, grid, **kwargs)
             rich.print()
 
-    def opcard(self, name, grid, tcard):
+    def opcard(self, name, grid, xif):
         """Write a single operator card.
 
         Parameters
@@ -211,8 +211,8 @@ class TheoryBuilder:
             grid name, i.e. it's true stem
         grid : pathlib.Path
             path to grid
-        tcard : dict
-            theory card
+        xif : float
+            factorization scale
         """
         opcard_path = self.operator_cards_path / f"{name}.yaml"
         if opcard_path.exists():
@@ -223,7 +223,7 @@ class TheoryBuilder:
             grid,
             configs.configs["paths"]["operator_card_template"],
             opcard_path,
-            tcard["XIF"],
+            xif,
         )
         if opcard_path.exists():
             rich.print(
@@ -234,7 +234,7 @@ class TheoryBuilder:
         """Write operator cards."""
         tcard = theory_card.load(self.theory_id)
         self.operator_cards_path.mkdir(exist_ok=True)
-        self.iterate(self.opcard, tcard=tcard)
+        self.iterate(self.opcard, xif=tcard["XIF"])
 
     def load_operator_card(self, name):
         """Read current operator card.
