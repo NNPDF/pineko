@@ -43,7 +43,7 @@ def check_grid_and_eko_compatible(pineappl_grid, operators):
         raise ValueError("x grid in pineappl grid and eko operator are NOT compatible!")
 
 
-def check_fonll_b(fns, lumi):
+def is_fonll_b(fns, lumi):
     """Checks if the fktable we are computing is a DIS FONLL-B fktable
 
     Parameters

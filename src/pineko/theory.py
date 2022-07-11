@@ -326,7 +326,7 @@ class TheoryBuilder:
         max_as = 1 + int(tcard["PTO"])
         # Check if we are computing FONLL-B fktable and eventually change max_as
         pine_grid = pineappl.grid.Grid.read(grid_path)
-        if check.check_fonll_b(
+        if check.is_fonll_b(
             tcard["FNS"],
             pine_grid.lumi(),
         ):
