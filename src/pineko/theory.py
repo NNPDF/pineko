@@ -3,10 +3,11 @@ import logging
 import time
 
 import eko
+import pineappl
 import rich
 import yaml
 
-from . import configs, evolve, parser, theory_card
+from . import check, configs, evolve, parser, theory_card
 
 logger = logging.getLogger(__name__)
 
