@@ -353,9 +353,9 @@ class TheoryBuilder:
         ftr = tcard["fact_to_ren_scale_ratio"]
         pineappl_grid = pineappl.grid.Grid.read(grid_path)
         if not np.isclose(xir, 1.0):
-            check.check_grid_contains_ren_sv(pineappl_grid)
+            check.contains_ren(pineappl_grid)
         if not (np.isclose(xif, 1.0) and np.isclose(ftr, 1.0)):
-            check.check_grid_contains_fact_sv(pineappl_grid)
+            check.contains_fact(pineappl_grid)
         # setup data
         eko_filename = self.ekos_path() / f"{name}.tar"
         fk_filename = self.fks_path / f"{name}.{parser.EXT}"
