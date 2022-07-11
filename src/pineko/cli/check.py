@@ -38,11 +38,11 @@ def subcommand(pineappl_path, eko_path, xif):
     type=str,
 )
 def subcommand_sv(pineappl_path, tocheck):
-    """Check if PineAPPL grid contains requested scale variations"""
+    """Check if PineAPPL grid contains requested scale variations."""
     pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
     if tocheck == "xir":
         try:
-            check.check_grid_contains_ren_sv(pineappl_grid)
+            check.contains_ren(pineappl_grid)
             rich.print(
                 "[green]Success:[/] grids contain renormalization scale variations"
             )
@@ -50,7 +50,7 @@ def subcommand_sv(pineappl_path, tocheck):
             rich.print("[red]Error:[/]", e)
     elif tocheck == "xif":
         try:
-            check.check_grid_contains_fact_sv(pineappl_grid)
+            check.contains_fact(pineappl_grid)
             rich.print(
                 "[green]Success:[/] grids contain factorization scale variations"
             )
