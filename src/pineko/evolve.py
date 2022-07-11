@@ -108,6 +108,8 @@ def evolve_grid(
         factorization scale variation
     alphas_values : None or list
         values of strong coupling used to collapse grids
+    assumptions : str
+        assumptions on the flavor dimension
     comparison_pdf : None or str
         if given, a comparison table (with / without evolution) will be printed
     """
