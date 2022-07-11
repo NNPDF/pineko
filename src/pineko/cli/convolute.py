@@ -41,8 +41,8 @@ def subcommand(grid_path, op_path, fktable, max_as, max_al, xir, xif, pdf, assum
 
     PDF is an optional PDF set compatible with the EKO to compare grid and FK table.
     """
-    grid = pine.grid.Grid.read(grid_path)
-    operators = ek.output.Output.load_tar(op_path)
+    grid = pineappl.grid.Grid.read(grid_path)
+    operators = eko.output.Output.load_tar(op_path)
     rich.print(
         rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
         f"   {grid_path}\n",
