@@ -400,8 +400,8 @@ class TheoryBuilder:
             f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
         )
         _grid, _fk, comparison = evolve.evolve_grid(
-            operators,
             grid,
+            operators,
             fk_filename,
             max_as,
             max_al,
