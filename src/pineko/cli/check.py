@@ -43,7 +43,7 @@ def sub_compatibility(grid_path, operator_path, xif):
     metavar="SCALE",
     type=click.Choice(["ren", "fact"]),
 )
-def subcommand_sv(grid_path, scale):
+def sub_scvar(grid_path, scale):
     """Check if PineAPPL grid contains requested scale variations."""
     grid = pineappl.grid.Grid.read(grid_path)
     if scale == "ren":
