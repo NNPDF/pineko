@@ -66,8 +66,9 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif):
     if not np.all(in1d(np.unique(operators["targetgrid"]), np.array(x_grid))):
         raise ValueError("x grid in pineappl grid and eko operator are NOT compatible!")
 
+
 def is_fonll_b(fns, lumi):
-    """Checks if the fktable we are computing is a DIS FONLL-B fktable
+    """Check if the fktable we are computing is a DIS FONLL-B fktable.
 
     Parameters
     ----------
@@ -81,14 +82,15 @@ def is_fonll_b(fns, lumi):
             : bool
             true if the fktable is a FONLL-B DIS fktable
     """
-    isDIS = True
     for lists in lumi:
         for el in lists:
             if el[1] != 11:
-                isDIS = False
-    if fns == "FONLL-B" and isDIS:
+                # in this case we are sure it is not DIS so for sure it is not FONLL-B
+                return False
+    if fns == "FONLL-B":
         return True
     return False
+
 
 def contains_fact(grid):
     """Check whether factorization scale-variations are available in the pineappl grid.
@@ -118,4 +120,3 @@ def contains_ren(grid):
         if order[-2] != 0:
             return
     raise ValueError("Renormalization scale variations are not available for this grid")
-
