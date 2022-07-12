@@ -11,11 +11,12 @@ import time
 
 import eko
 import numpy as np
+import pineappl
 import rich
 import yaml
 from eko import strong_coupling as sc
 
-from . import configs, evolve, parser, theory_card
+from . import check, configs, evolve, parser, theory_card
 
 logger = logging.getLogger(__name__)
 
@@ -346,6 +347,15 @@ class TheoryBuilder:
         do_log = self.activate_logging(
             paths["logs"]["fk"], f"{self.theory_id}-{name}-{pdf}.log"
         )
+        # check if grid contains SV if theory is requesting them
+        xir = tcard["XIR"]
+        xif = tcard["XIF"]
+        ftr = tcard["fact_to_ren_scale_ratio"]
+        pineappl_grid = pineappl.grid.Grid.read(grid_path)
+        if not np.isclose(xir, 1.0):
+            check.contains_ren(pineappl_grid)
+        if not (np.isclose(xif, 1.0) and np.isclose(ftr, 1.0)):
+            check.contains_fact(pineappl_grid)
         # setup data
         eko_filename = self.ekos_path() / f"{name}.tar"
         fk_filename = self.fks_path / f"{name}.{parser.EXT}"
@@ -362,8 +372,6 @@ class TheoryBuilder:
         # q2_grid = ocard["Q2grid"]
         operators = eko.output.Output.load_tar(eko_filename)
         q2_grid = operators["Q2grid"].keys()
-        xir = tcard["XIR"]
-        xif = tcard["XIF"]
         # PineAPPL wants alpha_s = 4*pi*a_s
         alphas_values = [
             4.0 * np.pi * astrong.a_s(xir * xir * Q2 / xif / xif) for Q2 in q2_grid
@@ -374,8 +382,16 @@ class TheoryBuilder:
         logger.info("Start computation of %s", name)
         logger.info("max_as=%d, max_al=%d, xir=%f, xif=%f", max_as, max_al, xir, xif)
         start_time = time.perf_counter()
+
+        rich.print(
+            rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
+            f"   {grid_path}\n",
+            f"+ {eko_filename}\n",
+            f"= {fk_filename}\n",
+            f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
+        )
         _grid, _fk, comparison = evolve.evolve_grid(
-            grid_path,
+            pineappl_grid,
             eko_filename,
             fk_filename,
             max_as,
