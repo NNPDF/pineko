@@ -67,6 +67,31 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif):
         raise ValueError("x grid in pineappl grid and eko operator are NOT compatible!")
 
 
+def is_fonll_b(fns, lumi):
+    """Check if the fktable we are computing is a DIS FONLL-B fktable.
+
+    Parameters
+    ----------
+        fns : str
+            flavor number scheme (from the theory card)
+        lumi : list(list(tuple))
+            luminosity info
+
+    Returns
+    -------
+            : bool
+            true if the fktable is a FONLL-B DIS fktable
+    """
+    for lists in lumi:
+        for el in lists:
+            if not (10 < abs(el[1]) < 17):
+                # in this case we are sure it is not DIS so for sure it is not FONLL-B
+                return False
+    if fns == "FONLL-B":
+        return True
+    return False
+
+
 def contains_fact(grid):
     """Check whether factorization scale-variations are available in the pineappl grid.
 

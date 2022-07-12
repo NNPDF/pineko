@@ -4,7 +4,7 @@
 The typical use case of pineko is the generation of a list of FK tables,
 all with common theory parameters. The collective list of this FK tables
 together with other theory ingredients (such as C-factors) are often
-commenly refered to as 'theory'.
+commonly referred to as 'theory'.
 """
 import logging
 import time
@@ -202,7 +202,7 @@ class TheoryBuilder:
                 f(name, grid, **kwargs)
             rich.print()
 
-    def opcard(self, name, grid, tcard):
+    def opcard(self, name, grid, xif):
         """Write a single operator card.
 
         Parameters
@@ -211,8 +211,8 @@ class TheoryBuilder:
             grid name, i.e. it's true stem
         grid : pathlib.Path
             path to grid
-        tcard : dict
-            theory card
+        xif : float
+            factorization scale
         """
         opcard_path = self.operator_cards_path / f"{name}.yaml"
         if opcard_path.exists():
@@ -223,7 +223,7 @@ class TheoryBuilder:
             grid,
             configs.configs["paths"]["operator_card_template"],
             opcard_path,
-            tcard["XIF"],
+            xif,
         )
         if opcard_path.exists():
             rich.print(
@@ -234,7 +234,7 @@ class TheoryBuilder:
         """Write operator cards."""
         tcard = theory_card.load(self.theory_id)
         self.operator_cards_path.mkdir(exist_ok=True)
-        self.iterate(self.opcard, tcard=tcard)
+        self.iterate(self.opcard, xif=tcard["XIF"])
 
     def load_operator_card(self, name):
         """Read current operator card.
@@ -352,11 +352,11 @@ class TheoryBuilder:
         xif = tcard["XIF"]
         ftr = tcard["fact_to_ren_scale_ratio"]
         # loading grid
-        pineappl_grid = pineappl.grid.Grid.read(grid_path)
+        grid = pineappl.grid.Grid.read(grid_path)
         if not np.isclose(xir, 1.0):
-            check.contains_ren(pineappl_grid)
+            check.contains_ren(grid)
         if not (np.isclose(xif, 1.0) and np.isclose(ftr, 1.0)):
-            check.contains_fact(pineappl_grid)
+            check.contains_fact(grid)
         # setup data
         eko_filename = self.ekos_path() / f"{name}.tar"
         fk_filename = self.fks_path / f"{name}.{parser.EXT}"
@@ -365,6 +365,12 @@ class TheoryBuilder:
                 rich.print(f"Skipping existing FK Table {fk_filename}")
                 return
         max_as = 1 + int(tcard["PTO"])
+        # Check if we are computing FONLL-B fktable and eventually change max_as
+        if check.is_fonll_b(
+            tcard["FNS"],
+            grid.lumi(),
+        ):
+            max_as += 1
         max_al = 0
         # collect alpha_s
         # TODO: move this down to evolve.evolve_grid when output contains cards
@@ -394,8 +400,8 @@ class TheoryBuilder:
             f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
         )
         _grid, _fk, comparison = evolve.evolve_grid(
-            pineappl_grid,
             operators,
+            grid,
             fk_filename,
             max_as,
             max_al,

@@ -45,7 +45,7 @@ def write_operator_card_from_file(pineappl_path, default_card_path, card_path, x
     return write_operator_card(pineappl_grid, default_card, card_path, xif)
 
 
-def write_operator_card(pineappl_grid, default_card, card_path, xi):
+def write_operator_card(pineappl_grid, default_card, card_path, xif):
     """Generate operator card for this grid.
 
     Parameters
@@ -56,7 +56,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, xi):
         base operator card
     card_path : str or os.PathLike
         target path
-    xi : float
+    xif : float
         factorization scale variation
 
     Returns
@@ -68,7 +68,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, xi):
     """
     operators_card = copy.deepcopy(default_card)
     x_grid, _pids, _mur2_grid, muf2_grid = pineappl_grid.axes()
-    q2_grid = (xi * xi * muf2_grid).tolist()
+    q2_grid = (xif * xif * muf2_grid).tolist()
     operators_card["targetgrid"] = x_grid.tolist()
     operators_card["Q2grid"] = q2_grid
     with open(card_path, "w", encoding="UTF-8") as f:
@@ -109,7 +109,7 @@ def evolve_grid(
     alphas_values : None or list
         values of strong coupling used to collapse grids
     assumptions : str
-        assumtions on the flavor dimension
+        assumptions on the flavor dimension
     comparison_pdf : None or str
         if given, a comparison table (with / without evolution) will be printed
     """
