@@ -398,7 +398,7 @@ class TheoryBuilder:
         )
         _grid, _fk, comparison = evolve.evolve_grid(
             grid,
-            eko_filename,
+            operators,
             fk_filename,
             max_as,
             max_al,
