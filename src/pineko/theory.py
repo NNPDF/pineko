@@ -10,6 +10,7 @@ import logging
 import time
 
 import eko
+import numpy as np
 import pineappl
 import rich
 import yaml
