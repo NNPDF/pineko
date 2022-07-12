@@ -351,11 +351,11 @@ class TheoryBuilder:
         xir = tcard["XIR"]
         xif = tcard["XIF"]
         ftr = tcard["fact_to_ren_scale_ratio"]
-        pineappl_grid = pineappl.grid.Grid.read(grid_path)
+        grid = pineappl.grid.Grid.read(grid_path)
         if not np.isclose(xir, 1.0):
-            check.contains_ren(pineappl_grid)
+            check.contains_ren(grid)
         if not (np.isclose(xif, 1.0) and np.isclose(ftr, 1.0)):
-            check.contains_fact(pineappl_grid)
+            check.contains_fact(grid)
         # setup data
         eko_filename = self.ekos_path() / f"{name}.tar"
         fk_filename = self.fks_path / f"{name}.{parser.EXT}"
@@ -364,6 +364,12 @@ class TheoryBuilder:
                 rich.print(f"Skipping existing FK Table {fk_filename}")
                 return
         max_as = 1 + int(tcard["PTO"])
+        # Check if we are computing FONLL-B fktable and eventually change max_as
+        if check.is_fonll_b(
+            tcard["FNS"],
+            grid.lumi(),
+        ):
+            max_as += 1
         max_al = 0
         # collect alpha_s
         # TODO: move this down to evolve.evolve_grid when output contains cards
@@ -391,7 +397,7 @@ class TheoryBuilder:
             f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
         )
         _grid, _fk, comparison = evolve.evolve_grid(
-            pineappl_grid,
+            grid,
             eko_filename,
             fk_filename,
             max_as,

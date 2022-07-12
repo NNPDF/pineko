@@ -8,7 +8,6 @@ import pytest
 
 import pineko.check
 
-
 class Fake_grid:
     def __init__(self, order_list):
         self.orderlist = order_list
@@ -49,3 +48,14 @@ def test_contains_ren():
     mygrid_nofact = Fake_grid(order_list)
     with pytest.raises(ValueError):
         pineko.check.contains_ren(mygrid_nofact)
+
+
+def test_is_fonll_b():
+    fns = "FONLL-B"
+    lumi = [[(1, 11, 3, 4), (3, 11, 5, 6)], [(9, 11, 0, 3), (8, 11, -2, -1)]]
+    assert pineko.check.is_fonll_b(fns, lumi) is True
+    lumi.append([(1, 11, 2, 3), (2, 4, 5, 6)])
+    assert pineko.check.is_fonll_b(fns, lumi) is False
+    lumi.pop(-1)
+    fns = "FONLL-C"
+    assert pineko.check.is_fonll_b(fns, lumi) is False
