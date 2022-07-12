@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+"""Tools related to generation of a list of FK tables.
+
+The typical use case of pineko is the generation of a list of FK tables,
+all with common theory parameters. The collective list of this FK tables
+together with other theory ingredients (such as C-factors) are often
+commonly referred to as 'theory'.
+"""
 import logging
 import time
 
@@ -7,6 +14,7 @@ import numpy as np
 import pineappl
 import rich
 import yaml
+from eko import strong_coupling as sc
 
 from . import check, configs, evolve, parser, theory_card
 
@@ -178,7 +186,7 @@ class TheoryBuilder:
         self.iterate(self.inherit_eko, other=other)
 
     def iterate(self, f, **kwargs):
-        """Iterated grids in datasets.
+        """Iterate grids in datasets.
 
         Additional keyword arguments are simply passed down.
 
@@ -194,7 +202,7 @@ class TheoryBuilder:
                 f(name, grid, **kwargs)
             rich.print()
 
-    def opcard(self, name, grid):
+    def opcard(self, name, grid, xif):
         """Write a single operator card.
 
         Parameters
@@ -203,6 +211,8 @@ class TheoryBuilder:
             grid name, i.e. it's true stem
         grid : pathlib.Path
             path to grid
+        xif : float
+            factorization scale
         """
         opcard_path = self.operator_cards_path / f"{name}.yaml"
         if opcard_path.exists():
@@ -210,7 +220,10 @@ class TheoryBuilder:
                 rich.print(f"Skipping existing operator card {opcard_path}")
                 return
         _x_grid, q2_grid = evolve.write_operator_card_from_file(
-            grid, configs.configs["paths"]["operator_card_template"], opcard_path
+            grid,
+            configs.configs["paths"]["operator_card_template"],
+            opcard_path,
+            xif,
         )
         if opcard_path.exists():
             rich.print(
@@ -219,14 +232,33 @@ class TheoryBuilder:
 
     def opcards(self):
         """Write operator cards."""
+        tcard = theory_card.load(self.theory_id)
         self.operator_cards_path.mkdir(exist_ok=True)
-        self.iterate(self.opcard)
+        self.iterate(self.opcard, xif=tcard["XIF"])
+
+    def load_operator_card(self, name):
+        """Read current operator card.
+
+        Parameters
+        ----------
+        name : str
+            grid name, i.e. it's true stem
+
+        Returns
+        -------
+        ocard : dict
+            operator card
+        """
+        opcard_path = self.operator_cards_path / f"{name}.yaml"
+        with open(opcard_path, encoding="utf-8") as f:
+            ocard = yaml.safe_load(f)
+        return ocard
 
     def activate_logging(self, path, filename, activated_loggers=()):
         """Activate the logging facilities.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         path : pathlib.Path
             source directory
         filename : str
@@ -271,9 +303,7 @@ class TheoryBuilder:
             paths["logs"]["eko"], f"{self.theory_id}-{name}.log", ("eko",)
         )
         # setup data
-        opcard_path = self.operator_cards_path / f"{name}.yaml"
-        with open(opcard_path, encoding="utf-8") as f:
-            ocard = yaml.safe_load(f)
+        ocard = self.load_operator_card(name)
         eko_filename = self.ekos_path() / f"{name}.tar"
         if eko_filename.exists():
             if not self.overwrite:
@@ -333,13 +363,36 @@ class TheoryBuilder:
         ):
             max_as += 1
         max_al = 0
+        # collect alpha_s
+        # TODO: move this down to evolve.evolve_grid when output contains cards
+        astrong = sc.StrongCoupling.from_dict(tcard)
+        # ocard = self.load_operator_card(name)
+        # q2_grid = ocard["Q2grid"]
+        operators = eko.output.Output.load_tar(eko_filename)
+        q2_grid = operators["Q2grid"].keys()
+        xir = tcard["XIR"]
+        xif = tcard["XIF"]
+        # PineAPPL wants alpha_s = 4*pi*a_s
+        alphas_values = [
+            4.0 * np.pi * astrong.a_s(xir * xir * Q2 / xif / xif) for Q2 in q2_grid
+        ]
         # Obtain the assumptions hash
-        assumptions = theory_card.construct_assumption(tcard)
+        assumptions = theory_card.construct_assumptions(tcard)
         # do it!
         logger.info("Start computation of %s", name)
+        logger.info("max_as=%d, max_al=%d, xir=%f, xif=%f", max_as, max_al, xir, xif)
         start_time = time.perf_counter()
         _grid, _fk, comparison = evolve.evolve_grid(
-            grid_path, eko_filename, fk_filename, max_as, max_al, pdf, assumptions
+            grid_path,
+            eko_filename,
+            fk_filename,
+            max_as,
+            max_al,
+            xir=xir,
+            xif=xif,
+            alphas_values=alphas_values,
+            assumptions=assumptions,
+            comparison_pdf=pdf,
         )
         logger.info(
             "Finished computation of %s - took %f s",
