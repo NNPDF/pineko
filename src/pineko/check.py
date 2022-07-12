@@ -84,7 +84,7 @@ def is_fonll_b(fns, lumi):
     """
     for lists in lumi:
         for el in lists:
-            if 10 < abs(el[1]) < 17:
+            if not (10 < abs(el[1]) < 17):
                 # in this case we are sure it is not DIS so for sure it is not FONLL-B
                 return False
     if fns == "FONLL-B":
