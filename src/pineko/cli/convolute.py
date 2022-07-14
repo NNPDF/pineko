@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """CLI entry point to convolution."""
 import click
+import eko
 import pineappl
 import rich
 
@@ -41,6 +42,7 @@ def subcommand(grid_path, op_path, fktable, max_as, max_al, xir, xif, pdf, assum
     PDF is an optional PDF set compatible with the EKO to compare grid and FK table.
     """
     grid = pineappl.grid.Grid.read(grid_path)
+    operators = eko.output.Output.load_tar(op_path)
     rich.print(
         rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
         f"   {grid_path}\n",
@@ -50,7 +52,7 @@ def subcommand(grid_path, op_path, fktable, max_as, max_al, xir, xif, pdf, assum
     )
     _grid, _fk, comp = evolve.evolve_grid(
         grid,
-        op_path,
+        operators,
         fktable,
         max_as,
         max_al,
