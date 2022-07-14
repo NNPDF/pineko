@@ -84,3 +84,4 @@ def test_contains_ren():
     mygrid_nofact = Fake_grid(order_list)
     with pytest.raises(ValueError):
         pineko.check.contains_ren(mygrid_nofact)
+
