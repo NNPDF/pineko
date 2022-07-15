@@ -55,10 +55,10 @@ def test_is_fonll_b():
     fns = "FONLL-B"
     lumi = [[(1, 11, 1.0), (3, 11, 5.0)]]
     assert pineko.check.is_fonll_b(fns, lumi) is True
-    lumi.append([(-12, 1, 2.0), (-13, 1, 5.0)])
-    assert pineko.check.is_fonll_b(fns, lumi) is True
-    lumi.append([(1, 1, 4.0), (2, 11, 3.0)])
-    assert pineko.check.is_fonll_b(fns, lumi) is False
-    lumi.pop(-1)
+    new_lumi = [[(-12, 1, 2.0), (-13, 1, 5.0)]]
+    assert pineko.check.is_fonll_b(fns, new_lumi) is True
+    new_lumi.append([(1, 1, 4.0), (2, 11, 3.0)])
+    assert pineko.check.is_fonll_b(fns, new_lumi) is False
+    new_lumi.pop(-1)
     fns = "FONLL-C"
-    assert pineko.check.is_fonll_b(fns, lumi) is False
+    assert pineko.check.is_fonll_b(fns, new_lumi) is False
