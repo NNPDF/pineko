@@ -84,8 +84,13 @@ def test_contains_ren():
     mygrid = Fake_grid(order_list)
     assert pineko.check.contains_ren(mygrid) is None
     order_list.pop(-1)
-    assert pineko.check.contains_ren(mygrid) is None
+    mygrid_new = Fake_grid(order_list)
+    assert pineko.check.contains_ren(mygrid_new) is None
     order_list.append(Order((2, 0, 0, 0)))
+    mygrid_noren = Fake_grid(order_list)
+    with pytest.raises(ValueError):
+        pineko.check.contains_ren(mygrid_noren)
+    order_list.pop(0)
     mygrid_noren = Fake_grid(order_list)
     with pytest.raises(ValueError):
         pineko.check.contains_ren(mygrid_noren)
