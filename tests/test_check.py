@@ -36,9 +36,11 @@ def test_check_grid_and_eko_compatible():
 
 def test_is_fonll_b():
     fns = "FONLL-B"
-    lumi = [[(1, 11, 3, 4), (3, 11, 5, 6)], [(9, 11, 0, 3), (8, 11, -2, -1)]]
+    lumi = [[(1, 11, 1.0), (3, 11, 5.0)]]
     assert pineko.check.is_fonll_b(fns, lumi) is True
-    lumi.append([(1, 11, 2, 3), (2, 4, 5, 6)])
+    lumi.append([(-12, 1, 2.0), (-13, 1, 5.0)])
+    assert pineko.check.is_fonll_b(fns, lumi) is True
+    lumi.append([(1, 1, 4.0), (2, 11, 3.0)])
     assert pineko.check.is_fonll_b(fns, lumi) is False
     lumi.pop(-1)
     fns = "FONLL-C"
