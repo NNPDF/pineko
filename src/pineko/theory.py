@@ -352,6 +352,8 @@ class TheoryBuilder:
         xif = tcard["XIF"]
         ftr = tcard["fact_to_ren_scale_ratio"]
         grid = pineappl.grid.Grid.read(grid_path)
+        # remove zero subgrid
+        grid.optimize()
         if not np.isclose(xir, 1.0):
             check.contains_ren(grid)
         if not (np.isclose(xif, 1.0) and np.isclose(ftr, 1.0)):

@@ -36,16 +36,13 @@ def test_check_grid_and_eko_compatible():
 
 def test_is_fonll_b():
     fns = "FONLL-B"
-    lumi_first = [[(-12, 1, 2.0), (-13, 1, 5.0)]]
-    lumi_second = [[(1, 11, 1.0), (3, 11, 5.0)]]
-    assert pineko.check.is_fonll_b(fns, lumi_first) is True
-    assert pineko.check.is_fonll_b(fns, lumi_second) is True
-    lumi_crazy = [[(1, 1, 4.0), (2, 11, 3.0)]]
-    assert pineko.check.is_fonll_b(fns, lumi_crazy) is False
+    lumi = [[(1, 11, 3, 4), (3, 11, 5, 6)], [(9, 11, 0, 3), (-12, 3, -2, -1)]]
+    assert pineko.check.is_fonll_b(fns, lumi) is True
+    lumi.append([(1, 11, 2, 3), (2, 4, 5, 6)])
+    assert pineko.check.is_fonll_b(fns, lumi) is False
+    lumi.pop(-1)
     fns = "FONLL-C"
-    assert pineko.check.is_fonll_b(fns, lumi_first) is False
-    assert pineko.check.is_fonll_b(fns, lumi_second) is False
-    assert pineko.check.is_fonll_b(fns, lumi_crazy) is False
+    assert pineko.check.is_fonll_b(fns, lumi) is False
 
 class Fake_grid:
     def __init__(self, order_list):
@@ -65,8 +62,8 @@ class Order:
 
 def test_contains_fact():
     first_order = Order((0, 0, 0, 0))
-    second_order = Order((1, 1, 0, 0))
-    third_order = Order((0, 0, 1, 1))
+    second_order = Order((1, 0, 0, 0))
+    third_order = Order((1, 0, 0, 1))
     order_list = [first_order, second_order, third_order]
     mygrid = Fake_grid(order_list)
     assert pineko.check.contains_fact(mygrid) is None
@@ -74,16 +71,21 @@ def test_contains_fact():
     mygrid_nofact = Fake_grid(order_list)
     with pytest.raises(ValueError):
         pineko.check.contains_fact(mygrid_nofact)
+    order_list.pop(-1)
+    mygrid_LO = Fake_grid(order_list)
+    assert pineko.check.contains_fact(mygrid_LO) is None
 
 
 def test_contains_ren():
     first_order = Order((0, 0, 0, 0))
-    second_order = Order((1, 1, 0, 0))
-    third_order = Order((0, 0, 1, 1))
+    second_order = Order((1, 0, 0, 0))
+    third_order = Order((2, 0, 1, 0))
     order_list = [first_order, second_order, third_order]
     mygrid = Fake_grid(order_list)
     assert pineko.check.contains_ren(mygrid) is None
     order_list.pop(-1)
-    mygrid_nofact = Fake_grid(order_list)
+    assert pineko.check.contains_ren(mygrid) is None
+    order_list.append(Order((2, 0, 0, 0)))
+    mygrid_noren = Fake_grid(order_list)
     with pytest.raises(ValueError):
-        pineko.check.contains_ren(mygrid_nofact)
+        pineko.check.contains_ren(mygrid_noren)

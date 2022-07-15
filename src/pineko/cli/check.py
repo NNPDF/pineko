@@ -46,6 +46,7 @@ def sub_compatibility(grid_path, operator_path, xif):
 def sub_scvar(grid_path, scale):
     """Check if PineAPPL grid contains requested scale variations."""
     grid = pineappl.grid.Grid.read(grid_path)
+    grid.optimize()
     if scale == "ren":
         try:
             check.contains_ren(grid)

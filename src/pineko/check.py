@@ -108,9 +108,19 @@ def contains_fact(grid):
             Pineappl grid
     """
     order_list = [order.as_tuple() for order in grid.orders()]
+    as_orders = []
     for order in order_list:
-        if order[-1] != 0:
-            return
+        as_orders.append(order[0])
+    min_as = min(as_orders)
+    order_is_present = False
+    for order in order_list:
+        # fact sv starts at NLO with respect to the first non zero order
+        if order[0] == min_as + 1:
+            order_is_present = True
+            if order[-1] != 0:
+                return
+    if not order_is_present:
+        return
     raise ValueError("Factorization scale variations are not available for this grid")
 
 
@@ -123,7 +133,17 @@ def contains_ren(grid):
             Pineappl grid
     """
     order_list = [order.as_tuple() for order in grid.orders()]
+    as_orders = []
     for order in order_list:
-        if order[-2] != 0:
-            return
+        as_orders.append(order[0])
+    # ren sv starts one order after the first order with as
+    min_as = 1 if min(as_orders) == 0 else min(as_order)
+    order_is_present = False
+    for order in order_list:
+        if order[0] == min_as + 1:
+            order_is_present = True
+            if order[-2] != 0:
+                return
+    if not order_is_present:
+        return
     raise ValueError("Renormalization scale variations are not available for this grid")
