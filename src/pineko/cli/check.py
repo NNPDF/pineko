@@ -46,7 +46,7 @@ def sub_compatibility(grid_path, operator_path, xif):
 @click.argument("max_as_order", metavar="AS_ORDER", type=int)
 @click.argument("max_al_order", metavar="AL_ORDER", type=int)
 def sub_scvar(grid_path, scale, max_as_order, max_al_order):
-    """Check if PineAPPL grid contains requested scale variations."""
+    """Check if PineAPPL grid contains requested scale variations for the requested order."""
     grid = pineappl.grid.Grid.read(grid_path)
     grid.optimize()
     if scale == "ren":

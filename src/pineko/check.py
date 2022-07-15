@@ -94,7 +94,7 @@ def is_fonll_b(fns, lumi):
 
 
 def contains_fact(grid, max_as, max_al):
-    """Check whether factorization scale-variations are available in the pineappl grid.
+    """Check whether factorization scale-variations are available in the pineappl grid for the requested order.
 
     Parameters
     ----------
@@ -104,6 +104,12 @@ def contains_fact(grid, max_as, max_al):
             max as order
         max_al: int
             max al order
+    Returns
+    -------
+        : bool
+        is fact scale-variation available for as
+        : bool
+        is fact scale-variation available for al
     """
     order_array = np.array([order.as_tuple() for order in grid.orders()])
     order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
@@ -147,6 +153,12 @@ def contains_ren(grid, max_as, max_al):
             max as order
         max_al: int
             max al order
+    Returns
+    -------
+        : bool
+        is ren scale-variation available for as
+        : bool
+        is ren scale-variation available for al
     """
     order_array = np.array([order.as_tuple() for order in grid.orders()])
     order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
