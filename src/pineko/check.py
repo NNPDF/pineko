@@ -130,7 +130,7 @@ def contains_ren(grid):
     for order in order_list:
         as_orders.append(order[0])
     # ren sv starts one order after the first order with as
-    min_as = 1 if min(as_orders) == 0 else min(as_order)
+    min_as = 1 if min(as_orders) == 0 else min(as_orders)
     order_is_present = False
     for order in order_list:
         if order[0] == min_as + 1:
