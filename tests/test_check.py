@@ -27,8 +27,8 @@ class Order:
 
 def test_contains_fact():
     first_order = Order((0, 0, 0, 0))
-    second_order = Order((1, 1, 0, 0))
-    third_order = Order((0, 0, 1, 1))
+    second_order = Order((1, 0, 0, 0))
+    third_order = Order((1, 0, 0, 1))
     order_list = [first_order, second_order, third_order]
     mygrid = Fake_grid(order_list)
     assert pineko.check.contains_fact(mygrid) is None
@@ -36,19 +36,24 @@ def test_contains_fact():
     mygrid_nofact = Fake_grid(order_list)
     with pytest.raises(ValueError):
         pineko.check.contains_fact(mygrid_nofact)
+    order_list.pop(-1)
+    mygrid_LO = Fake_grid(order_list)
+    assert pineko.check.contains_fact(mygrid_LO) is None
 
 
 def test_contains_ren():
     first_order = Order((0, 0, 0, 0))
-    second_order = Order((1, 1, 0, 0))
-    third_order = Order((0, 0, 1, 1))
+    second_order = Order((1, 0, 0, 0))
+    third_order = Order((2, 0, 1, 0))
     order_list = [first_order, second_order, third_order]
     mygrid = Fake_grid(order_list)
     assert pineko.check.contains_ren(mygrid) is None
     order_list.pop(-1)
-    mygrid_nofact = Fake_grid(order_list)
+    assert pineko.check.contains_ren(mygrid) is None
+    order_list.append(Order((2, 0, 0, 0)))
+    mygrid_noren = Fake_grid(order_list)
     with pytest.raises(ValueError):
-        pineko.check.contains_ren(mygrid_nofact)
+        pineko.check.contains_ren(mygrid_noren)
 
 
 def test_is_fonll_b():
