@@ -43,25 +43,47 @@ def sub_compatibility(grid_path, operator_path, xif):
     metavar="SCALE",
     type=click.Choice(["ren", "fact"]),
 )
-def sub_scvar(grid_path, scale):
+@click.argument("max_as_order", metavar="AS_ORDER", type=int)
+@click.argument("max_al_order", metavar="AL_ORDER", type=int)
+def sub_scvar(grid_path, scale, max_as_order, max_al_order):
     """Check if PineAPPL grid contains requested scale variations."""
     grid = pineappl.grid.Grid.read(grid_path)
     grid.optimize()
     if scale == "ren":
-        try:
-            check.contains_ren(grid)
+        is_ren_as, is_ren_al = check.contains_ren(grid, max_as_order, max_al_order)
+        if is_ren_as:
             rich.print(
-                "[green]Success:[/] grids contain renormalization scale variations"
+                "[green]Success:[/] grids contain renormalization scale variations for as"
             )
-        except ValueError as e:
-            rich.print("[red]Error:[/]", e)
+        else:
+            rich.print(
+                "[red]Error:[/] grids do not contain renormalization scale variations for as"
+            )
+        if is_ren_al:
+            rich.print(
+                "[green]Success:[/] grids contain renormalization scale variations for al"
+            )
+        else:
+            rich.print(
+                "[red]Error:[/] grids do not contain renormalization scale variations for al"
+            )
     elif scale == "fact":
-        try:
-            check.contains_fact(grid)
+        is_fact_as, is_fact_al = check.contains_fact(grid, max_as_order, max_al_order)
+        if is_fact_as:
             rich.print(
-                "[green]Success:[/] grids contain factorization scale variations"
+                "[green]Success:[/] grids contain factorization scale variations for as"
             )
-        except ValueError as e:
-            rich.print("[red]Error:[/]", e)
+        else:
+            rich.print(
+                "[red]Error:[/] grids do not contain factorization scale variations for as"
+            )
+        if is_fact_al:
+            rich.print(
+                "[green]Success:[/] grids contain factorization scale variations for al"
+            )
+        else:
+            rich.print(
+                "[red]Error:[/] grids do not contain factorization scale variations for al"
+            )
     else:
         raise ValueError("Scale variation to check can be one between xir and xif")
