@@ -353,10 +353,8 @@ class TheoryBuilder:
         ftr = tcard["fact_to_ren_scale_ratio"]
         # loading grid
         grid = pineappl.grid.Grid.read(grid_path)
-        if not np.isclose(xir, 1.0):
-            check.contains_ren(grid)
-        if not (np.isclose(xif, 1.0) and np.isclose(ftr, 1.0)):
-            check.contains_fact(grid)
+        # remove zero subgrid
+        grid.optimize()
         # setup data
         eko_filename = self.ekos_path() / f"{name}.tar"
         fk_filename = self.fks_path / f"{name}.{parser.EXT}"
@@ -372,6 +370,19 @@ class TheoryBuilder:
         ):
             max_as += 1
         max_al = 0
+        # check for sv
+        if not np.isclose(xir, 1.0):
+            is_ren_as, is_ren_al = check.contains_ren(grid, max_as, max_al)
+            if not (is_ren_as and is_ren_al):
+                raise ValueError(
+                    "Renormalization scale variations are not available for this grid"
+                )
+        if not (np.isclose(xif, 1.0) and np.isclose(ftr, 1.0)):
+            is_fact_as, is_fact_al = check.contains_fact(grid, max_as, max_al)
+            if not (is_fact_as and is_fact_al):
+                raise ValueError(
+                    "Factorization scale variations are not available for this grid"
+                )
         # collect alpha_s
         # TODO: move this down to evolve.evolve_grid when output contains cards
         astrong = sc.StrongCoupling.from_dict(tcard)

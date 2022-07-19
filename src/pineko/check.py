@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Tools to check compatibility of EKO and grid."""
 import numpy as np
+import pineappl
 
 
 def islepton(el):
@@ -79,15 +80,15 @@ def is_fonll_b(fns, lumi):
 
     Parameters
     ----------
-        fns : str
-            flavor number scheme (from the theory card)
-        lumi : list(list(tuple))
-            luminosity info
+    fns : str
+          flavor number scheme (from the theory card)
+    lumi : list(list(tuple))
+           luminosity info
 
     Returns
     -------
-            : bool
-            true if the fktable is a FONLL-B DIS fktable
+    bool
+        true if the fktable is a FONLL-B DIS fktable
     """
     for lists in lumi:
         for el in lists:
@@ -99,31 +100,100 @@ def is_fonll_b(fns, lumi):
     return False
 
 
-def contains_fact(grid):
-    """Check whether factorization scale-variations are available in the pineappl grid.
+def contains_fact(grid, max_as, max_al):
+    """Check whether factorization scale-variations are available in the pineappl grid for the requested order.
 
     Parameters
     ----------
-        grid: pineappl.grid.Grid
-            Pineappl grid
+    grid : pineappl.grid.Grid
+           Pineappl grid
+    max_as : int
+             max as order
+    max_al : int
+             max al order
+    Returns
+    -------
+    bool
+        is fact scale-variation available for as
+    bool
+        is fact scale-variation available for al
     """
-    order_list = [order.as_tuple() for order in grid.orders()]
+    order_array = np.array([order.as_tuple() for order in grid.orders()])
+    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
+    order_list = order_array[order_mask]
+    as_orders = []
+    al_orders = []
     for order in order_list:
-        if order[-1] != 0:
-            return
-    raise ValueError("Factorization scale variations are not available for this grid")
+        as_orders.append(order[0])
+        al_orders.append(order[1])
+    min_as = min(as_orders)
+    min_al = min(al_orders)
+    order_as_is_present = False
+    order_al_is_present = False
+    sv_as_present = False
+    sv_al_present = False
+    for order in order_list:
+        # fact sv starts at NLO with respect to the first non zero order
+        if order[0] == min_as + 1:
+            order_as_is_present = True
+            if order[-1] != 0:
+                sv_as_present = True
+        if order[1] == min_al + 1:
+            order_al_is_present = True
+            if order[-1] != 0:
+                sv_al_present = True
+    if not order_as_is_present:
+        sv_as_present = True
+    if not order_al_is_present:
+        sv_al_present = True
+    return sv_as_present, sv_al_present
 
 
-def contains_ren(grid):
+def contains_ren(grid, max_as, max_al):
     """Check whether renormalization scale-variations are available in the pineappl grid.
 
     Parameters
     ----------
-        grid: pineappl.grid.Grid
-            Pineappl grid
+    grid : pineappl.grid.Grid
+           Pineappl grid
+    max_as : int
+             max as order
+    max_al : int
+             max al order
+    Returns
+    -------
+    bool
+        is ren scale-variation available for as
+    bool
+        is ren scale-variation available for al
     """
-    order_list = [order.as_tuple() for order in grid.orders()]
+    order_array = np.array([order.as_tuple() for order in grid.orders()])
+    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
+    order_list = order_array[order_mask]
+    as_orders = []
+    al_orders = []
     for order in order_list:
-        if order[-2] != 0:
-            return
-    raise ValueError("Renormalization scale variations are not available for this grid")
+        as_orders.append(order[0])
+        al_orders.append(order[1])
+    # ren sv starts one order after the first order with as
+    min_as = 1 if min(as_orders) == 0 else min(as_orders)
+    # ren sv starts one order after the first order with al
+    min_al = 1 if min(al_orders) == 0 else min(al_orders)
+    order_as_is_present = False
+    order_al_is_present = False
+    sv_as_present = False
+    sv_al_present = False
+    for order in order_list:
+        if order[0] == min_as + 1:
+            order_as_is_present = True
+            if order[-2] != 0:
+                sv_as_present = True
+        if order[1] == min_al + 1:
+            order_al_is_present = True
+            if order[-2] != 0:
+                sv_al_present = True
+    if not order_as_is_present:
+        sv_as_present = True
+    if not order_al_is_present:
+        sv_al_present = True
+    return sv_as_present, sv_al_present
