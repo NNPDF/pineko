@@ -73,15 +73,15 @@ def is_fonll_b(fns, lumi):
 
     Parameters
     ----------
-        fns : str
-            flavor number scheme (from the theory card)
-        lumi : list(list(tuple))
-            luminosity info
+    fns : str
+          flavor number scheme (from the theory card)
+    lumi : list(list(tuple))
+           luminosity info
 
     Returns
     -------
-            : bool
-            true if the fktable is a FONLL-B DIS fktable
+    bool
+        true if the fktable is a FONLL-B DIS fktable
     """
     for lists in lumi:
         for el in lists:
@@ -98,17 +98,17 @@ def contains_fact(grid, max_as, max_al):
 
     Parameters
     ----------
-        grid: pineappl.grid.Grid
-            Pineappl grid
-        max_as: int
-            max as order
-        max_al: int
-            max al order
+    grid : pineappl.grid.Grid
+           Pineappl grid
+    max_as : int
+             max as order
+    max_al : int
+             max al order
     Returns
     -------
-        : bool
+    bool
         is fact scale-variation available for as
-        : bool
+    bool
         is fact scale-variation available for al
     """
     order_array = np.array([order.as_tuple() for order in grid.orders()])
@@ -147,17 +147,17 @@ def contains_ren(grid, max_as, max_al):
 
     Parameters
     ----------
-        grid: pineappl.grid.Grid
-            Pineappl grid
-        max_as: int
-            max as order
-        max_al: int
-            max al order
+    grid : pineappl.grid.Grid
+           Pineappl grid
+    max_as : int
+             max as order
+    max_al : int
+             max al order
     Returns
     -------
-        : bool
+    bool
         is ren scale-variation available for as
-        : bool
+    bool
         is ren scale-variation available for al
     """
     order_array = np.array([order.as_tuple() for order in grid.orders()])
