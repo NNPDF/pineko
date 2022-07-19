@@ -3,6 +3,13 @@
 import numpy as np
 
 
+def islepton(el):
+    """Return True if el is a lepton PID, otherwise return False."""
+    if 10 < abs(el) < 17:
+        return True
+    return False
+
+
 def in1d(a, b, rtol=1e-05, atol=1e-08):
     """Improved version of np.in1d.
 
@@ -84,7 +91,7 @@ def is_fonll_b(fns, lumi):
     """
     for lists in lumi:
         for el in lists:
-            if (not (10 < abs(el[0]) < 17)) and (not (10 < abs(el[1]) < 17)):
+            if (not islepton(el[0])) and (not islepton(el[1])):
                 # in this case we are sure it is not DIS so for sure it is not FONLL-B
                 return False
     if fns == "FONLL-B":
