@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://pineko.readthedocs.io/"><img alt="PINEKO" src="https://raw.githubusercontent.com/N3PDF/pineko/main/docs/source/img/logo.png" width=200></a>
+  <a href="https://pineko.readthedocs.io/"><img alt="PINEKO" src="https://github.com/N3PDF/pineko/blob/main/docs/source/img/Logo.png" width=200></a>
 </p>
 
 <p align="center">
