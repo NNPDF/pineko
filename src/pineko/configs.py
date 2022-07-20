@@ -6,12 +6,12 @@ import pathlib
 import appdirs
 import tomli
 
-# Name of the config file (wherever it is placed)
 name = "pineko.toml"
-
+"Name of the config file (wherever it is placed)"
 
 # better to declare immediately the correct type
 configs = {}
+"Holds loaded configurations"
 
 
 def defaults(base_configs):
