@@ -16,7 +16,6 @@ repos:
       - id: check-merge-conflict
       - id: check-case-conflict
       - id: check-ast
-      - id: check-docstring-first
   - repo: https://github.com/psf/black
     rev: 22.6.0
     hooks:
