@@ -6,7 +6,7 @@ import pathlib
 import appdirs
 import tomli
 
-#Name of the config while (wherever it is placed)
+# Name of the config file (wherever it is placed)
 name = "pineko.toml"
 
 
