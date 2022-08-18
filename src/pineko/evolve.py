@@ -81,7 +81,9 @@ def write_operator_card(pineappl_grid, default_card, card_path, xif, integrabili
     operators_card["Q2grid"] = q2_grid
     if integrability:
         operators_card["interpolation_polynomial_degree"] = 1
-        operators_card["interpolation_xgrid"] = copy.deepcopy(x_grid.tolist()).append(1)
+        x_grid_int = copy.deepcopy(x_grid.tolist())
+        x_grid_int.append(1.0)
+        operators_card["interpolation_xgrid"] = list(x_grid_int)
     with open(card_path, "w", encoding="UTF-8") as f:
         yaml.safe_dump(operators_card, f)
     return x_grid, q2_grid
