@@ -15,7 +15,9 @@ import yaml
 from . import check, comparator
 
 
-def write_operator_card_from_file(pineappl_path, default_card_path, card_path, xif):
+def write_operator_card_from_file(
+    pineappl_path, default_card_path, card_path, xif, integrability
+):
     """Generate operator card for a grid.
 
     Parameters
@@ -28,6 +30,8 @@ def write_operator_card_from_file(pineappl_path, default_card_path, card_path, x
         target path
     xif : float
         factorization scale variation
+    integrability : bool
+        whether or not the grid is an integrability grid
 
     Returns
     -------
@@ -42,10 +46,12 @@ def write_operator_card_from_file(pineappl_path, default_card_path, card_path, x
     pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
     with open(default_card_path, "r", encoding="UTF-8") as f:
         default_card = yaml.safe_load(f)
-    return write_operator_card(pineappl_grid, default_card, card_path, xif)
+    return write_operator_card(
+        pineappl_grid, default_card, card_path, xif, integrability
+    )
 
 
-def write_operator_card(pineappl_grid, default_card, card_path, xif):
+def write_operator_card(pineappl_grid, default_card, card_path, xif, integrability):
     """Generate operator card for this grid.
 
     Parameters
@@ -58,6 +64,8 @@ def write_operator_card(pineappl_grid, default_card, card_path, xif):
         target path
     xif : float
         factorization scale variation
+    integrability : bool
+        whether or not the grid is an integrability grid
 
     Returns
     -------
@@ -71,6 +79,10 @@ def write_operator_card(pineappl_grid, default_card, card_path, xif):
     q2_grid = (xif * xif * muf2_grid).tolist()
     operators_card["targetgrid"] = x_grid.tolist()
     operators_card["Q2grid"] = q2_grid
+    if integrability:
+        operators_card["interpolation_polynomial_degree"] = 1
+        int_x_grid = operators_card["targetgrid"].append(1)
+        operators_card["interpolation_xgrid"] = int_x_grid
     with open(card_path, "w", encoding="UTF-8") as f:
         yaml.safe_dump(operators_card, f)
     return x_grid, q2_grid
