@@ -233,11 +233,11 @@ class TheoryBuilder:
                 f"[green]Success:[/] Wrote card with {len(q2_grid)} Q2 points to {opcard_path}"
             )
 
-    def opcards(self):
+    def opcards(self, integrability):
         """Write operator cards."""
         tcard = theory_card.load(self.theory_id)
         self.operator_cards_path.mkdir(exist_ok=True)
-        self.iterate(self.opcard, xif=tcard["XIF"])
+        self.iterate(self.opcard, xif=tcard["XIF"], integrability=integrability)
 
     def load_operator_card(self, name):
         """Read current operator card.
