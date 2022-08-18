@@ -202,7 +202,7 @@ class TheoryBuilder:
                 f(name, grid, **kwargs)
             rich.print()
 
-    def opcard(self, name, grid, xif):
+    def opcard(self, name, grid, xif, integrability):
         """Write a single operator card.
 
         Parameters
@@ -213,6 +213,8 @@ class TheoryBuilder:
             path to grid
         xif : float
             factorization scale
+        integrability : bool
+            whether or not the grid is an integrability grid
         """
         opcard_path = self.operator_cards_path / f"{name}.yaml"
         if opcard_path.exists():
@@ -224,6 +226,7 @@ class TheoryBuilder:
             configs.configs["paths"]["operator_card_template"],
             opcard_path,
             xif,
+            integrability,
         )
         if opcard_path.exists():
             rich.print(
