@@ -202,7 +202,7 @@ class TheoryBuilder:
                 f(name, grid, **kwargs)
             rich.print()
 
-    def opcard(self, name, grid, xif, integrability):
+    def opcard(self, name, grid, xif):
         """Write a single operator card.
 
         Parameters
@@ -226,18 +226,17 @@ class TheoryBuilder:
             configs.configs["paths"]["operator_card_template"],
             opcard_path,
             xif,
-            integrability,
         )
         if opcard_path.exists():
             rich.print(
                 f"[green]Success:[/] Wrote card with {len(q2_grid)} Q2 points to {opcard_path}"
             )
 
-    def opcards(self, integrability):
+    def opcards(self):
         """Write operator cards."""
         tcard = theory_card.load(self.theory_id)
         self.operator_cards_path.mkdir(exist_ok=True)
-        self.iterate(self.opcard, xif=tcard["XIF"], integrability=integrability)
+        self.iterate(self.opcard, xif=tcard["XIF"])
 
     def load_operator_card(self, name):
         """Read current operator card.

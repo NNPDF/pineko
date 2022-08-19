@@ -42,10 +42,9 @@ def inherit_grids(source_theory_id, target_theory_id, datasets, overwrite):
 @click.argument("theory_id", type=click.INT)
 @click.argument("datasets", type=click.STRING, nargs=-1)
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
-@click.option("--int", default=False, type=bool, help="is integrability?")
-def opcards(theory_id, datasets, overwrite, int):
+def opcards(theory_id, datasets, overwrite):
     """Write EKO card for all FK tables in all datasets."""
-    theory.TheoryBuilder(theory_id, datasets, overwrite=overwrite).opcards(int)
+    theory.TheoryBuilder(theory_id, datasets, overwrite=overwrite).opcards()
 
 
 @theory_.command()
