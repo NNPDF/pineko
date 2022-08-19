@@ -15,9 +15,7 @@ import yaml
 from . import check, comparator
 
 
-def write_operator_card_from_file(
-    pineappl_path, default_card_path, card_path, xif, integrability
-):
+def write_operator_card_from_file(pineappl_path, default_card_path, card_path, xif):
     """Generate operator card for a grid.
 
     Parameters
