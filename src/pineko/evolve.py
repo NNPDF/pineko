@@ -46,12 +46,10 @@ def write_operator_card_from_file(
     pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
     with open(default_card_path, "r", encoding="UTF-8") as f:
         default_card = yaml.safe_load(f)
-    return write_operator_card(
-        pineappl_grid, default_card, card_path, xif, integrability
-    )
+    return write_operator_card(pineappl_grid, default_card, card_path, xif)
 
 
-def write_operator_card(pineappl_grid, default_card, card_path, xif, integrability):
+def write_operator_card(pineappl_grid, default_card, card_path, xif):
     """Generate operator card for this grid.
 
     Parameters
@@ -79,7 +77,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, xif, integrabili
     q2_grid = (xif * xif * muf2_grid).tolist()
     operators_card["targetgrid"] = x_grid.tolist()
     operators_card["Q2grid"] = q2_grid
-    if integrability:
+    if is_integrability(pineappl_grid.key_values()):
         operators_card["interpolation_polynomial_degree"] = 1
         x_grid_int = copy.deepcopy(x_grid.tolist())
         x_grid_int.append(1.0)
@@ -87,6 +85,15 @@ def write_operator_card(pineappl_grid, default_card, card_path, xif, integrabili
     with open(card_path, "w", encoding="UTF-8") as f:
         yaml.safe_dump(operators_card, f)
     return x_grid, q2_grid
+
+
+def is_integrability(grid_key_values):
+    """Check if the grid is an integrability grid."""
+    try:
+        int_version = grid_key_values["integrability_version"]
+    except KeyError:
+        return False
+    return True
 
 
 def evolve_grid(
