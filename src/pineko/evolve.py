@@ -28,8 +28,6 @@ def write_operator_card_from_file(pineappl_path, default_card_path, card_path, x
         target path
     xif : float
         factorization scale variation
-    integrability : bool
-        whether or not the grid is an integrability grid
 
     Returns
     -------
@@ -60,8 +58,6 @@ def write_operator_card(pineappl_grid, default_card, card_path, xif):
         target path
     xif : float
         factorization scale variation
-    integrability : bool
-        whether or not the grid is an integrability grid
 
     Returns
     -------

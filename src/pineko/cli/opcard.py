@@ -22,7 +22,6 @@ def subcommand(pineappl_path, default_card_path, opcard_path, xif):
 
     XIF is the factorization scale variation.
 
-    If the grid is an integrability grid, INT must be true.
     """
     _x_grid, q2_grid = evolve.write_operator_card_from_file(
         pineappl_path, default_card_path, opcard_path, xif
