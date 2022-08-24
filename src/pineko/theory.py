@@ -213,8 +213,6 @@ class TheoryBuilder:
             path to grid
         xif : float
             factorization scale
-        integrability : bool
-            whether or not the grid is an integrability grid
         """
         opcard_path = self.operator_cards_path / f"{name}.yaml"
         if opcard_path.exists():
