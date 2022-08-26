@@ -80,7 +80,7 @@ style = "semver"
 dirty = true
 
 [tool.poetry-dynamic-versioning.substitution]
-files = ["src/pineko/__init__.py"]
+files = ["src/pineko/version.py"]
 
 [tool.pytest.ini_options]
 testpaths = ['tests/']
