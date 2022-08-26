@@ -11,7 +11,7 @@ import rich.box
 import rich.panel
 import yaml
 
-from . import check, comparator
+from . import check, comparator, version
 
 
 def write_operator_card_from_file(pineappl_path, default_card_path, card_path, xif):
@@ -142,6 +142,8 @@ def evolve_grid(
     )
     rich.print(f"Optimizing for {assumptions}")
     fktable.optimize(assumptions)
+    fktable.set_key_value("eko_version", operators["eko_version"])
+    fktable.set_key_value("pineko_version", version.__version__)
     # write
     fktable.write_lz4(str(fktable_path))
     # compare before/after
