@@ -3,7 +3,6 @@
 import copy
 import pathlib
 
-import eko
 import eko.basis_rotation as br
 import numpy as np
 import pineappl

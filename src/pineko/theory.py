@@ -14,7 +14,7 @@ import numpy as np
 import pineappl
 import rich
 import yaml
-from eko import strong_coupling as sc
+from eko import couplings as sc
 
 from . import check, configs, evolve, parser, theory_card
 
@@ -385,7 +385,7 @@ class TheoryBuilder:
                 )
         # collect alpha_s
         # TODO: move this down to evolve.evolve_grid when output contains cards
-        astrong = sc.StrongCoupling.from_dict(tcard)
+        astrong = sc.Couplings.from_dict(tcard)
         # ocard = self.load_operator_card(name)
         # q2_grid = ocard["Q2grid"]
 
