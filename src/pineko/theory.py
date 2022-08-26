@@ -10,6 +10,7 @@ import logging
 import time
 
 import eko
+import eko.compatibility
 import numpy as np
 import pineappl
 import rich
@@ -385,7 +386,8 @@ class TheoryBuilder:
                 )
         # collect alpha_s
         # TODO: move this down to evolve.evolve_grid when output contains cards
-        astrong = sc.Couplings.from_dict(tcard)
+        new_tcard = eko.compatibility.update_theory(tcard)
+        astrong = sc.Couplings.from_dict(new_tcard)
         # ocard = self.load_operator_card(name)
         # q2_grid = ocard["Q2grid"]
 
