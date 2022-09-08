@@ -21,6 +21,7 @@ def subcommand(pineappl_path, default_card_path, opcard_path, xif):
     with the adjusted x grid and Q2 grid read from PINEAPPL.
 
     XIF is the factorization scale variation.
+
     """
     _x_grid, q2_grid = evolve.write_operator_card_from_file(
         pineappl_path, default_card_path, opcard_path, xif

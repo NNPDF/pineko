@@ -24,8 +24,8 @@ packages = [{ include = "pineko", from = "src" }]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
-eko = "^0.8.5"
-pineappl = "^0.5.4"
+eko = "^0.10.2"
+pineappl = "^0.5.5"
 PyYAML = "^6.0"
 numpy = "^1.21.0"
 pandas = "^1.4.1"
@@ -80,7 +80,7 @@ style = "semver"
 dirty = true
 
 [tool.poetry-dynamic-versioning.substitution]
-files = ["src/pineko/__init__.py"]
+files = ["src/pineko/version.py"]
 
 [tool.pytest.ini_options]
 testpaths = ['tests/']

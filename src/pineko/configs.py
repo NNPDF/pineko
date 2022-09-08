@@ -7,8 +7,7 @@ import appdirs
 import tomli
 
 name = "pineko.toml"
-"Name of the config while (wherever it is placed)"
-
+"Name of the config file (wherever it is placed)"
 
 # better to declare immediately the correct type
 configs = {}

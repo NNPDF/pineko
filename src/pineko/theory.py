@@ -4,18 +4,20 @@
 The typical use case of pineko is the generation of a list of FK tables,
 all with common theory parameters. The collective list of this FK tables
 together with other theory ingredients (such as C-factors) are often
-commenly refered to as 'theory'.
+commonly referred to as 'theory'.
 """
 import logging
 import time
 
 import eko
+import eko.compatibility
 import numpy as np
+import pineappl
 import rich
 import yaml
-from eko import strong_coupling as sc
+from eko import couplings as sc
 
-from . import configs, evolve, parser, theory_card
+from . import check, configs, evolve, parser, theory_card
 
 logger = logging.getLogger(__name__)
 
@@ -201,7 +203,7 @@ class TheoryBuilder:
                 f(name, grid, **kwargs)
             rich.print()
 
-    def opcard(self, name, grid, tcard):
+    def opcard(self, name, grid, xif):
         """Write a single operator card.
 
         Parameters
@@ -210,8 +212,8 @@ class TheoryBuilder:
             grid name, i.e. it's true stem
         grid : pathlib.Path
             path to grid
-        tcard : dict
-            theory card
+        xif : float
+            factorization scale
         """
         opcard_path = self.operator_cards_path / f"{name}.yaml"
         if opcard_path.exists():
@@ -222,7 +224,7 @@ class TheoryBuilder:
             grid,
             configs.configs["paths"]["operator_card_template"],
             opcard_path,
-            tcard["XIF"],
+            xif,
         )
         if opcard_path.exists():
             rich.print(
@@ -233,7 +235,7 @@ class TheoryBuilder:
         """Write operator cards."""
         tcard = theory_card.load(self.theory_id)
         self.operator_cards_path.mkdir(exist_ok=True)
-        self.iterate(self.opcard, tcard=tcard)
+        self.iterate(self.opcard, xif=tcard["XIF"])
 
     def load_operator_card(self, name):
         """Read current operator card.
@@ -346,6 +348,14 @@ class TheoryBuilder:
         do_log = self.activate_logging(
             paths["logs"]["fk"], f"{self.theory_id}-{name}-{pdf}.log"
         )
+        # check if grid contains SV if theory is requesting them
+        xir = tcard["XIR"]
+        xif = tcard["XIF"]
+        ftr = tcard["fact_to_ren_scale_ratio"]
+        # loading grid
+        grid = pineappl.grid.Grid.read(grid_path)
+        # remove zero subgrid
+        grid.optimize()
         # setup data
         eko_filename = self.ekos_path() / f"{name}.tar"
         fk_filename = self.fks_path / f"{name}.{parser.EXT}"
@@ -354,16 +364,36 @@ class TheoryBuilder:
                 rich.print(f"Skipping existing FK Table {fk_filename}")
                 return
         max_as = 1 + int(tcard["PTO"])
+        # Check if we are computing FONLL-B fktable and eventually change max_as
+        if check.is_fonll_b(
+            tcard["FNS"],
+            grid.lumi(),
+        ):
+            max_as += 1
         max_al = 0
+        # check for sv
+        if not np.isclose(xir, 1.0):
+            is_ren_as, is_ren_al = check.contains_ren(grid, max_as, max_al)
+            if not (is_ren_as and is_ren_al):
+                raise ValueError(
+                    "Renormalization scale variations are not available for this grid"
+                )
+        if not (np.isclose(xif, 1.0) and np.isclose(ftr, 1.0)):
+            is_fact_as, is_fact_al = check.contains_fact(grid, max_as, max_al)
+            if not (is_fact_as and is_fact_al):
+                raise ValueError(
+                    "Factorization scale variations are not available for this grid"
+                )
         # collect alpha_s
         # TODO: move this down to evolve.evolve_grid when output contains cards
-        astrong = sc.StrongCoupling.from_dict(tcard)
+        new_tcard = eko.compatibility.update_theory(tcard)
+        astrong = sc.Couplings.from_dict(new_tcard)
         # ocard = self.load_operator_card(name)
         # q2_grid = ocard["Q2grid"]
+
+        # loading ekos
         operators = eko.output.Output.load_tar(eko_filename)
         q2_grid = operators["Q2grid"].keys()
-        xir = tcard["XIR"]
-        xif = tcard["XIF"]
         # PineAPPL wants alpha_s = 4*pi*a_s
         alphas_values = [
             4.0 * np.pi * astrong.a_s(xir * xir * Q2 / xif / xif) for Q2 in q2_grid
@@ -374,9 +404,17 @@ class TheoryBuilder:
         logger.info("Start computation of %s", name)
         logger.info("max_as=%d, max_al=%d, xir=%f, xif=%f", max_as, max_al, xir, xif)
         start_time = time.perf_counter()
+
+        rich.print(
+            rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
+            f"   {grid_path}\n",
+            f"+ {eko_filename}\n",
+            f"= {fk_filename}\n",
+            f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
+        )
         _grid, _fk, comparison = evolve.evolve_grid(
-            grid_path,
-            eko_filename,
+            grid,
+            operators,
             fk_filename,
             max_as,
             max_al,
