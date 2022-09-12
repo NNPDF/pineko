@@ -377,7 +377,7 @@ class TheoryBuilder:
                 raise ValueError(
                     "Renormalization scale variations are not available for this grid"
                 )
-        if not (np.isclose(xif, 1.0) and np.isclose(ftr, 1.0)):
+        if not np.isclose(xif, 1.0):
             is_fact_as, is_fact_al = check.contains_fact(grid, max_as, max_al)
             if not (is_fact_as and is_fact_al):
                 raise ValueError(
