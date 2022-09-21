@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 import pathlib
 
-import pytest
 from click.testing import CliRunner
 
 from pineko.cli._base import command
-from pineko.cli.theory_ import theory_
 
 test_files = pathlib.Path(__file__).parents[0] / "test_files/"
 

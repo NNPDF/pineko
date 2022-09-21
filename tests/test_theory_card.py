@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import pathlib
 
-import pytest
-
 import pineko
 
 test_files = pathlib.Path(__file__).parents[0] / "test_files/"
