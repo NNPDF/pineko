@@ -7,7 +7,7 @@ import pytest
 
 import pineko
 
-test_files = pathlib.Path(__file__).parents[0] / "test_files/"
+test_files = pathlib.Path(__file__).parents[0] / "data_files/"
 
 
 def test_write_operator_card_from_file(tmp_path):

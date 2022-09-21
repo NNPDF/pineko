@@ -5,7 +5,7 @@ from click.testing import CliRunner
 
 from pineko.cli._base import command
 
-test_files = pathlib.Path(__file__).parents[0] / "test_files/"
+test_files = pathlib.Path(__file__).parents[0] / "data_files/"
 
 
 def test_check_cli():

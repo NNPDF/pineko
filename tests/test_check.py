@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
 import pathlib
 
-import eko
 import numpy as np
-import pineappl
-import pytest
 from pineappl.pineappl import PyOrder
 
 import pineko.check
-
-test_files = pathlib.Path(__file__).parents[0] / "test_files/"
 
 
 def test_in1d():
@@ -19,21 +14,6 @@ def test_in1d():
     )
     checked = pineko.check.in1d(to_check, against_this)
     assert checked == np.array([True])
-
-
-def test_check_grid_and_eko_compatible():
-    grid = pineappl.grid.Grid.read(
-        test_files / "data/grids/208/HERA_CC_318GEV_EM_SIGMARED.pineappl.lz4"
-    )
-    wrong_grid = pineappl.grid.Grid.read(
-        test_files / "data/grids/208/NUTEV_CC_NU_FE_SIGMARED.pineappl.lz4"
-    )
-    ekoop = eko.output.Output.load_tar(
-        test_files / "data/ekos/208/HERA_CC_318GEV_EM_SIGMARED.tar"
-    )
-    with pytest.raises(ValueError):
-        pineko.check.check_grid_and_eko_compatible(wrong_grid, ekoop, 1.0)
-    pineko.check.check_grid_and_eko_compatible(grid, ekoop, 1.0)
 
 
 def test_is_fonll_b():

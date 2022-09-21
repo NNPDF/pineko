@@ -5,8 +5,6 @@ import pytest
 
 import pineko
 
-test_files = pathlib.Path(__file__).parents[0] / "test_files/"
-
 
 def test_enhance_paths():
     # Testing with one missing key
@@ -51,15 +49,3 @@ def test_default():
     }
     configs = pineko.configs.defaults(test_configs)
     assert configs["paths"]["ymldb"] == pathlib.Path("/my/root/path")
-
-
-def test_detect():
-    with pytest.raises(FileNotFoundError):
-        pineko.configs.detect()
-    conf_file = pineko.configs.detect(test_files)
-
-
-def test_load():
-    conf_file = pineko.configs.load(test_files)
-    assert conf_file["paths"]["root"] == test_files
-    assert conf_file["paths"]["grids"] == "data/grids"
