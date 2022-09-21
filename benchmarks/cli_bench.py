@@ -8,7 +8,7 @@ from pineko.cli._base import command
 test_files = pathlib.Path(__file__).parents[0] / "data_files/"
 
 
-def test_check_cli():
+def benchmark_check_cli():
     grid_path = pathlib.Path(
         test_files / "data/grids/208/LHCB_DY_13TEV_DIMUON.pineappl.lz4"
     )
@@ -30,7 +30,7 @@ def test_check_cli():
     )
 
 
-def test_opcard_cli(tmp_path):
+def benchmark_opcard_cli(tmp_path):
     grid_path = pathlib.Path(
         test_files / "data/grids/208/LHCB_DY_13TEV_DIMUON.pineappl.lz4"
     )

@@ -90,6 +90,7 @@ files = ["src/pineko/version.py"]
 [tool.pytest.ini_options]
 testpaths = ['tests/', 'benchmarks/']
 python_files = ['test_*.py', '*_bench.py']
+python_functions = ['test_*', 'benchmark_*']
 addopts = [
   '--cov=pineko',
   '--cov-report=html',

@@ -12,27 +12,27 @@ base_configs = pineko.configs.load(config_path)
 pineko.configs.configs = pineko.configs.defaults(base_configs)
 
 
-def test_operators_cards_path():
+def benchmark_operators_cards_path():
     path = theory_obj.operator_cards_path
     assert path == pathlib.Path(test_files / "data/operator_cards/208")
 
 
-def test_ekos_path():
+def benchmark_ekos_path():
     path = theory_obj.ekos_path()
     assert path == pathlib.Path(test_files / "data/ekos/208")
 
 
-def test_fks_path():
+def benchmark_fks_path():
     path = theory_obj.fks_path
     assert path == pathlib.Path(test_files / "data/fktables/208")
 
 
-def test_grids_path():
+def benchmark_grids_path():
     path = theory_obj.grids_path()
     assert path == pathlib.Path(test_files / "data/grids/208")
 
 
-def test_load_grids():
+def benchmark_load_grids():
     dataset_name = "LHCB_Z_13TEV_DIMUON"
     grids = theory_obj.load_grids(dataset_name)
     assert grids["LHCB_DY_13TEV_DIMUON"] == pathlib.Path(
@@ -40,17 +40,17 @@ def test_load_grids():
     )
 
 
-def test_inherit_grid(tmp_path):
+def benchmark_inherit_grid(tmp_path):
     from_grid = theory_obj.grids_path()
     theory_obj.inherit_grid("TestGrid", from_grid, tmp_path)
 
 
-def test_inherit_eko(tmp_path):
+def benchmark_inherit_eko(tmp_path):
     from_eko = theory_obj.ekos_path()
     theory_obj.inherit_eko("TestEko", from_eko, tmp_path)
 
 
-def test_opcard():
+def benchmark_opcard():
     grid_name = "LHCB_DY_13TEV_DIMUON"
     theory_obj.opcard(
         grid_name,
@@ -66,7 +66,7 @@ def test_opcard():
         raise ValueError("operator card not found")
 
 
-def test_eko():
+def benchmark_eko():
     grid_name = "LHCB_DY_13TEV_DIMUON"
     grid_path = pathlib.Path(theory_obj.grids_path() / (grid_name + ".pineappl.lz4"))
     base_configs = pineko.configs.load(test_files)
@@ -95,7 +95,7 @@ def test_eko():
         raise ValueError("operator card not found")
 
 
-def test_activate_logging():
+def benchmark_activate_logging():
     theory_obj.activate_logging(
         pathlib.Path(test_files / "logs/fk"), "test_log.log", ["test_log.log"]
     )
@@ -106,7 +106,7 @@ def test_activate_logging():
         raise ValueError("log file not found")
 
 
-def test_fk():
+def benchmark_fk():
     grid_name = "HERA_CC_318GEV_EM_SIGMARED"
     grid_path = pathlib.Path(
         theory_obj_Hera.grids_path() / (grid_name + ".pineappl.lz4")
