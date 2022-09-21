@@ -47,7 +47,7 @@ jobs:
           poe lint-warnings
       - name: Test with pytest
         run: |
-          poe bench-iso
+          poe bench
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
         with:
