@@ -19,10 +19,12 @@ def test_check_cli():
     )
     eko_path = pathlib.Path(test_files / "data/ekos/208/LHCB_DY_13TEV_DIMUON.tar")
     runner = CliRunner()
-    result = runner.invoke(command, ["check", str(grid_path), str(eko_path)])
+    result = runner.invoke(
+        command, ["check", "compatibility", str(grid_path), str(eko_path)]
+    )
     assert "Success: grids are compatible" in result.output
     wrong_result = runner.invoke(
-        command, ["check", str(wrong_grid_path), str(eko_path)]
+        command, ["check", "compatibility", str(wrong_grid_path), str(eko_path)]
     )
     assert (
         "Error: Q2 grid in pineappl grid and eko operator are NOT compatible!"
