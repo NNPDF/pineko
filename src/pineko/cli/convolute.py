@@ -26,7 +26,6 @@ from ._base import command
     help="the flavor assumptions to be used",
     show_default=True,
 )
-
 def subcommand(grid_path, op_path, fktable, max_as, max_al, xir, xif, pdf, assumptions):
     """Convolute PineAPPL grid and EKO into an FK table.
 
