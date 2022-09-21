@@ -20,5 +20,5 @@ def test_construct_assumption():
     base_configs = pineko.configs.load(test_files)
     pineko.configs.configs = pineko.configs.defaults(base_configs)
     tcard = pineko.theory_card.load(208)
-    ass_ash = pineko.theory_card.construct_assumption(tcard)
+    ass_ash = pineko.theory_card.construct_assumptions(tcard)
     assert ass_ash == "Nf4Ind"
