@@ -32,8 +32,9 @@ def test_check_grid_and_eko_compatible():
         test_files / "data/ekos/208/HERA_CC_318GEV_EM_SIGMARED.tar"
     )
     with pytest.raises(ValueError):
-        pineko.check.check_grid_and_eko_compatible(wrong_grid, ekoop)
-    pineko.check.check_grid_and_eko_compatible(grid, ekoop)
+        pineko.check.check_grid_and_eko_compatible(wrong_grid, ekoop, 1.0)
+    pineko.check.check_grid_and_eko_compatible(grid, ekoop, 1.0)
+
 
 def test_is_fonll_b():
     fns = "FONLL-B"
