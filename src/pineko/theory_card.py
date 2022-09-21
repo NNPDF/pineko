@@ -39,7 +39,7 @@ def construct_assumptions(tcard):
     Returns
     -------
     str
-        assumption hash
+        assumptions hash
     """
     # retrieve the relevant info from theory card
     Q0 = tcard["Q0"]

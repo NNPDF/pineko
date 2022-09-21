@@ -37,13 +37,17 @@ def test_check_grid_and_eko_compatible():
 
 def test_is_fonll_b():
     fns = "FONLL-B"
-    lumi = [[(1, 11, 3, 4), (3, 11, 5, 6)], [(9, 11, 0, 3), (-12, 3, -2, -1)]]
-    assert pineko.check.is_fonll_b(fns, lumi) is True
-    lumi.append([(1, 11, 2, 3), (2, 4, 5, 6)])
-    assert pineko.check.is_fonll_b(fns, lumi) is False
-    lumi.pop(-1)
+    lumi_first = [[(-12, 1, 2.0), (-13, 1, 5.0)]]
+    lumi_second = [[(1, 11, 1.0), (3, 11, 5.0)]]
+    assert pineko.check.is_fonll_b(fns, lumi_first) is True
+    assert pineko.check.is_fonll_b(fns, lumi_second) is True
+    lumi_crazy = [[(1, 1, 4.0), (2, 11, 3.0)]]
+    assert pineko.check.is_fonll_b(fns, lumi_crazy) is False
     fns = "FONLL-C"
-    assert pineko.check.is_fonll_b(fns, lumi) is False
+    assert pineko.check.is_fonll_b(fns, lumi_first) is False
+    assert pineko.check.is_fonll_b(fns, lumi_second) is False
+    assert pineko.check.is_fonll_b(fns, lumi_crazy) is False
+
 
 class Fake_grid:
     def __init__(self, order_list):
