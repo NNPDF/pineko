@@ -6,7 +6,7 @@ import pineko
 
 theory_obj = pineko.theory.TheoryBuilder(208, ["LHCB_Z_13TEV_DIMUON"])
 theory_obj_Hera = pineko.theory.TheoryBuilder(208, ["HERACOMBCCEM"])
-test_files = pathlib.Path(__file__).parents[0] / "test_files/"
+test_files = pathlib.Path(__file__).parents[0] / "data_files/"
 
 
 def test_operators_cards_path():
