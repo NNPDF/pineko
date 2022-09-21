@@ -3,7 +3,7 @@ name: benchmarks
 on: push
 
 jobs:
-  isobench:
+  bench:
     name: Benchmarks
     runs-on: ubuntu-latest
 
