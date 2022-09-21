@@ -1,10 +1,10 @@
-name: isolated benchmarks
+name: benchmarks
 
 on: push
 
 jobs:
   isobench:
-    name: 🏝️ Isolated Benchmarks
+    name: Benchmarks
     runs-on: ubuntu-latest
 
     container:
@@ -52,6 +52,6 @@ jobs:
         uses: codecov/codecov-action@v2
         with:
           files: ./coverage.xml
-          flags: isobench
+          flags: bench
           name: codecov-umbrella
           fail_ci_if_error: true
