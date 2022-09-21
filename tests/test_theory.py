@@ -52,6 +52,7 @@ def test_opcard():
     theory_obj.opcard(
         grid_name,
         pathlib.Path(test_files / "data/grids/208/LHCB_DY_13TEV_DIMUON.pineappl.lz4"),
+        1.0,
     )
     op_path = pathlib.Path(
         test_files / theory_obj.operator_cards_path / "LHCB_DY_13TEV_DIMUON.yaml"
@@ -73,7 +74,7 @@ def test_eko():
         "208-LHCB_DY_13TEV_DIMUON.log",
         ["208-LHCB_DY_13TEV_DIMUON.log"],
     )
-    theory_obj.opcard(grid_name, pathlib.Path(test_files / grid_path))
+    theory_obj.opcard(grid_name, pathlib.Path(test_files / grid_path), 1.0)
 
     theory_obj.eko(grid_name, grid_path, tcard)
 
@@ -115,7 +116,7 @@ def test_fk():
         "208-HERA_CC_318GEV_EM_SIGMARED.log",
         ["208-HERA_CC_318GEV_EM_SIGMARED.log"],
     )
-    theory_obj_Hera.opcard(grid_name, pathlib.Path(test_files / grid_path))
+    theory_obj_Hera.opcard(grid_name, pathlib.Path(test_files / grid_path), 1.0)
 
     theory_obj_Hera.fk(grid_name, grid_path, tcard, pdf=None)
 
