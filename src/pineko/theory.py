@@ -395,8 +395,9 @@ class TheoryBuilder:
         operators = eko.output.Output.load_tar(eko_filename)
         q2_grid = operators["Q2grid"].keys()
         # PineAPPL wants alpha_s = 4*pi*a_s
+        # remember that we already accounted for xif in the opcard generation
         alphas_values = [
-            4.0 * np.pi * astrong.a_s(xir * xir * Q2 / xif / xif) for Q2 in q2_grid
+            4.0 * np.pi * astrong.a_s(xir * xir * Q2) for Q2 in q2_grid
         ]
         # Obtain the assumptions hash
         assumptions = theory_card.construct_assumptions(tcard)
