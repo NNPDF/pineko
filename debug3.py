@@ -23,6 +23,8 @@ if len(sys.argv) > 1:
         mode_g = False
 
 mode_no_nlo = True
+if len(sys.argv) > 2:
+    mode_no_nlo = sys.argv[1].strip().lower() == "nlo"
 
 # load respective PDF set
 if mode_g:
@@ -50,7 +52,19 @@ loc = np.array(
         for j in range(len(out["interpolation_xgrid"]))
     ]
 )
+los = np.array(
+    [
+        out["F2_light"][j].orders[(0, 0, 0, 0)][0][-4]
+        for j in range(len(out["interpolation_xgrid"]))
+    ]
+)
 nloc = np.array(
+    [
+        out["F2_light"][j].orders[(1, 0, 0, 0)][0][-3]
+        for j in range(len(out["interpolation_xgrid"]))
+    ]
+)
+nlos = np.array(
     [
         out["F2_light"][j].orders[(1, 0, 0, 0)][0][-3]
         for j in range(len(out["interpolation_xgrid"]))
@@ -78,7 +92,7 @@ pqgg = np.array(
 # compute splitting functions
 interp = interpolation.InterpolatorDispatcher.from_dict(out, mode_N=False)
 pqq = convolute_operator(lo.pqq(5), interp)[0]
-pqg = convolute_operator(lo.pqg(5), interp)[0]  # / 10 # * 55 / 100
+pqg = convolute_operator(lo.pqg(5), interp)[0] / 10  # * 55 / 100
 pgq = convolute_operator(nlo.pgq0(5), interp)[0]
 pgg = convolute_operator(nlo.pgg0(5), interp)[0]
 
@@ -87,9 +101,21 @@ muf2 = 300.0 * 2.0**2
 a = 0.011
 L = np.log(1.0 / 2.0**2)
 
+# shut yadism references down
 if mode_no_nlo:
     nlog *= 0
     nloc *= 0
+    nlos *= 0
+
+# create joint quark terms
+loq = 2 * (3 * los + 2 * loc)
+nloq = 2 * (3 * nlos + 2 * nloc)
+
+# construct K
+Kqq = np.eye(len(out["interpolation_xgrid"])) + a * L * pqq.T
+Kgg = np.eye(len(out["interpolation_xgrid"])) + a * L * pgg.T
+Kqg = a * L * pqg.T
+Kgq = a * L * pgq.T
 
 # compute PDFs
 if mode_g:
@@ -100,11 +126,9 @@ else:
 # check yadism SV is proportional splitting functions
 # print("check yadism SV")
 # if mode_g:
-#     # this yields 4/9 as it should
-#     print((pqgg @ f)/(pqg.T @ f)/out["interpolation_xgrid"])
+#     print((pqgg @ f)/(loq @ pqg.T @ f))
 # else:
-#     # this yields 22/90 = 2*(1+4+1+4+1)/9/(2*5)
-#     print((pqqc @ f)/(pqq.T @ f)/out["interpolation_xgrid"])
+#     print((pqqc @ f)/(loc @ pqq.T @ f))
 
 # extract a by comparing C against yadism
 # print("check C result")
@@ -113,24 +137,18 @@ else:
 # else:
 #     print(cc1/((loc + a*(nloc + pqqc*L)) @ f))
 
-# construct K
-Kqq = np.eye(len(out["interpolation_xgrid"])) + a * L * pqq.T
-Kgg = np.eye(len(out["interpolation_xgrid"])) + a * L * pgg.T
-Kqg = a * L * pqg.T
-Kgq = a * L * pgq.T
-
 # check B EKO is K
-print("check B EKO result")
-ekob = output.Output.load_tar("data/ekos/2205/test.tar")
-fb = apply_pdf(ekob, pdf)
-if mode_g:
-    gb = Kgg @ f
-    cb = Kqg @ f
-else:
-    gb = Kgq @ f
-    cb = Kqq @ f
-print(fb[300.0]["pdfs"][21] / gb)
-print(fb[300.0]["pdfs"][4] / cb)
+# print("check B EKO result")
+# ekob = output.Output.load_tar("data/ekos/2205/test.tar")
+# fb = apply_pdf(ekob, pdf)
+# if mode_g:
+#     gb = Kgg @ f
+#     cb = Kqg @ f
+# else:
+#     gb = Kgq @ f
+#     cb = Kqq @ f
+# print(fb[300.0]["pdfs"][21] / gb)
+# print(fb[300.0]["pdfs"][4] / cb)
 
 # check C EKO is identity
 # print("check C EKO result")
@@ -146,24 +164,26 @@ print(fb[300.0]["pdfs"][4] / cb)
 # check B result
 print("check B result")
 if mode_g:
-    print(bb1 / (((loc + a * nloc) @ Kqg + (a * nlog) @ Kgg) @ f))
+    print(bb1 / (((loq + a * nloq) @ Kqg + (a * nlog) @ Kgg) @ f))
 else:
     print(bb1 / (((loc + a * nloc) @ Kqq + (a * nlog) @ Kgq) @ f))
 
-diff_grid = bb1 - cc1
-# plt.plot(diff_grid, label="grid")
-# nloc *= 1.9
-# nlog *= 1.14
-if mode_g:
-    # plt.plot(a**2 * L * ((nloc @ pqg.T @ f)), label="pqg")
-    # plt.plot(a**2 * L * ((nlog @ pgg.T @ f)), label="pgg")
-    diff_ana = a**2 * L * ((nloc @ pqg.T @ f) + (nlog @ pgg.T @ f))
-else:
-    # plt.plot(a**2 * L * ((nloc @ pqq.T @ f)), label="pqq")
-    # plt.plot(a**2 * L * ((nlog @ pgq.T @ f)), label="pgq")
-    diff_ana = a**2 * L * ((nloc @ pqq.T @ f) + (nlog @ pgq.T @ f))
-# plt.legend()
-# plt.show()
-# print(diff_grid/cc1)
-# print(diff_grid)
+# check difference between B and C
+# print("check B - C")
+# diff_grid = bb1 - cc1
+# # plt.plot(diff_grid, label="grid")
+# # nloc *= 1.9
+# # nlog *= 1.14
+# if mode_g:
+#     # plt.plot(a**2 * L * ((nloc @ pqg.T @ f)), label="pqg")
+#     # plt.plot(a**2 * L * ((nlog @ pgg.T @ f)), label="pgg")
+#     diff_ana = a**2 * L * ((nloq @ pqg.T @ f) + (nlog @ pgg.T @ f))
+# else:
+#     # plt.plot(a**2 * L * ((nloc @ pqq.T @ f)), label="pqq")
+#     # plt.plot(a**2 * L * ((nlog @ pgq.T @ f)), label="pgq")
+#     diff_ana = a**2 * L * ((nloc @ pqq.T @ f) + (nlog @ pgq.T @ f))
+# # plt.legend()
+# # plt.show()
+# # print(diff_grid/cc1)
+# # print(diff_grid)
 # print(diff_grid / diff_ana)
