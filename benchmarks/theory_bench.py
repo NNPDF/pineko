@@ -14,22 +14,22 @@ pineko.configs.configs = pineko.configs.defaults(base_configs)
 
 def benchmark_operators_cards_path():
     path = theory_obj.operator_cards_path
-    assert path == pathlib.Path(test_files / "data/operator_cards/208")
+    assert path == pathlib.Path(test_files / "data/operator_cards/208/")
 
 
 def benchmark_ekos_path():
     path = theory_obj.ekos_path()
-    assert path == pathlib.Path(test_files / "data/ekos/208")
+    assert path == pathlib.Path(test_files / "data/ekos/208/")
 
 
 def benchmark_fks_path():
     path = theory_obj.fks_path
-    assert path == pathlib.Path(test_files / "data/fktables/208")
+    assert path == pathlib.Path(test_files / "data/fktables/208/")
 
 
 def benchmark_grids_path():
     path = theory_obj.grids_path()
-    assert path == pathlib.Path(test_files / "data/grids/208")
+    assert path == pathlib.Path(test_files / "data/grids/208/")
 
 
 def benchmark_load_grids():
@@ -73,7 +73,7 @@ def benchmark_eko():
     pineko.configs.configs = pineko.configs.defaults(base_configs)
     tcard = pineko.theory_card.load(208)
     theory_obj.activate_logging(
-        pathlib.Path(test_files / "logs/eko"),
+        pathlib.Path(test_files / "logs/eko/"),
         "208-LHCB_DY_13TEV_DIMUON.log",
         ["208-LHCB_DY_13TEV_DIMUON.log"],
     )
@@ -97,7 +97,7 @@ def benchmark_eko():
 
 def benchmark_activate_logging():
     theory_obj.activate_logging(
-        pathlib.Path(test_files / "logs/fk"), "test_log.log", ["test_log.log"]
+        pathlib.Path(test_files / "logs/fk/"), "test_log.log", ["test_log.log"]
     )
     log_path = pathlib.Path(test_files / "logs/fk/test_log.log")
     if os.path.exists(log_path):
@@ -115,7 +115,7 @@ def benchmark_fk():
     pineko.configs.configs = pineko.configs.defaults(base_configs)
     tcard = pineko.theory_card.load(208)
     theory_obj_Hera.activate_logging(
-        pathlib.Path(test_files / "logs/fk"),
+        pathlib.Path(test_files / "logs/fk/"),
         "208-HERA_CC_318GEV_EM_SIGMARED.log",
         ["208-HERA_CC_318GEV_EM_SIGMARED.log"],
     )
