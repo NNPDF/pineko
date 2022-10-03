@@ -9,9 +9,9 @@ test_files = pathlib.Path(__file__).parents[0] / "data_files/"
 
 
 def benchmark_compare():
-    pine_path = test_files / "data/grids/208/HERA_CC_318GEV_EM_SIGMARED.pineappl.lz4"
+    pine_path = test_files / "data/grids/208/LHCB_DY_13TEV_DIMUON.pineappl.lz4"
     grid = pineappl.grid.Grid.read(pine_path)
-    fk_path = test_files / "data/fktables/208/HERA_CC_318GEV_EM_SIGMARED.pineappl.lz4"
+    fk_path = test_files / "data/fktables/208/LHCB_DY_13TEV_DIMUON.pineappl.lz4"
     fk = pineappl.fk_table.FkTable.read(fk_path)
     pdf = "NNPDF40_nlo_as_01180"
     comp_table = pineko.comparator.compare(grid, fk, 2, 0, pdf, 1.0, 1.0)
