@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import pathlib
 
+import pytest
 from click.testing import CliRunner
 
 from pineko.cli._base import command
@@ -27,6 +28,32 @@ def benchmark_check_cli():
     assert (
         "Error: Q2 grid in pineappl grid and eko operator are NOT compatible!"
         in wrong_result.output
+    )
+    wrong_scvar_res = runner.invoke(
+        command, ["check", "scvar", str(grid_path), "wrong_string", "2", "0"]
+    )
+    assert "Invalid value for 'SCALE'" in wrong_scvar_res.output
+    ren_res = runner.invoke(
+        command, ["check", "scvar", str(grid_path), "ren", "2", "0"]
+    )
+    assert (
+        "Success: grids contain renormalization scale variations for as"
+        in ren_res.output
+    )
+    assert (
+        "Success: grids contain renormalization scale variations for al"
+        in ren_res.output
+    )
+    fact_res = runner.invoke(
+        command, ["check", "scvar", str(grid_path), "fact", "2", "0"]
+    )
+    assert (
+        "Success: grids contain factorization scale variations for as"
+        in fact_res.output
+    )
+    assert (
+        "Success: grids contain factorization scale variations for al"
+        in fact_res.output
     )
 
 
