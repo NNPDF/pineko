@@ -2,7 +2,7 @@
 import pathlib
 
 import pineappl
-from banana.utils import lhapdf_path
+from utils import lhapdf_path
 
 import pineko
 

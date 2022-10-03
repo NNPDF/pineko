@@ -2,8 +2,8 @@
 import pathlib
 
 import pytest
-from banana.utils import lhapdf_path
 from click.testing import CliRunner
+from utils import lhapdf_path
 
 from pineko.cli._base import command
 
