@@ -29,6 +29,12 @@ jobs:
           poetry config virtualenvs.create false
           # log all configurations
           poetry config --list
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v2
+        id: cache
+        with:
+          path: ~/.virtualenvs
+          key: ${{ runner.os }}-py-${{ steps.setup-python.outputs.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
       - name: Install version management tool
         run: |
           # same poetry env
