@@ -4,10 +4,12 @@ import pathlib
 import eko
 import pineappl
 import pytest
+from utils import lhapdf_path
 
 import pineko
 
 test_files = pathlib.Path(__file__).parents[0] / "data_files/"
+test_pdf = pathlib.Path(__file__).parents[0] / "fakepdfs"
 
 
 def benchmark_write_operator_card_from_file(tmp_path):
@@ -36,6 +38,15 @@ def benchmark_evolve_grid(tmp_path):
     pineko.configs.configs = pineko.configs.defaults(base_configs)
     tcard = pineko.theory_card.load(208)
     assumptions = pineko.theory_card.construct_assumptions(tcard)
-    pineko.evolve.evolve_grid(
-        pinegrid, eko_op, target_path, max_as, max_al, 1.0, 1.0, assumptions=assumptions
-    )
+    with lhapdf_path(test_pdf):
+        pineko.evolve.evolve_grid(
+            pinegrid,
+            eko_op,
+            target_path,
+            max_as,
+            max_al,
+            1.0,
+            1.0,
+            assumptions=assumptions,
+            comparison_pdf="NNPDF40_nlo_as_01180",
+        )
