@@ -7,6 +7,13 @@ from pineappl.pineappl import PyOrder
 import pineko.check
 
 
+def test_islepton():
+    el = 21
+    assert pineko.check.islepton(el) == False
+    el = -13
+    assert pineko.check.islepton(el) == True
+
+
 def test_in1d():
     to_check = np.array([0.3])
     against_this = np.array(
