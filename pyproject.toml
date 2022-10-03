@@ -64,11 +64,8 @@ pineko = "pineko:command"
 
 [tool.poe.tasks]
 test = "pytest tests"
-bench = "pytest benchmarks"
-bench-iso.cmd = "pytest benchmarks -m isolated"
-bench-iso.env.NUMBA_DISABLE_JIT.default = "0"
-bench-run.cmd = "pytest benchmarks -m 'not isolated'"
-bench-run.env.NUMBA_DISABLE_JIT.default = "0"
+bench.cmd = "pytest benchmarks"
+bench.env.NUMBA_DISABLE_JIT.default = "0"
 lint = "pylint src/**/*.py -E"
 lint-warnings = "pylint src/**/*.py --exit-zero"
 pineko = "pineko"
