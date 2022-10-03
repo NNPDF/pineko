@@ -2,11 +2,13 @@
 import pathlib
 
 import pytest
+from banana.utils import lhapdf_path
 from click.testing import CliRunner
 
 from pineko.cli._base import command
 
 test_files = pathlib.Path(__file__).parents[0] / "data_files/"
+test_pdf = pathlib.Path(__file__).parents[0] / "fakepdf"
 
 
 def benchmark_check_cli():
@@ -68,3 +70,19 @@ def benchmark_opcard_cli(tmp_path):
         command, ["opcard", str(grid_path), str(default_card_path), str(target_path)]
     )
     assert "Success" in result.output
+
+
+def benchmark_compare_cli():
+    grid_path = pathlib.Path(
+        test_files / "data/grids/208/LHCB_DY_13TEV_DIMUON.pineappl.lz4"
+    )
+    fk_path = pathlib.Path(
+        test_files / "data/fktables/208/LHCB_DY_13TEV_DIMUON.pineappl.lz4"
+    )
+    runner = CliRunner()
+    with lhapdf_path(test_pdf):
+        result = runner.invoke(
+            command,
+            ["compare", str(grid_path), str(fk_path), "2", "0", "NNPDF40_nlo_as_01180"],
+        )
+    assert "yll left" in result.output
