@@ -18,4 +18,4 @@ def benchmark_detect():
 def benchmark_load():
     conf_file = pineko.configs.load(test_files)
     assert conf_file["paths"]["root"] == test_files
-    assert conf_file["paths"]["grids"] == "data/grids"
+    assert conf_file["paths"]["grids"] == "data/grids/"
