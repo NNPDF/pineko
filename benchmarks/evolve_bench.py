@@ -9,7 +9,7 @@ from utils import lhapdf_path
 import pineko
 
 test_files = pathlib.Path(__file__).parents[0] / "data_files/"
-test_pdf = pathlib.Path(__file__).parents[0] / "fakepdfs"
+test_pdf = pathlib.Path(__file__).parents[0] / "fakepdfs/"
 
 
 def benchmark_write_operator_card_from_file(tmp_path):
