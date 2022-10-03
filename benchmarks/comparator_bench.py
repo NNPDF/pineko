@@ -7,7 +7,7 @@ from utils import lhapdf_path
 import pineko
 
 test_files = pathlib.Path(__file__).parents[0] / "data_files/"
-test_pdf = pathlib.Path(__file__).parents[0] / "fakepdf"
+test_pdf = pathlib.Path(__file__).parents[0] / "fakepdfs"
 
 
 def benchmark_compare():
