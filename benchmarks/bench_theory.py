@@ -5,7 +5,7 @@ import pathlib
 import pineko
 
 theory_obj = pineko.theory.TheoryBuilder(208, ["LHCB_Z_13TEV_DIMUON"])
-theory_obj_Hera = pineko.theory.TheoryBuilder(208, ["HERACOMBCCEM"])
+theory_obj_hera = pineko.theory.TheoryBuilder(208, ["HERACOMBCCEM"])
 test_files = pathlib.Path(__file__).parents[0] / "data_files/"
 config_path = pineko.configs.detect(test_files)
 base_configs = pineko.configs.load(config_path)
