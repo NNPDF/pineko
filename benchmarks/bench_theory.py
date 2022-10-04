@@ -109,19 +109,19 @@ def benchmark_activate_logging():
 def benchmark_fk():
     grid_name = "HERA_CC_318GEV_EM_SIGMARED"
     grid_path = pathlib.Path(
-        theory_obj_Hera.grids_path() / (grid_name + ".pineappl.lz4")
+        theory_obj_hera.grids_path() / (grid_name + ".pineappl.lz4")
     )
     base_configs = pineko.configs.load(test_files)
     pineko.configs.configs = pineko.configs.defaults(base_configs)
     tcard = pineko.theory_card.load(208)
-    theory_obj_Hera.activate_logging(
+    theory_obj_hera.activate_logging(
         pathlib.Path(test_files / "logs/fk/"),
         "208-HERA_CC_318GEV_EM_SIGMARED.log",
         ["208-HERA_CC_318GEV_EM_SIGMARED.log"],
     )
-    theory_obj_Hera.opcard(grid_name, pathlib.Path(test_files / grid_path), 1.0)
+    theory_obj_hera.opcard(grid_name, pathlib.Path(test_files / grid_path), 1.0)
 
-    theory_obj_Hera.fk(grid_name, grid_path, tcard, pdf=None)
+    theory_obj_hera.fk(grid_name, grid_path, tcard, pdf=None)
 
     log_path = pathlib.Path(test_files / "logs/fk/208-HERA_CC_318GEV_EM_SIGMARED.log")
     if os.path.exists(log_path):
@@ -130,7 +130,7 @@ def benchmark_fk():
         raise ValueError("log file not found")
     op_path = pathlib.Path(
         test_files
-        / theory_obj_Hera.operator_cards_path
+        / theory_obj_hera.operator_cards_path
         / "HERA_CC_318GEV_EM_SIGMARED.yaml"
     )
     if os.path.exists(op_path):
@@ -140,7 +140,7 @@ def benchmark_fk():
 
     fk_path = pathlib.Path(
         test_files
-        / theory_obj_Hera.fks_path
+        / theory_obj_hera.fks_path
         / "HERA_CC_318GEV_EM_SIGMARED.pineappl.lz4"
     )
     if os.path.exists(fk_path):
