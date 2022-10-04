@@ -5,11 +5,8 @@ import pineappl
 
 import pineko
 
-test_files = pathlib.Path(__file__).parents[0] / "data_files/"
-test_pdf = pathlib.Path(__file__).parents[0] / "fakepdfs/"
 
-
-def benchmark_compare(lhapdf_path):
+def benchmark_compare(lhapdf_path, test_files, test_pdf):
     pine_path = test_files / "data/grids/208/LHCB_DY_13TEV_DIMUON.pineappl.lz4"
     grid = pineappl.grid.Grid.read(pine_path)
     fk_path = test_files / "data/fktables/208/LHCB_DY_13TEV_DIMUON.pineappl.lz4"

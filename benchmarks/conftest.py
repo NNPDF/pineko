@@ -1,7 +1,18 @@
 # -*- coding: utf-8 -*-
+import pathlib
 from contextlib import contextmanager
 
 import pytest
+
+
+@pytest.fixture
+def test_files():
+    return pathlib.Path(__file__).parents[0] / "data_files/"
+
+
+@pytest.fixture
+def test_pdf():
+    return pathlib.Path(__file__).parents[0] / "fakepdfs/"
 
 
 @pytest.fixture

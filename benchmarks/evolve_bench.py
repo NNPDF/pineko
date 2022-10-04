@@ -7,11 +7,8 @@ import pytest
 
 import pineko
 
-test_files = pathlib.Path(__file__).parents[0] / "data_files/"
-test_pdf = pathlib.Path(__file__).parents[0] / "fakepdfs/"
 
-
-def benchmark_write_operator_card_from_file(tmp_path):
+def benchmark_write_operator_card_from_file(tmp_path, test_files):
     pine_path = test_files / "data/grids/208/HERA_CC_318GEV_EM_SIGMARED.pineappl.lz4"
     default_path = test_files / "data/operator_cards/_template.yaml"
     target_path = pathlib.Path(tmp_path / "test_operator.yaml")
@@ -25,7 +22,7 @@ def benchmark_write_operator_card_from_file(tmp_path):
         )
 
 
-def benchmark_evolve_grid(tmp_path, lhapdf_path):
+def benchmark_evolve_grid(tmp_path, lhapdf_path, test_files, test_pdf):
     pine_path = test_files / "data/grids/208/HERA_CC_318GEV_EM_SIGMARED.pineappl.lz4"
     pinegrid = pineappl.grid.Grid.read(pine_path)
     eko_path = test_files / "data/ekos/208/HERA_CC_318GEV_EM_SIGMARED.tar"

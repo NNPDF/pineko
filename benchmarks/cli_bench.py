@@ -6,11 +6,8 @@ from click.testing import CliRunner
 
 from pineko.cli._base import command
 
-test_files = pathlib.Path(__file__).parents[0] / "data_files/"
-test_pdf = pathlib.Path(__file__).parents[0] / "fakepdfs"
 
-
-def benchmark_check_cli():
+def benchmark_check_cli(test_files):
     grid_path = pathlib.Path(
         test_files / "data/grids/208/LHCB_DY_13TEV_DIMUON.pineappl.lz4"
     )
@@ -58,7 +55,7 @@ def benchmark_check_cli():
     )
 
 
-def benchmark_opcard_cli(tmp_path):
+def benchmark_opcard_cli(tmp_path, test_files):
     grid_path = pathlib.Path(
         test_files / "data/grids/208/LHCB_DY_13TEV_DIMUON.pineappl.lz4"
     )
@@ -71,7 +68,7 @@ def benchmark_opcard_cli(tmp_path):
     assert "Success" in result.output
 
 
-def benchmark_compare_cli(lhapdf_path):
+def benchmark_compare_cli(lhapdf_path, test_files, test_pdf):
     grid_path = pathlib.Path(
         test_files / "data/grids/208/LHCB_DY_13TEV_DIMUON.pineappl.lz4"
     )
