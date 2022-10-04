@@ -4,7 +4,6 @@ import pathlib
 import eko
 import pineappl
 import pytest
-from utils import lhapdf_path
 
 import pineko
 
@@ -26,7 +25,7 @@ def benchmark_write_operator_card_from_file(tmp_path):
         )
 
 
-def benchmark_evolve_grid(tmp_path):
+def benchmark_evolve_grid(tmp_path, lhapdf_path):
     pine_path = test_files / "data/grids/208/HERA_CC_318GEV_EM_SIGMARED.pineappl.lz4"
     pinegrid = pineappl.grid.Grid.read(pine_path)
     eko_path = test_files / "data/ekos/208/HERA_CC_318GEV_EM_SIGMARED.tar"

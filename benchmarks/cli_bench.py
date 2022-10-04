@@ -3,7 +3,6 @@ import pathlib
 
 import pytest
 from click.testing import CliRunner
-from utils import lhapdf_path
 
 from pineko.cli._base import command
 
@@ -72,7 +71,7 @@ def benchmark_opcard_cli(tmp_path):
     assert "Success" in result.output
 
 
-def benchmark_compare_cli():
+def benchmark_compare_cli(lhapdf_path):
     grid_path = pathlib.Path(
         test_files / "data/grids/208/LHCB_DY_13TEV_DIMUON.pineappl.lz4"
     )
