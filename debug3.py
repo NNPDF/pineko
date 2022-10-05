@@ -5,8 +5,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pineappl
 import yadism
+import yaml
+import eko
 from eko import interpolation
 from eko import output
+from eko import strong_coupling as sc
 from ekomark.apply import apply_pdf
 
 # from eko.output.struct import EKO
@@ -96,9 +99,15 @@ pqg = convolute_operator(lo.pqg(5), interp)[0] / 10  # * 55 / 100
 pgq = convolute_operator(nlo.pgq0(5), interp)[0]
 pgg = convolute_operator(nlo.pgg0(5), interp)[0]
 
-muf2 = 300.0 * 2.0**2
-# a = pdf.alphasQ2(muf2)
-a = 0.011
+q2 = 300.0
+muf2 = q2 * 2.0**2
+# load theory card
+with open("data/theory_cards/2205.yaml") as fd:
+    tc = yaml.safe_load(fd)
+astrong = sc.StrongCoupling.from_dict(tc)
+# actually, there are two alpha_s values in the game!
+ac = astrong.a_s(muf2)
+ab = astrong.a_s(q2)
 L = np.log(1.0 / 2.0**2)
 
 # shut yadism references down
@@ -112,10 +121,10 @@ loq = 2 * (3 * los + 2 * loc)
 nloq = 2 * (3 * nlos + 2 * nloc)
 
 # construct K
-Kqq = np.eye(len(out["interpolation_xgrid"])) + a * L * pqq.T
-Kgg = np.eye(len(out["interpolation_xgrid"])) + a * L * pgg.T
-Kqg = a * L * pqg.T
-Kgq = a * L * pgq.T
+Kqq = np.eye(len(out["interpolation_xgrid"])) + ac * L * pqq.T
+Kgg = np.eye(len(out["interpolation_xgrid"])) + ac * L * pgg.T
+Kqg = ac * L * pqg.T
+Kgq = ac * L * pgq.T
 
 # compute PDFs
 if mode_g:
@@ -133,9 +142,9 @@ else:
 # extract a by comparing C against yadism
 # print("check C result")
 # if mode_g:
-#     print(cc1/((a*(nlog + pqgg*L)) @ f))
+#     print(cc1/((ac*(nlog + pqgg*L)) @ f))
 # else:
-#     print(cc1/((loc + a*(nloc + pqqc*L)) @ f))
+#     print(cc1/((loc + ac*(nloc + pqqc*L)) @ f))
 
 # check B EKO is K
 # print("check B EKO result")
@@ -162,28 +171,36 @@ else:
 #     print(fc[2.**2 * 300.]["pdfs"][21] - np.zeros_like(f))
 
 # check B result
-print("check B result")
-if mode_g:
-    print(bb1 / (((loq + a * nloq) @ Kqg + (a * nlog) @ Kgg) @ f))
-else:
-    print(bb1 / (((loc + a * nloc) @ Kqq + (a * nlog) @ Kgq) @ f))
+# print("check B result")
+# if mode_g:
+#     print(bb1 / (((loq + ab * nloq) @ Kqg + (ab * nlog) @ Kgg) @ f))
+#     plt.plot(bb1)
+#     plt.plot((((loq + ab * nloq) @ Kqg + (ab * nlog) @ Kgg) @ f))
+# else:
+#     print(bb1 / (((loc + ab * nloc) @ Kqq + (ab * nlog) @ Kgq) @ f))
+# plt.show()
 
 # check difference between B and C
-# print("check B - C")
-# diff_grid = bb1 - cc1
-# # plt.plot(diff_grid, label="grid")
-# # nloc *= 1.9
-# # nlog *= 1.14
-# if mode_g:
-#     # plt.plot(a**2 * L * ((nloc @ pqg.T @ f)), label="pqg")
-#     # plt.plot(a**2 * L * ((nlog @ pgg.T @ f)), label="pgg")
-#     diff_ana = a**2 * L * ((nloq @ pqg.T @ f) + (nlog @ pgg.T @ f))
-# else:
-#     # plt.plot(a**2 * L * ((nloc @ pqq.T @ f)), label="pqq")
-#     # plt.plot(a**2 * L * ((nlog @ pgq.T @ f)), label="pgq")
-#     diff_ana = a**2 * L * ((nloc @ pqq.T @ f) + (nlog @ pgq.T @ f))
-# # plt.legend()
-# # plt.show()
-# # print(diff_grid/cc1)
-# # print(diff_grid)
-# print(diff_grid / diff_ana)
+print("check B - C")
+diff_grid = bb1 - cc1
+# plt.plot(bb1, label="b-grid")
+# plt.plot(cc1, label="c-grid")
+# nloc *= 1.9
+# nlog *= 1.14
+if mode_g:
+    # plt.plot(a**2 * L * ((nloc @ pqg.T @ f)), label="pqg")
+    # plt.plot(a**2 * L * ((nlog @ pgg.T @ f)), label="pgg")
+    diff_ana = (nlog * (ab - ac) + ac * ab * L * ((nloq @ pqg.T) + (nlog @ pgg.T))) @ f
+else:
+    # plt.plot(a**2 * L * ((nloc @ pqq.T @ f)), label="pqq")
+    # plt.plot(a**2 * L * ((nlog @ pgq.T @ f)), label="pgq")
+    diff_ana = (nloc * (ab - ac) + ab * ac * L * ((nloc @ pqq.T) + (nlog @ pgq.T))) @ f
+# print(diff_grid/cc1)
+print(bb1 / cc1)
+print(diff_grid / diff_ana)
+plt.plot(diff_grid, label="grid")
+plt.plot(diff_ana, label="ana")
+# plt.plot((diff_grid/bb1-1)*100, label="rel err. diff to b")
+# plt.plot(diff_grid/diff_ana, label="ratio")
+plt.legend()
+plt.show()
