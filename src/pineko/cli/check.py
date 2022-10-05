@@ -60,15 +60,15 @@ def sub_scvar(grid_path, scale, max_as_order, max_al_order):
     sv = scale_variations[scale]
     funcs = {"ren": check.contains_ren, "fact": check.contains_fact}
     func_to_call = funcs[scale]
-    to_write = ""
     # Call the function
     is_sv_as, is_sv_al = func_to_call(grid, max_as_order, max_al_order)
     conditions = {" for as": is_sv_as, " for al": is_sv_al}
     for cond in conditions.keys():
+        to_write = ""
         if conditions[cond]:
             to_write += success
         else:
             to_write += error
         to_write += sv
         to_write += cond
-    rich.print(to_write)
+        rich.print(to_write)
