@@ -351,7 +351,6 @@ class TheoryBuilder:
         # check if grid contains SV if theory is requesting them
         xir = tcard["XIR"]
         xif = tcard["XIF"]
-        ftr = tcard["fact_to_ren_scale_ratio"]
         # loading grid
         grid = pineappl.grid.Grid.read(grid_path)
         # remove zero subgrid
