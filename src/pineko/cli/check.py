@@ -49,41 +49,26 @@ def sub_scvar(grid_path, scale, max_as_order, max_al_order):
     """Check if PineAPPL grid contains requested scale variations for the requested order."""
     grid = pineappl.grid.Grid.read(grid_path)
     grid.optimize()
-    if scale == "ren":
-        is_ren_as, is_ren_al = check.contains_ren(grid, max_as_order, max_al_order)
-        if is_ren_as:
-            rich.print(
-                "[green]Success:[/] grids contain renormalization scale variations for as"
-            )
-        else:
-            rich.print(
-                "[red]Error:[/] grids do not contain renormalization scale variations for as"
-            )
-        if is_ren_al:
-            rich.print(
-                "[green]Success:[/] grids contain renormalization scale variations for al"
-            )
-        else:
-            rich.print(
-                "[red]Error:[/] grids do not contain renormalization scale variations for al"
-            )
-    elif scale == "fact":
-        is_fact_as, is_fact_al = check.contains_fact(grid, max_as_order, max_al_order)
-        if is_fact_as:
-            rich.print(
-                "[green]Success:[/] grids contain factorization scale variations for as"
-            )
-        else:
-            rich.print(
-                "[red]Error:[/] grids do not contain factorization scale variations for as"
-            )
-        if is_fact_al:
-            rich.print(
-                "[green]Success:[/] grids contain factorization scale variations for al"
-            )
-        else:
-            rich.print(
-                "[red]Error:[/] grids do not contain factorization scale variations for al"
-            )
-    else:
+    success = "[green]Success:[/] grids contain"
+    error = "[red]Error:[/] grids do not contain"
+    scale_variations = {
+        "ren": " renormalization scale variations",
+        "fact": " factorization scale variations",
+    }
+    if scale not in scale_variations.keys():
         raise ValueError("Scale variation to check can be one between xir and xif")
+    sv = scale_variations[scale]
+    funcs = {"ren": check.contains_ren, "fact": check.contains_fact}
+    func_to_call = funcs[scale]
+    to_write = ""
+    # Call the function
+    is_sv_as, is_sv_al = func_to_call(grid, max_as_order, max_al_order)
+    conditions = {" for as": is_sv_as, " for al": is_sv_al}
+    for cond in conditions.keys():
+        if conditions[cond]:
+            to_write += success
+        else:
+            to_write += error
+        to_write += sv
+        to_write += cond
+    rich.print(to_write)
