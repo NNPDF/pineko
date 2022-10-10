@@ -4,6 +4,15 @@ from contextlib import contextmanager
 
 import pytest
 
+import pineko
+
+
+@pytest.fixture
+def test_configs(test_files):
+    config_path = pineko.configs.detect(test_files)
+    base_configs = pineko.configs.load(config_path)
+    return base_configs
+
 
 @pytest.fixture
 def test_files():

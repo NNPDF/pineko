@@ -8,10 +8,8 @@ import pytest
 
 import pineko.check
 
-test_files = pathlib.Path(__file__).parents[0] / "data_files/"
 
-
-def benchmark_check_grid_and_eko_compatible():
+def benchmark_check_grid_and_eko_compatible(test_files):
     grid = pineappl.grid.Grid.read(
         test_files / "data/grids/208/HERA_CC_318GEV_EM_SIGMARED.pineappl.lz4"
     )

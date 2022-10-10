@@ -6,33 +6,30 @@ import pineko
 
 theory_obj = pineko.theory.TheoryBuilder(208, ["LHCB_Z_13TEV_DIMUON"])
 theory_obj_hera = pineko.theory.TheoryBuilder(208, ["HERACOMBCCEM"])
-test_files = pathlib.Path(__file__).parents[0] / "data_files/"
-config_path = pineko.configs.detect(test_files)
-base_configs = pineko.configs.load(config_path)
-pineko.configs.configs = pineko.configs.defaults(base_configs)
 
 
-def benchmark_operators_cards_path():
+def benchmark_operators_cards_path(test_files, test_configs):
+    pineko.configs.configs = pineko.configs.defaults(test_configs)
     path = theory_obj.operator_cards_path
     assert path == pathlib.Path(test_files / "data/operator_cards/208/")
 
 
-def benchmark_ekos_path():
+def benchmark_ekos_path(test_files):
     path = theory_obj.ekos_path()
     assert path == pathlib.Path(test_files / "data/ekos/208/")
 
 
-def benchmark_fks_path():
+def benchmark_fks_path(test_files):
     path = theory_obj.fks_path
     assert path == pathlib.Path(test_files / "data/fktables/208/")
 
 
-def benchmark_grids_path():
+def benchmark_grids_path(test_files):
     path = theory_obj.grids_path()
     assert path == pathlib.Path(test_files / "data/grids/208/")
 
 
-def benchmark_load_grids():
+def benchmark_load_grids(test_files):
     dataset_name = "LHCB_Z_13TEV_DIMUON"
     grids = theory_obj.load_grids(dataset_name)
     assert grids["LHCB_DY_13TEV_DIMUON"] == pathlib.Path(
@@ -50,7 +47,7 @@ def benchmark_inherit_eko(tmp_path):
     theory_obj.inherit_eko("TestEko", from_eko, tmp_path)
 
 
-def benchmark_opcard():
+def benchmark_opcard(test_files):
     grid_name = "LHCB_DY_13TEV_DIMUON"
     theory_obj.opcard(
         grid_name,
@@ -66,7 +63,7 @@ def benchmark_opcard():
         raise ValueError("operator card not found")
 
 
-def benchmark_eko():
+def benchmark_eko(test_files):
     grid_name = "LHCB_DY_13TEV_DIMUON"
     grid_path = pathlib.Path(theory_obj.grids_path() / (grid_name + ".pineappl.lz4"))
     base_configs = pineko.configs.load(test_files)
@@ -95,7 +92,7 @@ def benchmark_eko():
         raise ValueError("operator card not found")
 
 
-def benchmark_activate_logging():
+def benchmark_activate_logging(test_files):
     theory_obj.activate_logging(
         pathlib.Path(test_files / "logs/fk/"), "test_log.log", ["test_log.log"]
     )
@@ -106,7 +103,7 @@ def benchmark_activate_logging():
         raise ValueError("log file not found")
 
 
-def benchmark_fk():
+def benchmark_fk(test_files):
     grid_name = "HERA_CC_318GEV_EM_SIGMARED"
     grid_path = pathlib.Path(
         theory_obj_hera.grids_path() / (grid_name + ".pineappl.lz4")

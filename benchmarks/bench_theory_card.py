@@ -3,10 +3,8 @@ import pathlib
 
 import pineko
 
-test_files = pathlib.Path(__file__).parents[0] / "data_files/"
 
-
-def benchmark_load():
+def benchmark_load(test_files):
     base_configs = pineko.configs.load(test_files)
     pineko.configs.configs = pineko.configs.defaults(base_configs)
     tcard = pineko.theory_card.load(208)
@@ -14,7 +12,7 @@ def benchmark_load():
     assert tcard["PTO"] == 1
 
 
-def benchmark_construct_assumption():
+def benchmark_construct_assumption(test_files):
     base_configs = pineko.configs.load(test_files)
     pineko.configs.configs = pineko.configs.defaults(base_configs)
     tcard = pineko.theory_card.load(208)
