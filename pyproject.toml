@@ -64,6 +64,8 @@ pineko = "pineko:command"
 
 [tool.poe.tasks]
 test = "pytest tests"
+bench.cmd = "pytest benchmarks"
+bench.env.NUMBA_DISABLE_JIT.default = "0"
 lint = "pylint src/**/*.py -E"
 lint-warnings = "pylint src/**/*.py --exit-zero"
 pineko = "pineko"
@@ -83,7 +85,9 @@ dirty = true
 files = ["src/pineko/version.py"]
 
 [tool.pytest.ini_options]
-testpaths = ['tests/']
+testpaths = ['tests/', 'benchmarks/']
+python_files = ['test_*.py', 'bench_*.py']
+python_functions = ['test_*', 'benchmark_*']
 addopts = [
   '--cov=pineko',
   '--cov-report=html',
