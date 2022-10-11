@@ -1,13 +1,40 @@
 # -*- coding: utf-8 -*-
 import pathlib
 
-import eko
 import numpy as np
-import pineappl
-import pytest
 from pineappl.pineappl import PyOrder
 
 import pineko.check
+
+
+def test_islepton():
+    el = 21
+    assert pineko.check.islepton(el) == False
+    el = -13
+    assert pineko.check.islepton(el) == True
+
+
+def test_in1d():
+    to_check = np.array([0.3])
+    against_this = np.array(
+        [1, 2, 0.3, 90, 67, 10.0e-10, 0.00002, 12567, 1729291, 10.0e-7]
+    )
+    checked = pineko.check.in1d(to_check, against_this)
+    assert checked == np.array([True])
+
+
+def test_is_fonll_b():
+    fns = "FONLL-B"
+    lumi_first = [[(-12, 1, 2.0), (-13, 1, 5.0)]]
+    lumi_second = [[(1, 11, 1.0), (3, 11, 5.0)]]
+    assert pineko.check.is_fonll_b(fns, lumi_first) is True
+    assert pineko.check.is_fonll_b(fns, lumi_second) is True
+    lumi_crazy = [[(1, 1, 4.0), (2, 11, 3.0)]]
+    assert pineko.check.is_fonll_b(fns, lumi_crazy) is False
+    fns = "FONLL-C"
+    assert pineko.check.is_fonll_b(fns, lumi_first) is False
+    assert pineko.check.is_fonll_b(fns, lumi_second) is False
+    assert pineko.check.is_fonll_b(fns, lumi_crazy) is False
 
 
 class Fake_grid:
@@ -79,17 +106,3 @@ def test_contains_ren():
         False,
         True,
     )
-
-
-def test_is_fonll_b():
-    fns = "FONLL-B"
-    lumi_first = [[(-12, 1, 2.0), (-13, 1, 5.0)]]
-    lumi_second = [[(1, 11, 1.0), (3, 11, 5.0)]]
-    assert pineko.check.is_fonll_b(fns, lumi_first) is True
-    assert pineko.check.is_fonll_b(fns, lumi_second) is True
-    lumi_crazy = [[(1, 1, 4.0), (2, 11, 3.0)]]
-    assert pineko.check.is_fonll_b(fns, lumi_crazy) is False
-    fns = "FONLL-C"
-    assert pineko.check.is_fonll_b(fns, lumi_first) is False
-    assert pineko.check.is_fonll_b(fns, lumi_second) is False
-    assert pineko.check.is_fonll_b(fns, lumi_crazy) is False
