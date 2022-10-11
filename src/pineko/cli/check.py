@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """CLI entry point to check compatibility."""
+from enum import Enum, auto
+
 import click
 import eko.output
 import pineappl
@@ -36,12 +38,19 @@ def sub_compatibility(grid_path, operator_path, xif):
         rich.print("[red]Error:[/]", e)
 
 
+class Scale(Enum):
+    """Auxiliary class to list the possible scale variations."""
+
+    REN = auto()
+    FACT = auto()
+
+
 @subcommand.command("scvar")
 @click.argument("grid_path", metavar="PINEAPPL", type=click.Path(exists=True))
 @click.argument(
     "scale",
     metavar="SCALE",
-    type=click.Choice(["ren", "fact"]),
+    type=click.Choice(list(map(lambda x: x.name.upper(), Scale)), case_sensitive=False),
 )
 @click.argument("max_as_order", metavar="AS_ORDER", type=int)
 @click.argument("max_al_order", metavar="AL_ORDER", type=int)
@@ -52,13 +61,13 @@ def sub_scvar(grid_path, scale, max_as_order, max_al_order):
     success = "[green]Success:[/] grids contain"
     error = "[red]Error:[/] grids do not contain"
     scale_variations = {
-        "ren": " renormalization scale variations",
-        "fact": " factorization scale variations",
+        Scale.REN.name: " renormalization scale variations",
+        Scale.FACT.name: " factorization scale variations",
     }
     if scale not in scale_variations.keys():
-        raise ValueError("Scale variation to check can be one between xir and xif")
+        raise ValueError("Scale variation to check can be one between ren and fact")
     sv = scale_variations[scale]
-    funcs = {"ren": check.contains_ren, "fact": check.contains_fact}
+    funcs = {Scale.REN.name: check.contains_ren, Scale.FACT.name: check.contains_fact}
     func_to_call = funcs[scale]
     # Call the function
     is_sv_as, is_sv_al = func_to_call(grid, max_as_order, max_al_order)
