@@ -42,9 +42,31 @@ def benchmark_inherit_grid(tmp_path):
     theory_obj.inherit_grid("TestGrid", from_grid, tmp_path)
 
 
+def benchmark_inherit_grids(test_files):
+    new_theory_ID = 2081
+    theory_obj.inherit_grids(new_theory_ID)
+    folder_path = pathlib.Path(test_files / "data" / "grids" / str(new_theory_ID))
+    assert folder_path.is_dir()
+    assert (folder_path / "LHCB_DY_13TEV_DIMUON.pineappl.lz4").is_file()
+    for item in folder_path.iterdir():
+        item.unlink()
+    folder_path.rmdir()
+
+
 def benchmark_inherit_eko(tmp_path):
     from_eko = theory_obj.ekos_path()
     theory_obj.inherit_eko("TestEko", from_eko, tmp_path)
+
+
+def benchmark_inherit_ekos(test_files):
+    new_theory_ID = 2081
+    theory_obj.inherit_ekos(new_theory_ID)
+    folder_path = pathlib.Path(test_files / "data" / "ekos" / str(new_theory_ID))
+    assert folder_path.is_dir()
+    assert (folder_path / "LHCB_DY_13TEV_DIMUON.tar").is_file()
+    for item in folder_path.iterdir():
+        item.unlink()
+    folder_path.rmdir()
 
 
 def benchmark_opcard(test_files):
