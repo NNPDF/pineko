@@ -6,6 +6,7 @@ import pineko
 
 theory_obj = pineko.theory.TheoryBuilder(208, ["LHCB_Z_13TEV_DIMUON"])
 theory_obj_hera = pineko.theory.TheoryBuilder(208, ["HERACOMBCCEM"])
+theory_obj_test = pineko.theory.TheoryBuilder(208, ["HERACOMBCCEM"], silent=True)
 
 
 def benchmark_operators_cards_path(test_files, test_configs):
@@ -48,6 +49,7 @@ def benchmark_inherit_grids(test_files):
     folder_path = pathlib.Path(test_files / "data" / "grids" / str(new_theory_ID))
     assert folder_path.is_dir()
     assert (folder_path / "LHCB_DY_13TEV_DIMUON.pineappl.lz4").is_file()
+    theory_obj.inherit_grids(new_theory_ID)
     for item in folder_path.iterdir():
         item.unlink()
     folder_path.rmdir()
@@ -64,6 +66,7 @@ def benchmark_inherit_ekos(test_files):
     folder_path = pathlib.Path(test_files / "data" / "ekos" / str(new_theory_ID))
     assert folder_path.is_dir()
     assert (folder_path / "LHCB_DY_13TEV_DIMUON.tar").is_file()
+    theory_obj.inherit_ekos(new_theory_ID)
     for item in folder_path.iterdir():
         item.unlink()
     folder_path.rmdir()
@@ -78,6 +81,11 @@ def benchmark_opcard(test_files):
     )
     op_path = pathlib.Path(
         test_files / theory_obj.operator_cards_path / "LHCB_DY_13TEV_DIMUON.yaml"
+    )
+    theory_obj.opcard(
+        grid_name,
+        pathlib.Path(test_files / "data/grids/208/LHCB_DY_13TEV_DIMUON.pineappl.lz4"),
+        1.0,
     )
     if os.path.exists(op_path):
         os.remove(op_path)
@@ -115,6 +123,9 @@ def benchmark_eko(test_files):
 
 
 def benchmark_activate_logging(test_files):
+    assert not theory_obj_test.activate_logging(
+        pathlib.Path(test_files / "logs/fk/"), "test_log.log", ["test_log.log"]
+    )
     theory_obj.activate_logging(
         pathlib.Path(test_files / "logs/fk/"), "test_log.log", ["test_log.log"]
     )
@@ -141,7 +152,8 @@ def benchmark_fk(test_files):
     theory_obj_hera.opcard(grid_name, pathlib.Path(test_files / grid_path), 1.0)
 
     theory_obj_hera.fk(grid_name, grid_path, tcard, pdf=None)
-
+    # test overwrite function
+    theory_obj_hera.fk(grid_name, grid_path, tcard, pdf=None)
     log_path = pathlib.Path(test_files / "logs/fk/208-HERA_CC_318GEV_EM_SIGMARED.log")
     if os.path.exists(log_path):
         os.remove(log_path)
