@@ -76,6 +76,6 @@ def sub_scvar(grid_path, scale, max_as_order, max_al_order):
             to_write += success
         else:
             to_write += error
-        to_write += Scale[scale].value.descr
+        to_write += " " + Scale[scale].value.descr
         to_write += cond
         rich.print(to_write)
