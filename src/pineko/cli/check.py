@@ -45,8 +45,8 @@ ScaleValue = namedtuple("ScaleValue", ["descr", "check"])
 class Scale(Enum):
     """Auxiliary class to list the possible scale variations."""
 
-    REN = ScaleValue(" renormalization scale variations", check.contains_ren)
-    FACT = ScaleValue(" factorization scale variations", check.contains_fact)
+    REN = ScaleValue("renormalization scale variations", check.contains_ren)
+    FACT = ScaleValue("factorization scale variations", check.contains_fact)
 
 
 @subcommand.command("scvar")
