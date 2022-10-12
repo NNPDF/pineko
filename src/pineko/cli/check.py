@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """CLI entry point to check compatibility."""
+from collections import namedtuple
 from enum import Enum, auto
 
 import click
@@ -38,11 +39,14 @@ def sub_compatibility(grid_path, operator_path, xif):
         rich.print("[red]Error:[/]", e)
 
 
+ScaleValue = namedtuple("ScaleValue", ["descr", "check"])
+
+
 class Scale(Enum):
     """Auxiliary class to list the possible scale variations."""
 
-    REN = auto()
-    FACT = auto()
+    REN = ScaleValue(" renormalization scale variations", check.contains_ren)
+    FACT = ScaleValue(" factorization scale variations", check.contains_fact)
 
 
 @subcommand.command("scvar")
@@ -60,17 +64,11 @@ def sub_scvar(grid_path, scale, max_as_order, max_al_order):
     grid.optimize()
     success = "[green]Success:[/] grids contain"
     error = "[red]Error:[/] grids do not contain"
-    scale_variations = {
-        Scale.REN.name: " renormalization scale variations",
-        Scale.FACT.name: " factorization scale variations",
-    }
-    if scale not in scale_variations.keys():
-        raise ValueError("Scale variation to check can be one between ren and fact")
-    sv = scale_variations[scale]
-    funcs = {Scale.REN.name: check.contains_ren, Scale.FACT.name: check.contains_fact}
-    func_to_call = funcs[scale]
     # Call the function
-    is_sv_as, is_sv_al = func_to_call(grid, max_as_order, max_al_order)
+    try:
+        is_sv_as, is_sv_al = Scale[scale].value.check(grid, max_as_order, max_al_order)
+    except KeyError:
+        raise ValueError("Scale variation to check can be one between ren and fact")
     conditions = {" for as": is_sv_as, " for al": is_sv_al}
     for cond in conditions.keys():
         to_write = ""
@@ -78,6 +76,6 @@ def sub_scvar(grid_path, scale, max_as_order, max_al_order):
             to_write += success
         else:
             to_write += error
-        to_write += sv
+        to_write += Scale[scale].value.descr
         to_write += cond
         rich.print(to_write)
