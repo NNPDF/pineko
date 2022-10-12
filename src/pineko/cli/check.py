@@ -50,7 +50,7 @@ class Scale(Enum):
 @click.argument(
     "scale",
     metavar="SCALE",
-    type=click.Choice(list(map(lambda x: x.name.upper(), Scale)), case_sensitive=False),
+    type=click.Choice(list(el.name for el in Scale), case_sensitive=False),
 )
 @click.argument("max_as_order", metavar="AS_ORDER", type=int)
 @click.argument("max_al_order", metavar="AL_ORDER", type=int)
