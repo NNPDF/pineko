@@ -39,6 +39,16 @@ def sub_compatibility(grid_path, operator_path, xif):
         rich.print("[red]Error:[/]", e)
 
 
+CouplingInfo = namedtuple("CouplingInfo", ["descr", "theory"])
+
+
+class Coupling(Enum):
+    """Auxiliary class to list the possible couplings."""
+
+    AS = CouplingInfo("strong", "QCD")
+    AL = CouplingInfo("electromagnetic", "QED")
+
+
 ScaleValue = namedtuple("ScaleValue", ["descr", "check"])
 
 
@@ -66,16 +76,15 @@ def sub_scvar(grid_path, scale, max_as_order, max_al_order):
     error = "[red]Error:[/] grids do not contain"
     # Call the function
     try:
-        is_sv_as, is_sv_al = Scale[scale].value.check(grid, max_as_order, max_al_order)
+        conditions = Scale[scale].value.check(grid, max_as_order, max_al_order)
     except KeyError:
         raise ValueError("Scale variation to check can be one between ren and fact")
-    conditions = {" for as": is_sv_as, " for al": is_sv_al}
-    for cond in conditions.keys():
+    for coupling, condition in zip(Coupling, conditions):
         to_write = ""
-        if conditions[cond]:
+        if condition:
             to_write += success
         else:
             to_write += error
         to_write += " " + Scale[scale].value.descr
-        to_write += cond
+        to_write += f" for {coupling.name.lower()}"
         rich.print(to_write)
