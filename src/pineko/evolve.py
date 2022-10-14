@@ -132,7 +132,7 @@ def evolve_grid(
     if np.isclose(xir, 1.0) and alphas_values is None:
         mur2_grid = np.array(list(operators["Q2grid"].keys()))
         alphas_values = [op["alphas"] for op in operators["Q2grid"].values()]
-    fktable = grid.convolute_eko(
+    fktable = grid.evolve(
         operators,
         xir * xir * mur2_grid,
         alphas_values,
