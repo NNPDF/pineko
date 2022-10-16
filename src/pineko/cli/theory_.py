@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """'theory' mode of CLI."""
 import pathlib
 

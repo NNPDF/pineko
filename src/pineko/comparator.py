@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Tools to compare grids and FK tables."""
 
 import numpy as np

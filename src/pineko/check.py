@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Tools to check compatibility of EKO and grid."""
 import numpy as np
 import pineappl

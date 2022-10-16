@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Tools related to evolution/eko."""
 import copy
 import pathlib
@@ -39,7 +38,7 @@ def write_operator_card_from_file(pineappl_path, default_card_path, card_path, x
     if not pathlib.Path(pineappl_path).exists():
         raise FileNotFoundError(pineappl_path)
     pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
-    with open(default_card_path, "r", encoding="UTF-8") as f:
+    with open(default_card_path, encoding="UTF-8") as f:
         default_card = yaml.safe_load(f)
     return write_operator_card(pineappl_grid, default_card, card_path, xif)
 

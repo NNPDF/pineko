@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """CLI entry point to convolution."""
 import click
 import eko
