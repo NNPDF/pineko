@@ -12,7 +12,6 @@ repos:
       - id: check-toml
       - id: check-merge-conflict
       - id: debug-statements
-      - id: fix-encoding-pragma
       - id: check-merge-conflict
       - id: check-case-conflict
       - id: check-ast
@@ -36,7 +35,7 @@ repos:
   - repo: https://github.com/pycqa/pydocstyle
     rev: 6.1.1
     hooks:
-    -   id: pydocstyle
+      - id: pydocstyle
         files: ^src/
         additional_dependencies:
           - toml

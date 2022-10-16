@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """CLI entry point to check compatibility."""
 from collections import namedtuple
 from enum import Enum, auto

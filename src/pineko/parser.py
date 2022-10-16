@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Interface to ymldb."""
 # ATTENTION: this is a partial copy from
 # https://github.com/NNPDF/nnpdf/blob/7cb96fc05ca2a2914bc1ccc864865e0ca4e66983/validphys2/src/validphys/pineparser.py

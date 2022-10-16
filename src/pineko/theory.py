@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Tools related to generation of a list of FK tables.
 
 The typical use case of pineko is the generation of a list of FK tables,

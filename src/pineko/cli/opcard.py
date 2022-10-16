@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """CLI entry point to the operator card generation."""
 import click
 import rich

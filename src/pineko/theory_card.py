@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Tools related to theory cards."""
 import yaml
 
