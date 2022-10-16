@@ -41,7 +41,7 @@ jobs:
           PIP="$(head -n1 $(which poetry) | cut -c 3-) -m pip"
           ${PIP} install poetry-dynamic-versioning
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root --with-test ${{ inputs.poetry-extras }}
+        run: poetry install --no-interaction --no-root --with test ${{ inputs.poetry-extras }}
         if: steps.cache.outputs.cache-hit != 'true'
       - name: Install project
         run: poetry install --no-interaction
