@@ -100,7 +100,9 @@ def is_fonll_b(fns, lumi):
 
 
 def contains_fact(grid, max_as, max_al):
-    """Check whether factorization scale-variations are available in the pineappl grid for the requested order.
+    """Check whether fact scale-variations are available.
+
+    The order is specified by max_as and max_al.
 
     Parameters
     ----------
