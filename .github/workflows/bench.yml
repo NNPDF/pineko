@@ -19,22 +19,10 @@ jobs:
           # tags needed for dynamic versioning
           fetch-depth: 0
       - name: Install and configure Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          # update path for this and the other steps
-          export PATH=$HOME/.local/bin:$PATH
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-          # prevent poetry environments
-          # in order to access container pre-installed packages
-          poetry config virtualenvs.create false
-          # log all configurations
-          poetry config --list
-      - name: Cache Poetry virtualenv
-        uses: actions/cache@v2
-        id: cache
+        uses: snok/install-poetry@v1
         with:
-          path: ~/.virtualenvs
-          key: ${{ runner.os }}-py-${{ steps.setup-python.outputs.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
+          virtualenvs-create: false
+          installer-parallel: true
       - name: Install version management tool
         run: |
           # same poetry env
@@ -42,7 +30,6 @@ jobs:
           ${PIP} install poetry-dynamic-versioning
       - name: Install dependencies
         run: poetry install --no-interaction --no-root --with test ${{ inputs.poetry-extras }}
-        if: steps.cache.outputs.cache-hit != 'true'
       - name: Install project
         run: poetry install --no-interaction
       - name: Install task runner
