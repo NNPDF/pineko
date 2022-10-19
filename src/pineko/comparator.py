@@ -30,9 +30,7 @@ def compare(pine, fktable, max_as, max_al, pdf, xir, xif):
     df : pd.DataFrame
         comparison table
     """
-    import lhapdf
-
-    # pylint: disable=import-outside-toplevel
+    import lhapdf  # pylint: disable=import-error
 
     pdfset = lhapdf.mkPDF(pdf, 0)
     pdgid = int(pdfset.set().get_entry("Particle"))
