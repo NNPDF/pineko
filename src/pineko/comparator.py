@@ -30,10 +30,7 @@ def compare(pine, fktable, max_as, max_al, pdf, xir, xif):
     df : pd.DataFrame
         comparison table
     """
-    try:
-        import lhapdf  # pylint: disable=import-outside-toplevel
-    except:
-        raise ImportError("lhapdf package not found")
+    import lhapdf  # pylint: disable=import-outside-toplevel
 
     pdfset = lhapdf.mkPDF(pdf, 0)
     pdgid = int(pdfset.set().get_entry("Particle"))
