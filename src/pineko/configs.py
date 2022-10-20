@@ -101,9 +101,6 @@ def detect(path=None):
         paths.append(path)
 
     paths.append(pathlib.Path.cwd())
-    paths.append(pathlib.Path.home())
-    paths.append(pathlib.Path(appdirs.user_config_dir()))
-    paths.append(pathlib.Path(appdirs.site_config_dir()))
 
     for p in paths:
         configs_file = p / name if p.is_dir() else p
