@@ -49,7 +49,7 @@ jobs:
       - name: Download data files
         if: steps.cache-data_files.outputs.cache-hit != 'true'
         run: |
-          sh .github/workflows/download_test_data.sh
+          sh download_test_data.sh
       - name: Test with pytest
         run: |
           poe bench
