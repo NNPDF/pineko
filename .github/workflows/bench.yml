@@ -49,8 +49,7 @@ jobs:
       - name: Download data files
         if: steps.cache-data_files.outputs.cache-hit != 'true'
         run: |
-          wget -r -np -nH --cut-dirs=1 -l 4  -e robots=off --no-verbose -P benchmarks -R index.* https://data.nnpdf.science/pineko/data_files/
-          wget -r -np -nH --cut-dirs=1 -l 4  -e robots=off --no-verbose -P benchmarks -R index.* https://data.nnpdf.science/pineko/fakepdfs/
+          sh .github/workflows/download_test_data.sh
       - name: Test with pytest
         run: |
           poe bench
