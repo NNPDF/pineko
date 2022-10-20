@@ -94,13 +94,24 @@ def detect(path=None):
     pathlib.Path :
         file path
     """
-    paths = []
-
+    # If a path is provided then we only look for the pineko.toml file there.
     if path is not None:
         path = pathlib.Path(path)
-        paths.append(path)
-
-    paths.append(pathlib.Path.cwd())
+        configs_file = path / name if path.is_dir() else path
+        if configs_file.is_file():
+            return configs_file
+        else:
+            raise ValueError(
+                "Provided path is not pointing to (or does not contain) the pineko.toml file"
+            )
+    # If no path is provided we need to look after the file.
+    # We want to check pwd and all its parent folders (without their subfolders of course) up to home.
+    paths = []
+    p = pathlib.Path.cwd()
+    home = pathlib.Path.home()
+    while p != home:
+        paths.append(p)
+        p = p.parent
 
     for p in paths:
         configs_file = p / name if p.is_dir() else p
