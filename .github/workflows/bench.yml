@@ -11,7 +11,7 @@ jobs:
       image: ghcr.io/n3pdf/lhapdf:v2
       credentials:
         username: ${{ github.repository_owner }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+        password: ${{ github.token }}
 
     steps:
       - uses: actions/checkout@v2
