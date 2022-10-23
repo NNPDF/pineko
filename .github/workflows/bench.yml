@@ -23,15 +23,12 @@ jobs:
         with:
           virtualenvs-create: false
           installer-parallel: true
-      - name: Install version management tool
-        run: |
-          # same poetry env
-          PIP="$(head -n1 $(which poetry) | cut -c 3-) -m pip"
-          ${PIP} install poetry-dynamic-versioning
       - name: Install dependencies
         run: poetry install --no-interaction --no-root --with test ${{ inputs.poetry-extras }}
       - name: Install project
-        run: poetry install --no-interaction
+        # it is required to repeat extras, otherwise they will be removed from
+        # the environment
+        run: poetry install --no-interaction ${{ inputs.poetry-extras }}
       - name: Install task runner
         run: pip install poethepoet
       - name: Lint with pylint
