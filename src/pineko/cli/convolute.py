@@ -54,6 +54,7 @@ def subcommand(grid_path, op_path, fktable, max_as, max_al, xir, xif, pdf, assum
         grid,
         operators,
         fktable,
+        None,
         max_as,
         max_al,
         xir,
