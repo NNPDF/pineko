@@ -2,6 +2,7 @@
 import copy
 import pathlib
 
+import eko
 import eko.basis_rotation as br
 import numpy as np
 import pineappl
@@ -97,7 +98,7 @@ def evolve_grid(
     ----------
     grid : pineappl.grid.Grid
         unconvoluted grid
-    operators : eko.output.Output
+    operators : eko.output.struct.EKO
         evolution operator
     fktable_path : str
         target path for convoluted grid
@@ -119,9 +120,9 @@ def evolve_grid(
     _x_grid, _pids, mur2_grid, _muf2_grid = grid.axes()
     check.check_grid_and_eko_compatible(grid, operators, xif)
     # rotate to evolution (if doable and necessary)
-    if np.allclose(operators["inputpids"], br.flavor_basis_pids):
-        operators.to_evol()
-    elif not np.allclose(operators["inputpids"], br.evol_basis_pids):
+    if np.allclose(operators.rotations.pids, br.flavor_basis_pids):
+        eko.output.manipulate.to_evol(operators)
+    elif not np.allclose(operators.rotations.inputpids, br.evol_basis_pids):
         raise ValueError("The EKO is neither in flavor nor in evolution basis.")
     # do it
     order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
@@ -129,9 +130,9 @@ def evolve_grid(
     # the problem is that the EKO output still does not contain the theory/operators card and
     # so I can't compute alpha_s *here* if xir != 1
     if np.isclose(xir, 1.0) and alphas_values is None:
-        mur2_grid = np.array(list(operators["Q2grid"].keys()))
-        alphas_values = [op["alphas"] for op in operators["Q2grid"].values()]
-    fktable = grid.evolve(
+        mur2_grid = np.array(list(operators.Q2grid))
+        alphas_values = [op["alphas"] for op in operators.Q2grid]
+    fktable = grid.convolute_eko(
         operators,
         xir * xir * mur2_grid,
         alphas_values,
