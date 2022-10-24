@@ -84,6 +84,7 @@ def evolve_grid(
     grid,
     operators,
     fktable_path,
+    astrong,
     max_as,
     max_al,
     xir,
@@ -102,6 +103,8 @@ def evolve_grid(
         evolution operator
     fktable_path : str
         target path for convoluted grid
+    astrong : eko.coupling.Couplings
+        as object
     max_as : int
         maximum power of strong coupling
     max_al : int
@@ -131,7 +134,7 @@ def evolve_grid(
     # so I can't compute alpha_s *here* if xir != 1
     if np.isclose(xir, 1.0) and alphas_values is None:
         mur2_grid = np.array(list(operators.Q2grid))
-        alphas_values = [op["alphas"] for op in operators.Q2grid]
+        alphas_values = [astrong.a_s(q2) for q2 in operators.Q2grid]
     fktable = grid.convolute_eko(
         operators,
         xir * xir * mur2_grid,

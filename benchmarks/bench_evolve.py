@@ -4,6 +4,7 @@ import eko
 import eko.output.legacy
 import pineappl
 import pytest
+from eko import couplings as sc
 
 import pineko
 
@@ -33,12 +34,15 @@ def benchmark_evolve_grid(tmp_path, lhapdf_path, test_files, test_pdf):
     base_configs = pineko.configs.load(test_files)
     pineko.configs.configs = pineko.configs.defaults(base_configs)
     tcard = pineko.theory_card.load(208)
+    new_tcard = eko.compatibility.update_theory(tcard)
+    astrong = sc.Couplings.from_dict(new_tcard)
     assumptions = pineko.theory_card.construct_assumptions(tcard)
     with lhapdf_path(test_pdf):
         pineko.evolve.evolve_grid(
             pinegrid,
             eko_op,
             target_path,
+            astrong,
             max_as,
             max_al,
             1.0,
