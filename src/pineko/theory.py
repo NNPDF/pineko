@@ -417,6 +417,7 @@ class TheoryBuilder:
             grid,
             operators,
             fk_filename,
+            astrong,
             max_as,
             max_al,
             xir=xir,
