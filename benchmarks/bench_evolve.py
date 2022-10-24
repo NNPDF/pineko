@@ -1,6 +1,7 @@
 import pathlib
 
 import eko
+import eko.output.legacy
 import pineappl
 import pytest
 
@@ -25,7 +26,7 @@ def benchmark_evolve_grid(tmp_path, lhapdf_path, test_files, test_pdf):
     pine_path = test_files / "data/grids/208/HERA_CC_318GEV_EM_SIGMARED.pineappl.lz4"
     pinegrid = pineappl.grid.Grid.read(pine_path)
     eko_path = test_files / "data/ekos/208/HERA_CC_318GEV_EM_SIGMARED.tar"
-    eko_op = eko.output.Output.load_tar(eko_path)
+    eko_op = eko.output.legacy.load_tar(eko_path)
     target_path = pathlib.Path(tmp_path / "test_fktable.pineappl.lz4")
     max_as = 1
     max_al = 0

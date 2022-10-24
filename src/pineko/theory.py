@@ -10,6 +10,7 @@ import time
 
 import eko
 import eko.compatibility
+import eko.output.legacy
 import numpy as np
 import pineappl
 import rich
@@ -390,8 +391,8 @@ class TheoryBuilder:
         # q2_grid = ocard["Q2grid"]
 
         # loading ekos
-        operators = eko.output.Output.load_tar(eko_filename)
-        muf2_grid = operators["Q2grid"].keys()
+        operators = eko.output.legacy.load_tar(eko_filename)
+        muf2_grid = operators.Q2grid
         # PineAPPL wants alpha_s = 4*pi*a_s
         # remember that we already accounted for xif in the opcard generation
         alphas_values = [
