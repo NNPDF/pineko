@@ -26,8 +26,8 @@ def pineappl_layout(operator: EKO) -> Dict[str, Any]:
 
     oldgrid["q2_ref"] = operator.Q02
     oldgrid["targetpids"] = operator.rotations.targetpids
-    oldgrid["targetgrid"] = operator.rotations.targetgrid
+    oldgrid["targetgrid"] = operator.rotations.targetgrid.raw
     oldgrid["inputpids"] = operator.rotations.inputpids
-    oldgrid["inputgrid"] = operator.rotations.inputgrid
+    oldgrid["inputgrid"] = operator.rotations.inputgrid.raw
 
     return oldgrid
