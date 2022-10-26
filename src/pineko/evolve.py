@@ -145,7 +145,7 @@ def evolve_grid(
     )
     rich.print(f"Optimizing for {assumptions}")
     fktable.optimize(assumptions)
-    fktable.set_key_value("eko_version", operators["eko_version"])
+    fktable.set_key_value("eko_version", operators.version)
     fktable.set_key_value("pineko_version", version.__version__)
     # write
     fktable.write_lz4(str(fktable_path))
