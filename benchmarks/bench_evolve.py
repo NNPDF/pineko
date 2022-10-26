@@ -2,11 +2,15 @@ import pathlib
 
 import eko
 import eko.output.legacy
+import numpy as np
 import pineappl
 import pytest
+import yaml
 from eko import couplings as sc
 
 import pineko
+
+PIDS = [-5, -4, -3, -2, -1, 21, 22, 1, 2, 3, 4, 5]
 
 
 def benchmark_write_operator_card_from_file(tmp_path, test_files):
@@ -17,6 +21,14 @@ def benchmark_write_operator_card_from_file(tmp_path, test_files):
         pine_path, default_path, target_path, 1.0
     )
     wrong_pine_path = test_files / "data/grids/208/HERA_CC_318GEV_EM_wrong.pineappl.lz4"
+    # Load the opcard
+    myopcard = yaml.safe_load(target_path.read_text())
+    # Check if it contains all the information for eko
+    assert np.allclose(myopcard["xgrid"], x_grid)
+    assert np.allclose(myopcard["targetgrid"], x_grid)
+    assert np.allclose(myopcard["inputgrid"], x_grid)
+    assert np.allclose(myopcard["inputpids"], PIDS)
+    assert np.allclose(myopcard["targetpids"], PIDS)
     with pytest.raises(FileNotFoundError):
         x_grid, q2_grid = pineko.evolve.write_operator_card_from_file(
             wrong_pine_path, default_path, target_path, 1.0
