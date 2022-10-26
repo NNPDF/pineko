@@ -11,7 +11,7 @@ import rich.box
 import rich.panel
 import yaml
 
-from . import check, comparator, version
+from . import check, comparator, ekompatibility, version
 
 
 def write_operator_card_from_file(pineappl_path, default_card_path, card_path, xif):
@@ -136,7 +136,7 @@ def evolve_grid(
         mur2_grid = np.array(list(operators.Q2grid))
         alphas_values = [astrong.a_s(q2) for q2 in operators.Q2grid]
     fktable = grid.convolute_eko(
-        operators,
+        ekompatibility.pineappl_layout(operators),
         xir * xir * mur2_grid,
         alphas_values,
         "evol",
