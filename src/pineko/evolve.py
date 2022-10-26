@@ -4,6 +4,7 @@ import pathlib
 
 import eko
 import eko.basis_rotation as br
+import eko.compatibility
 import numpy as np
 import pineappl
 import rich
@@ -13,9 +14,17 @@ import yaml
 
 from . import check, comparator, ekompatibility, version
 
+DEFAULT_PIDS = [-5, -4, -3, -2, -1, 21, 22, 1, 2, 3, 4, 5]
 
-def write_operator_card_from_file(pineappl_path, default_card_path, card_path, xif):
+
+def write_operator_card_from_file(
+    pineappl_path, default_card_path, card_path, xif, tcard
+):
     """Generate operator card for a grid.
+
+    Note
+    ----
+    For the reason why `tcard` is required, see :func:`write_operator_card`.
 
     Parameters
     ----------
@@ -27,6 +36,8 @@ def write_operator_card_from_file(pineappl_path, default_card_path, card_path, x
         target path
     xif : float
         factorization scale variation
+    tcard: dict
+        theory card for the run
 
     Returns
     -------
@@ -34,6 +45,7 @@ def write_operator_card_from_file(pineappl_path, default_card_path, card_path, x
         written x grid
     q2_grid : np.ndarray
         written Q2 grid
+
     """
     # raise in python rather then rust
     if not pathlib.Path(pineappl_path).exists():
@@ -41,10 +53,10 @@ def write_operator_card_from_file(pineappl_path, default_card_path, card_path, x
     pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
     with open(default_card_path, encoding="UTF-8") as f:
         default_card = yaml.safe_load(f)
-    return write_operator_card(pineappl_grid, default_card, card_path, xif)
+    return write_operator_card(pineappl_grid, default_card, card_path, xif, tcard)
 
 
-def write_operator_card(pineappl_grid, default_card, card_path, xif):
+def write_operator_card(pineappl_grid, default_card, card_path, xif, tcard):
     """Generate operator card for this grid.
 
     Parameters
@@ -57,6 +69,9 @@ def write_operator_card(pineappl_grid, default_card, card_path, xif):
         target path
     xif : float
         factorization scale variation
+    tcard: dict
+        theory card for the run, since some information in EKO is now required
+        in operator card, but before was in the theory card
 
     Returns
     -------
@@ -64,6 +79,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, xif):
         written x grid
     q2_grid : np.ndarray
         written Q2 grid
+
     """
     operators_card = copy.deepcopy(default_card)
     x_grid, _pids, _mur2_grid, muf2_grid = pineappl_grid.axes()
@@ -75,8 +91,20 @@ def write_operator_card(pineappl_grid, default_card, card_path, xif):
         x_grid_int = copy.deepcopy(x_grid.tolist())
         x_grid_int.append(1.0)
         operators_card["interpolation_xgrid"] = list(x_grid_int)
+
+    def provide_if_missing(key, default):
+        if key not in operators_card:
+            operators_card[key] = default
+
+    provide_if_missing("n_integration_cores", 1)
+    provide_if_missing("inputgrid", operators_card["interpolation_xgrid"])
+    provide_if_missing("targetgrid", operators_card["interpolation_xgrid"])
+    provide_if_missing("inputpids", DEFAULT_PIDS)
+    provide_if_missing("targetpids", DEFAULT_PIDS)
+
+    _, new_operators_card = eko.compatibility.update(tcard, operators_card)
     with open(card_path, "w", encoding="UTF-8") as f:
-        yaml.safe_dump(operators_card, f)
+        yaml.safe_dump(new_operators_card, f)
     return x_grid, q2_grid
 
 
