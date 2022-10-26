@@ -29,6 +29,16 @@ def benchmark_write_operator_card_from_file(tmp_path, test_files):
     assert np.allclose(myopcard["inputgrid"], x_grid)
     assert np.allclose(myopcard["inputpids"], PIDS)
     assert np.allclose(myopcard["targetpids"], PIDS)
+    # In order to check if the operator card is enough for eko, let's compute the eko
+    tcard = pineko.theory_card.load(208)
+    # I need smaller x and q grids in order to compute a small eko
+    small_x_grid = [1.0e-6, 1.0e-5, 1.0e-4, 1.0e-3, 1.0e-2, 1.0e-1, 1.0]
+    small_q2_grid = [100.0]
+    myopcard["xgrid"] = small_x_grid
+    myopcard["targetgrid"] = small_x_grid
+    myopcard["inputgrid"] = small_x_grid
+    myopcard["Q2grid"] = small_q2_grid
+    ops = eko.run_dglap(theory_card=tcard, operators_card=myopcard)
     with pytest.raises(FileNotFoundError):
         x_grid, q2_grid = pineko.evolve.write_operator_card_from_file(
             wrong_pine_path, default_path, target_path, 1.0
