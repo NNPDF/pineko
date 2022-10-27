@@ -2,6 +2,8 @@ import os
 import pathlib
 
 import pineko
+import pineko.configs
+import pineko.theory
 
 theory_obj = pineko.theory.TheoryBuilder(208, ["LHCB_Z_13TEV_DIMUON"])
 theory_obj_hera = pineko.theory.TheoryBuilder(208, ["HERACOMBCCEM"])
