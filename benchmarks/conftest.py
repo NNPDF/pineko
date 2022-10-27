@@ -4,18 +4,20 @@ from contextlib import contextmanager
 import pytest
 
 import pineko
+import pineko.configs
+
+
+@pytest.fixture
+def test_files():
+    return pathlib.Path(__file__).parents[0] / "data_files/"
 
 
 @pytest.fixture
 def test_configs(test_files):
     config_path = pineko.configs.detect(test_files)
     base_configs = pineko.configs.load(config_path)
-    return base_configs
-
-
-@pytest.fixture
-def test_files():
-    return pathlib.Path(__file__).parents[0] / "data_files/"
+    pineko.configs.configs = pineko.configs.defaults(base_configs)
+    return pineko.configs.configs
 
 
 @pytest.fixture

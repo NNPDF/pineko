@@ -99,9 +99,9 @@ def write_operator_card(pineappl_grid, default_card, card_path, xif, tcard):
         x_grid_int.append(1.0)
         operators_card["interpolation_xgrid"] = list(x_grid_int)
 
-    def provide_if_missing(key, default):
-        if key not in operators_card:
-            operators_card[key] = default
+    def provide_if_missing(key, default, card=operators_card):
+        if key not in card:
+            card[key] = default
 
     provide_if_missing("n_integration_cores", 1)
     provide_if_missing("inputgrid", operators_card["interpolation_xgrid"])

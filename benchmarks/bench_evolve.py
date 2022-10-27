@@ -10,18 +10,20 @@ import yaml
 from eko import couplings as sc
 
 import pineko
+import pineko.evolve
+import pineko.theory_card
 
 
-def benchmark_write_operator_card_from_file(tmp_path, test_files):
+def benchmark_write_operator_card_from_file(tmp_path, test_files, test_configs):
     pine_path = test_files / "data/grids/208/HERA_CC_318GEV_EM_SIGMARED.pineappl.lz4"
     default_path = test_files / "data/operator_cards/_template.yaml"
     target_path = pathlib.Path(tmp_path / "test_operator.yaml")
 
     # Load the theory card
-    tcard = pineko.theory_card.load(208)
+    tcard_path = pineko.theory_card.path(208)
 
-    x_grid, q2_grid = pineko.evolve.write_operator_card_from_file(
-        pine_path, default_path, target_path, 1.0, tcard
+    x_grid, _q2_grid = pineko.evolve.write_operator_card_from_file(
+        pine_path, default_path, target_path, 1.0, tcard_path
     )
 
     # Load the operator card
@@ -35,21 +37,31 @@ def benchmark_write_operator_card_from_file(tmp_path, test_files):
 
     wrong_pine_path = test_files / "data/grids/208/HERA_CC_318GEV_EM_wrong.pineappl.lz4"
     with pytest.raises(FileNotFoundError):
-        x_grid, q2_grid = pineko.evolve.write_operator_card_from_file(
-            wrong_pine_path, default_path, target_path, 1.0, tcard
+        _ = pineko.evolve.write_operator_card_from_file(
+            wrong_pine_path, default_path, target_path, 1.0, tcard_path
         )
 
 
-def benchmark_dglap(tmp_path):
+def benchmark_dglap(tmp_path, test_files, test_configs):
+    pine_path = test_files / "data/grids/208/HERA_CC_318GEV_EM_SIGMARED.pineappl.lz4"
+    default_path = test_files / "data/operator_cards/_template.yaml"
     target_path = pathlib.Path(tmp_path / "test_operator.yaml")
 
+    theory_id = 208
     # In order to check if the operator card is enough for eko, let's compute the eko
-    tcard = pineko.theory_card.load(208)
+    tcard = eko.compatibility.update_theory(pineko.theory_card.load(theory_id))
+    if "ModSV" not in tcard:
+        tcard["ModSV"] = "expanded"
+
+    pineko.evolve.write_operator_card_from_file(
+        pine_path, default_path, target_path, 1.0, pineko.theory_card.path(theory_id)
+    )
+
     # Load the opcard
     myopcard = yaml.safe_load(target_path.read_text(encoding="utf-8"))
 
     # I need smaller x and q grids in order to compute a small eko
-    small_x_grid = [1.0e-6, 1.0e-5, 1.0e-4, 1.0e-3, 1.0e-2, 1.0e-1, 1.0]
+    small_x_grid = np.geomspace(1e-3, 1.0, 5)
     small_q2_grid = [100.0]
     myopcard["xgrid"] = small_x_grid
     myopcard["targetgrid"] = small_x_grid
@@ -59,7 +71,10 @@ def benchmark_dglap(tmp_path):
     # upgrade cards layout
     newtcard, newocard = eko.compatibility.update(tcard, myopcard)
 
-    _ = eko.run_dglap(theory_card=newtcard, operators_card=newocard)
+    # we are only interested in checking the configuration
+    # instatianting a runner is mostly sufficient
+    # TODO: speed up this step, and run a full run_dglap
+    _ = eko.runner.Runner(theory_card=newtcard, operators_card=newocard)
 
 
 def benchmark_evolve_grid(tmp_path, lhapdf_path, test_files, test_pdf):
