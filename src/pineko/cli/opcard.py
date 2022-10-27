@@ -11,10 +11,10 @@ from ._base import command
 @click.argument(
     "default-card-path", metavar="DEFAULT_CARD", type=click.Path(exists=True)
 )
-@click.argument("opcard-path", metavar="OPCARD", type=click.Path())
 @click.argument("thcard-path", metavar="THCARD", type=click.Path())
+@click.argument("opcard-path", metavar="OPCARD", type=click.Path())
 @click.option("--xif", default=1.0, help="factorization scale variation")
-def subcommand(pineappl_path, default_card_path, opcard_path, thcard_path, xif):
+def subcommand(pineappl_path, default_card_path, thcard_path, opcard_path, xif):
     """Write EKO card for PineAPPL grid.
 
     Writes a copy of the default card from DEFAULT_CARD to OPCARD

@@ -1,5 +1,6 @@
 """Tools related to evolution/eko."""
 import copy
+import os
 import pathlib
 
 import eko
@@ -18,7 +19,11 @@ DEFAULT_PIDS = [-5, -4, -3, -2, -1, 21, 22, 1, 2, 3, 4, 5]
 
 
 def write_operator_card_from_file(
-    pineappl_path, default_card_path, card_path, xif, tcard
+    pineappl_path: os.PathLike,
+    default_card_path: os.PathLike,
+    card_path: os.PathLike,
+    xif: float,
+    tcard_path: os.PathLike,
 ):
     """Generate operator card for a grid.
 
@@ -36,7 +41,7 @@ def write_operator_card_from_file(
         target path
     xif : float
         factorization scale variation
-    tcard: dict
+    tcard_path: dict
         theory card for the run
 
     Returns
@@ -51,8 +56,10 @@ def write_operator_card_from_file(
     if not pathlib.Path(pineappl_path).exists():
         raise FileNotFoundError(pineappl_path)
     pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
-    with open(default_card_path, encoding="UTF-8") as f:
-        default_card = yaml.safe_load(f)
+    default_card = yaml.safe_load(
+        pathlib.Path(default_card_path).read_text(encoding="utf-8")
+    )
+    tcard = yaml.safe_load(pathlib.Path(tcard_path).read_text(encoding="utf-8"))
     return write_operator_card(pineappl_grid, default_card, card_path, xif, tcard)
 
 
