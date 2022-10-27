@@ -60,9 +60,17 @@ def benchmark_opcard_cli(tmp_path, test_files):
     )
     default_card_path = pathlib.Path(test_files / "data/operator_cards/_template.yaml")
     target_path = pathlib.Path(tmp_path / "test_ope_card.yaml")
+    th_path = pathlib.Path(tmp_path / "test_ope_card.yaml")
     runner = CliRunner()
     result = runner.invoke(
-        command, ["opcard", str(grid_path), str(default_card_path), str(target_path)]
+        command,
+        [
+            "opcard",
+            str(grid_path),
+            str(default_card_path),
+            str(target_path),
+            str(thcard_path),
+        ],
     )
     assert "Success" in result.output
 
