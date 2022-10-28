@@ -2,7 +2,6 @@
 import copy
 import pathlib
 
-import appdirs
 import tomli
 
 name = "pineko.toml"
@@ -94,19 +93,25 @@ def detect(path=None):
     pathlib.Path :
         file path
     """
-    paths = []
-
+    # If a path is provided then we only look for the pineko.toml file there.
     if path is not None:
         path = pathlib.Path(path)
-        paths.append(path)
+        configs_file = path / name if path.is_dir() else path
+        if configs_file.is_file():
+            return configs_file
+        else:
+            raise ValueError(
+                "Provided path is not pointing to (or does not contain) the pineko.toml file"
+            )
 
-    paths.append(pathlib.Path.cwd())
-    paths.append(pathlib.Path.home())
-    paths.append(pathlib.Path(appdirs.user_config_dir()))
-    paths.append(pathlib.Path(appdirs.site_config_dir()))
+    # If no path is provided we need to look after the file.
+    # We want to check cwd and all its parent folders (without their subfolders
+    # of course) up to root.
+    cwd_path = pathlib.Path.cwd().absolute()
+    paths = [cwd_path] + list(cwd_path.parents)
 
     for p in paths:
-        configs_file = p / name if p.is_dir() else p
+        configs_file = p / name
 
         if configs_file.is_file():
             return configs_file
