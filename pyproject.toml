@@ -24,7 +24,7 @@ packages = [{ include = "pineko", from = "src" }]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
-eko = "^0.10.2"
+eko = "^0.11.1"
 pineappl = "^0.5.7"
 PyYAML = "^6.0"
 numpy = "^1.21.0"
@@ -65,7 +65,7 @@ pineko = "pineko:command"
 [tool.poe.tasks]
 test = "pytest tests"
 bench.cmd = "pytest benchmarks"
-bench.env.NUMBA_DISABLE_JIT.default = "0"
+bench.env.NUMBA_DISABLE_JIT.default = "1"
 lint = "pylint src/**/*.py -E"
 lint-warnings = "pylint src/**/*.py --exit-zero"
 pineko = "pineko"

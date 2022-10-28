@@ -10,6 +10,7 @@ import time
 
 import eko
 import eko.compatibility
+import eko.output.legacy
 import numpy as np
 import pineappl
 import rich
@@ -202,7 +203,7 @@ class TheoryBuilder:
                 f(name, grid, **kwargs)
             rich.print()
 
-    def opcard(self, name, grid, xif):
+    def opcard(self, name, grid, xif, tcard_path):
         """Write a single operator card.
 
         Parameters
@@ -213,6 +214,9 @@ class TheoryBuilder:
             path to grid
         xif : float
             factorization scale
+        tcard_path : os.PathLike
+            path to theory card :func:`pineko.evolve.write_operator_card`
+
         """
         opcard_path = self.operator_cards_path / f"{name}.yaml"
         if opcard_path.exists():
@@ -224,6 +228,7 @@ class TheoryBuilder:
             configs.configs["paths"]["operator_card_template"],
             opcard_path,
             xif,
+            tcard_path,
         )
         if opcard_path.exists():
             rich.print(
@@ -390,8 +395,8 @@ class TheoryBuilder:
         # q2_grid = ocard["Q2grid"]
 
         # loading ekos
-        operators = eko.output.Output.load_tar(eko_filename)
-        muf2_grid = operators["Q2grid"].keys()
+        operators = eko.output.legacy.load_tar(eko_filename)
+        muf2_grid = operators.Q2grid
         # PineAPPL wants alpha_s = 4*pi*a_s
         # remember that we already accounted for xif in the opcard generation
         alphas_values = [
@@ -416,6 +421,7 @@ class TheoryBuilder:
             grid,
             operators,
             fk_filename,
+            astrong,
             max_as,
             max_al,
             xir=xir,

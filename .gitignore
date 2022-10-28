@@ -129,3 +129,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Benchmark files
+benchmarks/data_files
+benchmarks/fakepdfs

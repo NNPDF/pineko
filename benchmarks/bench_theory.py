@@ -2,6 +2,9 @@ import os
 import pathlib
 
 import pineko
+import pineko.configs
+import pineko.theory
+import pineko.theory_card
 
 theory_obj = pineko.theory.TheoryBuilder(208, ["LHCB_Z_13TEV_DIMUON"])
 theory_obj_hera = pineko.theory.TheoryBuilder(208, ["HERACOMBCCEM"])
@@ -71,12 +74,15 @@ def benchmark_inherit_ekos(test_files):
     folder_path.rmdir()
 
 
-def benchmark_opcard(test_files):
+def benchmark_opcard(test_files, test_configs):
+    th_path = pineko.theory_card.path(208)
+
     grid_name = "LHCB_DY_13TEV_DIMUON"
     theory_obj.opcard(
         grid_name,
         pathlib.Path(test_files / "data/grids/208/LHCB_DY_13TEV_DIMUON.pineappl.lz4"),
         1.0,
+        th_path,
     )
     op_path = pathlib.Path(
         test_files / theory_obj.operator_cards_path / "LHCB_DY_13TEV_DIMUON.yaml"
@@ -85,6 +91,7 @@ def benchmark_opcard(test_files):
         grid_name,
         pathlib.Path(test_files / "data/grids/208/LHCB_DY_13TEV_DIMUON.pineappl.lz4"),
         1.0,
+        th_path,
     )
     if os.path.exists(op_path):
         os.remove(op_path)
@@ -92,7 +99,9 @@ def benchmark_opcard(test_files):
         raise ValueError("operator card not found")
 
 
-def benchmark_eko(test_files):
+def benchmark_eko(test_files, test_configs):
+    th_path = pineko.theory_card.path(208)
+
     grid_name = "LHCB_DY_13TEV_DIMUON"
     grid_path = pathlib.Path(theory_obj.grids_path() / (grid_name + ".pineappl.lz4"))
     base_configs = pineko.configs.load(test_files)
@@ -103,7 +112,7 @@ def benchmark_eko(test_files):
         "208-LHCB_DY_13TEV_DIMUON.log",
         ["208-LHCB_DY_13TEV_DIMUON.log"],
     )
-    theory_obj.opcard(grid_name, pathlib.Path(test_files / grid_path), 1.0)
+    theory_obj.opcard(grid_name, pathlib.Path(test_files / grid_path), 1.0, th_path)
 
     theory_obj.eko(grid_name, grid_path, tcard)
 
@@ -135,7 +144,9 @@ def benchmark_activate_logging(test_files):
         raise ValueError("log file not found")
 
 
-def benchmark_fk(test_files):
+def benchmark_fk(test_files, test_configs):
+    th_path = pineko.theory_card.path(208)
+
     grid_name = "HERA_CC_318GEV_EM_SIGMARED"
     grid_path = pathlib.Path(
         theory_obj_hera.grids_path() / (grid_name + ".pineappl.lz4")
@@ -148,7 +159,9 @@ def benchmark_fk(test_files):
         "208-HERA_CC_318GEV_EM_SIGMARED.log",
         ["208-HERA_CC_318GEV_EM_SIGMARED.log"],
     )
-    theory_obj_hera.opcard(grid_name, pathlib.Path(test_files / grid_path), 1.0)
+    theory_obj_hera.opcard(
+        grid_name, pathlib.Path(test_files / grid_path), 1.0, th_path
+    )
 
     theory_obj_hera.fk(grid_name, grid_path, tcard, pdf=None)
     # test overwrite function
