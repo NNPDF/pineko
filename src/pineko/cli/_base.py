@@ -1,10 +1,6 @@
-# -*- coding: utf-8 -*-
 """Adds global CLI options."""
-import pathlib
 
 import click
-
-from .. import configs
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 

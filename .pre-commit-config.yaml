@@ -12,12 +12,11 @@ repos:
       - id: check-toml
       - id: check-merge-conflict
       - id: debug-statements
-      - id: fix-encoding-pragma
       - id: check-merge-conflict
       - id: check-case-conflict
       - id: check-ast
   - repo: https://github.com/psf/black
-    rev: 22.8.0
+    rev: 22.10.0
     hooks:
       - id: black
   - repo: https://github.com/asottile/blacken-docs
@@ -30,13 +29,13 @@ repos:
       - id: isort
         args: ["--profile", "black"]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.38.0
+    rev: v3.1.0
     hooks:
       - id: pyupgrade
   - repo: https://github.com/pycqa/pydocstyle
     rev: 6.1.1
     hooks:
-    -   id: pydocstyle
+      - id: pydocstyle
         files: ^src/
         additional_dependencies:
           - toml

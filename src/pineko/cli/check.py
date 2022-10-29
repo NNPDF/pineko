@@ -1,7 +1,9 @@
-# -*- coding: utf-8 -*-
 """CLI entry point to check compatibility."""
+from collections import namedtuple
+from enum import Enum, auto
+
 import click
-import eko.output
+import eko.output.legacy
 import pineappl
 import rich
 
@@ -28,7 +30,7 @@ def sub_compatibility(grid_path, operator_path, xif):
 
     """
     pineappl_grid = pineappl.grid.Grid.read(grid_path)
-    operators = eko.output.Output.load_tar(operator_path)
+    operators = eko.output.legacy.load_tar(operator_path)
     try:
         check.check_grid_and_eko_compatible(pineappl_grid, operators, xif)
         rich.print("[green]Success:[/] grids are compatible")
@@ -36,12 +38,32 @@ def sub_compatibility(grid_path, operator_path, xif):
         rich.print("[red]Error:[/]", e)
 
 
+CouplingInfo = namedtuple("CouplingInfo", ["descr", "theory"])
+
+
+class Coupling(Enum):
+    """Auxiliary class to list the possible couplings."""
+
+    AS = CouplingInfo("strong", "QCD")
+    AL = CouplingInfo("electromagnetic", "QED")
+
+
+ScaleValue = namedtuple("ScaleValue", ["descr", "check"])
+
+
+class Scale(Enum):
+    """Auxiliary class to list the possible scale variations."""
+
+    REN = ScaleValue("renormalization scale variations", check.contains_ren)
+    FACT = ScaleValue("factorization scale variations", check.contains_fact)
+
+
 @subcommand.command("scvar")
 @click.argument("grid_path", metavar="PINEAPPL", type=click.Path(exists=True))
 @click.argument(
     "scale",
     metavar="SCALE",
-    type=click.Choice(["ren", "fact"]),
+    type=click.Choice(list(el.name for el in Scale), case_sensitive=False),
 )
 @click.argument("max_as_order", metavar="AS_ORDER", type=int)
 @click.argument("max_al_order", metavar="AL_ORDER", type=int)
@@ -49,41 +71,19 @@ def sub_scvar(grid_path, scale, max_as_order, max_al_order):
     """Check if PineAPPL grid contains requested scale variations for the requested order."""
     grid = pineappl.grid.Grid.read(grid_path)
     grid.optimize()
-    if scale == "ren":
-        is_ren_as, is_ren_al = check.contains_ren(grid, max_as_order, max_al_order)
-        if is_ren_as:
-            rich.print(
-                "[green]Success:[/] grids contain renormalization scale variations for as"
-            )
+    success = "[green]Success:[/] grids contain"
+    error = "[red]Error:[/] grids do not contain"
+    # Call the function
+    try:
+        conditions = Scale[scale].value.check(grid, max_as_order, max_al_order)
+    except KeyError:
+        raise ValueError("Scale variation to check can be one between ren and fact")
+    for coupling, condition in zip(Coupling, conditions):
+        to_write = ""
+        if condition:
+            to_write += success
         else:
-            rich.print(
-                "[red]Error:[/] grids do not contain renormalization scale variations for as"
-            )
-        if is_ren_al:
-            rich.print(
-                "[green]Success:[/] grids contain renormalization scale variations for al"
-            )
-        else:
-            rich.print(
-                "[red]Error:[/] grids do not contain renormalization scale variations for al"
-            )
-    elif scale == "fact":
-        is_fact_as, is_fact_al = check.contains_fact(grid, max_as_order, max_al_order)
-        if is_fact_as:
-            rich.print(
-                "[green]Success:[/] grids contain factorization scale variations for as"
-            )
-        else:
-            rich.print(
-                "[red]Error:[/] grids do not contain factorization scale variations for as"
-            )
-        if is_fact_al:
-            rich.print(
-                "[green]Success:[/] grids contain factorization scale variations for al"
-            )
-        else:
-            rich.print(
-                "[red]Error:[/] grids do not contain factorization scale variations for al"
-            )
-    else:
-        raise ValueError("Scale variation to check can be one between xir and xif")
+            to_write += error
+        to_write += " " + Scale[scale].value.descr
+        to_write += f" for {coupling.name.lower()}"
+        rich.print(to_write)

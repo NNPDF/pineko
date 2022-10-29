@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Tools to check compatibility of EKO and grid."""
 import numpy as np
 import pineappl
@@ -50,7 +49,7 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif):
     ----------
     pineappl_grid : pineappl.grid.Grid
         grid
-    operators : eko.output.Output
+    operators : eko.output.struct.EKO
         operators
     xif : float
         factorization scale variation
@@ -63,15 +62,15 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif):
     x_grid, _pids, _mur2_grid, muf2_grid = pineappl_grid.axes()
     # Q2 grid
     if not np.all(
-        in1d(
-            np.unique(list(operators["Q2grid"].keys())), xif * xif * np.array(muf2_grid)
-        )
+        in1d(np.unique(list(operators.Q2grid)), xif * xif * np.array(muf2_grid))
     ):
         raise ValueError(
             "Q2 grid in pineappl grid and eko operator are NOT compatible!"
         )
     # x-grid
-    if not np.all(in1d(np.unique(operators["targetgrid"]), np.array(x_grid))):
+    if not np.all(
+        in1d(np.unique(operators.rotations.targetgrid.tolist()), np.array(x_grid))
+    ):
         raise ValueError("x grid in pineappl grid and eko operator are NOT compatible!")
 
 
@@ -101,7 +100,9 @@ def is_fonll_b(fns, lumi):
 
 
 def contains_fact(grid, max_as, max_al):
-    """Check whether factorization scale-variations are available in the pineappl grid for the requested order.
+    """Check whether fact scale-variations are available.
+
+    The order is specified by max_as and max_al.
 
     Parameters
     ----------

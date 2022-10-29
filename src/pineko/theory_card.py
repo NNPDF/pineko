@@ -1,11 +1,30 @@
-# -*- coding: utf-8 -*-
 """Tools related to theory cards."""
+import pathlib
+from typing import Any, Dict
+
 import yaml
 
 from . import configs
 
 
-def load(theory_id):
+def path(theory_id: int) -> pathlib.Path:
+    """Determine path to theory card.
+
+    Parameters
+    ----------
+    theory_id : int
+        theory id
+
+    Returns
+    -------
+    pathlib.Path
+        theory card path
+
+    """
+    return configs.configs["paths"]["theory_cards"] / f"{theory_id}.yaml"
+
+
+def load(theory_id: int) -> Dict[str, Any]:
     """Load a theory card.
 
     Parameters
@@ -17,9 +36,9 @@ def load(theory_id):
     -------
     theory_card : dict
         theory card
+
     """
-    tcard_path = configs.configs["paths"]["theory_cards"] / f"{theory_id}.yaml"
-    with open(tcard_path, encoding="utf-8") as f:
+    with open(path(theory_id), encoding="utf-8") as f:
         theory_card = yaml.safe_load(f)
     return theory_card
 
