@@ -32,15 +32,9 @@ def benchmark_write_operator_card_from_file(tmp_path, test_files, test_configs):
     assert np.allclose(myopcard["rotations"]["xgrid"], x_grid)
     assert np.allclose(myopcard["rotations"]["targetgrid"], x_grid)
     assert np.allclose(myopcard["rotations"]["inputgrid"], x_grid)
-    # I am now testing if the keys that I removed are missing as they should
-    with pytest.raises(KeyError):
-        myopcard["rotations"]["inputpids"]
-    with pytest.raises(KeyError):
-        myopcard["rotations"]["targetpids"]
-    with pytest.raises(KeyError):
-        myopcard["inputpids"]
-    with pytest.raises(KeyError):
-        myopcard["targetpids"]
+    assert np.allclose(myopcard["rotations"]["inputpids"], pineko.evolve.DEFAULT_PIDS)
+    assert np.allclose(myopcard["rotations"]["targetpids"], pineko.evolve.DEFAULT_PIDS)
+
     wrong_pine_path = test_files / "data/grids/208/HERA_CC_318GEV_EM_wrong.pineappl.lz4"
     with pytest.raises(FileNotFoundError):
         _ = pineko.evolve.write_operator_card_from_file(
