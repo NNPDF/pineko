@@ -159,7 +159,9 @@ nnlosv2g = np.array(
 
 # compute splitting functions
 mygrid = eko.interpolation.XGrid(out["interpolation_xgrid"])
-interp = interpolation.InterpolatorDispatcher(mygrid, 4)
+interp = interpolation.InterpolatorDispatcher(
+    mygrid, out["interpolation_polynomial_degree"], mode_N=False
+)
 pqq0 = convolute_operator(lo.pqq(5), interp)[0].T
 pqg0 = convolute_operator(lo.pqg(5), interp)[0].T / 10  # * 55 / 100
 pgq0 = convolute_operator(nlo.pgq0(5), interp)[0].T
@@ -252,19 +254,19 @@ def check_yad_sv(plot=False):
             plt.show()
 
 
-check_yad_sv(True)
+# check_yad_sv(True)
 
 # extract a by comparing C against yadism
 def check_c_res():
     print("check C result")
     if mode_g:
-        op = ac * (nlog + nlosvg * L)
+        op = ab * (nlog + nlosvg * L)
     else:
-        op = loc + ac * (nloc + nlosvc * L)
+        op = loc + ab * (nloc + nlosvc * L)
     print(cc1 / (op @ f))
 
 
-# check_c_res()
+check_c_res()
 
 # check B EKO is K
 # print("check B EKO result")
