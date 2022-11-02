@@ -12,11 +12,14 @@ from eko import compatibility
 from eko import couplings as sc
 from eko import interpolation, output
 from eko.beta import beta_qcd_as2  # find the substitute
+from eko.output import legacy
 from ekomark.apply import apply_pdf
 
 # from eko.output.struct import EKO
 from yadism.coefficient_functions.splitting_functions import lo, nlo
 from yadism.esf.conv import convolute_operator
+
+from pineko import ekompatibility
 
 # mode can be gluon only or charm only
 mode_g = True
@@ -267,58 +270,57 @@ def check_c_res():
 
 
 check_c_res()
-
 # check B EKO is K
-# print("check B EKO result")
-# ekob = output.Output.load_tar("data/ekos/2205/test.tar")
-# fb = apply_pdf(ekob, pdf)
-# if mode_g:
-#     gb = Kgg @ f
-#     cb = Kqg @ f
-# else:
-#     gb = Kgq @ f
-#     cb = Kqq @ f
-# print(fb[300.0]["pdfs"][21] / gb)
-# print(fb[300.0]["pdfs"][4] / cb)
+print("check B EKO result")
+ekob = legacy.load_tar("../data/ekos/2205/test.tar")
+fb = apply_pdf(ekob, pdf)
+if mode_g:
+    gb = Kgg @ f
+    cb = Kqg @ f
+else:
+    gb = Kgq @ f
+    cb = Kqq @ f
+print(fb[300.0]["pdfs"][21] / gb)
+print(fb[300.0]["pdfs"][4] / cb)
 
 # check C EKO is identity
-# print("check C EKO result")
-# ekoc = output.Output.load_tar("data/ekos/3205/test.tar")
-# fc = apply_pdf(ekoc, pdf)
-# if mode_g:
-#     print(fc[2.**2 * 300.]["pdfs"][21]/f)
-#     print(fc[2.**2 * 300.]["pdfs"][4] - np.zeros_like(f))
-# else:
-#     print(fc[2.**2 * 300.]["pdfs"][4]/f)
-#     print(fc[2.**2 * 300.]["pdfs"][21] - np.zeros_like(f))
+print("check C EKO result")
+ekoc = legacy.load_tar("../data/ekos/3205/test.tar")
+fc = apply_pdf(ekoc, pdf)
+if mode_g:
+    print(fc[2.0**2 * 300.0]["pdfs"][21] / f)
+    print(fc[2.0**2 * 300.0]["pdfs"][4] - np.zeros_like(f))
+else:
+    print(fc[2.0**2 * 300.0]["pdfs"][4] / f)
+    print(fc[2.0**2 * 300.0]["pdfs"][21] - np.zeros_like(f))
 
 # check B result
-# print("check B result")
-# if mode_g:
-#     print(bb1 / (((loq + ab * nloq) @ Kqg + (ab * nlog) @ Kgg) @ f))
-#     plt.plot(bb1)
-#     plt.plot((((loq + ab * nloq) @ Kqg + (ab * nlog) @ Kgg) @ f))
-# else:
-#     print(bb1 / (((loc + ab * nloc) @ Kqq + (ab * nlog) @ Kgq) @ f))
-# plt.show()
+print("check B result")
+if mode_g:
+    print(bb1 / (((loq + ab * nloq) @ Kqg + (ab * nlog) @ Kgg) @ f))
+    plt.plot(bb1)
+    plt.plot(((loq + ab * nloq) @ Kqg + (ab * nlog) @ Kgg) @ f)
+else:
+    print(bb1 / (((loc + ab * nloc) @ Kqq + (ab * nlog) @ Kgq) @ f))
+plt.show()
 
 # check difference between B and C
-# print("check B - C")
-# if order_mode == Order.nlo or order_mode == Order.nnlo:
-#     diff_grid = bb1 - cc1
-#     # plt.plot(bb1, label="b-grid")
-#     # plt.plot(cc1, label="c-grid")
-#     if mode_g:
-#         # plt.plot(a**2 * L * ((nloc @ pqg0 @ f)), label="pqg0")
-#         # plt.plot(a**2 * L * ((nlog @ pgg0 @ f)), label="pgg0")
-#         diff_ana = (nlog * (ab - ac) + ac * ab * L * ((nloq @ pqg0) + (nlog @ pgg0))) @ f
-#     else:
-#         # plt.plot(a**2 * L * ((nloc @ pqq0 @ f)), label="pqq0")
-#         # plt.plot(a**2 * L * ((nlog @ pgq0 @ f)), label="pgq0")
-#         diff_ana = (nloc * (ab - ac) + ab * ac * L * ((nloc @ pqq0) + (nlog @ pgq0))) @ f
-#     # print(diff_grid/cc1)
-#     print(bb1 / cc1)
-#     print(diff_grid / diff_ana)
+print("check B - C")
+if order_mode == Order.nlo or order_mode == Order.nnlo:
+    diff_grid = bb1 - cc1
+    plt.plot(bb1, label="b-grid")
+    plt.plot(cc1, label="c-grid")
+    if mode_g:
+        # plt.plot(ab**2 * L * ((nloc @ pqg0 @ f)), label="pqg0")
+        # plt.plot(ab**2 * L * ((nlog @ pgg0 @ f)), label="pgg0")
+        diff_ana = (ab * ab * L * ((nloq @ pqg0) + (nlog @ pgg0))) @ f
+    else:
+        # plt.plot(a**2 * L * ((nloc @ pqq0 @ f)), label="pqq0")
+        # plt.plot(a**2 * L * ((nlog @ pgq0 @ f)), label="pgq0")
+        diff_ana = (ab * ab * L * ((nloc @ pqq0) + (nlog @ pgq0))) @ f
+    print(diff_grid / cc1)
+    print(bb1 / cc1)
+    print(diff_grid / diff_ana)
 #     # plt.plot(diff_grid, label="grid")
 #     # plt.plot(diff_ana, label="ana")
 #     # plt.plot((diff_grid/bb1-1)*100, label="rel err. diff to b")
