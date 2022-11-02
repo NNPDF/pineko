@@ -1,18 +1,18 @@
-# -*- coding: utf-8 -*-
-from enum import Enum
 import sys
+from enum import Enum
+
+import eko
 import lhapdf
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 import pineappl
 import yadism
 import yaml
-import eko
-from eko import interpolation
-from eko import output
-from eko import strong_coupling as sc
+from eko import compatibility
+from eko import couplings as sc
+from eko import interpolation, output
+from eko.beta import beta_qcd_as2  # find the substitute
 from ekomark.apply import apply_pdf
-from eko.beta import beta_0
 
 # from eko.output.struct import EKO
 from yadism.coefficient_functions.splitting_functions import lo, nlo
@@ -36,7 +36,7 @@ class Order(Enum):
 
 order_mode = Order.nonlo
 if len(sys.argv) > 2:
-    om = sys.argv[1].strip().lower()
+    om = sys.argv[2].strip().lower()
     if om == "nlo":
         order_mode = Order.nlo
     elif om == "nnlo":
@@ -47,19 +47,21 @@ if mode_g:
     pdf = lhapdf.mkPDF("gonly", 0)
 else:
     pdf = lhapdf.mkPDF("conly", 0)
-
 # load FK tables
 if order_mode == Order.nonlo:
-    b1 = pineappl.fk_table.FkTable.read("data/fktables/2205/no-nlo-test.pineappl.lz4")
-    c1 = pineappl.fk_table.FkTable.read("data/fktables/3205/no-nlo-test.pineappl.lz4")
+    b1 = pineappl.fk_table.FkTable.read(
+        "../data/fktables/2205/no-nlo-test.pineappl.lz4"
+    )
+    c1 = pineappl.fk_table.FkTable.read(
+        "../data/fktables/3205/no-nlo-test.pineappl.lz4"
+    )
 elif order_mode == Order.nlo:
-    b1 = pineappl.fk_table.FkTable.read("data/fktables/2205/test.pineappl.lz4")
-    c1 = pineappl.fk_table.FkTable.read("data/fktables/3205/test.pineappl.lz4")
+    b1 = pineappl.fk_table.FkTable.read("../data/fktables/2205/test.pineappl.lz4")
+    c1 = pineappl.fk_table.FkTable.read("../data/fktables/3205/test.pineappl.lz4")
 elif order_mode == Order.nnlo:
-    b1 = pineappl.fk_table.FkTable.read("data/fktables/2205/test-nnlo.pineappl.lz4")
-    c1 = pineappl.fk_table.FkTable.read("data/fktables/3205/test-nnlo.pineappl.lz4")
-out = yadism.output.Output.load_tar("test0.tar")
-
+    b1 = pineappl.fk_table.FkTable.read("../data/fktables/2205/test-nnlo.pineappl.lz4")
+    c1 = pineappl.fk_table.FkTable.read("../data/fktables/3205/test-nnlo.pineappl.lz4")
+out = yadism.output.Output.load_tar("../test0.tar")
 # compute predictions from FK
 bb1 = b1.convolute_with_one(2212, pdf.xfxQ2)
 cc1 = c1.convolute_with_one(2212, pdf.xfxQ2)
@@ -156,23 +158,25 @@ nnlosv2g = np.array(
 )
 
 # compute splitting functions
-interp = interpolation.InterpolatorDispatcher.from_dict(out, mode_N=False)
+mygrid = eko.interpolation.XGrid(out["interpolation_xgrid"])
+interp = interpolation.InterpolatorDispatcher(mygrid, 4)
 pqq0 = convolute_operator(lo.pqq(5), interp)[0].T
 pqg0 = convolute_operator(lo.pqg(5), interp)[0].T / 10  # * 55 / 100
 pgq0 = convolute_operator(nlo.pgq0(5), interp)[0].T
 pgg0 = convolute_operator(nlo.pgg0(5), interp)[0].T
 pqq1 = convolute_operator(nlo.pqq1(5), interp)[0].T
 pqg1 = convolute_operator(nlo.pqg1(5), interp)[0].T
-beta0I = beta_0(5) * np.eye(pqg0.shape[0])
+beta0I = beta_qcd_as2(5) * np.eye(pqg0.shape[0])
 
 q2 = 300.0
 muf2 = q2 * 2.0**2
 # load theory card
 with open("data/theory_cards/2205.yaml") as fd:
-    tc = yaml.safe_load(fd)
-astrong = sc.StrongCoupling.from_dict(tc)
+    old_tc = yaml.safe_load(fd)
+tc = eko.compatibility.update_theory(old_tc)
+astrong = sc.Couplings.from_dict(tc)
 # actually, there are two alpha_s values in the game!
-ac = astrong.a_s(muf2)
+# ac = astrong.a_s(muf2)
 ab = astrong.a_s(q2)
 L = np.log(1.0 / 2.0**2)
 
@@ -192,10 +196,10 @@ nloq = 2 * (3 * nlos + 2 * nloc)
 nnloq = 2 * (3 * nnlos + 2 * nnloc)
 
 # construct K
-Kqq = np.eye(len(out["interpolation_xgrid"])) + ac * L * pqq0
-Kgg = np.eye(len(out["interpolation_xgrid"])) + ac * L * pgg0
-Kqg = ac * L * pqg0
-Kgq = ac * L * pgq0
+Kqq = np.eye(len(out["interpolation_xgrid"])) + ab * L * pqq0
+Kgg = np.eye(len(out["interpolation_xgrid"])) + ab * L * pgg0
+Kqg = ab * L * pqg0
+Kgq = ab * L * pgq0
 
 # compute PDFs
 if mode_g:
