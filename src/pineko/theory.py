@@ -239,7 +239,9 @@ class TheoryBuilder:
         """Write operator cards."""
         tcard = theory_card.load(self.theory_id)
         self.operator_cards_path.mkdir(exist_ok=True)
-        self.iterate(self.opcard, xif=tcard["XIF"])
+        self.iterate(
+            self.opcard, xif=tcard["XIF"], tcard_path=theory_card.path(self.theory_id)
+        )
 
     def load_operator_card(self, name):
         """Read current operator card.
