@@ -320,7 +320,7 @@ class TheoryBuilder:
         logger.info("Start computation of %s", name)
         start_time = time.perf_counter()
         ops = eko.run_dglap(theory_card=tcard, operators_card=ocard)
-        ops.deepcopy(eko_filename)
+        ops.dump_tar(eko_filename)
         logger.info(
             "Finished computation of %s - took %f s",
             name,
