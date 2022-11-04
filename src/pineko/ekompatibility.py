@@ -1,7 +1,11 @@
 """Compatibility layer for EKO migration."""
 from typing import Any, Dict
 
+import eko.output
+import eko.output.legacy
 from eko.output.struct import EKO
+
+from . import check
 
 
 def pineappl_layout(operator: EKO) -> Dict[str, Any]:
@@ -31,3 +35,12 @@ def pineappl_layout(operator: EKO) -> Dict[str, Any]:
     oldgrid["inputgrid"] = operator.rotations.inputgrid.raw
 
     return oldgrid
+
+
+def load(eko_filename):
+    """Check if the input eko_filename is a legacy or a new eko operator and load it accordingly."""
+    if check.check_eko_is_legacy(eko_filename):
+        operators = eko.output.legacy.load_tar(eko_filename)
+    else:
+        operators = eko.output.EKO.load(eko_filename)
+    return operators

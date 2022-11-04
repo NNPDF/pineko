@@ -18,7 +18,7 @@ import rich
 import yaml
 from eko import couplings as sc
 
-from . import check, configs, evolve, parser, theory_card
+from . import check, configs, ekompatibility, evolve, parser, theory_card
 
 logger = logging.getLogger(__name__)
 
@@ -398,10 +398,7 @@ class TheoryBuilder:
         # q2_grid = ocard["Q2grid"]
 
         # loading ekos
-        if check.check_eko_is_legacy(eko_filename):
-            operators = eko.output.legacy.load_tar(eko_filename)
-        else:
-            operators = eko.output.EKO.load(eko_filename)
+        operators = ekompatibility.load(eko_filename)
         muf2_grid = operators.Q2grid
         # PineAPPL wants alpha_s = 4*pi*a_s
         # remember that we already accounted for xif in the opcard generation

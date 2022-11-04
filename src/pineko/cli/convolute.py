@@ -9,7 +9,7 @@ import rich
 import yaml
 from eko import couplings as sc
 
-from .. import check, evolve
+from .. import check, ekompatibility, evolve
 from ._base import command
 
 
@@ -51,10 +51,7 @@ def subcommand(
     PDF is an optional PDF set compatible with the EKO to compare grid and FK table.
     """
     grid = pineappl.grid.Grid.read(grid_path)
-    if check.check_eko_is_legacy(op_path):
-        operators = eko.output.legacy.load_tar(op_path)
-    else:
-        operators = eko.output.EKO.load(op_path)
+    operators = ekompatibility.load(op_path)
     # This solution is temporary: the theory card will be available in the eko
     tcard_path = pathlib.Path(tcard_path)
     with open(tcard_path, encoding="utf-8") as f:
