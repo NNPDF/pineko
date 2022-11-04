@@ -204,8 +204,8 @@ def contains_ren(grid, max_as, max_al):
 
 def check_eko_is_legacy(eko_name):
     """Check if the eko tar file is a legacy eko file."""
-    tar = tarfile.open(eko_name)
-    file_names = [file.name for file in tar.getmembers()]
+    with tarfile.open(eko_name) as tar:
+        file_names = [file.name for file in tar.getmembers()]
     legacy_patterns = ["operators.npy.lz4", "operator_errors.npy.lz4"]
     for name in file_names:
         for pattern in legacy_patterns:
