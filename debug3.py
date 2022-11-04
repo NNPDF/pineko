@@ -205,6 +205,14 @@ Kqq = np.eye(len(out["interpolation_xgrid"])) + ab * L * pqq0
 Kgg = np.eye(len(out["interpolation_xgrid"])) + ab * L * pgg0
 Kqg = ab * L * pqg0
 Kgq = ab * L * pgq0
+# We believe to have a minus sign problem so:
+minus_sign = True
+if minus_sign:
+    Kqg = -Kqg
+    Kgq = -Kgq
+    Kqq = np.eye(len(out["interpolation_xgrid"])) - ab * L * pqq0
+    Kgg = np.eye(len(out["interpolation_xgrid"])) - ab * L * pgg0
+
 
 # compute PDFs
 if mode_g:
@@ -298,18 +306,22 @@ else:
 print("check B result")
 if mode_g:
     print(bb1 / (((loq + ab * nloq) @ Kqg + (ab * nlog) @ Kgg) @ f))
-    plt.plot(bb1)
-    plt.plot(((loq + ab * nloq) @ Kqg + (ab * nlog) @ Kgg) @ f)
+    plt.plot(bb1, label="b-fk")
+    plt.plot(((loq + ab * nloq) @ (Kqg) + (ab * nlog) @ (Kgg)) @ f, label="ana_pred")
 else:
     print(bb1 / (((loc + ab * nloc) @ Kqq + (ab * nlog) @ Kgq) @ f))
+    plt.plot(bb1, label="b-fk")
+    plt.plot(((loc + ab * nloc) @ Kqq + (ab * nlog) @ Kgq) @ f, label="ana_pred")
+plt.legend()
 plt.show()
-
 # check difference between B and C
 print("check B - C")
 if order_mode == Order.nlo or order_mode == Order.nnlo:
     diff_grid = bb1 - cc1
     plt.plot(bb1, label="b-grid")
     plt.plot(cc1, label="c-grid")
+    plt.legend()
+    plt.show()
     if mode_g:
         # plt.plot(ab**2 * L * ((nloc @ pqg0 @ f)), label="pqg0")
         # plt.plot(ab**2 * L * ((nlog @ pgg0 @ f)), label="pgg0")
@@ -321,9 +333,9 @@ if order_mode == Order.nlo or order_mode == Order.nnlo:
     print(diff_grid / cc1)
     print(bb1 / cc1)
     print(diff_grid / diff_ana)
-#     # plt.plot(diff_grid, label="grid")
-#     # plt.plot(diff_ana, label="ana")
-#     # plt.plot((diff_grid/bb1-1)*100, label="rel err. diff to b")
-#     # plt.plot(diff_grid/diff_ana, label="ratio")
-#     # plt.legend()
-#     # plt.show()
+    plt.plot(diff_grid, label="grid")
+    plt.plot(diff_ana, label="ana")
+    #     # plt.plot((diff_grid/bb1-1)*100, label="rel err. diff to b")
+    #     # plt.plot(diff_grid/diff_ana, label="ratio")
+    plt.legend()
+    plt.show()
