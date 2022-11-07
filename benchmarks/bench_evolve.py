@@ -34,8 +34,12 @@ def benchmark_write_operator_card_from_file(tmp_path, test_files, test_configs):
     assert np.allclose(myopcard["rotations"]["xgrid"], x_grid)
     assert np.allclose(myopcard["rotations"]["targetgrid"], x_grid)
     assert np.allclose(myopcard["rotations"]["inputgrid"], x_grid)
-    assert np.allclose(myopcard["rotations"]["inputpids"], pineko.evolve.DEFAULT_PIDS)
-    assert np.allclose(myopcard["rotations"]["targetpids"], pineko.evolve.DEFAULT_PIDS)
+    # Checking that inputpids and targetpids have been correctly removed
+    with pytest.raises(KeyError):
+        myopcard["rotations"]["inputpids"]
+        myopcard["rotations"]["targetpids"]
+        myopcard["inputpids"]
+        myopcard["targetpids"]
 
     wrong_pine_path = test_files / "data/grids/208/HERA_CC_318GEV_EM_wrong.pineappl.lz4"
     with pytest.raises(FileNotFoundError):
