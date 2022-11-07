@@ -33,16 +33,12 @@ def benchmark_write_operator_card_from_file(tmp_path, test_files, test_configs):
     # Check if it contains all the information for eko
     assert np.allclose(myopcard["rotations"]["xgrid"], x_grid)
     # Checking that inputpids and targetpids have been correctly removed
-    with pytest.raises(KeyError):
-        myopcard["rotations"]["inputpids"]
-        myopcard["rotations"]["targetpids"]
-        myopcard["inputpids"]
-        myopcard["targetpids"]
-        myopcard["rotations"]["inputgrid"]
-        myopcard["rotations"]["targetgrid"]
-        myopcard["inputgrid"]
-        myopcard["targetgrid"]
-
+    to_check = ["inputpids", "targetpids", "inputgrid", "targetgrid"]
+    for elem in to_check:
+        with pytest.raises(KeyError):
+            myopcard["elem"]
+        with pytest.raises(KeyError):
+            myopcard["rotations"]["elem"]
     wrong_pine_path = test_files / "data/grids/208/HERA_CC_318GEV_EM_wrong.pineappl.lz4"
     with pytest.raises(FileNotFoundError):
         _ = pineko.evolve.write_operator_card_from_file(
