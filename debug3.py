@@ -45,6 +45,12 @@ if len(sys.argv) > 2:
     elif om == "nnlo":
         order_mode = Order.nnlo
 
+signed = False
+if len(sys.argv) > 3:
+    sig = sys.argv[3].strip().lower()
+    if sig == "signed":
+        signed = True
+
 # load respective PDF set
 if mode_g:
     pdf = lhapdf.mkPDF("gonly", 0)
@@ -206,8 +212,7 @@ Kgg = np.eye(len(out["interpolation_xgrid"])) + ab * L * pgg0
 Kqg = ab * L * pqg0
 Kgq = ab * L * pgq0
 # We believe to have a minus sign problem so:
-minus_sign = True
-if minus_sign:
+if signed:
     Kqg = -Kqg
     Kgq = -Kgq
     Kqq = np.eye(len(out["interpolation_xgrid"])) - ab * L * pqq0
@@ -326,16 +331,25 @@ if order_mode == Order.nlo or order_mode == Order.nnlo:
         # plt.plot(ab**2 * L * ((nloc @ pqg0 @ f)), label="pqg0")
         # plt.plot(ab**2 * L * ((nlog @ pgg0 @ f)), label="pgg0")
         diff_ana = (ab * ab * L * ((nloq @ pqg0) + (nlog @ pgg0))) @ f
+        if signed:
+            diff_ana = (
+                -2 * ab * L * (loq @ pqg0)
+                - ab * ab * L * ((nloq @ pqg0) + (nlog @ pgg0))
+            ) @ f
     else:
         # plt.plot(a**2 * L * ((nloc @ pqq0 @ f)), label="pqq0")
         # plt.plot(a**2 * L * ((nlog @ pgq0 @ f)), label="pgq0")
         diff_ana = (ab * ab * L * ((nloc @ pqq0) + (nlog @ pgq0))) @ f
-    print(diff_grid / cc1)
-    print(bb1 / cc1)
-    print(diff_grid / diff_ana)
+        if signed:
+            diff_ana = (
+                -2 * ab * L * (loc @ pqq0)
+                - ab * ab * L * ((nloc @ pqq0) + (nlog @ pgq0))
+            ) @ f
+    print(((diff_grid / diff_ana) - 1.0) * 100)
     plt.plot(diff_grid, label="grid")
     plt.plot(diff_ana, label="ana")
-    #     # plt.plot((diff_grid/bb1-1)*100, label="rel err. diff to b")
-    #     # plt.plot(diff_grid/diff_ana, label="ratio")
+    plt.legend()
+    plt.show()
+    plt.plot(((diff_grid[1:-5] / diff_ana[1:-5]) - 1.0) * 100, label="ratio")
     plt.legend()
     plt.show()
