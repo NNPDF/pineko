@@ -110,6 +110,13 @@ def write_operator_card(pineappl_grid, default_card, card_path, xif, tcard):
     provide_if_missing("targetpids", DEFAULT_PIDS)
 
     _, new_operators_card = eko.compatibility.update(tcard, operators_card)
+
+    def remove_useless_keys(key_list, card=new_operators_card):
+        for key in key_list:
+            card.pop(key)
+            card["rotations"].pop(key)
+
+    remove_useless_keys(["inputpids", "targetpids"])
     with open(card_path, "w", encoding="UTF-8") as f:
         yaml.safe_dump(new_operators_card, f)
     return x_grid, q2_grid
