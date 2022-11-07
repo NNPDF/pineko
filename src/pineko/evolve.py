@@ -116,7 +116,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, xif, tcard):
             card.pop(key)
             card["rotations"].pop(key)
 
-    remove_useless_keys(["inputpids", "targetpids"])
+    remove_useless_keys(["inputpids", "targetpids", "inputgrid", "targetgrid"])
     with open(card_path, "w", encoding="UTF-8") as f:
         yaml.safe_dump(new_operators_card, f)
     return x_grid, q2_grid
