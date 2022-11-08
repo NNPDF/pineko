@@ -36,9 +36,9 @@ def benchmark_write_operator_card_from_file(tmp_path, test_files, test_configs):
     to_check = ["inputpids", "targetpids", "inputgrid", "targetgrid"]
     for elem in to_check:
         with pytest.raises(KeyError):
-            myopcard["elem"]
+            myopcard[elem]
         with pytest.raises(KeyError):
-            myopcard["rotations"]["elem"]
+            myopcard["rotations"][elem]
     wrong_pine_path = test_files / "data/grids/208/HERA_CC_318GEV_EM_wrong.pineappl.lz4"
     with pytest.raises(FileNotFoundError):
         _ = pineko.evolve.write_operator_card_from_file(
