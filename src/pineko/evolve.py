@@ -163,6 +163,9 @@ def evolve_grid(
         if given, a comparison table (with / without evolution) will be printed
     """
     _x_grid, _pids, mur2_grid, _muf2_grid = grid.axes()
+    eko.output.manipulate.xgrid_reshape(
+        operators, targetgrid=eko.interpolation.XGrid(_x_grid)
+    )
     check.check_grid_and_eko_compatible(grid, operators, xif)
     # rotate to evolution (if doable and necessary)
     if np.allclose(operators.rotations.pids, br.flavor_basis_pids):
