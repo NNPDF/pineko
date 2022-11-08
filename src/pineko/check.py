@@ -70,10 +70,13 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif):
             "Q2 grid in pineappl grid and eko operator are NOT compatible!"
         )
     # x-grid
-    if not np.all(
-        in1d(np.unique(operators.rotations.targetgrid.tolist()), np.array(x_grid))
-    ):
-        raise ValueError("x grid in pineappl grid and eko operator are NOT compatible!")
+    # We are now checking only the shape of the operator
+    myope_targetgridlen = [op.operator.shape[1] for _q2, op in operators.items()]
+    for targetgrid_len in myope_targetgridlen:
+        if targetgrid_len != len(x_grid):
+            raise ValueError(
+                "x grid in pineappl grid and eko operator are NOT compatible!"
+            )
 
 
 def is_fonll_b(fns, lumi):
