@@ -327,9 +327,10 @@ class TheoryBuilder:
         grid.optimize()
         _x_grid, _pids, mur2_grid, _muf2_grid = grid.axes()
         ops.deepcopy(eko_filename)
+        operators = ekompatibility.load(eko_filename)
         # reshape eko according to grid
         eko.output.manipulate.xgrid_reshape(
-            ops, targetgrid=eko.interpolation.XGrid(_x_grid)
+            operators, targetgrid=eko.interpolation.XGrid(_x_grid)
         )
         logger.info(
             "Finished computation of %s - took %f s",
