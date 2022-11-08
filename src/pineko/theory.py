@@ -306,6 +306,10 @@ class TheoryBuilder:
             theory card
         """
         paths = configs.configs["paths"]
+        # loading grid
+        grid = pineappl.grid.Grid.read(_grid)
+        # remove zero subgrid
+        grid.optimize()
         # activate logging
         self.activate_logging(
             paths["logs"]["eko"], f"{self.theory_id}-{name}.log", ("eko",)
@@ -321,6 +325,11 @@ class TheoryBuilder:
         logger.info("Start computation of %s", name)
         start_time = time.perf_counter()
         ops = eko.run_dglap(theory_card=tcard, operators_card=ocard)
+        _x_grid, _pids, mur2_grid, _muf2_grid = grid.axes()
+        # reshape eko
+        eko.output.manipulate.xgrid_reshape(
+            ops, targetgrid=eko.interpolation.XGrid(_x_grid)
+        )
         ops.deepcopy(eko_filename)
         logger.info(
             "Finished computation of %s - took %f s",
