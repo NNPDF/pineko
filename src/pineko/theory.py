@@ -321,7 +321,11 @@ class TheoryBuilder:
         logger.info("Start computation of %s", name)
         start_time = time.perf_counter()
         ops = eko.run_dglap(theory_card=tcard, operators_card=ocard)
-        _x_grid, _pids, mur2_grid, _muf2_grid = _grid.axes()
+        # loading grid
+        grid = pineappl.grid.Grid.read(_grid)
+        # remove zero subgrid
+        grid.optimize()
+        _x_grid, _pids, mur2_grid, _muf2_grid = grid.axes()
         # reshape eko according to grid
         eko.output.manipulate.xgrid_reshape(
             ops, targetgrid=eko.interpolation.XGrid(_x_grid)
