@@ -162,7 +162,7 @@ def evolve_grid(
     comparison_pdf : None or str
         if given, a comparison table (with / without evolution) will be printed
     """
-    _x_grid, _pids, mur2_grid, _muf2_grid = grid.axes()
+    x_grid, _pids, mur2_grid, _muf2_grid = grid.axes()
     check.check_grid_and_eko_compatible(grid, operators, xif)
     # rotate to evolution (if doable and necessary)
     if np.allclose(operators.rotations.pids, br.flavor_basis_pids):
@@ -178,7 +178,7 @@ def evolve_grid(
         mur2_grid = np.array(list(operators.Q2grid))
         alphas_values = [astrong.a_s(q2) for q2 in operators.Q2grid]
     fktable = grid.convolute_eko(
-        ekompatibility.pineappl_layout(operators),
+        ekompatibility.pineappl_layout(operators, x_grid),
         xir * xir * mur2_grid,
         alphas_values,
         "evol",

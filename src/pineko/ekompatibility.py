@@ -8,13 +8,15 @@ from eko.output.struct import EKO
 from . import check
 
 
-def pineappl_layout(operator: EKO) -> Dict[str, Any]:
+def pineappl_layout(operator: EKO, targetgrid) -> Dict[str, Any]:
     """Extract information required by :func:`pineappl.grid.Grid.convolute_eko`.
 
     Parameters
     ----------
     operator: EKO
         an evolution operator in the new layout
+    targetgrid: np.NDarray
+        x_grid of the process scale
 
     Returns
     -------
@@ -30,7 +32,7 @@ def pineappl_layout(operator: EKO) -> Dict[str, Any]:
 
     oldgrid["q2_ref"] = operator.Q02
     oldgrid["targetpids"] = operator.rotations.targetpids
-    oldgrid["targetgrid"] = operator.rotations.targetgrid.raw
+    oldgrid["targetgrid"] = targetgrid
     oldgrid["inputpids"] = operator.rotations.inputpids
     oldgrid["inputgrid"] = operator.rotations.inputgrid.raw
 
