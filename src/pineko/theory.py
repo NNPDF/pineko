@@ -321,6 +321,11 @@ class TheoryBuilder:
         logger.info("Start computation of %s", name)
         start_time = time.perf_counter()
         ops = eko.run_dglap(theory_card=tcard, operators_card=ocard)
+        _x_grid, _pids, mur2_grid, _muf2_grid = _grid.axes()
+        # reshape eko according to grid
+        eko.output.manipulate.xgrid_reshape(
+            ops, targetgrid=eko.interpolation.XGrid(_x_grid)
+        )
         ops.deepcopy(eko_filename)
         logger.info(
             "Finished computation of %s - took %f s",
