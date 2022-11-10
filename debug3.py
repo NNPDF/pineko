@@ -11,7 +11,7 @@ import yaml
 from eko import compatibility
 from eko import couplings as sc
 from eko import interpolation, output
-from eko.beta import beta_qcd_as2  # find the substitute
+from eko.beta import beta_qcd_as2
 from eko.output import legacy
 from ekomark.apply import apply_pdf
 
@@ -58,18 +58,17 @@ else:
     pdf = lhapdf.mkPDF("conly", 0)
 # load FK tables
 if order_mode == Order.nonlo:
-    b1 = pineappl.fk_table.FkTable.read(
-        "../data/fktables/2205/no-nlo-test.pineappl.lz4"
-    )
-    c1 = pineappl.fk_table.FkTable.read(
-        "../data/fktables/3205/no-nlo-test.pineappl.lz4"
-    )
+    b1 = pineappl.fk_table.FkTable.read("data/fktables/2205/no-nlo-test.pineappl.lz4")
+    c1 = pineappl.fk_table.FkTable.read("data/fktables/3205/no-nlo-test.pineappl.lz4")
 elif order_mode == Order.nlo:
-    b1 = pineappl.fk_table.FkTable.read("../data/fktables/2205/test.pineappl.lz4")
-    c1 = pineappl.fk_table.FkTable.read("../data/fktables/3205/test.pineappl.lz4")
+    b1 = pineappl.fk_table.FkTable.read("data/fktables/2205/test.pineappl.lz4")
+    c1 = pineappl.fk_table.FkTable.read("data/fktables/3205/test.pineappl.lz4")
 elif order_mode == Order.nnlo:
-    b1 = pineappl.fk_table.FkTable.read("../data/fktables/2205/test-nnlo.pineappl.lz4")
-    c1 = pineappl.fk_table.FkTable.read("../data/fktables/3205/test-nnlo.pineappl.lz4")
+    # b1 = pineappl.fk_table.FkTable.read("data/fktables/2405/test-nnlo.pineappl.lz4") #this is the one with the wrong sign
+    c1 = pineappl.fk_table.FkTable.read("data/fktables/3405/test-nnlo.pineappl.lz4")
+    b1 = pineappl.fk_table.FkTable.read(
+        "data/fktables/2505/test-nnlo.pineappl.lz4"
+    )  # this is the one produced with the tentative solution of the sign
 out = yadism.output.Output.load_tar("../test0.tar")
 # compute predictions from FK
 bb1 = b1.convolute_with_one(2212, pdf.xfxQ2)
@@ -176,14 +175,22 @@ pqg0 = convolute_operator(lo.pqg(5), interp)[0].T / 10  # * 55 / 100
 pgq0 = convolute_operator(nlo.pgq0(5), interp)[0].T
 pgg0 = convolute_operator(nlo.pgg0(5), interp)[0].T
 pqq1 = convolute_operator(nlo.pqq1(5), interp)[0].T
+# pgg1 = convolute_operator(nlo.pgg1(5), interp)[0].T
+pgg1 = pgg0
 pqg1 = convolute_operator(nlo.pqg1(5), interp)[0].T
+# pgq1 = convolute_operator(nlo.pgq1(5), interp)[0].T
+pgq1 = pgq0
 beta0I = beta_qcd_as2(5) * np.eye(pqg0.shape[0])
-
+beta0 = beta_qcd_as2(5)
 q2 = 300.0
 muf2 = q2 * 2.0**2
 # load theory card
-with open("data/theory_cards/2205.yaml") as fd:
-    old_tc = yaml.safe_load(fd)
+if order_mode == Order.nnlo:
+    with open("data/theory_cards/2405.yaml") as fd:
+        old_tc = yaml.safe_load(fd)
+else:
+    with open("data/theory_cards/2205.yaml") as fd:
+        old_tc = yaml.safe_load(fd)
 tc = eko.compatibility.update_theory(old_tc)
 astrong = sc.Couplings.from_dict(tc)
 # actually, there are two alpha_s values in the game!
@@ -224,8 +231,7 @@ if mode_g:
     f = np.array([pdf.xfxQ2(21, x, muf2) / x for x in out["interpolation_xgrid"]])
 else:
     f = np.array([pdf.xfxQ2(4, x, muf2) / x for x in out["interpolation_xgrid"]])
-
-
+# Todo: Correct this part at nnlo
 def check_yad_sv(plot=False):
     """Check if yadism SV is proportional to splitting functions."""
     print("check yadism SV")
@@ -239,21 +245,24 @@ def check_yad_sv(plot=False):
         ops["nlosv"] = (nlosvg, loq @ pqg0)
         ops["nnlosv1"] = (
             nnlosv1g,
-            loq @ pqg1 + nlog @ (pgg0 - beta0I) + nloq @ pqg0,
+            loq @ pqg1 + nlog @ pgg0 + nloq @ pqg0,
         )
         ops["nnlosv2"] = (
             nnlosv2g,
-            1.0 / 2.0 * loq @ pqq0 @ pqg0 + 1.0 / 2.0 * (loq @ pqg0 @ (pgg0 - beta0I)),
+            (1.0 / 2.0) * loq @ pqq0 @ pqg0
+            + (-beta0) * (1.0 / 2.0) * loq @ pqq0
+            + (1.0 / 2.0) * (loq @ pqg0 @ pgg0)
+            + (-beta0) * (1.0 / 2.0) * (loq @ pqg0),
         )
     else:
         ops["nlosv"] = (nlosvc, loc @ pqq0)
         ops["nnlosv1"] = (
             nnlosv1c,
-            loc @ pqq1 + nloc @ (pqq0 - beta0I) + nlog @ pgq0,
+            loc @ pqq1 + nloc @ pqq0 + nlog @ pgq0,
         )
         ops["nnlosv2"] = (
             nnlosv2c,
-            1.0 / 2.0 * loq @ pqg0 @ pgq0 + 1.0 / 2.0 * (loc @ pqq0 @ (pqq0 - beta0I)),
+            1.0 / 2.0 * loq @ pqg0 @ pgq0 + 1.0 / 2.0 * (loc @ pqq0 @ (pqq0 + beta0I)),
         )
     # print check
     for k, v in ops.items():
@@ -276,16 +285,30 @@ def check_yad_sv(plot=False):
 def check_c_res():
     print("check C result")
     if mode_g:
-        op = ab * (nlog + nlosvg * L)
+        if order_mode == Order.nlo or order_mode == Order.nonlo:
+            op = ab * (nlog + nlosvg * L)
+        if order_mode == Order.nnlo:
+            op_nlo = ab * (nlog + nlosvg * L)
+            op_nnlo = ab * ab * (nnlog + L * nnlosv1g + L * L * nnlosv2g)
+            op = op_nlo + op_nnlo
     else:
-        op = loc + ab * (nloc + nlosvc * L)
+        if order_mode == Order.nlo or order_mode == Order.nonlo:
+            op = loc + ab * (nloc + nlosvc * L)
+        if order_mode == Order.nnlo:
+            op_nlo = loc + ab * (nloc + nlosvc * L)
+            op_nnlo = ab * ab * (nnlog + L * nnlosv1c + L * L * nnlosv2c)
+            op = op_nlo + op_nnlo
+
     print(cc1 / (op @ f))
 
 
 check_c_res()
 # check B EKO is K
 print("check B EKO result")
-ekob = legacy.load_tar("../data/ekos/2205/test.tar")
+if order_mode == Order.nnlo:
+    ekob = output.EKO.load("data/ekos/2405/test-nnlo.tar")
+else:
+    ekob = legacy.load_tar("data/ekos/2205/test.tar")
 fb = apply_pdf(ekob, pdf)
 if mode_g:
     gb = Kgg @ f
@@ -298,7 +321,10 @@ print(fb[300.0]["pdfs"][4] / cb)
 
 # check C EKO is identity
 print("check C EKO result")
-ekoc = legacy.load_tar("../data/ekos/3205/test.tar")
+if order_mode == Order.nnlo:
+    ekoc = output.EKO.load("data/ekos/3405/test-nnlo.tar")
+else:
+    ekoc = legacy.load_tar("data/ekos/3205/test.tar")
 fc = apply_pdf(ekoc, pdf)
 if mode_g:
     print(fc[2.0**2 * 300.0]["pdfs"][21] / f)
@@ -311,14 +337,14 @@ else:
 print("check B result")
 if mode_g:
     print(bb1 / (((loq + ab * nloq) @ Kqg + (ab * nlog) @ Kgg) @ f))
-    plt.plot(bb1, label="b-fk")
-    plt.plot(((loq + ab * nloq) @ (Kqg) + (ab * nlog) @ (Kgg)) @ f, label="ana_pred")
+    # plt.plot(bb1, label="b-fk")
+    # plt.plot(((loq + ab * nloq) @ (Kqg) + (ab * nlog) @ (Kgg)) @ f, label="ana_pred")
 else:
     print(bb1 / (((loc + ab * nloc) @ Kqq + (ab * nlog) @ Kgq) @ f))
-    plt.plot(bb1, label="b-fk")
-    plt.plot(((loc + ab * nloc) @ Kqq + (ab * nlog) @ Kgq) @ f, label="ana_pred")
-plt.legend()
-plt.show()
+    # plt.plot(bb1, label="b-fk")
+    # plt.plot(((loc + ab * nloc) @ Kqq + (ab * nlog) @ Kgq) @ f, label="ana_pred")
+# plt.legend()
+# plt.show()
 # check difference between B and C
 print("check B - C")
 if order_mode == Order.nlo or order_mode == Order.nnlo:
@@ -330,26 +356,107 @@ if order_mode == Order.nlo or order_mode == Order.nnlo:
     if mode_g:
         # plt.plot(ab**2 * L * ((nloc @ pqg0 @ f)), label="pqg0")
         # plt.plot(ab**2 * L * ((nlog @ pgg0 @ f)), label="pgg0")
-        diff_ana = (ab * ab * L * ((nloq @ pqg0) + (nlog @ pgg0))) @ f
-        if signed:
-            diff_ana = (
-                -2 * ab * L * (loq @ pqg0)
-                - ab * ab * L * ((nloq @ pqg0) + (nlog @ pgg0))
+        if order_mode == Order.nlo:
+            diff_ana = (ab * ab * L * ((nloq @ pqg0) + (nlog @ pgg0))) @ f
+            if signed:
+                diff_ana = (
+                    -2 * ab * L * (loq @ pqg0)
+                    - ab * ab * L * ((nloq @ pqg0) + (nlog @ pgg0))
+                ) @ f
+        else:
+            nnlomix = (
+                nlog @ pgg0 @ (pgg0 - beta0I)
+                + nlog @ pgq0 @ (pqg0 - beta0I)
+                + nloq @ pqq0 @ (pqg0 - beta0I)
+                + nloq @ pqg0 @ (pgg0 - beta0I)
+            )
+            nnlomix2 = (
+                nnlog @ pgg0 @ (pgg0 - beta0I)
+                + nnlog @ pgq0 @ (pqg0 - beta0I)
+                + nnloq @ pqq0 @ (pqg0 - beta0I)
+                + nnloq @ pqg0 @ (pgg0 - beta0I)
+            )
+            diff_ana_nnlo = (
+                ab
+                * ab
+                * ab
+                * (
+                    L
+                    * ((nloq @ pqg1) + (nlog @ pgg1) + (nnlog @ pgg0) + (nnloq @ pqg0))
+                    + L * L * ((-1.0 / 2.0) * nnlomix)
+                )
+                + ab
+                * ab
+                * ab
+                * ab
+                * (
+                    L * ((nnlog @ pgg1) + (nnloq @ pqg1))
+                    + L * L * ((-1.0 / 2.0) * (nnlomix2))
+                )
             ) @ f
+            diff_ana = diff_ana_nnlo
+            if signed:
+                diff_ana_nlo = (
+                    -2 * ab * L * (loq @ pqg0)
+                    - ab * ab * L * ((nloq @ pqg0) + (nlog @ pgg0))
+                ) @ f
+                diff_ana_nnlo = 0.0
+                diff_ana = diff_ana_nlo + diff_ana_nnlo
     else:
         # plt.plot(a**2 * L * ((nloc @ pqq0 @ f)), label="pqq0")
         # plt.plot(a**2 * L * ((nlog @ pgq0 @ f)), label="pgq0")
-        diff_ana = (ab * ab * L * ((nloc @ pqq0) + (nlog @ pgq0))) @ f
-        if signed:
-            diff_ana = (
-                -2 * ab * L * (loc @ pqq0)
-                - ab * ab * L * ((nloc @ pqq0) + (nlog @ pgq0))
+        if order_mode == Order.nlo:
+            diff_ana = (ab * ab * L * ((nloc @ pqq0) + (nlog @ pgq0))) @ f
+            if signed:
+                diff_ana = (
+                    -2 * ab * L * (loc @ pqq0)
+                    - ab * ab * L * ((nloc @ pqq0) + (nlog @ pgq0))
+                ) @ f
+        else:
+            nnlomix = (
+                nlog @ pgg0 @ (pgq0 - beta0I)
+                + nlog @ pgq0 @ (pqq0 - beta0I)
+                + nloq @ pqq0 @ (pqq0 - beta0I)
+                + nloq @ pqg0 @ (pgq0 - beta0I)
+            )
+            nnlomix2 = (
+                nnlog @ pgg0 @ (pgq0 - beta0I)
+                + nnlog @ pgq0 @ (pqq0 - beta0I)
+                + nnloq @ pqq0 @ (pqq0 - beta0I)
+                + nnloq @ pqg0 @ (pgq0 - beta0I)
+            )
+            diff_ana_nnlo = (
+                ab
+                * ab
+                * ab
+                * (
+                    L
+                    * ((nloq @ pqq1) + (nlog @ pgq1) + (nnlog @ pgq0) + (nnloq @ pqq0))
+                    + L * L * ((-1.0 / 2.0) * nnlomix)
+                )
+                + ab
+                * ab
+                * ab
+                * ab
+                * (
+                    L * ((nnlog @ pgq1) + (nnloq @ pqq1))
+                    + L * L * ((-1.0 / 2.0) * (nnlomix2))
+                )
             ) @ f
+            diff_ana = diff_ana_nnlo
+            if signed:
+                diff_ana_nlo = (
+                    -2 * ab * L * (loc @ pqq0)
+                    - ab * ab * L * ((nloc @ pqq0) + (nlog @ pgq0))
+                ) @ f
+                diff_ana_nnlo = 0.0
+                diff_ana = diff_ana_nlo + diff_ana_nnlo
+    print((diff_grid / bb1) * 100)
     print(((diff_grid / diff_ana) - 1.0) * 100)
     plt.plot(diff_grid, label="grid")
     plt.plot(diff_ana, label="ana")
     plt.legend()
     plt.show()
-    plt.plot(((diff_grid[1:-5] / diff_ana[1:-5]) - 1.0) * 100, label="ratio")
+    plt.plot(((diff_grid / diff_ana) - 1.0) * 100, label="ratio")
     plt.legend()
     plt.show()
