@@ -52,10 +52,16 @@ if len(sys.argv) > 3:
         signed = True
 
 # load respective PDF set
-if mode_g:
-    pdf = lhapdf.mkPDF("gonly", 0)
+if order_mode == Order.nnlo:
+    if mode_g:
+        pdf = lhapdf.mkPDF("gonly_nnlo", 0)
+    else:
+        pdf = lhapdf.mkPDF("conly_nnlo", 0)
 else:
-    pdf = lhapdf.mkPDF("conly", 0)
+    if mode_g:
+        pdf = lhapdf.mkPDF("gonly", 0)
+    else:
+        pdf = lhapdf.mkPDF("conly", 0)
 # load FK tables
 if order_mode == Order.nonlo:
     b1 = pineappl.fk_table.FkTable.read("data/fktables/2205/no-nlo-test.pineappl.lz4")
@@ -64,11 +70,23 @@ elif order_mode == Order.nlo:
     b1 = pineappl.fk_table.FkTable.read("data/fktables/2205/test.pineappl.lz4")
     c1 = pineappl.fk_table.FkTable.read("data/fktables/3205/test.pineappl.lz4")
 elif order_mode == Order.nnlo:
+    # 2405: bugged version
+    # 2505: the minus sign is globally in K
+    # 2605: the minus sign is in the definition of the gamma
+    # 2705: the minus sign is in the definition of L
+    # 2805: the minus sign is in the definition of beta0 and in the global K
     # b1 = pineappl.fk_table.FkTable.read("data/fktables/2405/test-nnlo.pineappl.lz4") #this is the one with the wrong sign
     c1 = pineappl.fk_table.FkTable.read("data/fktables/3405/test-nnlo.pineappl.lz4")
-    b1 = pineappl.fk_table.FkTable.read(
-        "data/fktables/2505/test-nnlo.pineappl.lz4"
-    )  # this is the one produced with the tentative solution of the sign
+    b1 = pineappl.fk_table.FkTable.read("data/fktables/2505/test-nnlo.pineappl.lz4")
+    # b1 = pineappl.fk_table.FkTable.read(
+    #    "data/fktables/2605/test-nnlo.pineappl.lz4"
+    # )
+    # b1 = pineappl.fk_table.FkTable.read(
+    #    "data/fktables/2705/test-nnlo.pineappl.lz4"
+    # )
+    # b1 = pineappl.fk_table.FkTable.read(
+    #    "data/fktables/2805/test-nnlo.pineappl.lz4"
+    # )
 out = yadism.output.Output.load_tar("../test0.tar")
 # compute predictions from FK
 bb1 = b1.convolute_with_one(2212, pdf.xfxQ2)
@@ -181,7 +199,6 @@ pqg1 = convolute_operator(nlo.pqg1(5), interp)[0].T
 # pgq1 = convolute_operator(nlo.pgq1(5), interp)[0].T
 pgq1 = pgq0  # just to have something, to be substituted with the correct one
 beta0I = beta_qcd_as2(5) * np.eye(pqg0.shape[0])
-beta0 = beta_qcd_as2(5)
 q2 = 300.0
 muf2 = q2 * 2.0**2
 # load theory card
@@ -349,8 +366,8 @@ else:
 print("check B - C")
 if order_mode == Order.nlo or order_mode == Order.nnlo:
     diff_grid = bb1 - cc1
-    plt.plot(bb1, label="b-grid")
-    plt.plot(cc1, label="c-grid")
+    plt.plot(bb1[3:], label="b-grid")
+    plt.plot(cc1[3:], label="c-grid")
     plt.legend()
     plt.show()
     if mode_g:
@@ -364,6 +381,7 @@ if order_mode == Order.nlo or order_mode == Order.nnlo:
                     - ab * ab * L * ((nloq @ pqg0) + (nlog @ pgg0))
                 ) @ f
         else:
+            pgg1 = pgg0
             nnlomix = (
                 nlog @ pgg0 @ (pgg0 - beta0I)
                 + nlog @ pgq0 @ (pqg0 - beta0I)
@@ -413,6 +431,7 @@ if order_mode == Order.nlo or order_mode == Order.nnlo:
                     - ab * ab * L * ((nloc @ pqq0) + (nlog @ pgq0))
                 ) @ f
         else:
+            pgq1 = pgq0
             nnlomix = (
                 nlog @ pgg0 @ (pgq0 - beta0I)
                 + nlog @ pgq0 @ (pqq0 - beta0I)
@@ -451,12 +470,13 @@ if order_mode == Order.nlo or order_mode == Order.nnlo:
                 ) @ f
                 diff_ana_nnlo = 0.0
                 diff_ana = diff_ana_nlo + diff_ana_nnlo
-    print((diff_grid / bb1) * 100)
-    print(((diff_grid / diff_ana) - 1.0) * 100)
-    plt.plot(diff_grid, label="grid")
-    plt.plot(diff_ana, label="ana")
+    print((diff_grid[3:] / bb1[3:]) * 100)
+    print((diff_grid[3:] / cc1[3:]) * 100)
+    print(((diff_grid[3:] / diff_ana[3:]) - 1.0) * 100)
+    plt.plot(diff_grid[3:], label="grid")
+    plt.plot(diff_ana[3:], label="ana")
     plt.legend()
     plt.show()
-    plt.plot(((diff_grid / diff_ana) - 1.0) * 100, label="ratio")
+    plt.plot(((diff_grid[3:] / diff_ana[3:]) - 1.0) * 100, label="ratio")
     plt.legend()
     plt.show()
