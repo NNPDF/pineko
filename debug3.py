@@ -395,21 +395,21 @@ if order_mode == Order.nlo or order_mode == Order.nnlo:
                 + nnloq @ pqg0 @ (pgg0 - beta0I)
             )
             diff_ana_nnlo = (
-                ab
-                * ab
-                * ab
+                (ab * ab * ab)
                 * (
                     L
                     * ((nloq @ pqg1) + (nlog @ pgg1) + (nnlog @ pgg0) + (nnloq @ pqg0))
                     + L * L * ((-1.0 / 2.0) * nnlomix)
                 )
-                + ab
-                * ab
-                * ab
-                * ab
-                * (
-                    L * ((nnlog @ pgg1) + (nnloq @ pqg1))
-                    + L * L * ((-1.0 / 2.0) * (nnlomix2))
+                + (
+                    ab
+                    * ab
+                    * ab
+                    * ab
+                    * (
+                        L * ((nnlog @ pgg1) + (nnloq @ pqg1))
+                        + L * L * ((-1.0 / 2.0) * (nnlomix2))
+                    )
                 )
             ) @ f
             diff_ana = diff_ana_nnlo
@@ -445,18 +445,13 @@ if order_mode == Order.nlo or order_mode == Order.nnlo:
                 + nnloq @ pqg0 @ (pgq0 - beta0I)
             )
             diff_ana_nnlo = (
-                ab
-                * ab
-                * ab
+                (ab * ab * ab)
                 * (
                     L
                     * ((nloq @ pqq1) + (nlog @ pgq1) + (nnlog @ pgq0) + (nnloq @ pqq0))
                     + L * L * ((-1.0 / 2.0) * nnlomix)
                 )
-                + ab
-                * ab
-                * ab
-                * ab
+                + (ab * ab * ab * ab)
                 * (
                     L * ((nnlog @ pgq1) + (nnloq @ pqq1))
                     + L * L * ((-1.0 / 2.0) * (nnlomix2))
