@@ -51,7 +51,6 @@ def enhance_paths(configs_):
         "ymldb",
         "operator_cards",
         "grids",
-        "operator_card_template",
         "theory_cards",
         "fktables",
         "ekos",
