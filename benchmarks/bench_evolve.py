@@ -16,7 +16,7 @@ import pineko.theory_card
 
 def benchmark_write_operator_card_from_file(tmp_path, test_files, test_configs):
     pine_path = test_files / "data/grids/208/HERA_CC_318GEV_EM_SIGMARED.pineappl.lz4"
-    default_path = test_files / "data/operator_cards/_template.yaml"
+    default_path = test_files / "data/operator_cards/208/_template.yaml"
     target_path = pathlib.Path(tmp_path / "test_operator.yaml")
 
     # Load the theory card
@@ -44,7 +44,7 @@ def benchmark_write_operator_card_from_file(tmp_path, test_files, test_configs):
 
 def benchmark_dglap(tmp_path, test_files, test_configs):
     pine_path = test_files / "data/grids/208/HERA_CC_318GEV_EM_SIGMARED.pineappl.lz4"
-    default_path = test_files / "data/operator_cards/_template.yaml"
+    default_path = test_files / "data/operator_cards/208/_template.yaml"
     target_path = pathlib.Path(tmp_path / "test_operator.yaml")
 
     theory_id = 208
