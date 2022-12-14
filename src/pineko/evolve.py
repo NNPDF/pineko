@@ -170,7 +170,7 @@ def evolve_grid(
     if np.isclose(xir, 1.0) and alphas_values is None:
         mur2_grid = np.array(list(operators.Q2grid))
         alphas_values = [astrong.a_s(q2) for q2 in operators.Q2grid]
-    fktable = grid.convolute_eko(
+    fktable = grid.evolve(
         ekompatibility.pineappl_layout(operators),
         xir * xir * mur2_grid,
         alphas_values,
