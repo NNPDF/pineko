@@ -18,7 +18,7 @@ This is a standard example:
   ymldb = "data/yamldb"
   grids = "data/grids"
   theory_cards = "data/theory_cards"
-  operator_card_template = "data/operator_cards/_template.yaml"
+  operator_card_template_name = "_template.yaml"
   # outputs
   operator_cards = "data/operator_cards"
   ekos = "data/ekos"
@@ -57,7 +57,7 @@ For more details about theory runcards you can look to https://eko.readthedocs.i
 Default Operator Card
 ---------------------
 
-You need to provide a default operator card for |EKO| [4]_.
+You need to provide a default operator card for |EKO| for each theory you want to use [4]_.
 [**DEBUG**: Look at the respective *load.sh* script to load from dom.]
 An example is the following:
 
