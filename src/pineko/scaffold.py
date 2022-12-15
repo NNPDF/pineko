@@ -32,7 +32,7 @@ def set_up_project(configs):
 
 
 def check_folders(configs):
-    """Check if all the folders spelled up in configs exist.
+    """Check if all the folders spelled out in configs exist.
 
     Parameters
     ----------
