@@ -1,3 +1,4 @@
+import os
 import pathlib
 from contextlib import contextmanager
 
@@ -37,5 +38,20 @@ def lhapdf_path():
             yield
         finally:
             lhapdf.setPaths(paths)
+
+    return wrapped
+
+
+@pytest.fixture
+def cd():
+    # thanks https://stackoverflow.com/a/24176022/8653979
+    @contextmanager
+    def wrapped(newdir):
+        prevdir = os.getcwd()
+        os.chdir(os.path.expanduser(newdir))
+        try:
+            yield
+        finally:
+            os.chdir(prevdir)
 
     return wrapped
