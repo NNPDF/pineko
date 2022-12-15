@@ -60,6 +60,8 @@ def enhance_paths(configs_):
     for key in needed_keys:
         if key not in configs_["paths"]:
             raise ValueError(f"Configuration is missing a 'paths.{key}' key")
+        if key == "operator_card_template_name":
+            continue
         if pathlib.Path(configs_["paths"][key]).anchor == "":
             configs_["paths"][key] = configs_["paths"]["root"] / configs_["paths"][key]
         else:
