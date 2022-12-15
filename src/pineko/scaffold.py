@@ -42,7 +42,7 @@ def check_folders(configs):
     for key in needed_keys:
         if key not in configs["paths"]:
             raise ValueError(f"{key} not found in config file")
-        if key == "operator_card_template":
+        if key == "operator_card_template_name":
             continue
         if not configs["paths"][key].exists():
             raise FileNotFoundError(
