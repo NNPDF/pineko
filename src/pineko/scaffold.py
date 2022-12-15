@@ -15,11 +15,9 @@ def set_up_project(configs):
         configs dictionary containing all the paths to be set up
     """
     for path in configs["paths"]:
-        if path == "root":
+        if path == "root" or path == "operator_card_template_name":
             continue
         if isinstance(configs["paths"][path], pathlib.Path):
-            if configs["paths"][path].suffix == ".yaml":
-                continue
             configs["paths"][path].mkdir(parents=True, exist_ok=True)
         elif isinstance(configs["paths"][path], dict):
             for log_path in configs["paths"][path]:
