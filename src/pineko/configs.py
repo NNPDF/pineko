@@ -15,7 +15,7 @@ needed_keys = [
     "ymldb",
     "operator_cards",
     "grids",
-    "operator_card_template",
+    "operator_card_template_name",
     "theory_cards",
     "fktables",
     "ekos",
