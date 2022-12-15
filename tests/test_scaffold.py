@@ -33,7 +33,7 @@ def construct_fake_configs(tmp_path):
             "ymldb": tmp_path / "data/ymldb",
             "operator_cards": tmp_path / "data/operator_cards",
             "grids": tmp_path / "data/grids",
-            "operator_card_template_name": "_template.yaml",
+            "operator_card_template_name": pathlib.Path("_template.yaml"),
             "theory_cards": tmp_path / "data/theory_cards",
             "fktables": tmp_path / "data/fktables",
             "ekos": tmp_path / "data/ekos",
