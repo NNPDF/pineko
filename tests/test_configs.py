@@ -11,7 +11,6 @@ def test_enhance_paths():
         "paths": {
             "ymldb": pathlib.Path(""),
             "grids": pathlib.Path(""),
-            "operator_card_template": pathlib.Path(""),
             "theory_cards": pathlib.Path(""),
             "fktables": pathlib.Path(""),
             "ekos": pathlib.Path(""),
@@ -38,7 +37,6 @@ def test_default():
             "ymldb": pathlib.Path(""),
             "grids": pathlib.Path(""),
             "operator_cards": pathlib.Path("my/ope/cards/"),
-            "operator_card_template": pathlib.Path(""),
             "theory_cards": pathlib.Path(""),
             "fktables": pathlib.Path(""),
             "ekos": pathlib.Path(""),
