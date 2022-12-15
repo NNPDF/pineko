@@ -11,6 +11,16 @@ name = "pineko.toml"
 configs = {}
 "Holds loaded configurations"
 
+needed_keys = [
+    "ymldb",
+    "operator_cards",
+    "grids",
+    "operator_card_template",
+    "theory_cards",
+    "fktables",
+    "ekos",
+]
+
 
 def defaults(base_configs):
     """Provide additional defaults.
@@ -47,15 +57,7 @@ def enhance_paths(configs_):
         configuration
     """
     # required keys without default
-    for key in [
-        "ymldb",
-        "operator_cards",
-        "grids",
-        "operator_card_template",
-        "theory_cards",
-        "fktables",
-        "ekos",
-    ]:
+    for key in needed_keys:
         if key not in configs_["paths"]:
             raise ValueError(f"Configuration is missing a 'paths.{key}' key")
         if pathlib.Path(configs_["paths"][key]).anchor == "":
