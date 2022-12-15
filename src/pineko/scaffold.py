@@ -12,7 +12,7 @@ def set_up_project(configs):
     Parameters
     ----------
     configs : dict
-        configs dictionary containing all the paths to be setted up
+        configs dictionary containing all the paths to be set up
     """
     for path in configs["paths"]:
         if path == "root":
