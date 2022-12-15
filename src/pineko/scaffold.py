@@ -20,7 +20,7 @@ def set_up_project(configs):
         if isinstance(configs["paths"][path], pathlib.Path):
             if configs["paths"][path].suffix == ".yaml":
                 continue
-            os.makedirs(configs["paths"][path], exist_ok=True)
+            configs["paths"][path].mkdir(parents=True, exist_ok=True)
         elif isinstance(configs["paths"][path], dict):
             for log_path in configs["paths"][path]:
                 if isinstance(configs["paths"][path][log_path], pathlib.Path):
