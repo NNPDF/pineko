@@ -182,8 +182,6 @@ def evolve_grid(
     fktable.optimize(assumptions)
     fktable.set_key_value("eko_version", operators.version)
     fktable.set_key_value("pineko_version", version.__version__)
-    # write
-    fktable.write_lz4(str(fktable_path))
     # compare before/after
     comparison = None
     if comparison_pdf is not None:
@@ -192,4 +190,6 @@ def evolve_grid(
         )
         fktable.set_key_value("results_fk", comparison.to_string())
         fktable.set_key_value("results_fk_pdfset", comparison_pdf)
+    # write
+    fktable.write_lz4(str(fktable_path))
     return grid, fktable, comparison

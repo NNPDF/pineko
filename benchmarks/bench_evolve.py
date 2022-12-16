@@ -104,3 +104,6 @@ def benchmark_evolve_grid(tmp_path, lhapdf_path, test_files, test_pdf):
             assumptions=assumptions,
             comparison_pdf="NNPDF40_nlo_as_01180",
         )
+        # check metadata is there - fixes https://github.com/NNPDF/pineko/issues/70
+        fk = pineappl.fk_table.FkTable.read(target_path)
+        assert "results_fk" in fk.key_values()
