@@ -78,5 +78,6 @@ def test_check_folder(tmp_path):
     for key in wrong_folders:
         if not isinstance(wrong_folders[key], dict):
             assert key in configs.needed_keys
+    # but if we use our function we have to be safe.
     scaffold.set_up_project(fake_configs)
     assert scaffold.check_folders(fake_configs)[0] == True
