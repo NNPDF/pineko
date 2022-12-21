@@ -14,6 +14,11 @@ def test_files():
 
 
 @pytest.fixture
+def test_empty_proj(test_files):
+    return test_files / "empty_proj/"
+
+
+@pytest.fixture
 def test_configs(test_files):
     config_path = pineko.configs.detect(test_files)
     base_configs = pineko.configs.load(config_path)
