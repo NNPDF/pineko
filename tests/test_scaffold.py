@@ -70,6 +70,7 @@ def test_check_folder(tmp_path):
         "fktables",
         "ekos",
     ] == wrong_confs
+    # or because we didn't setup up properly ...
     fake_configs = construct_fake_configs(tmp_path)
     success, wrong_confs, wrong_folders = scaffold.check_folders(fake_configs)
     assert success == False
