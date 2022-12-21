@@ -7,7 +7,7 @@ from .configs import needed_keys
 
 
 def set_up_project(configs):
-    """Set up all the folders spelled up in the configs dictionary.
+    """Set up all the folders spelled out in the configs dictionary.
 
     Parameters
     ----------
