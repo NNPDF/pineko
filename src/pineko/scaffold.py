@@ -36,6 +36,13 @@ def check_folders(configs):
     ----------
     configs : dict
         configs dictionary containing all the paths to be checked
+    Returns
+    -------
+    : tuple(bool, list, dict)
+        tuple containing a bool which is True if the configuration is correct
+        and False if not. The list contains the missing keys in the configuration
+        file and the dictionary contains the folders that should exists but could
+        not be found.
     """
     wrong_confs = []
     wrong_folders = {}
