@@ -38,7 +38,7 @@ def test_default():
             "ymldb": pathlib.Path(""),
             "grids": pathlib.Path(""),
             "operator_cards": pathlib.Path("my/ope/cards/"),
-            "operator_card_template_name": "_template",
+            "operator_card_template_name": "_template.yaml",
             "theory_cards": pathlib.Path(""),
             "fktables": pathlib.Path(""),
             "ekos": pathlib.Path(""),
