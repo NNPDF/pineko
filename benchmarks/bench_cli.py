@@ -90,3 +90,10 @@ def benchmark_compare_cli(lhapdf_path, test_files, test_pdf):
             ["compare", str(grid_path), str(fk_path), "2", "0", "NNPDF40_nlo_as_01180"],
         )
     assert "yll left" in result.output
+
+
+def benchmark_scaffold_cli(test_files):
+    runner = CliRunner()
+    conf_file = test_files / "pineko.toml"
+    res = runner.invoke(command, ["scaffold", "-c", str(conf_file), "check"])
+    assert "All the folders are correctly configured" in res.output
