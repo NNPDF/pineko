@@ -30,6 +30,7 @@ def test_enhance_paths():
     assert test_configs["paths"]["logs"]["fk"] == pathlib.Path(
         "/my/root/path/my/fk/logs/"
     )
+    assert test_configs["paths"]["operator_card_template_name"] == "_template.yaml"
 
 
 def test_default():
