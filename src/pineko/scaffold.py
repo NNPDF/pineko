@@ -3,7 +3,7 @@
 import os
 import pathlib
 
-from .configs import needed_keys
+from .configs import needed_files, needed_keys
 
 
 def set_up_project(configs):
@@ -15,7 +15,7 @@ def set_up_project(configs):
         configs dictionary containing all the paths to be set up
     """
     for path in configs["paths"]:
-        if path == "root" or path == "operator_card_template_name":
+        if path == "root" or path in needed_files:
             continue
         if isinstance(configs["paths"][path], pathlib.Path):
             configs["paths"][path].mkdir(parents=True, exist_ok=True)
@@ -50,7 +50,7 @@ def check_folders(configs):
         if key not in configs["paths"]:
             wrong_confs.append(key)
         else:
-            if key == "operator_card_template_name":
+            if key in needed_files:
                 continue
             if not configs["paths"][key].exists():
                 wrong_folders[key] = configs["paths"][key]
