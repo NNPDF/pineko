@@ -18,7 +18,7 @@ from ._base import command
     help="Explicitly specify config file (it has to be a valid TOML file).",
 )
 def scaffold_(cfg):
-    """Set the configs."""
+    """Manage folders needed for the project as spelled out in the configuration file."""
     path = configs.detect(cfg)
     base_configs = configs.load(path)
     configs.configs = configs.defaults(base_configs)
