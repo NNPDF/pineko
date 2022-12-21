@@ -55,6 +55,7 @@ def test_set_up_project(tmp_path):
 
 
 def test_check_folder(tmp_path):
+    # we may fail because we use a wrong config ...
     fake_configs_incomplete = construct_fake_configs_incomplete(tmp_path)
     scaffold.set_up_project(fake_configs_incomplete)
     success, wrong_confs, _wrong_folders = scaffold.check_folders(
