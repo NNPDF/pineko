@@ -63,9 +63,5 @@ def check_folders(configs):
         for key in configs["paths"]["logs"]:
             if not configs["paths"]["logs"][key].exists():
                 wrong_folders["logs"][key] = configs["paths"]["logs"][key]
-    success = (
-        True
-        if (len(wrong_confs) == 0 and list(wrong_folders.keys()) == ["logs"])
-        else False
-    )
+    success = len(wrong_confs) == 0 and list(wrong_folders.keys()) == ["logs"]
     return (success, wrong_confs, wrong_folders)
