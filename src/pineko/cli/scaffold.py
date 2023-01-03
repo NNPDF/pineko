@@ -41,7 +41,7 @@ def check():
     else:
         rich.print("[red]Error:[/] Project is not correctly configured.")
         for conf in wrong_confs:
-            rich.print(f"[red]Missing entry in conf file: \t{conf}")
+            rich.print(f"[red]Missing entry in conf file: '{conf}'")
         for key in wrong_folders:
             if not isinstance(wrong_folders[key], dict):
                 rich.print(f"[red]Missing folder: \t{wrong_folders[key]}")
