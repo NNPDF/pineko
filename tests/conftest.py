@@ -8,6 +8,7 @@ def my_tmp_path(tmp_path):
 
 @pytest.fixture
 def construct_wrong_fake_configs(my_tmp_path):
+    """This configs are wrong because under logs/fk there is a list and not a string."""
     wrong_fake_configs = {
         "paths": {
             "ymldb": my_tmp_path / "data/ymldb",
