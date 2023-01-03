@@ -1,5 +1,4 @@
 import pathlib
-import shutil
 
 from click.testing import CliRunner
 
@@ -104,6 +103,3 @@ def benchmark_scaffold_cli(test_empty_proj):
     # and then I can check again
     res = runner.invoke(command, ["scaffold", "-c", str(conf_file), "check"])
     assert "Success: All the folders are correctly configured" in res.output
-    # let's also clean
-    shutil.rmtree(test_empty_proj / "data")
-    shutil.rmtree(test_empty_proj / "logs")

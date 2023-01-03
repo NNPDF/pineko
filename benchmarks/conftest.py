@@ -1,5 +1,6 @@
 import os
 import pathlib
+import shutil
 from contextlib import contextmanager
 
 import pytest
@@ -15,7 +16,11 @@ def test_files():
 
 @pytest.fixture
 def test_empty_proj(test_files):
-    return test_files / "empty_proj/"
+    path = test_files / "empty_proj/"
+    yield path
+    # Let's clean
+    shutil.rmtree(path / "data")
+    shutil.rmtree(path / "logs")
 
 
 @pytest.fixture
