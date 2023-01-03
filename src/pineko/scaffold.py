@@ -9,11 +9,22 @@ from .configs import NEEDED_FILES, NEEDED_KEYS
 
 @dataclasses.dataclass
 class CheckResult:
-    """Dataclass containing the results of a check. In particular it contains a bool that is True if the check has been successful, a list of missing entries in the configuration file and a dictionary containing all the folders that should exist but that could not be found."""
+    """The results of a scaffold check.
 
-    success: bool
+    In particular it contains a bool that is True if the check has been
+    successful, a list of missing entries in the configuration file and a
+    dictionary containing all the folders that should exist but that could not
+    be found.
+
+    """
+
     confs: list
     folders: dict
+
+    @property
+    def success(self):
+        """Whether the check was overall successful."""
+        return len(self.confs) == 0 and list(self.folders.keys()) == ["logs"]
 
 
 def set_up_project(configs):
@@ -68,5 +79,4 @@ def check_folders(configs):
         for key in configs["paths"]["logs"]:
             if not configs["paths"]["logs"][key].exists():
                 wrong_folders["logs"][key] = configs["paths"]["logs"][key]
-    success = len(wrong_confs) == 0 and list(wrong_folders.keys()) == ["logs"]
-    return CheckResult(success, wrong_confs, wrong_folders)
+    return CheckResult(wrong_confs, wrong_folders)
