@@ -21,6 +21,7 @@ def construct_wrong_fake_configs(my_tmp_path):
 
 @pytest.fixture
 def construct_fake_configs_incomplete(my_tmp_path):
+    "This configs are incomplete because we are missing for instance the ekos and fktables keys."
     fake_configs_incomplete = {
         "paths": {
             "ymldb": my_tmp_path / "data/ymldb",
