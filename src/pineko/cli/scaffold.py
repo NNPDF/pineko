@@ -35,16 +35,18 @@ def new():
 @scaffold_.command()
 def check():
     """Check if all the configurations are correct."""
-    success, wrong_confs, wrong_folders = scaffold.check_folders(configs.configs)
-    if success:
+    check_res = scaffold.check_folders(configs.configs)
+    if check_res.success:
         rich.print("[green]Success:[/] All the folders are correctly configured.")
     else:
         rich.print("[red]Error:[/] Project is not correctly configured.")
-        for conf in wrong_confs:
+        for conf in check_res.confs:
             rich.print(f"[red]Missing entry in conf file: '{conf}'")
-        for key in wrong_folders:
-            if not isinstance(wrong_folders[key], dict):
-                rich.print(f"[red]Missing folder:\n{wrong_folders[key]}")
+        for key in check_res.folders:
+            if not isinstance(check_res.folders[key], dict):
+                rich.print(f"[red]Missing folder:\n{check_res.folders[key]}")
             else:
-                for log_key in wrong_folders[key]:
-                    rich.print(f"[red]Missing folder: \n{wrong_folders[key][log_key]}")
+                for log_key in check_res.folders[key]:
+                    rich.print(
+                        f"[red]Missing folder: \n{check_res.folders[key][log_key]}"
+                    )

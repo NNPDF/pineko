@@ -18,10 +18,8 @@ def test_set_up_project(
 def test_check_folder(construct_fake_configs_incomplete, construct_fake_configs):
     # we may fail because we use a wrong config ...
     scaffold.set_up_project(construct_fake_configs_incomplete)
-    success, wrong_confs, _wrong_folders = scaffold.check_folders(
-        construct_fake_configs_incomplete
-    )
-    assert success == False
+    incomplete_check = scaffold.check_folders(construct_fake_configs_incomplete)
+    assert incomplete_check.success == False
     assert [
         "operator_cards",
         "grids",
@@ -29,14 +27,14 @@ def test_check_folder(construct_fake_configs_incomplete, construct_fake_configs)
         "theory_cards",
         "fktables",
         "ekos",
-    ] == wrong_confs
+    ] == incomplete_check.confs
     # or because we didn't setup up properly ...
-    success, wrong_confs, wrong_folders = scaffold.check_folders(construct_fake_configs)
-    assert success == False
-    assert len(wrong_confs) == 0
-    for key in wrong_folders:
-        if not isinstance(wrong_folders[key], dict):
+    fake_check = scaffold.check_folders(construct_fake_configs)
+    assert fake_check.success == False
+    assert len(fake_check.confs) == 0
+    for key in fake_check.folders:
+        if not isinstance(fake_check.folders[key], dict):
             assert key in configs.NEEDED_KEYS
     # but if we use our function we have to be safe.
     scaffold.set_up_project(construct_fake_configs)
-    assert scaffold.check_folders(construct_fake_configs)[0] == True
+    assert scaffold.check_folders(construct_fake_configs).success == True

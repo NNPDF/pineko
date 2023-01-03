@@ -1,9 +1,19 @@
 """Tools related to generation and managing of a pineko project."""
 
+import dataclasses
 import os
 import pathlib
 
 from .configs import NEEDED_FILES, NEEDED_KEYS
+
+
+@dataclasses.dataclass
+class CheckResult:
+    """Dataclass containing the results of a check. In particular it contains a bool that is True if the check has been successful, a list of missing entries in the configuration file and a dictionary containing all the folders that should exist but that could not be found."""
+
+    success: bool
+    confs: list[pathlib.Path]
+    folders: dict[str, pathlib.Path]
 
 
 def set_up_project(configs):
@@ -38,13 +48,8 @@ def check_folders(configs):
         configs dictionary containing all the paths to be checked
     Returns
     -------
-    : bool
-        True if the configuration is correct, False otherwise
-    : list
-        list of missing keys in the configuration file
-    : dict
-        dictionary containing folders that should exists but could
-        not be found
+    : CheckResult
+        object containing the result of the check
     """
     wrong_confs = []
     wrong_folders = {}
@@ -64,4 +69,4 @@ def check_folders(configs):
             if not configs["paths"]["logs"][key].exists():
                 wrong_folders["logs"][key] = configs["paths"]["logs"][key]
     success = len(wrong_confs) == 0 and list(wrong_folders.keys()) == ["logs"]
-    return (success, wrong_confs, wrong_folders)
+    return CheckResult(success, wrong_confs, wrong_folders)
