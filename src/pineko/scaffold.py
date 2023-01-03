@@ -3,7 +3,7 @@
 import os
 import pathlib
 
-from .configs import NEEDED_KEYS, needed_files
+from .configs import NEEDED_FILES, NEEDED_KEYS
 
 
 def set_up_project(configs):
@@ -15,7 +15,7 @@ def set_up_project(configs):
         configs dictionary containing all the paths to be set up
     """
     for path in configs["paths"]:
-        if path == "root" or path in needed_files:
+        if path == "root" or path in NEEDED_FILES:
             continue
         if isinstance(configs["paths"][path], pathlib.Path):
             configs["paths"][path].mkdir(parents=True, exist_ok=True)
@@ -52,7 +52,7 @@ def check_folders(configs):
         if key not in configs["paths"]:
             wrong_confs.append(key)
         else:
-            if key in needed_files:
+            if key in NEEDED_FILES:
                 continue
             if not configs["paths"][key].exists():
                 wrong_folders[key] = configs["paths"][key]
