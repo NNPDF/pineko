@@ -24,15 +24,15 @@ def set_up_project(configs):
     configs : dict
         configs dictionary containing all the paths to be set up
     """
-    for path in configs["paths"]:
-        if path == "root" or path in NEEDED_FILES:
+    for path_key, path in configs["paths"].items():
+        if path_key == "root" or path_key in NEEDED_FILES:
             continue
-        if isinstance(configs["paths"][path], pathlib.Path):
-            configs["paths"][path].mkdir(parents=True, exist_ok=True)
-        elif isinstance(configs["paths"][path], dict):
-            for log_path in configs["paths"][path]:
-                if isinstance(configs["paths"][path][log_path], pathlib.Path):
-                    os.makedirs(configs["paths"][path][log_path], exist_ok=True)
+        if isinstance(path, pathlib.Path):
+            path.mkdir(parents=True, exist_ok=True)
+        elif isinstance(path, dict):
+            for log_path in path:
+                if isinstance(path[log_path], pathlib.Path):
+                    os.makedirs(path[log_path], exist_ok=True)
                 else:
                     raise TypeError(f"Not recognized entry {log_path} in configs")
         else:
