@@ -13,7 +13,7 @@ class CheckResult:
 
     success: bool
     confs: list[pathlib.Path]
-    folders: dict[str, pathlib.Path or dict]
+    folders: dict
 
 
 def set_up_project(configs):
