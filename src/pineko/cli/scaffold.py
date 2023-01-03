@@ -44,7 +44,7 @@ def check():
             rich.print(f"[red]Missing entry in conf file: '{conf}'")
         for key in wrong_folders:
             if not isinstance(wrong_folders[key], dict):
-                rich.print(f"[red]Missing folder: \t{wrong_folders[key]}")
+                rich.print(f"[red]Missing folder:\n{wrong_folders[key]}")
             else:
                 for log_key in wrong_folders[key]:
                     rich.print(f"[red]Missing folder: \t{wrong_folders[key][log_key]}")
