@@ -47,4 +47,4 @@ def check():
                 rich.print(f"[red]Missing folder:\n{wrong_folders[key]}")
             else:
                 for log_key in wrong_folders[key]:
-                    rich.print(f"[red]Missing folder: \t{wrong_folders[key][log_key]}")
+                    rich.print(f"[red]Missing folder: \n{wrong_folders[key][log_key]}")
