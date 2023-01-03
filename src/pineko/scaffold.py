@@ -3,7 +3,7 @@
 import os
 import pathlib
 
-from .configs import needed_files, needed_keys
+from .configs import NEEDED_KEYS, needed_files
 
 
 def set_up_project(configs):
@@ -48,7 +48,7 @@ def check_folders(configs):
     """
     wrong_confs = []
     wrong_folders = {}
-    for key in needed_keys:
+    for key in NEEDED_KEYS:
         if key not in configs["paths"]:
             wrong_confs.append(key)
         else:

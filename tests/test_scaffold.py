@@ -36,7 +36,7 @@ def test_check_folder(construct_fake_configs_incomplete, construct_fake_configs)
     assert len(wrong_confs) == 0
     for key in wrong_folders:
         if not isinstance(wrong_folders[key], dict):
-            assert key in configs.needed_keys
+            assert key in configs.NEEDED_KEYS
     # but if we use our function we have to be safe.
     scaffold.set_up_project(construct_fake_configs)
     assert scaffold.check_folders(construct_fake_configs)[0] == True
