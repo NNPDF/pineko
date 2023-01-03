@@ -12,7 +12,7 @@ class CheckResult:
     """Dataclass containing the results of a check. In particular it contains a bool that is True if the check has been successful, a list of missing entries in the configuration file and a dictionary containing all the folders that should exist but that could not be found."""
 
     success: bool
-    confs: list[pathlib.Path]
+    confs: list
     folders: dict
 
 
