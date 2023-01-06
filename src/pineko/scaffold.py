@@ -43,7 +43,7 @@ def set_up_project(configs):
         elif isinstance(path, dict):
             for log_path in path:
                 if isinstance(path[log_path], pathlib.Path):
-                    os.makedirs(path[log_path], exist_ok=True)
+                    path[log_path].mkdir(parents=True, exist_ok=True)
                 else:
                     raise TypeError(f"Not recognized entry {log_path} in configs")
         else:
