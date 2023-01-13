@@ -30,7 +30,7 @@ def sub_compatibility(grid_path, operator_path, xif):
 
     """
     pineappl_grid = pineappl.grid.Grid.read(grid_path)
-    operators = eko.output.legacy.load_tar(operator_path)
+    operators = eko.io.legacy.load_tar(operator_path)
     try:
         check.check_grid_and_eko_compatible(pineappl_grid, operators, xif)
         rich.print("[green]Success:[/] grids are compatible")
