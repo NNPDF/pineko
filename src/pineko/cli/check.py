@@ -3,7 +3,7 @@ from collections import namedtuple
 from enum import Enum, auto
 
 import click
-import eko.output.legacy
+import eko.io.legacy
 import pineappl
 import rich
 
