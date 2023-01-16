@@ -1,7 +1,7 @@
 """Compatibility layer for EKO migration."""
 from typing import Any, Dict
 
-from eko.output.struct import EKO
+from eko import EKO
 
 
 def pineappl_layout(operator: EKO) -> Dict[str, Any]:

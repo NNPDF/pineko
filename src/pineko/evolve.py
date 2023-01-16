@@ -5,7 +5,6 @@ import pathlib
 
 import eko
 import eko.basis_rotation as br
-import eko.compatibility
 import numpy as np
 import pineappl
 import rich
