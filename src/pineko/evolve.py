@@ -14,8 +14,6 @@ import yaml
 
 from . import check, comparator, ekompatibility, version
 
-DEFAULT_PIDS = [-5, -4, -3, -2, -1, 21, 22, 1, 2, 3, 4, 5]
-
 
 def write_operator_card_from_file(
     pineappl_path: os.PathLike,
@@ -90,27 +88,18 @@ def write_operator_card(pineappl_grid, default_card, card_path, xif, tcard):
     operators_card = copy.deepcopy(default_card)
     x_grid, _pids, _mur2_grid, muf2_grid = pineappl_grid.axes()
     q2_grid = (xif * xif * muf2_grid).tolist()
-    operators_card["targetgrid"] = x_grid.tolist()
-    operators_card["Q2grid"] = q2_grid
+    operators_card["rotations"]["_targetgrid"] = x_grid.tolist()
+    operators_card["_mugrid"] = np.sqrt(q2_grid).tolist()
+    if not np.isclose(xif, 1.0):
+        operator_card["configs"]["scvar_method"] = "expanded"
     if "integrability_version" in pineappl_grid.key_values():
-        operators_card["interpolation_polynomial_degree"] = 1
+        operators_card["configs"]["interpolation_polynomial_degree"] = 1
         x_grid_int = copy.deepcopy(x_grid.tolist())
         x_grid_int.append(1.0)
-        operators_card["interpolation_xgrid"] = list(x_grid_int)
+        operators_card["rotations"]["_targetgrid"] = list(x_grid_int)
 
-    def provide_if_missing(key, default, card=operators_card):
-        if key not in card:
-            card[key] = default
-
-    provide_if_missing("n_integration_cores", 1)
-    provide_if_missing("inputgrid", operators_card["interpolation_xgrid"])
-    provide_if_missing("targetgrid", operators_card["interpolation_xgrid"])
-    provide_if_missing("inputpids", DEFAULT_PIDS)
-    provide_if_missing("targetpids", DEFAULT_PIDS)
-
-    _, new_operators_card = eko.compatibility.update(tcard, operators_card)
     with open(card_path, "w", encoding="UTF-8") as f:
-        yaml.safe_dump(new_operators_card, f)
+        yaml.safe_dump(operators_card, f)
     return x_grid, q2_grid
 
 
