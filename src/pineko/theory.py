@@ -202,7 +202,7 @@ class TheoryBuilder:
                 f(name, grid, **kwargs)
             rich.print()
 
-    def opcard(self, name, grid, xif, tcard_path):
+    def opcard(self, name, grid, xif):
         """Write a single operator card.
 
         Parameters
@@ -213,9 +213,6 @@ class TheoryBuilder:
             path to grid
         xif : float
             factorization scale
-        tcard_path : os.PathLike
-            path to theory card :func:`pineko.evolve.write_operator_card`
-
         """
         opcard_path = self.operator_cards_path / f"{name}.yaml"
         if opcard_path.exists():
@@ -227,7 +224,6 @@ class TheoryBuilder:
             configs.configs["paths"]["operator_card_template"],
             opcard_path,
             xif,
-            tcard_path,
         )
         if opcard_path.exists():
             rich.print(
@@ -238,9 +234,7 @@ class TheoryBuilder:
         """Write operator cards."""
         tcard = theory_card.load(self.theory_id)
         self.operator_cards_path.mkdir(exist_ok=True)
-        self.iterate(
-            self.opcard, xif=tcard["XIF"], tcard_path=theory_card.path(self.theory_id)
-        )
+        self.iterate(self.opcard, xif=tcard["XIF"])
 
     def load_operator_card(self, name):
         """Read current operator card.

@@ -21,13 +21,8 @@ def write_operator_card_from_file(
     default_card_path: os.PathLike,
     card_path: os.PathLike,
     xif: float,
-    tcard_path: os.PathLike,
 ):
     """Generate operator card for a grid.
-
-    Note
-    ----
-    For the reason why `tcard` is required, see :func:`write_operator_card`.
 
     Parameters
     ----------
@@ -39,8 +34,6 @@ def write_operator_card_from_file(
         target path
     xif : float
         factorization scale variation
-    tcard_path: dict
-        theory card for the run
 
     Returns
     -------
@@ -57,11 +50,10 @@ def write_operator_card_from_file(
     default_card = yaml.safe_load(
         pathlib.Path(default_card_path).read_text(encoding="utf-8")
     )
-    tcard = yaml.safe_load(pathlib.Path(tcard_path).read_text(encoding="utf-8"))
-    return write_operator_card(pineappl_grid, default_card, card_path, xif, tcard)
+    return write_operator_card(pineappl_grid, default_card, card_path, xif)
 
 
-def write_operator_card(pineappl_grid, default_card, card_path, xif, tcard):
+def write_operator_card(pineappl_grid, default_card, card_path, xif):
     """Generate operator card for this grid.
 
     Parameters
@@ -74,9 +66,6 @@ def write_operator_card(pineappl_grid, default_card, card_path, xif, tcard):
         target path
     xif : float
         factorization scale variation
-    tcard: dict
-        theory card for the run, since some information in EKO is now required
-        in operator card, but before was in the theory card
 
     Returns
     -------
