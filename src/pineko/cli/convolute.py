@@ -50,24 +50,24 @@ def subcommand(
     PDF is an optional PDF set compatible with the EKO to compare grid and FK table.
     """
     grid = pineappl.grid.Grid.read(grid_path)
-    operators = eko.EKO.edit(op_path)
-    rich.print(
-        rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
-        f"   {grid_path}\n",
-        f"+ {op_path}\n",
-        f"= {fktable}\n",
-        f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
-    )
-    _grid, _fk, comp = evolve.evolve_grid(
-        grid,
-        operators,
-        fktable,
-        max_as,
-        max_al,
-        xir,
-        xif,
-        assumptions=assumptions,
-        comparison_pdf=pdf,
-    )
-    if comp:
-        print(comp.to_string())
+    with eko.EKO.edit(op_path) as operators:
+        rich.print(
+            rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
+            f"   {grid_path}\n",
+            f"+ {op_path}\n",
+            f"= {fktable}\n",
+            f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
+        )
+        _grid, _fk, comp = evolve.evolve_grid(
+            grid,
+            operators,
+            fktable,
+            max_as,
+            max_al,
+            xir,
+            xif,
+            assumptions=assumptions,
+            comparison_pdf=pdf,
+        )
+        if comp:
+            print(comp.to_string())
