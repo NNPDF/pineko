@@ -224,7 +224,7 @@ class TheoryBuilder:
                 return
         _x_grid, q2_grid = evolve.write_operator_card_from_file(
             grid,
-            self.operator_cards_path / configs.configs["paths"]["operator_card_template_name"],
+            configs.configs["paths"]["operator_card_template"],
             opcard_path,
             xif,
             tcard_path,
@@ -310,6 +310,8 @@ class TheoryBuilder:
         )
         # setup data
         ocard = self.load_operator_card(name)
+        ocard_obj = eko.io.runcards.OperatorCard.from_dict(ocard)
+        tcard_obj = eko.io.runcards.TheoryCard.from_dict(tcard)
         eko_filename = self.ekos_path() / f"{name}.tar"
         if eko_filename.exists():
             if not self.overwrite:
@@ -318,8 +320,8 @@ class TheoryBuilder:
         # do it!
         logger.info("Start computation of %s", name)
         start_time = time.perf_counter()
-        ops = eko.run_dglap(theory_card=tcard, operators_card=ocard)
-        ops.dump_tar(eko_filename)
+        ops = eko.EKO.create(eko_filename).load_cards(tcard_obj, ocard_obj).build()
+        ops.dump()
         logger.info(
             "Finished computation of %s - took %f s",
             name,
