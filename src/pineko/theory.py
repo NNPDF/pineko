@@ -322,7 +322,7 @@ class TheoryBuilder:
         # do it!
         logger.info("Start computation of %s", name)
         start_time = time.perf_counter()
-        ops = eko.runner.solve(new_theory, new_op, eko_filename)
+        eko.runner.solve(new_theory, new_op, eko_filename)
         logger.info(
             "Finished computation of %s - took %f s",
             name,
