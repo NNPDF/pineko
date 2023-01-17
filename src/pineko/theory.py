@@ -392,20 +392,24 @@ class TheoryBuilder:
                 )
         # collect alpha_s
         # TODO: move this down to evolve.evolve_grid when output contains cards
-        new_tcard = eko.compatibility.update_theory(tcard)
-        astrong = sc.Couplings.from_dict(new_tcard)
-        # ocard = self.load_operator_card(name)
-        # q2_grid = ocard["Q2grid"]
+        legacy_class = eko.io.runcards.Legacy(tcard, {})
+        new_tcard = legacy_class.new_theory
+        evmod = eko.io.types.CouplingEvolutionMethod.EXACT
+        if tcard["ModEv"] == "TRN":
+            evmod = eko.io.types.CouplingEvolutionMethod.EXPANDED
+        quark_masses = [(x.value) ** 2 for x in new_tcard.quark_masses]
+        sc = eko.couplings.Couplings(
+            new_tcard.couplings,
+            new_tcard.order,
+            evmod,
+            quark_masses,
+            hqm_scheme=new_tcard.quark_masses_scheme,
+            thresholds_ratios=new_tcard.matching,
+        )
 
         # loading ekos
-        operators = eko.output.legacy.load_tar(eko_filename)
-        muf2_grid = operators.Q2grid
-        # PineAPPL wants alpha_s = 4*pi*a_s
-        # remember that we already accounted for xif in the opcard generation
-        alphas_values = [
-            4.0 * np.pi * astrong.a_s(xir * xir * muf2 / xif / xif)
-            for muf2 in muf2_grid
-        ]
+        operators = eko.EKO.edit(eko_filename)
+
         # Obtain the assumptions hash
         assumptions = theory_card.construct_assumptions(tcard)
         # do it!
@@ -424,12 +428,11 @@ class TheoryBuilder:
             grid,
             operators,
             fk_filename,
-            astrong,
+            sc,
             max_as,
             max_al,
             xir=xir,
             xif=xif,
-            alphas_values=alphas_values,
             assumptions=assumptions,
             comparison_pdf=pdf,
         )
