@@ -311,8 +311,9 @@ class TheoryBuilder:
         )
         # setup data
         ocard = self.load_operator_card(name)
-        ocard_obj = eko.io.runcards.OperatorCard.from_dict(ocard)
-        tcard_obj = eko.io.runcards.TheoryCard.from_dict(tcard)
+        legacy_class = eko.io.runcards.Legacy(tcard, ocard)
+        new_theory = legacy_class.new_theory
+        new_op = eko.io.runcards.OperatorCard.from_dict(ocard)
         eko_filename = self.ekos_path() / f"{name}.tar"
         if eko_filename.exists():
             if not self.overwrite:
@@ -321,8 +322,7 @@ class TheoryBuilder:
         # do it!
         logger.info("Start computation of %s", name)
         start_time = time.perf_counter()
-        ops = eko.EKO.create(eko_filename).load_cards(tcard_obj, ocard_obj).build()
-        ops.dump()
+        ops = eko.runner.solve(new_theory, new_op, eko_filename)
         logger.info(
             "Finished computation of %s - took %f s",
             name,
