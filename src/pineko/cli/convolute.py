@@ -3,7 +3,6 @@ import pathlib
 
 import click
 import eko
-import eko.io.legacy
 import pineappl
 import rich
 import yaml
@@ -51,15 +50,15 @@ def subcommand(
     PDF is an optional PDF set compatible with the EKO to compare grid and FK table.
     """
     grid = pineappl.grid.Grid.read(grid_path)
-    operators = eko.io.legacy.load_tar(op_path)
+    operators = eko.EKO.edit(op_path)
     # This solution is temporary: the theory card will be available in the eko
     tcard_path = pathlib.Path(tcard_path)
     with open(tcard_path, encoding="utf-8") as f:
         theory_card = yaml.safe_load(f)
-    legacy_class = eko.io.runcards.Legacy(tcard, {})
+    legacy_class = eko.io.runcards.Legacy(theory_card, {})
     new_tcard = legacy_class.new_theory
     evmod = eko.io.types.CouplingEvolutionMethod.EXACT
-    if tcard["ModEv"] == "TRN":
+    if theory_card["ModEv"] == "TRN":
         evmod = eko.io.types.CouplingEvolutionMethod.EXPANDED
     quark_masses = [(x.value) ** 2 for x in new_tcard.quark_masses]
     sc = eko.couplings.Couplings(
