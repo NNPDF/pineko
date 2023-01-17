@@ -56,8 +56,21 @@ def subcommand(
     tcard_path = pathlib.Path(tcard_path)
     with open(tcard_path, encoding="utf-8") as f:
         theory_card = yaml.safe_load(f)
-    new_tcard = eko.compatibility.update_theory(theory_card)
-    astrong = sc.Couplings.from_dict(new_tcard)
+    legacy_class = eko.io.runcards.Legacy(tcard, {})
+    new_tcard = legacy_class.new_theory
+    evmod = eko.io.types.CouplingEvolutionMethod.EXACT
+    if tcard["ModEv"] == "TRN":
+        evmod = eko.io.types.CouplingEvolutionMethod.EXPANDED
+    quark_masses = [(x.value) ** 2 for x in new_tcard.quark_masses]
+    sc = eko.couplings.Couplings(
+        new_tcard.couplings,
+        new_tcard.order,
+        evmod,
+        quark_masses,
+        hqm_scheme=new_tcard.quark_masses_scheme,
+        thresholds_ratios=new_tcard.matching,
+    )
+
     rich.print(
         rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
         f"   {grid_path}\n",
@@ -69,7 +82,7 @@ def subcommand(
         grid,
         operators,
         fktable,
-        astrong,
+        sc,
         max_as,
         max_al,
         xir,

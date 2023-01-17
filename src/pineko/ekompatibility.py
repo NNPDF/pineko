@@ -1,7 +1,7 @@
 """Compatibility layer for EKO migration."""
 from typing import Any, Dict
 
-from eko import EKO
+from eko import EKO, basis_rotation
 
 
 def pineappl_layout(operator: EKO) -> Dict[str, Any]:
@@ -24,10 +24,11 @@ def pineappl_layout(operator: EKO) -> Dict[str, Any]:
         oldop = dict(operators=op.operator)
         oldgrid["Q2grid"][q2] = oldop
 
-    oldgrid["q2_ref"] = operator.Q02
+    oldgrid["q2_ref"] = operator.mu20
     oldgrid["targetpids"] = operator.rotations.targetpids
     oldgrid["targetgrid"] = operator.rotations.targetgrid.raw
-    oldgrid["inputpids"] = operator.rotations.inputpids
+    oldgrid["inputpids"] = basis_rotation.evol_basis_pids
+    # oldgrid["inputpids"] = operator.rotations.inputpids
     oldgrid["inputgrid"] = operator.rotations.inputgrid.raw
 
     return oldgrid
