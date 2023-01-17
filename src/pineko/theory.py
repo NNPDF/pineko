@@ -392,33 +392,37 @@ class TheoryBuilder:
                     "Factorization scale variations are not available for this grid"
                 )
         # loading ekos
-        operators = eko.EKO.edit(eko_filename)
+        with eko.EKO.edit(eko_filename) as operators:
 
-        # Obtain the assumptions hash
-        assumptions = theory_card.construct_assumptions(tcard)
-        # do it!
-        logger.info("Start computation of %s", name)
-        logger.info("max_as=%d, max_al=%d, xir=%f, xif=%f", max_as, max_al, xir, xif)
-        start_time = time.perf_counter()
+            # Obtain the assumptions hash
+            assumptions = theory_card.construct_assumptions(tcard)
+            # do it!
+            logger.info("Start computation of %s", name)
+            logger.info(
+                "max_as=%d, max_al=%d, xir=%f, xif=%f", max_as, max_al, xir, xif
+            )
+            start_time = time.perf_counter()
 
-        rich.print(
-            rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
-            f"   {grid_path}\n",
-            f"+ {eko_filename}\n",
-            f"= {fk_filename}\n",
-            f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
-        )
-        _grid, _fk, comparison = evolve.evolve_grid(
-            grid,
-            operators,
-            fk_filename,
-            max_as,
-            max_al,
-            xir=xir,
-            xif=xif,
-            assumptions=assumptions,
-            comparison_pdf=pdf,
-        )
+            rich.print(
+                rich.panel.Panel.fit(
+                    "Computing ...", style="magenta", box=rich.box.SQUARE
+                ),
+                f"   {grid_path}\n",
+                f"+ {eko_filename}\n",
+                f"= {fk_filename}\n",
+                f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
+            )
+            _grid, _fk, comparison = evolve.evolve_grid(
+                grid,
+                operators,
+                fk_filename,
+                max_as,
+                max_al,
+                xir=xir,
+                xif=xif,
+                assumptions=assumptions,
+                comparison_pdf=pdf,
+            )
         logger.info(
             "Finished computation of %s - took %f s",
             name,
