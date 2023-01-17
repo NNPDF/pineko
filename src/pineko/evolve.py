@@ -143,7 +143,7 @@ def evolve_grid(
     # rotate to evolution (if doable and necessary)
     if np.allclose(operators.rotations.inputpids, br.flavor_basis_pids):
         eko.io.manipulate.to_evol(operators)
-    elif not np.allclose(operators.rotations.inputpids, br.evol_basis_pids):
+    elif not np.allclose(operators.rotations.inputpids, br.rotate_flavor_to_evolution):
         raise ValueError("The EKO is neither in flavor nor in evolution basis.")
     # do it
     order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
