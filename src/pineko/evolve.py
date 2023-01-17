@@ -11,6 +11,7 @@ import rich
 import rich.box
 import rich.panel
 import yaml
+from eko.io.types import EvolutionMethod
 
 from . import check, comparator, ekompatibility, version
 
@@ -107,7 +108,6 @@ def evolve_grid(
     grid,
     operators,
     fktable_path,
-    sc,
     max_as,
     max_al,
     xir,
@@ -125,8 +125,6 @@ def evolve_grid(
         evolution operator
     fktable_path : str
         target path for convoluted grid
-    sc : eko.coupling.Couplings
-        couplings object
     max_as : int
         maximum power of strong coupling
     max_al : int
@@ -152,6 +150,22 @@ def evolve_grid(
     muf2_grid = operators.mu2grid
     # PineAPPL wants alpha_s = 4*pi*a_s
     # remember that we already accounted for xif in the opcard generation
+    # legacy_class = eko.io.runcards.Legacy(operators.theory_card, {})
+    # new_tcard = legacy_class.new_theory
+    tcard = operators.theory_card
+    opcard = operators.operator_card
+    evmod = eko.io.types.CouplingEvolutionMethod.EXACT
+    if opcard.configs.evolution_method is EvolutionMethod.TRUNCATED:
+        evmod = eko.io.types.CouplingEvolutionMethod.EXPANDED
+    quark_masses = [(x.value) ** 2 for x in tcard.quark_masses]
+    sc = eko.couplings.Couplings(
+        tcard.couplings,
+        tcard.order,
+        evmod,
+        quark_masses,
+        hqm_scheme=tcard.quark_masses_scheme,
+        thresholds_ratios=tcard.matching,
+    )
     alphas_values = [
         4.0 * np.pi * sc.a_s(xir * xir * muf2 / xif / xif, fact_scale=muf2)
         for muf2 in muf2_grid

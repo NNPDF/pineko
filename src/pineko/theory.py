@@ -390,23 +390,6 @@ class TheoryBuilder:
                 raise ValueError(
                     "Factorization scale variations are not available for this grid"
                 )
-        # collect alpha_s
-        # TODO: move this down to evolve.evolve_grid when output contains cards
-        legacy_class = eko.io.runcards.Legacy(tcard, {})
-        new_tcard = legacy_class.new_theory
-        evmod = eko.io.types.CouplingEvolutionMethod.EXACT
-        if tcard["ModEv"] == "TRN":
-            evmod = eko.io.types.CouplingEvolutionMethod.EXPANDED
-        quark_masses = [(x.value) ** 2 for x in new_tcard.quark_masses]
-        sc = eko.couplings.Couplings(
-            new_tcard.couplings,
-            new_tcard.order,
-            evmod,
-            quark_masses,
-            hqm_scheme=new_tcard.quark_masses_scheme,
-            thresholds_ratios=new_tcard.matching,
-        )
-
         # loading ekos
         operators = eko.EKO.edit(eko_filename)
 
@@ -428,7 +411,6 @@ class TheoryBuilder:
             grid,
             operators,
             fk_filename,
-            sc,
             max_as,
             max_al,
             xir=xir,
