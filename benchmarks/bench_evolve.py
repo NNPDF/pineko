@@ -1,8 +1,7 @@
 import pathlib
 
 import eko
-import eko.compatibility
-import eko.output.legacy
+import eko.io.legacy
 import numpy as np
 import pineappl
 import pytest
