@@ -55,12 +55,12 @@ def benchmark_check_cli(test_files):
 
 def benchmark_opcard_cli(tmp_path, test_files):
     grid_path = pathlib.Path(
-        test_files / "data/grids/208/LHCB_DY_13TEV_DIMUON.pineappl.lz4"
+        test_files / "data/grids/400/HERA_NC_225GEV_EP_SIGMARED.pineappl.lz4"
     )
     default_card_path = pathlib.Path(
-        test_files / "data/operator_cards/208/_template.yaml"
+        test_files / "data/operator_cards/400/_template.yaml"
     )
-    thcard_path = pathlib.Path(test_files / "data" / "theory_cards" / "208.yaml")
+    thcard_path = pathlib.Path(test_files / "data" / "theory_cards" / "400.yaml")
     target_path = pathlib.Path(tmp_path / "test_ope_card.yaml")
     runner = CliRunner()
     result = runner.invoke(
@@ -69,6 +69,7 @@ def benchmark_opcard_cli(tmp_path, test_files):
             "opcard",
             str(grid_path),
             str(default_card_path),
+            str(thcard_path),
             str(target_path),
         ],
     )
