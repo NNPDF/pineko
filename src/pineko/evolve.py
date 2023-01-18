@@ -25,27 +25,20 @@ def sv_scheme(tcard):
         theory card
 
     """
+    modsv_list = ["expanded", "exponentiated"]
     xif = tcard["XIF"]
     modsv = tcard["ModSV"]
-    ftr = tcard["fact_to_ren_scale_ratio"]
     if np.isclose(xif, 1.0):
-        if np.isclose(ftr, 1.0):
-            return "Unvaried"
-        elif modsv == "expanded":
-            return "B"
+        if modsv in modsv_list:
+            raise ValueError("ModSv is not None but xif is 1.0")
         else:
-            raise ValueError(
-                "Theory configuration is not suitable for any factorization scale variations scheme"
-            )
-    elif np.isclose(ftr, 1.0):
-        if modsv == "exponentiated":
-            return "A"
-        else:
-            return "C"
+            return "None"
     else:
-        raise ValueError(
-            "Theory configuration is not suitable for any factorization scale variations scheme"
-        )
+        # scheme C case
+        if modsv not in modsv_list:
+            return "None"
+        else:
+            return modsv
 
 
 def write_operator_card_from_file(
@@ -111,16 +104,8 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     operators_card = copy.deepcopy(default_card)
     x_grid, _pids, _mur2_grid, muf2_grid = pineappl_grid.axes()
     sv_method = sv_scheme(tcard)
-    xif = 1.0  # This is correct for both scheme B and unvaried
-    if sv_method in ["A", "C"]:
-        xif = tcard["XIF"]
-        operators_card["configs"]["scvar_method"] = (
-            "exponentiated" if sv_method == "A" else "None"
-        )
-    elif sv_method == "B":
-        operators_card["configs"]["scvar_method"] = "expanded"
-    else:
-        operators_card["configs"]["scvar_method"] = "None"
+    xif = 1.0 if sv_method == "expanded" else tcard["XIF"]
+    operators_card["configs"]["scvar_method"] = sv_method
     q2_grid = (xif * xif * muf2_grid).tolist()
     operators_card["rotations"]["_targetgrid"] = x_grid.tolist()
     operators_card["_mugrid"] = np.sqrt(q2_grid).tolist()
@@ -173,6 +158,12 @@ def evolve_grid(
         if given, a comparison table (with / without evolution) will be printed
     """
     _x_grid, _pids, mur2_grid, _muf2_grid = grid.axes()
+    sv_method = None
+    if operators.operator_card.configs.scvar_method is not None:
+        sv_method = operators.operator_card.configs.scvar_method.name
+    xif = 1.0 if sv_method == "EXPANDED" else xif
+    tcard = operators.theory_card
+    opcard = operators.operator_card
     check.check_grid_and_eko_compatible(grid, operators, xif)
     # rotate to evolution (if doable and necessary)
     if np.allclose(operators.rotations.inputpids, br.flavor_basis_pids):
@@ -186,8 +177,6 @@ def evolve_grid(
     muf2_grid = operators.mu2grid
     # PineAPPL wants alpha_s = 4*pi*a_s
     # remember that we already accounted for xif in the opcard generation
-    tcard = operators.theory_card
-    opcard = operators.operator_card
     evmod = eko.couplings.couplings_mod_ev(opcard.configs.evolution_method)
     # Couplings ask for the square of the masses
     quark_masses = [(x.value) ** 2 for x in tcard.quark_masses]
@@ -200,9 +189,7 @@ def evolve_grid(
         thresholds_ratios=tcard.matching,
     )
     # If we are computing scheme A we also need to pass fact_scale.
-    sv_method = None
-    if operators.operator_card.configs.scvar_method is not None:
-        sv_method = operators.operator_card.configs.scvar_method.name
+
     # To compute the alphas values we are first reverting the factorization scale shift
     # and then obtaining the renormalization scale using xir.
     alphas_values = [
