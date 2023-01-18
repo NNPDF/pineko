@@ -21,7 +21,7 @@ def benchmark_check_grid_and_eko_compatible(test_files, tmp_path):
             test_files / "data/ekos/208/HERA_CC_318GEV_EM_SIGMARED.tar", oppath
         )
     with eko.EKO.edit(
-        test_files / "data/ekos/400/HERA_NC_225GEV_EP_SIGMARED_backup.tar"
+        test_files / "data/ekos/400/HERA_NC_225GEV_EP_SIGMARED.tar"
     ) as ekoop:
         with pytest.raises(ValueError):
             pineko.check.check_grid_and_eko_compatible(wrong_grid, ekoop, 1.0)

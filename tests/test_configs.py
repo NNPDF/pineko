@@ -21,7 +21,6 @@ def test_enhance_paths():
     with pytest.raises(ValueError):
         pineko.configs.enhance_paths(test_configs)
     test_configs["paths"]["operator_cards"] = pathlib.Path("my/ope/cards/")
-    test_configs["paths"]["operator_card_template"] = pathlib.Path("my/ope/cards/")
     pineko.configs.enhance_paths(test_configs)
     assert test_configs["paths"]["operator_cards"] == pathlib.Path(
         "/my/root/path/my/ope/cards/"
@@ -38,7 +37,6 @@ def test_default():
             "ymldb": pathlib.Path(""),
             "grids": pathlib.Path(""),
             "operator_cards": pathlib.Path("my/ope/cards/"),
-            "operator_card_template": pathlib.Path("my/ope/cards/name.yaml"),
             "theory_cards": pathlib.Path(""),
             "fktables": pathlib.Path(""),
             "ekos": pathlib.Path(""),
