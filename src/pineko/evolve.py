@@ -143,9 +143,7 @@ def evolve_grid(
     # new_tcard = legacy_class.new_theory
     tcard = operators.theory_card
     opcard = operators.operator_card
-    evmod = eko.io.types.CouplingEvolutionMethod.EXACT
-    if opcard.configs.evolution_method is EvolutionMethod.TRUNCATED:
-        evmod = eko.io.types.CouplingEvolutionMethod.EXPANDED
+    evmod = eko.couplings.couplings_mod_ev(opcard.configs.evolution_method)
     quark_masses = [(x.value) ** 2 for x in tcard.quark_masses]
     sc = eko.couplings.Couplings(
         tcard.couplings,
