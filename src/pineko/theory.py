@@ -305,6 +305,8 @@ class TheoryBuilder:
         )
         # setup data
         ocard = self.load_operator_card(name)
+        # The operator card has been already generated in the correct format
+        # The theory card needs to be converted to a format that eko can use
         legacy_class = eko.io.runcards.Legacy(tcard, ocard)
         new_theory = legacy_class.new_theory
         new_op = eko.io.runcards.OperatorCard.from_dict(ocard)
@@ -316,6 +318,7 @@ class TheoryBuilder:
         # do it!
         logger.info("Start computation of %s", name)
         start_time = time.perf_counter()
+        # Actual computation of the EKO
         eko.runner.solve(new_theory, new_op, eko_filename)
         logger.info(
             "Finished computation of %s - took %f s",
