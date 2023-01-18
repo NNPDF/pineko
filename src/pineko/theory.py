@@ -358,10 +358,6 @@ class TheoryBuilder:
         sv_method = evolve.sv_scheme(tcard)
         xir = tcard["XIR"]
         xif = tcard["XIF"]
-        ftr = tcard["fact_to_ren_scale_ratio"]
-        xif_to_write = xif
-        if sv_method == "B":
-            xif_to_write = ftr
         # loading grid
         grid = pineappl.grid.Grid.read(grid_path)
         # remove zero subgrid
@@ -388,12 +384,13 @@ class TheoryBuilder:
                 raise ValueError(
                     "Renormalization scale variations are not available for this grid"
                 )
-        if not np.isclose(xif, 1.0):
-            is_fact_as, is_fact_al = check.contains_fact(grid, max_as, max_al)
-            if not (is_fact_as and is_fact_al):
-                raise ValueError(
-                    "Factorization scale variations are not available for this grid"
-                )
+        if sv_method == "None":
+            if not np.isclose(xif, 1.0):
+                is_fact_as, is_fact_al = check.contains_fact(grid, max_as, max_al)
+                if not (is_fact_as and is_fact_al):
+                    raise ValueError(
+                        "Factorization scale variations are not available for this grid"
+                    )
         # loading ekos
         with eko.EKO.open(eko_filename) as operators:
 
@@ -406,7 +403,7 @@ class TheoryBuilder:
                 max_as,
                 max_al,
                 xir,
-                xif_to_write,
+                xif,
             )
             start_time = time.perf_counter()
 
@@ -417,7 +414,7 @@ class TheoryBuilder:
                 f"   {grid_path}\n",
                 f"+ {eko_filename}\n",
                 f"= {fk_filename}\n",
-                f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif_to_write}",
+                f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
             )
             _grid, _fk, comparison = evolve.evolve_grid(
                 grid,
