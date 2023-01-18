@@ -15,7 +15,7 @@ import pineko.theory_card
 
 def benchmark_write_operator_card_from_file(tmp_path, test_files, test_configs):
     pine_path = test_files / "data/grids/208/HERA_CC_318GEV_EM_SIGMARED.pineappl.lz4"
-    default_path = test_files / "data/operator_cards/_template.yaml"
+    default_path = test_files / "data/operator_cards/208/_template.yaml"
     target_path = pathlib.Path(tmp_path / "test_operator.yaml")
 
     x_grid, _q2_grid = pineko.evolve.write_operator_card_from_file(
@@ -40,15 +40,12 @@ def benchmark_write_operator_card_from_file(tmp_path, test_files, test_configs):
 
 def benchmark_dglap(tmp_path, test_files, test_configs):
     pine_path = test_files / "data/grids/208/HERA_CC_318GEV_EM_SIGMARED.pineappl.lz4"
-    default_path = test_files / "data/operator_cards/_template.yaml"
+    default_path = test_files / "data/operator_cards/208/_template.yaml"
     target_path = pathlib.Path(tmp_path / "test_operator.yaml")
 
     theory_id = 208
     tcard = pineko.theory_card.load(theory_id)
     # In order to check if the operator card is enough for eko, let's compute the eko
-    # tcard = eko.compatibility.update_theory(pineko.theory_card.load(theory_id))
-    # if "ModSV" not in tcard:
-    #    tcard["ModSV"] = "expanded"
 
     pineko.evolve.write_operator_card_from_file(
         pine_path, default_path, target_path, 1.0
@@ -68,12 +65,6 @@ def benchmark_dglap(tmp_path, test_files, test_configs):
     new_theory = legacy_class.new_theory
     new_op = eko.io.runcards.OperatorCard.from_dict(myopcard)
 
-    # upgrade cards layout
-    # newtcard, newocard = eko.compatibility.update(tcard, myopcard)
-
-    # we are only interested in checking the configuration
-    # instatianting a runner is mostly sufficient
-    # TODO: speed up this step, and run a full run_dglap
     eko_path = pathlib.Path(tmp_path / "test_eko.tar")
     _ = eko.runner.solve(new_theory, new_op, eko_path)
 

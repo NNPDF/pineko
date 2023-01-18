@@ -221,7 +221,8 @@ class TheoryBuilder:
                 return
         _x_grid, q2_grid = evolve.write_operator_card_from_file(
             grid,
-            configs.configs["paths"]["operator_card_template"],
+            self.operator_cards_path
+            / configs.configs["paths"]["operator_card_template_name"],
             opcard_path,
             xif,
         )

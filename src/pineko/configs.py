@@ -50,7 +50,6 @@ def enhance_paths(configs_):
     for key in [
         "ymldb",
         "operator_cards",
-        "operator_card_template",
         "grids",
         "theory_cards",
         "fktables",
