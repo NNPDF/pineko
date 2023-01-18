@@ -389,7 +389,7 @@ class TheoryBuilder:
                     "Factorization scale variations are not available for this grid"
                 )
         # loading ekos
-        with eko.EKO.edit(eko_filename) as operators:
+        with eko.EKO.open(eko_filename) as operators:
 
             # Obtain the assumptions hash
             assumptions = theory_card.construct_assumptions(tcard)
