@@ -15,7 +15,6 @@ from ._base import command
 @command.command("convolute")
 @click.argument("grid_path", type=click.Path(exists=True))
 @click.argument("op_path", type=click.Path(exists=True))
-@click.argument("tcard_path", type=click.Path(exists=True))
 @click.argument("fktable", type=click.Path())
 @click.argument("max_as", type=int)
 @click.argument("max_al", type=int)
@@ -30,15 +29,11 @@ from ._base import command
     help="the flavor assumptions to be used",
     show_default=True,
 )
-def subcommand(
-    grid_path, op_path, tcard_path, fktable, max_as, max_al, xir, xif, pdf, assumptions
-):
+def subcommand(grid_path, op_path, fktable, max_as, max_al, xir, xif, pdf, assumptions):
     """Convolute PineAPPL grid and EKO into an FK table.
 
     GRID_PATH and OP_PATH are the path to the respective elements to convolute, and
     FKTABLE is the path where to dump the output.
-
-    TCARD_PATH is the path to the theory card.
 
     MAX_AS and MAX_AL are used to specify the order in QCD and QED
     couplings (i.e. the maximum power allowed for each correction).
