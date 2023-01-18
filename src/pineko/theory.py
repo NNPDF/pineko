@@ -202,7 +202,7 @@ class TheoryBuilder:
                 f(name, grid, **kwargs)
             rich.print()
 
-    def opcard(self, name, grid, xif):
+    def opcard(self, name, grid, tcard):
         """Write a single operator card.
 
         Parameters
@@ -211,8 +211,8 @@ class TheoryBuilder:
             grid name, i.e. it's true stem
         grid : pathlib.Path
             path to grid
-        xif : float
-            factorization scale
+        tcard : dict
+            theory card
         """
         opcard_path = self.operator_cards_path / f"{name}.yaml"
         if opcard_path.exists():
@@ -224,7 +224,7 @@ class TheoryBuilder:
             self.operator_cards_path
             / configs.configs["paths"]["operator_card_template_name"],
             opcard_path,
-            xif,
+            tcard,
         )
         if opcard_path.exists():
             rich.print(
@@ -235,7 +235,7 @@ class TheoryBuilder:
         """Write operator cards."""
         tcard = theory_card.load(self.theory_id)
         self.operator_cards_path.mkdir(exist_ok=True)
-        self.iterate(self.opcard, xif=tcard["XIF"])
+        self.iterate(self.opcard, tcard=tcard)
 
     def load_operator_card(self, name):
         """Read current operator card.
@@ -353,9 +353,15 @@ class TheoryBuilder:
         do_log = self.activate_logging(
             paths["logs"]["fk"], f"{self.theory_id}-{name}-{pdf}.log"
         )
-        # check if grid contains SV if theory is requesting them
+        # check if grid contains SV if theory is requesting them (in particular
+        # if theory is requesting scheme A or C)
+        sv_method = evolve.sv_scheme(tcard)
         xir = tcard["XIR"]
         xif = tcard["XIF"]
+        ftr = tcard["fact_to_ren_scale_ratio"]
+        xif_to_write = xif
+        if sv_method == "B":
+            xif_to_write = ftr
         # loading grid
         grid = pineappl.grid.Grid.read(grid_path)
         # remove zero subgrid
@@ -396,7 +402,11 @@ class TheoryBuilder:
             # do it!
             logger.info("Start computation of %s", name)
             logger.info(
-                "max_as=%d, max_al=%d, xir=%f, xif=%f", max_as, max_al, xir, xif
+                "max_as=%d, max_al=%d, xir=%f, xif=%f",
+                max_as,
+                max_al,
+                xir,
+                xif_to_write,
             )
             start_time = time.perf_counter()
 
@@ -407,7 +417,7 @@ class TheoryBuilder:
                 f"   {grid_path}\n",
                 f"+ {eko_filename}\n",
                 f"= {fk_filename}\n",
-                f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
+                f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif_to_write}",
             )
             _grid, _fk, comparison = evolve.evolve_grid(
                 grid,
