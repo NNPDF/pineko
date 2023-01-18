@@ -159,8 +159,7 @@ def evolve_grid(
     # To compute the alphas values we are first reverting the factorization scale shift
     # and then obtaining the renormalization scale using xir.
     alphas_values = [
-        4.0 * np.pi * sc.a_s(xir * xir * muf2 / xif / xif, fact_scale=muf2)
-        for muf2 in muf2_grid
+        4.0 * np.pi * sc.a_s(xir * xir * muf2 / xif / xif) for muf2 in muf2_grid
     ]
     # We need to use ekompatibility in order to pass a dictionary to pineappl
     fktable = grid.evolve(
