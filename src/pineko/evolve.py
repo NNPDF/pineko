@@ -81,7 +81,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, xif):
     operators_card["rotations"]["_targetgrid"] = x_grid.tolist()
     operators_card["_mugrid"] = np.sqrt(q2_grid).tolist()
     if not np.isclose(xif, 1.0):
-        operator_card["configs"]["scvar_method"] = "expanded"
+        operators_card["configs"]["scvar_method"] = "expanded"
     if "integrability_version" in pineappl_grid.key_values():
         operators_card["configs"]["interpolation_polynomial_degree"] = 1
         x_grid_int = copy.deepcopy(x_grid.tolist())
