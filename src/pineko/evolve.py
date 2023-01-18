@@ -82,6 +82,9 @@ def write_operator_card(pineappl_grid, default_card, card_path, xif):
     operators_card["_mugrid"] = np.sqrt(q2_grid).tolist()
     if not np.isclose(xif, 1.0):
         operators_card["configs"]["scvar_method"] = "expanded"
+    # If we are computing and integrability FK we want to add a single
+    # x point to the xgrid and decrease the interpolation polynonial
+    # degree to 1
     if "integrability_version" in pineappl_grid.key_values():
         operators_card["configs"]["interpolation_polynomial_degree"] = 1
         x_grid_int = copy.deepcopy(x_grid.tolist())
@@ -132,6 +135,7 @@ def evolve_grid(
     # rotate to evolution (if doable and necessary)
     if np.allclose(operators.rotations.inputpids, br.flavor_basis_pids):
         eko.io.manipulate.to_evol(operators)
+    # Here we are checking if the EKO contains the rotation matrix (flavor to evol)
     elif not np.allclose(operators.rotations.inputpids, br.rotate_flavor_to_evolution):
         raise ValueError("The EKO is neither in flavor nor in evolution basis.")
     # do it
@@ -139,11 +143,10 @@ def evolve_grid(
     muf2_grid = operators.mu2grid
     # PineAPPL wants alpha_s = 4*pi*a_s
     # remember that we already accounted for xif in the opcard generation
-    # legacy_class = eko.io.runcards.Legacy(operators.theory_card, {})
-    # new_tcard = legacy_class.new_theory
     tcard = operators.theory_card
     opcard = operators.operator_card
     evmod = eko.couplings.couplings_mod_ev(opcard.configs.evolution_method)
+    # Couplings ask for the square of the masses
     quark_masses = [(x.value) ** 2 for x in tcard.quark_masses]
     sc = eko.couplings.Couplings(
         tcard.couplings,
@@ -153,10 +156,13 @@ def evolve_grid(
         hqm_scheme=tcard.quark_masses_scheme,
         thresholds_ratios=tcard.matching,
     )
+    # To compute the alphas values we are first reverting the factorization scale shift
+    # and then obtaining the renormalization scale using xir.
     alphas_values = [
         4.0 * np.pi * sc.a_s(xir * xir * muf2 / xif / xif, fact_scale=muf2)
         for muf2 in muf2_grid
     ]
+    # We need to use ekompatibility in order to pass a dictionary to pineappl
     fktable = grid.evolve(
         ekompatibility.pineappl_layout(operators),
         xir * xir * mur2_grid,
