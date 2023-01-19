@@ -7,7 +7,7 @@ def my_tmp_path(tmp_path):
 
 
 @pytest.fixture
-def construct_wrong_fake_configs(my_tmp_path):
+def wrong_fake_configs(my_tmp_path):
     """This configs are wrong because under logs/fk there is a list and not a string."""
     wrong_fake_configs = {
         "paths": {
@@ -20,7 +20,7 @@ def construct_wrong_fake_configs(my_tmp_path):
 
 
 @pytest.fixture
-def construct_fake_configs_incomplete(my_tmp_path):
+def fake_configs_incomplete(my_tmp_path):
     "This configs are incomplete because we are missing for instance the ekos and fktables keys."
     fake_configs_incomplete = {
         "paths": {
@@ -33,7 +33,7 @@ def construct_fake_configs_incomplete(my_tmp_path):
 
 
 @pytest.fixture
-def construct_fake_configs(my_tmp_path):
+def fake_configs(my_tmp_path):
     fake_configs = {
         "paths": {
             "ymldb": my_tmp_path / "data" / "ymldb",
