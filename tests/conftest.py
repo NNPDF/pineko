@@ -2,49 +2,44 @@ import pytest
 
 
 @pytest.fixture
-def my_tmp_path(tmp_path):
-    return tmp_path
-
-
-@pytest.fixture
-def wrong_fake_configs(my_tmp_path):
+def wrong_fake_configs(tmp_path):
     """This configs are wrong because under logs/fk there is a list and not a string."""
     wrong_fake_configs = {
         "paths": {
-            "ymldb": my_tmp_path / "data" / "ymldb",
-            "logs": {"eko": my_tmp_path / "logs" / "eko", "fk": ["something", "wrong"]},
+            "ymldb": tmp_path / "data" / "ymldb",
+            "logs": {"eko": tmp_path / "logs" / "eko", "fk": ["something", "wrong"]},
         },
-        "root": my_tmp_path,
+        "root": tmp_path,
     }
     return wrong_fake_configs
 
 
 @pytest.fixture
-def fake_configs_incomplete(my_tmp_path):
+def fake_configs_incomplete(tmp_path):
     "This configs are incomplete because we are missing for instance the ekos and fktables keys."
     fake_configs_incomplete = {
         "paths": {
-            "ymldb": my_tmp_path / "data" / "ymldb",
-            "logs": {"eko": my_tmp_path / "logs" / "eko"},
+            "ymldb": tmp_path / "data" / "ymldb",
+            "logs": {"eko": tmp_path / "logs" / "eko"},
         },
-        "root": my_tmp_path,
+        "root": tmp_path,
     }
     return fake_configs_incomplete
 
 
 @pytest.fixture
-def fake_configs(my_tmp_path):
+def fake_configs(tmp_path):
     fake_configs = {
         "paths": {
-            "ymldb": my_tmp_path / "data" / "ymldb",
-            "operator_cards": my_tmp_path / "data" / "operator_cards",
-            "grids": my_tmp_path / "data" / "grids",
+            "ymldb": tmp_path / "data" / "ymldb",
+            "operator_cards": tmp_path / "data" / "operator_cards",
+            "grids": tmp_path / "data" / "grids",
             "operator_card_template_name": "_template.yaml",
-            "theory_cards": my_tmp_path / "data" / "theory_cards",
-            "fktables": my_tmp_path / "data" / "fktables",
-            "ekos": my_tmp_path / "data" / "ekos",
-            "logs": {"eko": my_tmp_path / "logs" / "eko"},
+            "theory_cards": tmp_path / "data" / "theory_cards",
+            "fktables": tmp_path / "data" / "fktables",
+            "ekos": tmp_path / "data" / "ekos",
+            "logs": {"eko": tmp_path / "logs" / "eko"},
         },
-        "root": my_tmp_path,
+        "root": tmp_path,
     }
     return fake_configs

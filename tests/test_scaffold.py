@@ -5,12 +5,12 @@ import pytest
 from pineko import configs, scaffold
 
 
-def test_set_up_project(my_tmp_path, wrong_fake_configs, fake_configs_incomplete):
+def test_set_up_project(tmp_path, wrong_fake_configs, fake_configs_incomplete):
     with pytest.raises(TypeError):
         scaffold.set_up_project(wrong_fake_configs)
     scaffold.set_up_project(fake_configs_incomplete)
-    assert (my_tmp_path / "data/ymldb").exists()
-    assert (my_tmp_path / "logs/eko").exists()
+    assert (tmp_path / "data/ymldb").exists()
+    assert (tmp_path / "logs/eko").exists()
 
 
 def test_check_folder(fake_configs_incomplete, fake_configs):
