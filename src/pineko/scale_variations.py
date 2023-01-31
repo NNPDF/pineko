@@ -82,12 +82,12 @@ def compute_orders_map(m, delta):
     dict(tuple(int))
         description of all the needed orders
     """
-    nec_orders = {}
+    orders = {}
     for delt in range(delta):
-        nec_orders[(m + delta, 0, delt + 1, 0)] = [
+        orders[(m + delta, 0, delt + 1, 0)] = [
             (m + de, 0, 0, 0) for de in range(delta - delt)
         ]
-    return nec_orders
+    return orders
 
 
 def create_svonly_grid(grid, order, new_order, scalefactor):
