@@ -135,7 +135,7 @@ def create_grids(gridpath, order, kR, nf):
     return grid_list
 
 
-def construct_ren_sv_grid(grid, max_as, nf):
+def compute_ren_sv_grid(grid, max_as, nf):
     """Generate renormalization scale variation terms for the given grid, according to the max_as.
 
     Parameters
