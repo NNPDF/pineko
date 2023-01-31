@@ -90,7 +90,7 @@ def compute_orders_map(m, delta):
     return orders
 
 
-def create_svonly_grid(grid, order, new_order, scalefactor):
+def create_svonly(grid, order, new_order, scalefactor):
     """Create a grid containing only the renormalization scale variations at a given order for a grid."""
     # Retrieve parameters to create new grid
     bin_limits = [
@@ -130,7 +130,7 @@ def create_all_necessary_grids(gridpath, order, kR, nf):
                 m_value, nec_order, to_construct_order, nf, kR
             )
             grid_list.append(
-                create_svonly_grid(grid, nec_order, to_construct_order, scalefactor)
+                create_svonly(grid, nec_order, to_construct_order, scalefactor)
             )
     return grid_list
 
