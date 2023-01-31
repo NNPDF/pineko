@@ -95,7 +95,7 @@ def create_svonly(grid, order, new_order, scalefactor):
     # Retrieve parameters to create new grid
     bin_limits = [
         float(bin) for bin in range(grid.raw.bins() + 1)
-    ]  # +1 because I don't know
+    ]  # The +1 explanation is that n bins have n+1 bin limits, and range generates numbers from a half-open interval (range(n) generates n numbers).
     lumi_grid = [pineappl.lumi.LumiEntry(mylum) for mylum in grid.raw.lumi()]
     subgrid_params = pineappl.subgrid.SubgridParams()
     new_order = [pineappl.grid.Order(*new_order)]
