@@ -6,7 +6,7 @@ from eko import beta
 from . import check
 
 
-def ren_sv_contrib(m, delta, logpart, which_part, nf):
+def ren_sv_coeffs(m, delta, logpart, which_part, nf):
     """Return the ren_sv contribution relative to the requested log power and perturbative order contribution (which_part).
 
     Parameters
@@ -64,7 +64,7 @@ def compute_scalefactor(m, nec_order, to_construct_order, nf, kR):
     """
     delta = to_construct_order[0] - m
     logpart = to_construct_order[2]
-    return (kR**logpart) * ren_sv_contrib(m, delta, logpart, nec_order[0] - m, nf)
+    return (kR**logpart) * ren_sv_coeffs(m, delta, logpart, nec_order[0] - m, nf)
 
 
 def compute_map_of_necessary_orders(m, delta):
