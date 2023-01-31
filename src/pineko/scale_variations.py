@@ -104,7 +104,7 @@ def create_svonly(grid, order, new_order, scalefactor):
         lumi_grid, new_order, bin_limits, subgrid_params
     )
     # extract the relevant order to rescale from the grid for each lumi and bin
-    grid_orders = [orde.as_tuple() for orde in grid.orders()]
+    grid_orders = [order.as_tuple() for order in grid.orders()]
     order_index = grid_orders.index(order)
     for lumi_index in range(len(lumi_grid)):
         for bin_index in range(grid.raw.bins()):
