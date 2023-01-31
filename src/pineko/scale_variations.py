@@ -115,7 +115,7 @@ def create_svonly(grid, order, new_order, scalefactor):
     return new_grid
 
 
-def create_all_necessary_grids(gridpath, order, kR, nf):
+def create_grids(gridpath, order, kR, nf):
     """Create all the necessary scale variations grids for a certain starting grid."""
     grid = pineappl.grid.Grid.read(gridpath)
     grid_orders = [orde.as_tuple() for orde in grid.orders()]
