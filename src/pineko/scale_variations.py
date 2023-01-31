@@ -41,7 +41,7 @@ def ren_sv_coeffs(m, delta, logpart, which_part, nf):
             return -(m + 1) * beta.beta_qcd((2, 0), nf)
 
 
-def compute_scalefactor(m, nec_order, to_construct_order, nf, kR):
+def compute_scale_factor(m, nec_order, to_construct_order, nf, kR):
     """Compute the factor of renormalization scale variation.
 
     Parameters
@@ -126,7 +126,7 @@ def create_all_necessary_grids(gridpath, order, kR, nf):
     grid_list = []
     for to_construct_order in nec_orders:
         for nec_order in nec_orders[to_construct_order]:
-            scalefactor = compute_scalefactor(
+            scalefactor = compute_scale_factor(
                 m_value, nec_order, to_construct_order, nf, kR
             )
             grid_list.append(
