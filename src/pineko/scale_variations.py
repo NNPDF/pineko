@@ -67,7 +67,7 @@ def compute_scale_factor(m, nec_order, to_construct_order, nf, kR):
     return (kR**logpart) * ren_sv_coeffs(m, delta, logpart, nec_order[0] - m, nf)
 
 
-def compute_map_of_necessary_orders(m, delta):
+def compute_orders_map(m, delta):
     """Compute a dictionary with all the necessary order to compute in order to have the full renormalization scale variation.
 
     Parameters
@@ -122,7 +122,7 @@ def create_all_necessary_grids(gridpath, order, kR, nf):
     first_nonzero_order = grid_orders[0]
     m_value = first_nonzero_order[0]
     deltaorder = order[0] - m_value
-    nec_orders = compute_map_of_necessary_orders(m_value, deltaorder)
+    nec_orders = compute_orders_map(m_value, deltaorder)
     grid_list = []
     for to_construct_order in nec_orders:
         for nec_order in nec_orders[to_construct_order]:
