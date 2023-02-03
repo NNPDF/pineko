@@ -107,7 +107,6 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     xif = 1.0 if sv_method == "expanded" else tcard["XIF"]
     operators_card["configs"]["scvar_method"] = sv_method
     q2_grid = (xif * xif * muf2_grid).tolist()
-    operators_card["rotations"]["_targetgrid"] = x_grid.tolist()
     operators_card["_mugrid"] = np.sqrt(q2_grid).tolist()
     # If we are computing and integrability FK we want to add a single
     # x point to the xgrid and decrease the interpolation polynonial
@@ -164,6 +163,10 @@ def evolve_grid(
     xif = 1.0 if sv_method == "EXPANDED" else xif
     tcard = operators.theory_card
     opcard = operators.operator_card
+    # rotate the targetgrid
+    eko.io.manipulate.xgrid_reshape(
+        operators, targetgrid=eko.interpolation.XGrid(_x_grid)
+    )
     check.check_grid_and_eko_compatible(grid, operators, xif)
     # rotate to evolution (if doable and necessary)
     if np.allclose(operators.rotations.inputpids, br.flavor_basis_pids):
