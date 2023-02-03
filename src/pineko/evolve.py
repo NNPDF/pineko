@@ -156,7 +156,7 @@ def evolve_grid(
     comparison_pdf : None or str
         if given, a comparison table (with / without evolution) will be printed
     """
-    _x_grid, _pids, mur2_grid, _muf2_grid = grid.axes()
+    x_grid, _pids, mur2_grid, _muf2_grid = grid.axes()
     sv_method = None
     if operators.operator_card.configs.scvar_method is not None:
         sv_method = operators.operator_card.configs.scvar_method.name
@@ -165,7 +165,7 @@ def evolve_grid(
     opcard = operators.operator_card
     # rotate the targetgrid
     eko.io.manipulate.xgrid_reshape(
-        operators, targetgrid=eko.interpolation.XGrid(_x_grid)
+        operators, targetgrid=eko.interpolation.XGrid(x_grid)
     )
     check.check_grid_and_eko_compatible(grid, operators, xif)
     # rotate to evolution (if doable and necessary)
