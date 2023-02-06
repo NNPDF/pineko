@@ -41,7 +41,7 @@ def ren_sv_coeffs(m, delta, logpart, which_part, nf):
             return -(m + 1) * beta.beta_qcd((2, 0), nf)
 
 
-def compute_scale_factor(m, nec_order, to_construct_order, nf, kR):
+def compute_scale_factor(m, nec_order, to_construct_order, nf):
     """Compute the factor of renormalization scale variation.
 
     Parameters
@@ -54,8 +54,6 @@ def compute_scale_factor(m, nec_order, to_construct_order, nf, kR):
         tuple of the sv order to be constructed
     nf : int
         number of active flavors
-    kR : float
-        log of the ratio between renormalization scale and Q
 
     Returns
     -------
@@ -64,7 +62,7 @@ def compute_scale_factor(m, nec_order, to_construct_order, nf, kR):
     """
     delta = to_construct_order[0] - m
     logpart = to_construct_order[2]
-    return (kR**logpart) * ren_sv_coeffs(m, delta, logpart, nec_order[0] - m, nf)
+    return ren_sv_coeffs(m, delta, logpart, nec_order[0] - m, nf)
 
 
 def compute_orders_map(m, delta):
@@ -115,7 +113,7 @@ def create_svonly(grid, order, new_order, scalefactor):
     return new_grid
 
 
-def create_grids(gridpath, order, kR, nf):
+def create_grids(gridpath, order, nf):
     """Create all the necessary scale variations grids for a certain starting grid."""
     grid = pineappl.grid.Grid.read(gridpath)
     grid_orders = [orde.as_tuple() for orde in grid.orders()]
@@ -127,12 +125,34 @@ def create_grids(gridpath, order, kR, nf):
     for to_construct_order in nec_orders:
         for nec_order in nec_orders[to_construct_order]:
             scalefactor = compute_scale_factor(
-                m_value, nec_order, to_construct_order, nf, kR
+                m_value, nec_order, to_construct_order, nf
             )
             grid_list.append(
                 create_svonly(grid, nec_order, to_construct_order, scalefactor)
             )
     return grid_list
+
+
+def write_sv_grids(gridpath, grid_list):
+    """Write the scale variations grids."""
+    base_name = gridpath.stem.split(".pineappl")[0]
+    final_part = ".pineappl.lz4"
+    grid_paths = []
+    for num, grid in zip(range(len(grid_list)), grid_list):
+        new_grid_path = gridpath.parent / (base_name + "_" + str(num) + final_part)
+        grid_paths.append(new_grid_path)
+        grid.raw.write_lz4(new_grid_path)
+    return grid_paths
+
+
+def merge_grids(gridpath, grid_list_path):
+    """Merge the scale variations grids."""
+    grid = pineappl.grid.Grid.read(gridpath)
+    base_name = gridpath.stem.split(".pineappl")[0]
+    new_path = gridpath.parent / (base_name + "_plusrensv.pineappl.lz4")
+    for grid_path in grid_list_path:
+        grid.raw.merge_from_file(grid_path)
+    grid.raw.write_lz4(new_path)
 
 
 def compute_ren_sv_grid(grid, max_as, nf):
