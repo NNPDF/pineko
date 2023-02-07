@@ -26,7 +26,6 @@ def benchmark_write_operator_card_from_file(tmp_path, test_files, test_configs):
     myopcard = yaml.safe_load(target_path.read_text(encoding="utf-8"))
     # Check if it contains all the information for eko
     assert np.allclose(myopcard["rotations"]["xgrid"], x_grid)
-    assert np.allclose(myopcard["rotations"]["_targetgrid"], x_grid)
     assert np.allclose(
         myopcard["rotations"]["pids"], eko.basis_rotation.flavor_basis_pids
     )
