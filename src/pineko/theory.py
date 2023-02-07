@@ -17,7 +17,7 @@ import rich
 import yaml
 from eko import couplings as sc
 
-from . import check, configs, evolve, parser, theory_card
+from . import check, configs, evolve, parser, scale_variations, theory_card
 
 logger = logging.getLogger(__name__)
 
@@ -225,7 +225,8 @@ class TheoryBuilder:
                 return
         _x_grid, q2_grid = evolve.write_operator_card_from_file(
             grid,
-            self.operator_cards_path / configs.configs["paths"]["operator_card_template_name"],
+            self.operator_cards_path
+            / configs.configs["paths"]["operator_card_template_name"],
             opcard_path,
             xif,
             tcard_path,
@@ -453,3 +454,14 @@ class TheoryBuilder:
         tcard = theory_card.load(self.theory_id)
         self.fks_path.mkdir(exist_ok=True)
         self.iterate(self.fk, tcard=tcard, pdf=pdf)
+
+    def construct_ren_sv_grids(self):
+        """Construct renormalization scale variations terms for all the grids."""
+        tcard = theory_card.load(self.theory_id)
+        self.iterate(self.construct_ren_sv_grid, tcard=tcard)
+
+    def construct_ren_sv_grid(self, name, grid_path, tcard):
+        """Construct renormalization scale variations terms for a grid."""
+        max_as = int(tcard["PTO"])
+        nf = 5  # TODO: fix this
+        scale_variations.compute_ren_sv_grid(grid_path, max_as, nf)

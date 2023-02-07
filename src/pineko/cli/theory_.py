@@ -93,3 +93,11 @@ def fks(theory_id, datasets, pdf, silent, clear_logs, overwrite):
     theory.TheoryBuilder(
         theory_id, datasets, silent=silent, clear_logs=clear_logs, overwrite=overwrite
     ).fks(pdf)
+
+
+@theory_.command()
+@click.argument("theory_id", type=click.INT)
+@click.argument("datasets", type=click.STRING, nargs=-1)
+def ren_sv_grids(theory_id, datasets):
+    """Construct new grids with renormalization scale variations included."""
+    theory.TheoryBuilder(theory_id, datasets).construct_ren_sv_grids()

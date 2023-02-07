@@ -121,15 +121,16 @@ def create_grids(gridpath, order, nf):
     m_value = first_nonzero_order[0]
     deltaorder = order[0] - m_value
     nec_orders = compute_orders_map(m_value, deltaorder)
-    grid_list = []
+    grid_list = {}
     for to_construct_order in nec_orders:
         for nec_order in nec_orders[to_construct_order]:
             scalefactor = compute_scale_factor(
                 m_value, nec_order, to_construct_order, nf
             )
-            grid_list.append(
-                create_svonly(grid, nec_order, to_construct_order, scalefactor)
+            grid_list[nec_order] = create_svonly(
+                grid, nec_order, to_construct_order, scalefactor
             )
+
     return grid_list
 
 
@@ -155,20 +156,27 @@ def merge_grids(gridpath, grid_list_path):
     grid.raw.write_lz4(new_path)
 
 
-def compute_ren_sv_grid(grid, max_as, nf):
+def compute_ren_sv_grid(grid_path, max_as, nf):
     """Generate renormalization scale variation terms for the given grid, according to the max_as.
 
     Parameters
     ----------
-    grid : pineappl.grid.Grid
-        pineappl grid
+    grid_pah : pathlib.Path()
+        pineappl grid path
     max_as : int
         max as order
     nf : int
         number of active flavors
     """
     # First let's check if the ren_sv are already there
+    grid = pineappl.grid.Grid.read(grid_path)
     sv_as, sv_al = check.contains_ren(grid, max_as, max_al=0)
     if sv_as:
         rich.print(f"[green]Renormalization scale variations are already in the grid")
-    ### Extract the correct subgrid and call the function to scale it
+    # Creating all the necessary grids
+    order = (max_as, 0, 0, 0)
+    grid_list = create_grids(grid_path, order, nf)
+    # Writing the sv grids
+    sv_grids_paths = write_sv_grids(gridpath=grid_path, grid_list=grid_list)
+    # Merging all together
+    merge_grids(gridpath=grid_path, grid_list_path=sv_grids_paths)
