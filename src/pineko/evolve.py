@@ -189,7 +189,7 @@ def evolve_grid(
         evmod,
         quark_masses,
         hqm_scheme=tcard.quark_masses_scheme,
-        thresholds_ratios=tuple(tcard.matching.raw.values()),
+        thresholds_ratios=np.power(list(iter(tcard.matching)), 2.0),
     )
     # If we are computing scheme A we also need to pass fact_scale.
 
