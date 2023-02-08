@@ -1,4 +1,6 @@
 """Module to generate scale variations."""
+import os
+
 import pineappl
 import rich
 from eko import beta
@@ -123,13 +125,15 @@ def create_grids(gridpath, order, nf):
     nec_orders = compute_orders_map(m_value, deltaorder)
     grid_list = {}
     for to_construct_order in nec_orders:
+        list_grid_order = []
         for nec_order in nec_orders[to_construct_order]:
             scalefactor = compute_scale_factor(
                 m_value, nec_order, to_construct_order, nf
             )
-            grid_list[nec_order] = create_svonly(
-                grid, nec_order, to_construct_order, scalefactor
+            list_grid_order.append(
+                create_svonly(grid, nec_order, to_construct_order, scalefactor)
             )
+        grid_list[to_construct_order] = list_grid_order
 
     return grid_list
 
@@ -139,10 +143,18 @@ def write_sv_grids(gridpath, grid_list):
     base_name = gridpath.stem.split(".pineappl")[0]
     final_part = ".pineappl.lz4"
     grid_paths = []
-    for num, grid in zip(range(len(grid_list)), grid_list):
-        new_grid_path = gridpath.parent / (base_name + "_" + str(num) + final_part)
+    for order in grid_list:
+        if len(grid_list[order]) > 1:
+            for grid in grid_list[order][1:]:
+                tmp_path = gridpath.parent / ("tmp" + final_part)
+                grid.raw.write_lz4(tmp_path)
+                grid_list[order][0].raw.merge_from_file(tmp_path)
+                os.remove(tmp_path)
+        new_grid_path = gridpath.parent / (
+            base_name + "_" + str(order[2]) + final_part
+        )  # order[2] is the ren_sv order
         grid_paths.append(new_grid_path)
-        grid.raw.write_lz4(new_grid_path)
+        grid_list[order][0].raw.write_lz4(new_grid_path)
     return grid_paths
 
 
