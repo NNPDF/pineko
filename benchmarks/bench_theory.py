@@ -7,7 +7,7 @@ import pineko.theory
 import pineko.theory_card
 
 theory_obj = pineko.theory.TheoryBuilder(208, ["LHCB_Z_13TEV_DIMUON"])
-theory_obj_hera = pineko.theory.TheoryBuilder(208, ["HERACOMBCCEM"])
+theory_obj_hera = pineko.theory.TheoryBuilder(400, ["HERACOMBNCEP460"])
 theory_obj_test = pineko.theory.TheoryBuilder(208, ["HERACOMBCCEM"], silent=True)
 
 
@@ -75,23 +75,26 @@ def benchmark_inherit_ekos(test_files):
 
 
 def benchmark_opcard(test_files, test_configs):
-    th_path = pineko.theory_card.path(208)
-
-    grid_name = "LHCB_DY_13TEV_DIMUON"
-    theory_obj.opcard(
+    tcard = pineko.theory_card.load(400)
+    grid_name = "HERA_NC_225GEV_EP_SIGMARED"
+    theory_obj_hera.opcard(
         grid_name,
-        pathlib.Path(test_files / "data/grids/208/LHCB_DY_13TEV_DIMUON.pineappl.lz4"),
-        1.0,
-        th_path,
+        pathlib.Path(
+            test_files / "data/grids/400/HERA_NC_225GEV_EP_SIGMARED.pineappl.lz4"
+        ),
+        tcard,
     )
     op_path = pathlib.Path(
-        test_files / theory_obj.operator_cards_path / "LHCB_DY_13TEV_DIMUON.yaml"
+        test_files
+        / theory_obj_hera.operator_cards_path
+        / "HERA_NC_225GEV_EP_SIGMARED.yaml"
     )
-    theory_obj.opcard(
+    theory_obj_hera.opcard(
         grid_name,
-        pathlib.Path(test_files / "data/grids/208/LHCB_DY_13TEV_DIMUON.pineappl.lz4"),
-        1.0,
-        th_path,
+        pathlib.Path(
+            test_files / "data/grids/400/HERA_NC_225GEV_EP_SIGMARED.pineappl.lz4"
+        ),
+        tcard,
     )
     if os.path.exists(op_path):
         os.remove(op_path)
@@ -100,29 +103,32 @@ def benchmark_opcard(test_files, test_configs):
 
 
 def benchmark_eko(test_files, test_configs):
-    th_path = pineko.theory_card.path(208)
+    tcard = pineko.theory_card.load(400)
 
-    grid_name = "LHCB_DY_13TEV_DIMUON"
-    grid_path = pathlib.Path(theory_obj.grids_path() / (grid_name + ".pineappl.lz4"))
+    grid_name = "HERA_NC_225GEV_EP_SIGMARED"
+    grid_path = pathlib.Path(
+        theory_obj_hera.grids_path() / (grid_name + ".pineappl.lz4")
+    )
     base_configs = pineko.configs.load(test_files)
     pineko.configs.configs = pineko.configs.defaults(base_configs)
-    tcard = pineko.theory_card.load(208)
-    theory_obj.activate_logging(
+    theory_obj_hera.activate_logging(
         pathlib.Path(test_files / "logs/eko/"),
-        "208-LHCB_DY_13TEV_DIMUON.log",
-        ["208-LHCB_DY_13TEV_DIMUON.log"],
+        "400-HERA_NC_225GEV_EP_SIGMARED.log",
+        ["400-HERA_NC_225GEV_EP_SIGMARED.log"],
     )
-    theory_obj.opcard(grid_name, pathlib.Path(test_files / grid_path), 1.0, th_path)
+    theory_obj_hera.opcard(grid_name, pathlib.Path(test_files / grid_path), tcard)
 
-    theory_obj.eko(grid_name, grid_path, tcard)
+    theory_obj_hera.eko(grid_name, grid_path, tcard)
 
-    log_path = pathlib.Path(test_files / "logs/eko/208-LHCB_DY_13TEV_DIMUON.log")
+    log_path = pathlib.Path(test_files / "logs/eko/400-HERA_NC_225GEV_EP_SIGMARED.log")
     if os.path.exists(log_path):
         os.remove(log_path)
     else:
         raise ValueError("log file not found")
     op_path = pathlib.Path(
-        test_files / theory_obj.operator_cards_path / "LHCB_DY_13TEV_DIMUON.yaml"
+        test_files
+        / theory_obj_hera.operator_cards_path
+        / "HERA_NC_225GEV_EP_SIGMARED.yaml"
     )
     if os.path.exists(op_path):
         os.remove(op_path)
@@ -145,28 +151,25 @@ def benchmark_activate_logging(test_files):
 
 
 def benchmark_fk(test_files, test_configs):
-    th_path = pineko.theory_card.path(208)
+    tcard = pineko.theory_card.load(400)
 
-    grid_name = "HERA_CC_318GEV_EM_SIGMARED"
+    grid_name = "HERA_NC_225GEV_EP_SIGMARED"
     grid_path = pathlib.Path(
         theory_obj_hera.grids_path() / (grid_name + ".pineappl.lz4")
     )
     base_configs = pineko.configs.load(test_files)
     pineko.configs.configs = pineko.configs.defaults(base_configs)
-    tcard = pineko.theory_card.load(208)
     theory_obj_hera.activate_logging(
         pathlib.Path(test_files / "logs/fk/"),
-        "208-HERA_CC_318GEV_EM_SIGMARED.log",
-        ["208-HERA_CC_318GEV_EM_SIGMARED.log"],
+        "400-HERA_NC_225GEV_EP_SIGMARED.log",
+        ["400-HERA_NC_225GEV_EP_SIGMARED.log"],
     )
-    theory_obj_hera.opcard(
-        grid_name, pathlib.Path(test_files / grid_path), 1.0, th_path
-    )
+    theory_obj_hera.opcard(grid_name, pathlib.Path(test_files / grid_path), tcard)
 
     theory_obj_hera.fk(grid_name, grid_path, tcard, pdf=None)
     # test overwrite function
     theory_obj_hera.fk(grid_name, grid_path, tcard, pdf=None)
-    log_path = pathlib.Path(test_files / "logs/fk/208-HERA_CC_318GEV_EM_SIGMARED.log")
+    log_path = pathlib.Path(test_files / "logs/fk/400-HERA_NC_225GEV_EP_SIGMARED.log")
     if os.path.exists(log_path):
         os.remove(log_path)
     else:
@@ -174,7 +177,7 @@ def benchmark_fk(test_files, test_configs):
     op_path = pathlib.Path(
         test_files
         / theory_obj_hera.operator_cards_path
-        / "HERA_CC_318GEV_EM_SIGMARED.yaml"
+        / "HERA_NC_225GEV_EP_SIGMARED.yaml"
     )
     if os.path.exists(op_path):
         os.remove(op_path)
@@ -184,7 +187,7 @@ def benchmark_fk(test_files, test_configs):
     fk_path = pathlib.Path(
         test_files
         / theory_obj_hera.fks_path
-        / "HERA_CC_318GEV_EM_SIGMARED.pineappl.lz4"
+        / "HERA_NC_225GEV_EP_SIGMARED.pineappl.lz4"
     )
     if os.path.exists(fk_path):
         os.remove(fk_path)

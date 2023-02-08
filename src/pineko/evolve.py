@@ -5,31 +5,49 @@ import pathlib
 
 import eko
 import eko.basis_rotation as br
-import eko.compatibility
 import numpy as np
 import pineappl
 import rich
 import rich.box
 import rich.panel
 import yaml
+from eko.io.types import EvolutionMethod
 
 from . import check, comparator, ekompatibility, version
 
-DEFAULT_PIDS = [-5, -4, -3, -2, -1, 21, 22, 1, 2, 3, 4, 5]
+
+def sv_scheme(tcard):
+    """Infere the factorization scale_variation scheme to be used from the theory card.
+
+    Parameters
+    ----------
+    tcard : dict
+        theory card
+
+    """
+    modsv_list = ["expanded", "exponentiated"]
+    xif = tcard["XIF"]
+    modsv = tcard["ModSV"]
+    if np.isclose(xif, 1.0):
+        if modsv in modsv_list:
+            raise ValueError("ModSv is not None but xif is 1.0")
+        else:
+            return "None"
+    else:
+        # scheme C case
+        if modsv not in modsv_list:
+            return "None"
+        else:
+            return modsv
 
 
 def write_operator_card_from_file(
     pineappl_path: os.PathLike,
     default_card_path: os.PathLike,
     card_path: os.PathLike,
-    xif: float,
-    tcard_path: os.PathLike,
+    tcard,
 ):
     """Generate operator card for a grid.
-
-    Note
-    ----
-    For the reason why `tcard` is required, see :func:`write_operator_card`.
 
     Parameters
     ----------
@@ -39,9 +57,7 @@ def write_operator_card_from_file(
         base operator card
     card_path : str or os.PathLike
         target path
-    xif : float
-        factorization scale variation
-    tcard_path: dict
+    tcard: dict
         theory card for the run
 
     Returns
@@ -59,11 +75,10 @@ def write_operator_card_from_file(
     default_card = yaml.safe_load(
         pathlib.Path(default_card_path).read_text(encoding="utf-8")
     )
-    tcard = yaml.safe_load(pathlib.Path(tcard_path).read_text(encoding="utf-8"))
-    return write_operator_card(pineappl_grid, default_card, card_path, xif, tcard)
+    return write_operator_card(pineappl_grid, default_card, card_path, tcard)
 
 
-def write_operator_card(pineappl_grid, default_card, card_path, xif, tcard):
+def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     """Generate operator card for this grid.
 
     Parameters
@@ -74,8 +89,6 @@ def write_operator_card(pineappl_grid, default_card, card_path, xif, tcard):
         base operator card
     card_path : str or os.PathLike
         target path
-    xif : float
-        factorization scale variation
     tcard: dict
         theory card for the run, since some information in EKO is now required
         in operator card, but before was in the theory card
@@ -90,28 +103,22 @@ def write_operator_card(pineappl_grid, default_card, card_path, xif, tcard):
     """
     operators_card = copy.deepcopy(default_card)
     x_grid, _pids, _mur2_grid, muf2_grid = pineappl_grid.axes()
+    sv_method = sv_scheme(tcard)
+    xif = 1.0 if sv_method == "expanded" else tcard["XIF"]
+    operators_card["configs"]["scvar_method"] = sv_method
     q2_grid = (xif * xif * muf2_grid).tolist()
-    operators_card["targetgrid"] = x_grid.tolist()
-    operators_card["Q2grid"] = q2_grid
+    operators_card["_mugrid"] = np.sqrt(q2_grid).tolist()
+    # If we are computing and integrability FK we want to add a single
+    # x point to the xgrid and decrease the interpolation polynonial
+    # degree to 1
     if "integrability_version" in pineappl_grid.key_values():
-        operators_card["interpolation_polynomial_degree"] = 1
+        operators_card["configs"]["interpolation_polynomial_degree"] = 1
         x_grid_int = copy.deepcopy(x_grid.tolist())
         x_grid_int.append(1.0)
-        operators_card["interpolation_xgrid"] = list(x_grid_int)
+        operators_card["rotations"]["_targetgrid"] = list(x_grid_int)
 
-    def provide_if_missing(key, default, card=operators_card):
-        if key not in card:
-            card[key] = default
-
-    provide_if_missing("n_integration_cores", 1)
-    provide_if_missing("inputgrid", operators_card["interpolation_xgrid"])
-    provide_if_missing("targetgrid", operators_card["interpolation_xgrid"])
-    provide_if_missing("inputpids", DEFAULT_PIDS)
-    provide_if_missing("targetpids", DEFAULT_PIDS)
-
-    _, new_operators_card = eko.compatibility.update(tcard, operators_card)
     with open(card_path, "w", encoding="UTF-8") as f:
-        yaml.safe_dump(new_operators_card, f)
+        yaml.safe_dump(operators_card, f)
     return x_grid, q2_grid
 
 
@@ -119,12 +126,10 @@ def evolve_grid(
     grid,
     operators,
     fktable_path,
-    astrong,
     max_as,
     max_al,
     xir,
     xif,
-    alphas_values=None,
     assumptions="Nf6Ind",
     comparison_pdf=None,
 ):
@@ -134,12 +139,10 @@ def evolve_grid(
     ----------
     grid : pineappl.grid.Grid
         unconvoluted grid
-    operators : eko.output.struct.EKO
+    operators : eko.EKO
         evolution operator
     fktable_path : str
         target path for convoluted grid
-    astrong : eko.coupling.Couplings
-        as object
     max_as : int
         maximum power of strong coupling
     max_al : int
@@ -148,28 +151,60 @@ def evolve_grid(
         renormalization scale variation
     xif : float
         factorization scale variation
-    alphas_values : None or list
-        values of strong coupling used to collapse grids
     assumptions : str
         assumptions on the flavor dimension
     comparison_pdf : None or str
         if given, a comparison table (with / without evolution) will be printed
     """
-    _x_grid, _pids, mur2_grid, _muf2_grid = grid.axes()
+    x_grid, _pids, mur2_grid, _muf2_grid = grid.axes()
+    sv_method = None
+    if operators.operator_card.configs.scvar_method is not None:
+        sv_method = operators.operator_card.configs.scvar_method.name
+    xif = 1.0 if sv_method == "EXPANDED" else xif
+    tcard = operators.theory_card
+    opcard = operators.operator_card
+    # rotate the targetgrid
+    eko.io.manipulate.xgrid_reshape(
+        operators, targetgrid=eko.interpolation.XGrid(x_grid)
+    )
     check.check_grid_and_eko_compatible(grid, operators, xif)
     # rotate to evolution (if doable and necessary)
-    if np.allclose(operators.rotations.pids, br.flavor_basis_pids):
-        eko.output.manipulate.to_evol(operators)
-    elif not np.allclose(operators.rotations.inputpids, br.evol_basis_pids):
+    if np.allclose(operators.rotations.inputpids, br.flavor_basis_pids):
+        eko.io.manipulate.to_evol(operators)
+    # Here we are checking if the EKO contains the rotation matrix (flavor to evol)
+    elif not np.allclose(operators.rotations.inputpids, br.rotate_flavor_to_evolution):
         raise ValueError("The EKO is neither in flavor nor in evolution basis.")
     # do it
     order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
-    # TODO this is a hack to not break the CLI
-    # the problem is that the EKO output still does not contain the theory/operators card and
-    # so I can't compute alpha_s *here* if xir != 1
-    if np.isclose(xir, 1.0) and alphas_values is None:
-        mur2_grid = np.array(list(operators.Q2grid))
-        alphas_values = [astrong.a_s(q2) for q2 in operators.Q2grid]
+    # This is really the facto scale grid only for scheme A and C
+    muf2_grid = operators.mu2grid
+    # PineAPPL wants alpha_s = 4*pi*a_s
+    # remember that we already accounted for xif in the opcard generation
+    evmod = eko.couplings.couplings_mod_ev(opcard.configs.evolution_method)
+    # Couplings ask for the square of the masses
+    quark_masses = [(x.value) ** 2 for x in tcard.quark_masses]
+    sc = eko.couplings.Couplings(
+        tcard.couplings,
+        tcard.order,
+        evmod,
+        quark_masses,
+        hqm_scheme=tcard.quark_masses_scheme,
+        thresholds_ratios=np.power(list(iter(tcard.matching)), 2.0),
+    )
+    # If we are computing scheme A we also need to pass fact_scale.
+
+    # To compute the alphas values we are first reverting the factorization scale shift
+    # and then obtaining the renormalization scale using xir.
+    alphas_values = [
+        4.0
+        * np.pi
+        * sc.a_s(
+            xir * xir * muf2 / xif / xif,
+            fact_scale=muf2 if sv_method == "EXPONENTIATED" else None,
+        )
+        for muf2 in muf2_grid
+    ]
+    # We need to use ekompatibility in order to pass a dictionary to pineappl
     fktable = grid.evolve(
         ekompatibility.pineappl_layout(operators),
         xir * xir * mur2_grid,
@@ -180,7 +215,7 @@ def evolve_grid(
     )
     rich.print(f"Optimizing for {assumptions}")
     fktable.optimize(assumptions)
-    fktable.set_key_value("eko_version", operators.version)
+    fktable.set_key_value("eko_version", operators.metadata.version)
     fktable.set_key_value("pineko_version", version.__version__)
     # compare before/after
     comparison = None

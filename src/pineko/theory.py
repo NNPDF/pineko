@@ -9,8 +9,7 @@ import logging
 import time
 
 import eko
-import eko.compatibility
-import eko.output.legacy
+import eko.io.legacy
 import numpy as np
 import pineappl
 import rich
@@ -203,7 +202,7 @@ class TheoryBuilder:
                 f(name, grid, **kwargs)
             rich.print()
 
-    def opcard(self, name, grid, xif, tcard_path):
+    def opcard(self, name, grid, tcard):
         """Write a single operator card.
 
         Parameters
@@ -212,11 +211,8 @@ class TheoryBuilder:
             grid name, i.e. it's true stem
         grid : pathlib.Path
             path to grid
-        xif : float
-            factorization scale
-        tcard_path : os.PathLike
-            path to theory card :func:`pineko.evolve.write_operator_card`
-
+        tcard : dict
+            theory card
         """
         opcard_path = self.operator_cards_path / f"{name}.yaml"
         if opcard_path.exists():
@@ -225,10 +221,10 @@ class TheoryBuilder:
                 return
         _x_grid, q2_grid = evolve.write_operator_card_from_file(
             grid,
-            self.operator_cards_path / configs.configs["paths"]["operator_card_template_name"],
+            self.operator_cards_path
+            / configs.configs["paths"]["operator_card_template_name"],
             opcard_path,
-            xif,
-            tcard_path,
+            tcard,
         )
         if opcard_path.exists():
             rich.print(
@@ -239,9 +235,7 @@ class TheoryBuilder:
         """Write operator cards."""
         tcard = theory_card.load(self.theory_id)
         self.operator_cards_path.mkdir(exist_ok=True)
-        self.iterate(
-            self.opcard, xif=tcard["XIF"], tcard_path=theory_card.path(self.theory_id)
-        )
+        self.iterate(self.opcard, tcard=tcard)
 
     def load_operator_card(self, name):
         """Read current operator card.
@@ -311,6 +305,11 @@ class TheoryBuilder:
         )
         # setup data
         ocard = self.load_operator_card(name)
+        # The operator card has been already generated in the correct format
+        # The theory card needs to be converted to a format that eko can use
+        legacy_class = eko.io.runcards.Legacy(tcard, ocard)
+        new_theory = legacy_class.new_theory
+        new_op = eko.io.runcards.OperatorCard.from_dict(ocard)
         eko_filename = self.ekos_path() / f"{name}.tar"
         if eko_filename.exists():
             if not self.overwrite:
@@ -319,8 +318,8 @@ class TheoryBuilder:
         # do it!
         logger.info("Start computation of %s", name)
         start_time = time.perf_counter()
-        ops = eko.run_dglap(theory_card=tcard, operators_card=ocard)
-        ops.dump_tar(eko_filename)
+        # Actual computation of the EKO
+        eko.runner.solve(new_theory, new_op, eko_filename)
         logger.info(
             "Finished computation of %s - took %f s",
             name,
@@ -354,7 +353,9 @@ class TheoryBuilder:
         do_log = self.activate_logging(
             paths["logs"]["fk"], f"{self.theory_id}-{name}-{pdf}.log"
         )
-        # check if grid contains SV if theory is requesting them
+        # check if grid contains SV if theory is requesting them (in particular
+        # if theory is requesting scheme A or C)
+        sv_method = evolve.sv_scheme(tcard)
         xir = tcard["XIR"]
         xif = tcard["XIF"]
         # loading grid
@@ -383,55 +384,49 @@ class TheoryBuilder:
                 raise ValueError(
                     "Renormalization scale variations are not available for this grid"
                 )
-        if not np.isclose(xif, 1.0):
-            is_fact_as, is_fact_al = check.contains_fact(grid, max_as, max_al)
-            if not (is_fact_as and is_fact_al):
-                raise ValueError(
-                    "Factorization scale variations are not available for this grid"
-                )
-        # collect alpha_s
-        # TODO: move this down to evolve.evolve_grid when output contains cards
-        new_tcard = eko.compatibility.update_theory(tcard)
-        astrong = sc.Couplings.from_dict(new_tcard)
-        # ocard = self.load_operator_card(name)
-        # q2_grid = ocard["Q2grid"]
-
+        if sv_method == "None":
+            if not np.isclose(xif, 1.0):
+                is_fact_as, is_fact_al = check.contains_fact(grid, max_as, max_al)
+                if not (is_fact_as and is_fact_al):
+                    raise ValueError(
+                        "Factorization scale variations are not available for this grid"
+                    )
         # loading ekos
-        operators = eko.output.legacy.load_tar(eko_filename)
-        muf2_grid = operators.Q2grid
-        # PineAPPL wants alpha_s = 4*pi*a_s
-        # remember that we already accounted for xif in the opcard generation
-        alphas_values = [
-            4.0 * np.pi * astrong.a_s(xir * xir * muf2 / xif / xif)
-            for muf2 in muf2_grid
-        ]
-        # Obtain the assumptions hash
-        assumptions = theory_card.construct_assumptions(tcard)
-        # do it!
-        logger.info("Start computation of %s", name)
-        logger.info("max_as=%d, max_al=%d, xir=%f, xif=%f", max_as, max_al, xir, xif)
-        start_time = time.perf_counter()
+        with eko.EKO.edit(eko_filename) as operators:
 
-        rich.print(
-            rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
-            f"   {grid_path}\n",
-            f"+ {eko_filename}\n",
-            f"= {fk_filename}\n",
-            f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
-        )
-        _grid, _fk, comparison = evolve.evolve_grid(
-            grid,
-            operators,
-            fk_filename,
-            astrong,
-            max_as,
-            max_al,
-            xir=xir,
-            xif=xif,
-            alphas_values=alphas_values,
-            assumptions=assumptions,
-            comparison_pdf=pdf,
-        )
+            # Obtain the assumptions hash
+            assumptions = theory_card.construct_assumptions(tcard)
+            # do it!
+            logger.info("Start computation of %s", name)
+            logger.info(
+                "max_as=%d, max_al=%d, xir=%f, xif=%f",
+                max_as,
+                max_al,
+                xir,
+                xif,
+            )
+            start_time = time.perf_counter()
+
+            rich.print(
+                rich.panel.Panel.fit(
+                    "Computing ...", style="magenta", box=rich.box.SQUARE
+                ),
+                f"   {grid_path}\n",
+                f"+ {eko_filename}\n",
+                f"= {fk_filename}\n",
+                f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
+            )
+            _grid, _fk, comparison = evolve.evolve_grid(
+                grid,
+                operators,
+                fk_filename,
+                max_as,
+                max_al,
+                xir=xir,
+                xif=xif,
+                assumptions=assumptions,
+                comparison_pdf=pdf,
+            )
         logger.info(
             "Finished computation of %s - took %f s",
             name,

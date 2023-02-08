@@ -1,7 +1,7 @@
 """Compatibility layer for EKO migration."""
 from typing import Any, Dict
 
-from eko.output.struct import EKO
+from eko import EKO, basis_rotation
 
 
 def pineappl_layout(operator: EKO) -> Dict[str, Any]:
@@ -9,8 +9,8 @@ def pineappl_layout(operator: EKO) -> Dict[str, Any]:
 
     Parameters
     ----------
-    operator: EKO
-        an evolution operator in the new layout
+    operator: eko.EKO
+        evolution operator in the new layout
 
     Returns
     -------
@@ -24,10 +24,12 @@ def pineappl_layout(operator: EKO) -> Dict[str, Any]:
         oldop = dict(operators=op.operator)
         oldgrid["Q2grid"][q2] = oldop
 
-    oldgrid["q2_ref"] = operator.Q02
+    oldgrid["q2_ref"] = operator.mu20
     oldgrid["targetpids"] = operator.rotations.targetpids
     oldgrid["targetgrid"] = operator.rotations.targetgrid.raw
-    oldgrid["inputpids"] = operator.rotations.inputpids
+    # The EKO contains the rotation matrix but we pass the list of
+    # evol basis pids to pineappl.
+    oldgrid["inputpids"] = basis_rotation.evol_basis_pids
     oldgrid["inputgrid"] = operator.rotations.inputgrid.raw
 
     return oldgrid

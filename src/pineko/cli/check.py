@@ -3,7 +3,7 @@ from collections import namedtuple
 from enum import Enum, auto
 
 import click
-import eko.output.legacy
+import eko
 import pineappl
 import rich
 
@@ -30,12 +30,12 @@ def sub_compatibility(grid_path, operator_path, xif):
 
     """
     pineappl_grid = pineappl.grid.Grid.read(grid_path)
-    operators = eko.output.legacy.load_tar(operator_path)
-    try:
-        check.check_grid_and_eko_compatible(pineappl_grid, operators, xif)
-        rich.print("[green]Success:[/] grids are compatible")
-    except ValueError as e:
-        rich.print("[red]Error:[/]", e)
+    with eko.EKO.read(operator_path) as operators:
+        try:
+            check.check_grid_and_eko_compatible(pineappl_grid, operators, xif)
+            rich.print("[green]Success:[/] grids are compatible")
+        except ValueError as e:
+            rich.print("[red]Error:[/]", e)
 
 
 CouplingInfo = namedtuple("CouplingInfo", ["descr", "theory"])

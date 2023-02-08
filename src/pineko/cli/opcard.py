@@ -1,6 +1,9 @@
 """CLI entry point to the operator card generation."""
+import pathlib
+
 import click
 import rich
+import yaml
 
 from .. import evolve
 from ._base import command
@@ -13,8 +16,7 @@ from ._base import command
 )
 @click.argument("thcard-path", metavar="THCARD", type=click.Path())
 @click.argument("opcard-path", metavar="OPCARD", type=click.Path())
-@click.option("--xif", default=1.0, help="factorization scale variation")
-def subcommand(pineappl_path, default_card_path, thcard_path, opcard_path, xif):
+def subcommand(pineappl_path, default_card_path, thcard_path, opcard_path):
     """Write EKO card for PineAPPL grid.
 
     Writes a copy of the default card from DEFAULT_CARD to OPCARD
@@ -23,11 +25,10 @@ def subcommand(pineappl_path, default_card_path, thcard_path, opcard_path, xif):
     A THCARD is required, since some of the EKO's OPCARD information come from
     the NNPDF theory entries (e.g. :math:`Q0`).
 
-    XIF is the factorization scale variation.
-
     """
+    tcard = yaml.safe_load(pathlib.Path(thcard_path).read_text(encoding="utf-8"))
     _x_grid, q2_grid = evolve.write_operator_card_from_file(
-        pineappl_path, default_card_path, opcard_path, xif, thcard_path
+        pineappl_path, default_card_path, opcard_path, tcard
     )
     rich.print(
         f"[green]Success:[/] Wrote card with {len(q2_grid)} Q2 points to {opcard_path}"
