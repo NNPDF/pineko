@@ -1,6 +1,7 @@
 """Module to generate scale variations."""
 import os
 
+import numpy as np
 import pineappl
 import rich
 from eko import beta
@@ -32,15 +33,27 @@ def ren_sv_coeffs(m, delta, logpart, which_part, nf):
     if delta == 0:
         return 0.0
     elif delta == 1:
-        return -m * beta.beta_qcd((2, 0), nf)
+        return -m * beta.beta_qcd((2, 0), nf) * (-1.0 / (4.0 * np.pi))
     elif delta == 2:
         if which_part == 0:
             if logpart == 1:
-                return -m * beta.beta_qcd((3, 0), nf)
+                return (
+                    -m
+                    * beta.beta_qcd((3, 0), nf)
+                    * (1.0 / (4 * np.pi))
+                    * (1.0 / (4 * np.pi))
+                )
             else:
-                return 0.5 * m * (m + 1) * (beta.beta_qcd((2, 0), nf) ** 2)
+                return (
+                    0.5
+                    * m
+                    * (m + 1)
+                    * (beta.beta_qcd((2, 0), nf) ** 2)
+                    * (1.0 / (4 * np.pi))
+                    * (1.0 / (4 * np.pi))
+                )
         else:
-            return -(m + 1) * beta.beta_qcd((2, 0), nf)
+            return -(m + 1) * beta.beta_qcd((2, 0), nf) * (1.0 / (4 * np.pi))
 
 
 def compute_scale_factor(m, nec_order, to_construct_order, nf):
@@ -121,7 +134,7 @@ def create_grids(gridpath, order, nf):
     grid_orders = [orde.as_tuple() for orde in grid.orders()]
     first_nonzero_order = grid_orders[0]
     m_value = first_nonzero_order[0]
-    deltaorder = order[0] - m_value
+    deltaorder = order[0]
     nec_orders = compute_orders_map(m_value, deltaorder)
     grid_list = {}
     for to_construct_order in nec_orders:

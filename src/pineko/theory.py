@@ -463,5 +463,5 @@ class TheoryBuilder:
     def construct_ren_sv_grid(self, name, grid_path, tcard):
         """Construct renormalization scale variations terms for a grid."""
         max_as = int(tcard["PTO"])
-        nf = 3  # TODO: fix this
+        nf = 5  # TODO: fix this
         scale_variations.compute_ren_sv_grid(grid_path, max_as, nf)
