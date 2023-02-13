@@ -11,7 +11,7 @@ import rich
 import rich.box
 import rich.panel
 import yaml
-from eko.io.types import EvolutionMethod
+from eko.io.types import EvolutionMethod, ScaleVariationsMethod
 
 from . import check, comparator, ekompatibility, version
 
@@ -25,18 +25,18 @@ def sv_scheme(tcard):
         theory card
 
     """
-    modsv_list = ["expanded", "exponentiated"]
+    modsv_list = {a.value for a in ScaleVariationsMethod}
     xif = tcard["XIF"]
     modsv = tcard["ModSV"]
     if np.isclose(xif, 1.0):
         if modsv in modsv_list:
             raise ValueError("ModSv is not None but xif is 1.0")
         else:
-            return "None"
+            return None
     else:
         # scheme C case
         if modsv not in modsv_list:
-            return "None"
+            return None
         else:
             return modsv
 

@@ -1,4 +1,6 @@
+import os
 import pathlib
+import shutil
 from contextlib import contextmanager
 
 import pytest
@@ -10,6 +12,15 @@ import pineko.configs
 @pytest.fixture
 def test_files():
     return pathlib.Path(__file__).parents[0] / "data_files/"
+
+
+@pytest.fixture
+def test_empty_proj(test_files):
+    path = test_files / "empty_proj/"
+    yield path
+    # Let's clean
+    shutil.rmtree(path / "data")
+    shutil.rmtree(path / "logs")
 
 
 @pytest.fixture
