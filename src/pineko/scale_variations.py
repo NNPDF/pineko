@@ -128,13 +128,13 @@ def create_svonly(grid, order, new_order, scalefactor):
     return new_grid
 
 
-def create_grids(gridpath, order, nf):
+def create_grids(gridpath, max_as, nf):
     """Create all the necessary scale variations grids for a certain starting grid."""
     grid = pineappl.grid.Grid.read(gridpath)
     grid_orders = [orde.as_tuple() for orde in grid.orders()]
     first_nonzero_order = grid_orders[0]
     m_value = first_nonzero_order[0]
-    deltaorder = order[0]
+    deltaorder = max_as
     nec_orders = compute_orders_map(m_value, deltaorder)
     grid_list = {}
     for to_construct_order in nec_orders:
@@ -199,8 +199,7 @@ def compute_ren_sv_grid(grid_path, max_as, nf):
     if sv_as:
         rich.print(f"[green]Renormalization scale variations are already in the grid")
     # Creating all the necessary grids
-    order = (max_as, 0, 0, 0)
-    grid_list = create_grids(grid_path, order, nf)
+    grid_list = create_grids(grid_path, max_as, nf)
     # Writing the sv grids
     sv_grids_paths = write_sv_grids(gridpath=grid_path, grid_list=grid_list)
     # Merging all together
