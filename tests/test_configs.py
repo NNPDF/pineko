@@ -26,7 +26,7 @@ def test_enhance_paths():
     assert test_configs["paths"]["operator_cards"] == pathlib.Path(
         "/my/root/path/my/ope/cards/"
     )
-    assert test_configs["paths"]["logs"]["eko"] == None
+    assert test_configs["paths"]["logs"]["eko"] is None
     assert test_configs["paths"]["logs"]["fk"] == pathlib.Path(
         "/my/root/path/my/fk/logs/"
     )
