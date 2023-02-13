@@ -30,30 +30,26 @@ def ren_sv_coeffs(m, max_as, logpart, which_part, nf):
     float
         renormalization scale variation contribution
     """
+    pifactor = 1.0 / (4.0 * np.pi)
     if max_as == 0:
         return 0.0
     elif max_as == 1:
-        return -m * beta.beta_qcd((2, 0), nf) * (-1.0 / (4.0 * np.pi))
+
+        return -(-m * beta.beta_qcd((2, 0), nf) * pifactor)
     elif max_as == 2:
         if which_part == 0:
             if logpart == 1:
-                return (
-                    -m
-                    * beta.beta_qcd((3, 0), nf)
-                    * (1.0 / (4 * np.pi))
-                    * (1.0 / (4 * np.pi))
-                )
+                return -m * beta.beta_qcd((3, 0), nf) * (pifactor**2)
             else:
                 return (
                     0.5
                     * m
                     * (m + 1)
                     * (beta.beta_qcd((2, 0), nf) ** 2)
-                    * (1.0 / (4 * np.pi))
-                    * (1.0 / (4 * np.pi))
+                    * (pifactor**2)
                 )
         else:
-            return -(m + 1) * beta.beta_qcd((2, 0), nf) * (1.0 / (4 * np.pi))
+            return -(m + 1) * beta.beta_qcd((2, 0), nf) * pifactor
 
 
 def compute_scale_factor(m, nec_order, to_construct_order, nf):
@@ -203,7 +199,7 @@ def compute_ren_sv_grid(grid_path, max_as, nf, target_path=None):
     sv_as, sv_al = check.contains_ren(grid, max_as, max_al=0)
     if sv_as:
         rich.print(f"[green]Renormalization scale variations are already in the grid")
-        return 0
+        return None
     # Creating all the necessary grids
     grid_list = create_grids(grid_path, max_as, nf)
     # Writing the sv grids
