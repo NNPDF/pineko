@@ -1,4 +1,6 @@
 """Module to generate scale variations."""
+import pathlib
+
 import numpy as np
 import pineappl
 import rich
@@ -169,17 +171,19 @@ def write_sv_grids(gridpath, grid_list):
     return grid_paths
 
 
-def merge_grids(gridpath, grid_list_path):
+def merge_grids(gridpath, grid_list_path, target_path=None):
     """Merge the scale variations grids in the original."""
     grid = pineappl.grid.Grid.read(gridpath)
-    base_name = gridpath.stem.split(".pineappl")[0]
-    new_path = gridpath.parent / (base_name + "_plusrensv.pineappl.lz4")
+    if target_path is None:
+        base_name = gridpath.stem.split(".pineappl")[0]
+        target_path = gridpath.parent / (base_name + "_plusrensv.pineappl.lz4")
     for grid_path in grid_list_path:
         grid.raw.merge_from_file(grid_path)
-    grid.raw.write_lz4(new_path)
+        grid_path.unlink()
+    grid.raw.write_lz4(target_path)
 
 
-def compute_ren_sv_grid(grid_path, max_as, nf):
+def compute_ren_sv_grid(grid_path, max_as, nf, target_path=None):
     """Generate renormalization scale variation terms for the given grid, according to the max_as.
 
     Parameters
@@ -190,8 +194,11 @@ def compute_ren_sv_grid(grid_path, max_as, nf):
         max as order
     nf : int
         number of active flavors
+    target_path: str
+        path where store the new grid (optional)
     """
     # First let's check if the ren_sv are already there
+    grid_path = pathlib.Path(grid_path)
     grid = pineappl.grid.Grid.read(grid_path)
     sv_as, sv_al = check.contains_ren(grid, max_as, max_al=0)
     if sv_as:
@@ -202,4 +209,6 @@ def compute_ren_sv_grid(grid_path, max_as, nf):
     # Writing the sv grids
     sv_grids_paths = write_sv_grids(gridpath=grid_path, grid_list=grid_list)
     # Merging all together
-    merge_grids(gridpath=grid_path, grid_list_path=sv_grids_paths)
+    merge_grids(
+        gridpath=grid_path, grid_list_path=sv_grids_paths, target_path=target_path
+    )
