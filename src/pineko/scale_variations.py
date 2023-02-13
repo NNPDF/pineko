@@ -162,7 +162,7 @@ def write_sv_grids(gridpath, grid_list):
                 tmp_path = gridpath.parent / ("tmp" + final_part)
                 grid.raw.write_lz4(tmp_path)
                 grid_list[order][0].raw.merge_from_file(tmp_path)
-                os.remove(tmp_path)
+                tmp_path.unlink()
         new_grid_path = gridpath.parent / (
             base_name + "_" + str(order[2]) + final_part
         )  # order[2] is the ren_sv order
