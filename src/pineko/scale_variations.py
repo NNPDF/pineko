@@ -1,6 +1,4 @@
 """Module to generate scale variations."""
-import os
-
 import numpy as np
 import pineappl
 import rich
@@ -9,19 +7,19 @@ from eko import beta
 from . import check
 
 
-def ren_sv_coeffs(m, delta, logpart, which_part, nf):
+def ren_sv_coeffs(m, max_as, logpart, which_part, nf):
     """Return the ren_sv contribution relative to the requested log power and perturbative order contribution (which_part).
 
     Parameters
     ----------
     m : int
         first non zero perturbative order
-    delta : int
-        difference between asked order and m
+    max_as : int
+        max order of alpha_s
     logpart : int
-        power of the log asked
+        power of the renormalization scale log asked
     which_part : int
-        asked perturbative order contribution
+        asked perturbative order contribution to be rescaled
     nf : int
         number of active flavors
 
@@ -30,11 +28,11 @@ def ren_sv_coeffs(m, delta, logpart, which_part, nf):
     float
         renormalization scale variation contribution
     """
-    if delta == 0:
+    if max_as == 0:
         return 0.0
-    elif delta == 1:
+    elif max_as == 1:
         return -m * beta.beta_qcd((2, 0), nf) * (-1.0 / (4.0 * np.pi))
-    elif delta == 2:
+    elif max_as == 2:
         if which_part == 0:
             if logpart == 1:
                 return (
@@ -64,9 +62,9 @@ def compute_scale_factor(m, nec_order, to_construct_order, nf):
     m : int
         first non zero perturbative order
     nec_order : tuple(int)
-        tuple of the order for which the sv contribution is asked for
+        tuple of the order that has to be rescaled to get the scale varied order
     to_contruct_order : tuple(int)
-        tuple of the sv order to be constructed
+        tuple of the scale varied order to be constructed
     nf : int
         number of active flavors
 
@@ -75,20 +73,20 @@ def compute_scale_factor(m, nec_order, to_construct_order, nf):
     float
         full contribution of ren sv
     """
-    delta = to_construct_order[0] - m
+    max_as = to_construct_order[0] - m
     logpart = to_construct_order[2]
-    return ren_sv_coeffs(m, delta, logpart, nec_order[0] - m, nf)
+    return ren_sv_coeffs(m, max_as, logpart, nec_order[0] - m, nf)
 
 
-def compute_orders_map(m, delta):
-    """Compute a dictionary with all the necessary order to compute in order to have the full renormalization scale variation.
+def compute_orders_map(m, max_as):
+    """Compute a dictionary with all the necessary orders to compute to have the full renormalization scale variation.
 
     Parameters
     ----------
     m : int
-        first non zero perturbative order
-    delta : int
-        difference between asked order and m
+        first non zero perturbative order of the grid
+    max_as : int
+        max alpha_s order
 
     Returns
     -------
@@ -96,9 +94,9 @@ def compute_orders_map(m, delta):
         description of all the needed orders
     """
     orders = {}
-    for delt in range(delta):
-        orders[(m + delta, 0, delt + 1, 0)] = [
-            (m + de, 0, 0, 0) for de in range(delta - delt)
+    for delt in range(max_as):
+        orders[(m + max_as, 0, delt + 1, 0)] = [
+            (m + de, 0, 0, 0) for de in range(max_as - delt)
         ]
     return orders
 
@@ -134,8 +132,7 @@ def create_grids(gridpath, max_as, nf):
     grid_orders = [orde.as_tuple() for orde in grid.orders()]
     first_nonzero_order = grid_orders[0]
     m_value = first_nonzero_order[0]
-    deltaorder = max_as
-    nec_orders = compute_orders_map(m_value, deltaorder)
+    nec_orders = compute_orders_map(m_value, max_as)
     grid_list = {}
     for to_construct_order in nec_orders:
         list_grid_order = []
@@ -157,6 +154,7 @@ def write_sv_grids(gridpath, grid_list):
     final_part = ".pineappl.lz4"
     grid_paths = []
     for order in grid_list:
+        # For each scale variation order, if more than one grid contributes, merge them all together in a single one
         if len(grid_list[order]) > 1:
             for grid in grid_list[order][1:]:
                 tmp_path = gridpath.parent / ("tmp" + final_part)
@@ -172,7 +170,7 @@ def write_sv_grids(gridpath, grid_list):
 
 
 def merge_grids(gridpath, grid_list_path):
-    """Merge the scale variations grids."""
+    """Merge the scale variations grids in the original."""
     grid = pineappl.grid.Grid.read(gridpath)
     base_name = gridpath.stem.split(".pineappl")[0]
     new_path = gridpath.parent / (base_name + "_plusrensv.pineappl.lz4")
@@ -198,6 +196,7 @@ def compute_ren_sv_grid(grid_path, max_as, nf):
     sv_as, sv_al = check.contains_ren(grid, max_as, max_al=0)
     if sv_as:
         rich.print(f"[green]Renormalization scale variations are already in the grid")
+        return 0
     # Creating all the necessary grids
     grid_list = create_grids(grid_path, max_as, nf)
     # Writing the sv grids
