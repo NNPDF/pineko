@@ -13,6 +13,7 @@ import rich.panel
 import yaml
 from eko.io.types import EvolutionMethod, ScaleVariationsMethod
 
+
 from . import check, comparator, ekompatibility, version
 
 
