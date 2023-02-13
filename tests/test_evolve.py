@@ -15,4 +15,5 @@ def test_sv_scheme():
         pineko.evolve.sv_scheme(wrong_tcard)
     assert pineko.evolve.sv_scheme(schemeA_tcard) == "exponentiated"
     assert pineko.evolve.sv_scheme(schemeB_tcard) == "expanded"
-    assert pineko.evolve.sv_scheme(schemeC_tcard) == "None"
+    assert pineko.evolve.sv_scheme(schemeC_tcard) == None
+

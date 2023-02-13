@@ -90,3 +90,16 @@ def benchmark_compare_cli(lhapdf_path, test_files, test_pdf):
             ["compare", str(grid_path), str(fk_path), "2", "0", "NNPDF40_nlo_as_01180"],
         )
     assert "yll left" in result.output
+
+
+def benchmark_scaffold_cli(test_empty_proj):
+    runner = CliRunner()
+    conf_file = test_empty_proj / "pineko.toml"
+    # empty project is not correctly configured
+    res = runner.invoke(command, ["scaffold", "-c", str(conf_file), "check"])
+    assert "Error: Project is not correctly configured." in res.output
+    # so we need to create all the folders
+    res = runner.invoke(command, ["scaffold", "-c", str(conf_file), "new"])
+    # and then I can check again
+    res = runner.invoke(command, ["scaffold", "-c", str(conf_file), "check"])
+    assert "Success: All the folders are correctly configured" in res.output
