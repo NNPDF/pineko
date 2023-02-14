@@ -1,4 +1,4 @@
-"""CLI entry point to automatic scale variation construction."""
+"""CLI entry point to generation of scale variations from central grid."""
 
 import click
 import pineappl
