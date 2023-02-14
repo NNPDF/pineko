@@ -1,7 +1,6 @@
 """Tools related to generation and managing of a pineko project."""
 
 import dataclasses
-import os
 import pathlib
 
 from .configs import NEEDED_FILES, NEEDED_KEYS

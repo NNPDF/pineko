@@ -14,7 +14,6 @@ import numpy as np
 import pineappl
 import rich
 import yaml
-from eko import couplings as sc
 
 from . import check, configs, evolve, parser, theory_card
 
@@ -393,7 +392,6 @@ class TheoryBuilder:
                     )
         # loading ekos
         with eko.EKO.edit(eko_filename) as operators:
-
             # Obtain the assumptions hash
             assumptions = theory_card.construct_assumptions(tcard)
             # do it!

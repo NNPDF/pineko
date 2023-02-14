@@ -1,12 +1,8 @@
 """CLI entry point to convolution."""
-import pathlib
-
 import click
 import eko
 import pineappl
 import rich
-import yaml
-from eko import couplings as sc
 
 from .. import evolve
 from ._base import command
