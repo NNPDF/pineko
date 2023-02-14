@@ -199,7 +199,7 @@ def compute_ren_sv_grid(grid_path, max_as, nf, target_path=None):
     sv_as, sv_al = check.contains_ren(grid, max_as, max_al=0)
     if sv_as:
         rich.print(f"[green]Renormalization scale variations are already in the grid")
-        return None
+        return
     # Creating all the necessary grids
     grid_list = create_grids(grid_path, max_as, nf)
     # Writing the sv grids
