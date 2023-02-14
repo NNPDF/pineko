@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: ghcr.io/n3pdf/lhapdf:v2
+      image: ghcr.io/nnpdf/lhapdf:v2
       credentials:
         username: ${{ github.repository_owner }}
         password: ${{ github.token }}

@@ -8,6 +8,6 @@ jobs:
       matrix:
         python-version: ["3.7", "3.8", "3.9", "3.10"]
 
-    uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@v2
+    uses: NNPDF/workflows/.github/workflows/python-poetry-tests.yml@v2
     with:
       python-version: ${{ matrix.python-version }}
