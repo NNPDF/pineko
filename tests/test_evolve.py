@@ -10,7 +10,7 @@ def test_sv_scheme():
         "ModSV": "exponentiated",
     }
     schemeB_tcard = {"XIF": 0.5, "ModSV": "expanded"}
-    schemeC_tcard = {"XIF": 2.0, "ModSV": "None"}
+    schemeC_tcard = {"XIF": 2.0, "ModSV": None}
     with pytest.raises(ValueError):
         pineko.evolve.sv_scheme(wrong_tcard)
     assert pineko.evolve.sv_scheme(schemeA_tcard) == "exponentiated"
