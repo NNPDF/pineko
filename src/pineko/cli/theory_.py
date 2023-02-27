@@ -98,6 +98,7 @@ def fks(theory_id, datasets, pdf, silent, clear_logs, overwrite):
 @theory_.command()
 @click.argument("theory_id", type=click.INT)
 @click.argument("datasets", type=click.STRING, nargs=-1)
-def ren_sv_grids(theory_id, datasets):
+@click.option("--flavors", "-f", default=5, help="Number of active flavors")
+def ren_sv_grids(theory_id, datasets, flavors):
     """Construct new grids with renormalization scale variations included."""
-    theory.TheoryBuilder(theory_id, datasets).construct_ren_sv_grids()
+    theory.TheoryBuilder(theory_id, datasets).construct_ren_sv_grids(flavors)

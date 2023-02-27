@@ -449,14 +449,13 @@ class TheoryBuilder:
         self.fks_path.mkdir(exist_ok=True)
         self.iterate(self.fk, tcard=tcard, pdf=pdf)
 
-    def construct_ren_sv_grids(self):
+    def construct_ren_sv_grids(self, flavors):
         """Construct renormalization scale variations terms for all the grids in a dataset."""
         tcard = theory_card.load(self.theory_id)
-        self.iterate(self.construct_ren_sv_grid, tcard=tcard)
+        self.iterate(self.construct_ren_sv_grid, tcard=tcard, flavors=flavors)
 
-    def construct_ren_sv_grid(self, name, grid_path, tcard):
+    def construct_ren_sv_grid(self, name, grid_path, tcard, flavors):
         """Construct renormalization scale variations terms for a grid."""
         max_as = int(tcard["PTO"])
-        nf = 5  # TODO: fix this
         rich.print(f"Computing renormalization scale variations for {name}")
-        scale_variations.compute_ren_sv_grid(grid_path, max_as, nf)
+        scale_variations.compute_ren_sv_grid(grid_path, max_as, flavors)
