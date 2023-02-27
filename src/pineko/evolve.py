@@ -13,6 +13,7 @@ import rich.panel
 import yaml
 from eko.io.types import EvolutionMethod, ScaleVariationsMethod
 
+
 from . import check, comparator, ekompatibility, version
 
 
@@ -31,14 +32,11 @@ def sv_scheme(tcard):
     if np.isclose(xif, 1.0):
         if modsv in modsv_list:
             raise ValueError("ModSv is not None but xif is 1.0")
-        else:
-            return None
-    else:
-        # scheme C case
-        if modsv not in modsv_list:
-            return None
-        else:
-            return modsv
+        return None
+    # scheme C case
+    if modsv not in modsv_list:
+        return None
+    return modsv
 
 
 def write_operator_card_from_file(

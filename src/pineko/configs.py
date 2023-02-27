@@ -105,10 +105,9 @@ def detect(path=None):
         configs_file = path / name if path.is_dir() else path
         if configs_file.is_file():
             return configs_file
-        else:
-            raise ValueError(
-                "Provided path is not pointing to (or does not contain) the pineko.toml file"
-            )
+        raise ValueError(
+            "Provided path is not pointing to (or does not contain) the pineko.toml file"
+        )
 
     # If no path is provided we need to look after the file.
     # We want to check cwd and all its parent folders (without their subfolders

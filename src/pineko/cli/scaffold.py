@@ -42,7 +42,7 @@ def check():
         rich.print("[red]Error:[/] Project is not correctly configured.")
         for conf in check_res.confs:
             rich.print(f"[red]Missing entry in conf file: '{conf}'")
-        for key, folder in check_res.folders.items():
+        for folder in check_res.folders.values():
             if not isinstance(folder, dict):
                 rich.print(f"[red]Missing folder:\n{folder}")
             else:

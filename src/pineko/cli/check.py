@@ -1,6 +1,6 @@
 """CLI entry point to check compatibility."""
 from collections import namedtuple
-from enum import Enum, auto
+from enum import Enum
 
 import click
 import eko

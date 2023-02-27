@@ -71,8 +71,8 @@ pineko = "pineko:command"
 test = "pytest tests"
 bench.cmd = "pytest benchmarks"
 bench.env.NUMBA_DISABLE_JIT.default = "1"
-lint = "pylint src/**/*.py -E"
-lint-warnings = "pylint src/**/*.py --exit-zero"
+lint = "pylint src/ -E"
+lint-warnings = "pylint src/ --exit-zero"
 pineko = "pineko"
 docs = { "shell" = "cd docs; make html" }
 docs-view = { "shell" = "cd docs; make view" }

@@ -14,7 +14,6 @@ import numpy as np
 import pineappl
 import rich
 import yaml
-from eko import couplings as sc
 
 from . import check, configs, evolve, parser, scale_variations, theory_card
 
@@ -384,7 +383,7 @@ class TheoryBuilder:
                 raise ValueError(
                     "Renormalization scale variations are not available for this grid"
                 )
-        if sv_method == "None":
+        if sv_method is None:
             if not np.isclose(xif, 1.0):
                 is_fact_as, is_fact_al = check.contains_fact(grid, max_as, max_al)
                 if not (is_fact_as and is_fact_al):
@@ -393,7 +392,6 @@ class TheoryBuilder:
                     )
         # loading ekos
         with eko.EKO.edit(eko_filename) as operators:
-
             # Obtain the assumptions hash
             assumptions = theory_card.construct_assumptions(tcard)
             # do it!
