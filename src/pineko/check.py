@@ -176,20 +176,20 @@ def contains_ren(grid, max_as, max_al):
     for order in order_list:
         as_orders.append(order[0])
         al_orders.append(order[1])
-    # ren sv starts one order after the first order with as
-    min_as = 1 if min(as_orders) == 0 else min(as_orders)
-    # ren sv starts one order after the first order with al
-    min_al = 1 if min(al_orders) == 0 else min(al_orders)
+    min_as = min(as_orders)
+    min_al = min(al_orders)
     order_as_is_present = False
     order_al_is_present = False
     sv_as_present = False
     sv_al_present = False
+    # ren sv starts one order after the first order with as if the first order in as is not as^0
+    add_order = 1 if min_as != 0 else 2
     for order in order_list:
-        if order[0] == min_as + 1:
+        if order[0] == min_as + add_order:
             order_as_is_present = True
             if order[-2] != 0:
                 sv_as_present = True
-        if order[1] == min_al + 1:
+        if order[1] == min_al + add_order:
             order_al_is_present = True
             if order[-2] != 0:
                 sv_al_present = True
