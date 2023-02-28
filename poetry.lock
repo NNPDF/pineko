@@ -500,11 +500,11 @@ python-versions = "*"
 
 [[package]]
 name = "pineappl"
-version = "0.5.9"
+version = "0.6.0a1"
 description = "Python bindings to PineAPPL"
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 numpy = ">=1.16.0,<2.0.0"
@@ -1037,7 +1037,7 @@ docs = ["Sphinx", "sphinx-rtd-theme", "sphinxcontrib-bibtex"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "7add0aa11d9391969238bf8ef3b39bca93f732eee252747bcbc5ba5870bd3361"
+content-hash = "fbf19f18eee4d3102133e0c0966d0f1fb9b45d368de38443a254b943c45adfc5"
 
 [metadata.files]
 alabaster = [
@@ -1560,20 +1560,15 @@ pickleshare = [
     {file = "pickleshare-0.7.5.tar.gz", hash = "sha256:87683d47965c1da65cdacaf31c8441d12b8044cdec9aca500cd78fc2c683afca"},
 ]
 pineappl = [
-    {file = "pineappl-0.5.9-cp310-cp310-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:aafa2ac51ce0a45ca951c2fe6639f1f954711bae708d2a1b18d39e55b5668a8d"},
-    {file = "pineappl-0.5.9-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:75885613bb6a1c307a174ef33272798634b5eb47f0712c88c4d8b380e0187b67"},
-    {file = "pineappl-0.5.9-cp310-none-win_amd64.whl", hash = "sha256:55679b4b1d8080624f0c572d65d6ae2a3a37e2ab69eb4d1978d11bfdb0eb27d9"},
-    {file = "pineappl-0.5.9-cp37-cp37m-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:1b27f54b2e980b95b94c5a716d091ca793fbfac93d07fdfb5bcd2a956c96eef0"},
-    {file = "pineappl-0.5.9-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b7eff1e91f97df84cb1813556990892ef916e23f2d09e04f962bbd3954c9cb09"},
-    {file = "pineappl-0.5.9-cp37-none-win_amd64.whl", hash = "sha256:d4de75f3f1bc82a2b499d15101df62caff3a9f0f8faa6b3ff3c12001d7565562"},
-    {file = "pineappl-0.5.9-cp38-cp38-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:67eefc6c1e11eb8349de266afd7df08384ab044e9542516dc4753d772454ed7b"},
-    {file = "pineappl-0.5.9-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4dd34cb7e17e6ce0d2dcb7cee5d8fdab4f860767beaa0065f655f62c2cf7c0ff"},
-    {file = "pineappl-0.5.9-cp38-none-win_amd64.whl", hash = "sha256:4a892cfe2a698eaf33b2248d48a22891dded8737bf8833f34cdb6323859e37cc"},
-    {file = "pineappl-0.5.9-cp39-cp39-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:c778c9573dadb7f25616e2f2e9a29858c7f9fc21d3dac78c8c7cd258ca8bad09"},
-    {file = "pineappl-0.5.9-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:204c4cd28b115e2859a4bb6c4b25ebffe9b188a8bff00e66d396b6cf066989f3"},
-    {file = "pineappl-0.5.9-cp39-none-win_amd64.whl", hash = "sha256:57f6753ed9e0f606794caef5df31e2c672081b180700ce0ff8669a09daf490db"},
-    {file = "pineappl-0.5.9-pp37-pypy37_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:caac5ebd4f2fbf1b86a6a29e69e6163befa1da3bee3000db2d80aa9028e3b841"},
-    {file = "pineappl-0.5.9.tar.gz", hash = "sha256:aaf5a996df8b3140949cd16e74ba029872dcb5fe80cb36e6275df5a48254df5b"},
+    {file = "pineappl-0.6.0a1-cp310-cp310-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:426e57d4edf9f988219a070c142b618e5b953e543b21822f6326cecdbda83017"},
+    {file = "pineappl-0.6.0a1-cp310-none-win_amd64.whl", hash = "sha256:09c82c2ddf068edbedece935ba8dd6dc30071351536a95888fbf45c8bd288d7f"},
+    {file = "pineappl-0.6.0a1-cp37-cp37m-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:efb27de8a84bf671443c906777148a41c695872ae17738f9086fd5a07ef083ac"},
+    {file = "pineappl-0.6.0a1-cp37-none-win_amd64.whl", hash = "sha256:e3d18a8c23adc53a581e1afbb03d158e0904210815029bd744c3d42dbbedacfe"},
+    {file = "pineappl-0.6.0a1-cp38-cp38-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:b5336e9624e5d148f420e865e8b05d9781ffd1800771c3a1591c810d312dc190"},
+    {file = "pineappl-0.6.0a1-cp38-none-win_amd64.whl", hash = "sha256:e566a4d0321a57e48ca91ce658286cced13f6a04d0a5216715e3bda3d371fa3d"},
+    {file = "pineappl-0.6.0a1-cp39-cp39-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:b45d33f94417b9bc0823c6133047e041d07bd905096d7f282412c2099b652a7a"},
+    {file = "pineappl-0.6.0a1-cp39-none-win_amd64.whl", hash = "sha256:b024c85e9672a31b960f202d79055f94cd8459f811d0783abf99d918f8f935c0"},
+    {file = "pineappl-0.6.0a1.tar.gz", hash = "sha256:ee7f0fca8b7d0b85746b7335593ce89c71535e34af722233dcd3af677309251b"},
 ]
 platformdirs = [
     {file = "platformdirs-3.0.0-py3-none-any.whl", hash = "sha256:b1d5eb14f221506f50d6604a561f4c5786d9e80355219694a1b244bcd96f4567"},

@@ -19,7 +19,7 @@ def benchmark_compute_ren_sv_grid(test_files, tmp_path, test_pdf, lhapdf_path):
     grid_path = test_files / "data" / "grids" / "400" / name_grid
     new_grid_path = tmp_path / name_grid
     shutil.copy(grid_path, new_grid_path)
-    max_as = 1
+    max_as = 2
     nf = 5
     pdf_name = "NNPDF40_nlo_as_01180"
     scale_variations.compute_ren_sv_grid(new_grid_path, max_as, nf)

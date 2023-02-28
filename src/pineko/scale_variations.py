@@ -34,7 +34,6 @@ def ren_sv_coeffs(m, max_as, logpart, which_part, nf):
     if max_as == 0:
         return 0.0
     elif max_as == 1:
-
         return -(-m * beta.beta_qcd((2, 0), nf) * pifactor)
     elif max_as == 2:
         if which_part == 0:
@@ -157,7 +156,9 @@ def write_sv_grids(gridpath, grid_list):
             for grid in grid_list[order][1:]:
                 tmp_path = gridpath.parent / ("tmp" + final_part)
                 grid.raw.write_lz4(tmp_path)
-                grid_list[order][0].raw.merge_from_file(tmp_path)
+                grid_list[order][0].raw.merge_from_file(
+                    tmp_path, ignore_bin_limits=True
+                )
                 tmp_path.unlink()
         new_grid_path = gridpath.parent / (
             base_name + "_" + str(order[2]) + final_part
@@ -174,7 +175,7 @@ def merge_grids(gridpath, grid_list_path, target_path=None):
         base_name = gridpath.stem.split(".pineappl")[0]
         target_path = gridpath.parent / (base_name + "_plusrensv.pineappl.lz4")
     for grid_path in grid_list_path:
-        grid.raw.merge_from_file(grid_path)
+        grid.raw.merge_from_file(grid_path, ignore_bin_limits=True)
         grid_path.unlink()
     grid.raw.write_lz4(target_path)
 
@@ -200,6 +201,8 @@ def compute_ren_sv_grid(grid_path, max_as, nf, target_path=None):
     if sv_as:
         rich.print(f"[green]Renormalization scale variations are already in the grid")
         return
+    # With respect to the usual convention here max_as is max_as-1
+    max_as = max_as - 1
     # Creating all the necessary grids
     grid_list = create_grids(grid_path, max_as, nf)
     # Writing the sv grids
