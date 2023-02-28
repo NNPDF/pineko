@@ -23,6 +23,8 @@ jobs:
         with:
           virtualenvs-create: false
           installer-parallel: true
+      - name: Install cargo
+        run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
       - name: Install dependencies
         run: poetry install --no-interaction --no-root --with test ${{ inputs.poetry-extras }}
       - name: Install project
