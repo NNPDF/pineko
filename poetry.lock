@@ -1037,7 +1037,7 @@ docs = ["Sphinx", "sphinx-rtd-theme", "sphinxcontrib-bibtex"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "fbf19f18eee4d3102133e0c0966d0f1fb9b45d368de38443a254b943c45adfc5"
+content-hash = "7f42b31e654e8e783ede4ddf4cc1e6630da6020ec0950620bbec458f8768dc3b"
 
 [metadata.files]
 alabaster = [
