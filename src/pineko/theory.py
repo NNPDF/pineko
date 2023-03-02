@@ -40,6 +40,7 @@ class TheoryBuilder:
     def __init__(
         self, theory_id, datasets, silent=False, clear_logs=False, overwrite=False
     ):
+        """Initialize theory object."""
         self.theory_id = theory_id
         self.datasets = datasets
         self.silent = silent
@@ -378,17 +379,37 @@ class TheoryBuilder:
         max_al = 0
         # check for sv
         if not np.isclose(xir, 1.0):
-            is_ren_as, is_ren_al = check.contains_ren(grid, max_as, max_al)
+            is_ren_as, is_ren_al, is_cen_as, is_cen_al = check.contains_ren(
+                grid, max_as, max_al
+            )
             if not (is_ren_as and is_ren_al):
                 raise ValueError(
                     "Renormalization scale variations are not available for this grid"
                 )
+            if is_ren_as and not is_cen_as:
+                rich.print(
+                    f"[orange]Warning: The grid does not contain the central as order for which the scale varied version is being asked"
+                )
+            if is_ren_al and not is_cen_al:
+                rich.print(
+                    f"[orange]Warning: The grid does not contain the central al order for which the scale varied version is being asked"
+                )
         if sv_method is None:
             if not np.isclose(xif, 1.0):
-                is_fact_as, is_fact_al = check.contains_fact(grid, max_as, max_al)
+                is_fact_as, is_fact_al, is_cen_as, is_cen_al = check.contains_fact(
+                    grid, max_as, max_al
+                )
                 if not (is_fact_as and is_fact_al):
                     raise ValueError(
                         "Factorization scale variations are not available for this grid"
+                    )
+                if is_fact_as and not is_cen_as:
+                    rich.print(
+                        f"[orange]Warning: The grid does not contain the central as order for which the scale varied version is being asked"
+                    )
+                if is_fact_al and not is_cen_al:
+                    rich.print(
+                        f"[orange]Warning: The grid does not contain the central al order for which the scale varied version is being asked"
                     )
         # loading ekos
         with eko.EKO.edit(eko_filename) as operators:

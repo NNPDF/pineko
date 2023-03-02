@@ -72,16 +72,23 @@ def sub_scvar(grid_path, scale, max_as_order, max_al_order):
     grid = pineappl.grid.Grid.read(grid_path)
     grid.optimize()
     success = "[green]Success:[/] grids contain"
+    warning = "[orange]Warning:[/] grids do not contain central order for requested"
     error = "[red]Error:[/] grids do not contain"
     # Call the function
     try:
         conditions = Scale[scale].value.check(grid, max_as_order, max_al_order)
     except KeyError:
         raise ValueError("Scale variation to check can be one between ren and fact")
-    for coupling, condition in zip(Coupling, conditions):
+    sv_conditions = [conditions[0], conditions[1]]
+    cen_conditions = [conditions[-2], conditions[-1]]
+    for coupling, sv_condition, cen_condition in zip(
+        Coupling, sv_conditions, cen_conditions
+    ):
         to_write = ""
-        if condition:
+        if sv_condition and cen_condition:
             to_write += success
+        elif sv_condition and not cen_condition:
+            to_write += warning
         else:
             to_write += error
         to_write += " " + Scale[scale].value.descr

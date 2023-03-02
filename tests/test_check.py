@@ -61,20 +61,34 @@ def test_contains_fact():
     third_order = Order((1, 0, 0, 1))
     order_list = [first_order, second_order, third_order]
     mygrid = Fake_grid(order_list)
-    assert tuple(pineko.check.contains_fact(mygrid, max_as, max_al)) == (True, True)
+    assert tuple(pineko.check.contains_fact(mygrid, max_as, max_al)) == (
+        True,
+        True,
+        True,
+        False,
+    )
     order_list.pop(-1)
     mygrid_nofact = Fake_grid(order_list)
     assert tuple(pineko.check.contains_fact(mygrid_nofact, max_as, max_al)) == (
         False,
         True,
+        True,
+        False,
     )
     assert tuple(pineko.check.contains_fact(mygrid_nofact, max_as - 1, max_al)) == (
         True,
         True,
+        False,
+        False,
     )
     order_list.pop(-1)
     mygrid_LO = Fake_grid(order_list)
-    assert tuple(pineko.check.contains_fact(mygrid_LO, max_as, max_al)) == (True, True)
+    assert tuple(pineko.check.contains_fact(mygrid_LO, max_as, max_al)) == (
+        True,
+        True,
+        False,
+        False,
+    )
 
 
 def test_contains_ren():
@@ -85,23 +99,39 @@ def test_contains_ren():
     third_order = Order((2, 0, 1, 0))
     order_list = [first_order, second_order, third_order]
     mygrid = Fake_grid(order_list)
-    assert tuple(pineko.check.contains_ren(mygrid, max_as, max_al)) == (True, True)
+    assert tuple(pineko.check.contains_ren(mygrid, max_as, max_al)) == (
+        True,
+        True,
+        True,
+        False,
+    )
     order_list.pop(-1)
     mygrid_new = Fake_grid(order_list)
-    assert tuple(pineko.check.contains_ren(mygrid_new, max_as, max_al)) == (True, True)
+    assert tuple(pineko.check.contains_ren(mygrid_new, max_as, max_al)) == (
+        True,
+        True,
+        False,
+        False,
+    )
     order_list.append(Order((2, 0, 0, 0)))
     mygrid_noren = Fake_grid(order_list)
     assert tuple(pineko.check.contains_ren(mygrid_noren, max_as, max_al)) == (
         False,
         True,
+        True,
+        False,
     )
     assert tuple(pineko.check.contains_ren(mygrid_noren, max_as - 1, max_al)) == (
         True,
         True,
+        True,
+        False,
     )
     order_list.pop(0)
     mygrid_noren = Fake_grid(order_list)
     assert tuple(pineko.check.contains_ren(mygrid_noren, max_as, max_al)) == (
-        False,
         True,
+        True,
+        False,
+        False,
     )
