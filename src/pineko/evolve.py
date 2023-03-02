@@ -99,8 +99,8 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
 
     """
     operators_card = copy.deepcopy(default_card)
-    # Note that for the moment this is enough but once we consider max_al different
-    # from 0 we will need to use the true order_mask
+    # Note that this is enough but once we consider max_al different
+    # from 0, it will be better to use the actual order_mask
     mock_order_mask = np.array([True for _ord in pineappl_grid.orders()])
     evolve_info = pineappl_grid.raw.evolve_info(mock_order_mask)
     x_grid = evolve_info.x1
