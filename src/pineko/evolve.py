@@ -13,7 +13,6 @@ import rich.panel
 import yaml
 from eko.io.types import EvolutionMethod, ScaleVariationsMethod
 
-
 from . import check, comparator, ekompatibility, version
 
 
@@ -100,7 +99,12 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
 
     """
     operators_card = copy.deepcopy(default_card)
-    x_grid, _pids, _mur2_grid, muf2_grid = pineappl_grid.axes()
+    # Note that for the moment this is enough but once we consider max_al different
+    # from 0 we will need to use the true order_mask
+    mock_order_mask = np.array([True for _ord in pineappl_grid.orders()])
+    evolve_info = pineappl_grid.raw.evolve_info(mock_order_mask)
+    x_grid = evolve_info.x1
+    muf2_grid = evolve_info.fac1
     sv_method = sv_scheme(tcard)
     xif = 1.0 if sv_method == "expanded" else tcard["XIF"]
     operators_card["configs"]["scvar_method"] = sv_method
@@ -154,7 +158,10 @@ def evolve_grid(
     comparison_pdf : None or str
         if given, a comparison table (with / without evolution) will be printed
     """
-    x_grid, _pids, mur2_grid, _muf2_grid = grid.axes()
+    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
+    evolve_info = grid.raw.evolve_info(order_mask)
+    x_grid = evolve_info.x1
+    mur2_grid = evolve_info.ren1
     sv_method = None
     if operators.operator_card.configs.scvar_method is not None:
         sv_method = operators.operator_card.configs.scvar_method.name
@@ -173,7 +180,6 @@ def evolve_grid(
     elif not np.allclose(operators.rotations.inputpids, br.rotate_flavor_to_evolution):
         raise ValueError("The EKO is neither in flavor nor in evolution basis.")
     # do it
-    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
     # This is really the facto scale grid only for scheme A and C
     muf2_grid = operators.mu2grid
     # PineAPPL wants alpha_s = 4*pi*a_s
