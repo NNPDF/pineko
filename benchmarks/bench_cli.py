@@ -37,7 +37,7 @@ def benchmark_check_cli(test_files):
         in ren_res.output
     )
     assert (
-        "Success: grids contain renormalization scale variations for al"
+        "Warning: grids do not contain central order for requested renormalization"
         in ren_res.output
     )
     fact_res = runner.invoke(
@@ -48,7 +48,7 @@ def benchmark_check_cli(test_files):
         in fact_res.output
     )
     assert (
-        "Success: grids contain factorization scale variations for al"
+        "Warning: grids do not contain central order for requested factorization"
         in fact_res.output
     )
 

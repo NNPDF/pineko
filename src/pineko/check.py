@@ -133,10 +133,11 @@ def contains_fact(grid, max_as, max_al):
     order_list = order_array[order_mask]
     as_orders = []
     al_orders = []
+    min_al = min([ord[1] for ord in order_list])
     for order in order_list:
-        if order[1] == 0:
+        if order[1] == min_al:
             as_orders.append(order)
-        else:
+        if order[1] != 0:
             al_orders.append(order)
     min_as = min([ord[0] for ord in as_orders]) if len(as_orders) != 0 else 0
     min_al = min([ord[0] for ord in al_orders]) if len(al_orders) != 0 else 0
@@ -195,13 +196,13 @@ def contains_ren(grid, max_as, max_al):
     order_list = order_array[order_mask]
     as_orders = []
     al_orders = []
+    min_al = min([ord[1] for ord in order_list])
     for order in order_list:
-        if order[1] == 0:
+        if order[1] == min_al:
             as_orders.append(order)
-        else:
+        if order[1] != 0:
             al_orders.append(order)
     min_as = min([ord[0] for ord in as_orders]) if len(as_orders) != 0 else 0
-    min_al = min([ord[0] for ord in al_orders]) if len(al_orders) != 0 else 0
     order_as_is_present = False
     order_al_is_present = False
     sv_as_present = False
