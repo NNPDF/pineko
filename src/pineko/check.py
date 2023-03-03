@@ -202,7 +202,7 @@ def contains_ren(grid, max_as, max_al):
             as_orders.append(order)
         if order[1] != 0:
             al_orders.append(order)
-    min_as = min([ord[0] for ord in as_orders]) if len(as_orders) != 0 else 0
+    min_as = min([ord[0] for ord in as_orders], default=0)
     order_as_is_present = False
     order_al_is_present = False
     sv_as_present = False
