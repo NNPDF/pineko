@@ -177,9 +177,7 @@ def write_sv_grids(gridpath, grid_list):
             for grid in grid_list[order][1:]:
                 tmp_path = gridpath.parent / ("tmp" + final_part)
                 grid.raw.write_lz4(tmp_path)
-                grid_list[order][0].raw.merge_from_file(
-                    tmp_path, ignore_bin_limits=False
-                )
+                grid_list[order][0].raw.merge_from_file(tmp_path)
                 tmp_path.unlink()
         new_grid_path = gridpath.parent / (
             base_name + "_" + str(order[2]) + final_part
@@ -196,7 +194,7 @@ def merge_grids(gridpath, grid_list_path, target_path=None):
         base_name = gridpath.stem.split(".pineappl")[0]
         target_path = gridpath.parent / (base_name + "_plusrensv.pineappl.lz4")
     for grid_path in grid_list_path:
-        grid.raw.merge_from_file(grid_path, ignore_bin_limits=False)
+        grid.raw.merge_from_file(grid_path)
         grid_path.unlink()
     grid.raw.write_lz4(target_path)
 
