@@ -9,6 +9,11 @@ from eko import beta
 from . import check
 
 
+def sort_orders(order):
+    """Define the sorting for an order. In particular the order is sorted according to the as order."""
+    return order[0]
+
+
 def ren_sv_coeffs(m, max_as, logpart, which_part, nf):
     """Return the ren_sv contribution relative to the requested log power and perturbative order contribution (which_part).
 
@@ -75,7 +80,7 @@ def compute_scale_factor(m, nec_order, to_construct_order, nf):
     return ren_sv_coeffs(m, max_as, logpart, nec_order[0] - m, nf)
 
 
-def compute_orders_map(m, max_as):
+def compute_orders_map(m, max_as, min_al):
     """Compute a dictionary with all the necessary orders to compute to have the full renormalization scale variation.
 
     Parameters
@@ -84,7 +89,8 @@ def compute_orders_map(m, max_as):
         first non zero perturbative order of the grid
     max_as : int
         max alpha_s order
-
+    min_al : int
+        al order of leading order
     Returns
     -------
     dict(tuple(int))
@@ -92,8 +98,8 @@ def compute_orders_map(m, max_as):
     """
     orders = {}
     for delt in range(max_as):
-        orders[(m + max_as, 0, delt + 1, 0)] = [
-            (m + de, 0, 0, 0) for de in range(max_as - delt)
+        orders[(m + max_as, min_al, delt + 1, 0)] = [
+            (m + de, min_al, 0, 0) for de in range(max_as - delt)
         ]
     return orders
 
@@ -120,6 +126,17 @@ def create_svonly(grid, order, new_order, scalefactor):
             extracted_subgrid.scale(scalefactor)
             # Set this subgrid inside the new grid
             new_grid.set_subgrid(0, bin_index, lumi_index, extracted_subgrid)
+    # Fixing bin_limits and normalizations
+    bin_dimension = grid.raw.bin_dimensions()
+    limits = []
+    for num_bin in range(grid.raw.bins()):
+        for dim in range(bin_dimension):
+            limits.append(
+                (grid.raw.bin_left(dim)[num_bin], grid.raw.bin_right(dim)[num_bin])
+            )
+    norma = grid.raw.bin_normalizations()
+    remap_obj = pineappl.bin.BinRemapper(norma, limits)
+    new_grid.set_remapper(remap_obj)
     return new_grid
 
 
@@ -127,9 +144,13 @@ def create_grids(gridpath, max_as, nf):
     """Create all the necessary scale variations grids for a certain starting grid."""
     grid = pineappl.grid.Grid.read(gridpath)
     grid_orders = [orde.as_tuple() for orde in grid.orders()]
-    first_nonzero_order = grid_orders[0]
+    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, 0)
+    grid_orders_filtered = list(np.array(grid_orders)[order_mask])
+    grid_orders_filtered.sort(key=sort_orders)
+    first_nonzero_order = grid_orders_filtered[0]
+    min_al = first_nonzero_order[1]
     m_value = first_nonzero_order[0]
-    nec_orders = compute_orders_map(m_value, max_as)
+    nec_orders = compute_orders_map(m_value, max_as, min_al)
     grid_list = {}
     for to_construct_order in nec_orders:
         list_grid_order = []
@@ -157,7 +178,7 @@ def write_sv_grids(gridpath, grid_list):
                 tmp_path = gridpath.parent / ("tmp" + final_part)
                 grid.raw.write_lz4(tmp_path)
                 grid_list[order][0].raw.merge_from_file(
-                    tmp_path, ignore_bin_limits=True
+                    tmp_path, ignore_bin_limits=False
                 )
                 tmp_path.unlink()
         new_grid_path = gridpath.parent / (
@@ -175,7 +196,7 @@ def merge_grids(gridpath, grid_list_path, target_path=None):
         base_name = gridpath.stem.split(".pineappl")[0]
         target_path = gridpath.parent / (base_name + "_plusrensv.pineappl.lz4")
     for grid_path in grid_list_path:
-        grid.raw.merge_from_file(grid_path, ignore_bin_limits=True)
+        grid.raw.merge_from_file(grid_path, ignore_bin_limits=False)
         grid_path.unlink()
     grid.raw.write_lz4(target_path)
 
