@@ -105,14 +105,6 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     operators_card["configs"]["scvar_method"] = sv_method
     q2_grid = (xif * xif * muf2_grid).tolist()
     operators_card["_mugrid"] = np.sqrt(q2_grid).tolist()
-    # If we are computing and integrability FK we want to add a single
-    # x point to the xgrid and decrease the interpolation polynonial
-    # degree to 1
-    if "integrability_version" in pineappl_grid.key_values():
-        operators_card["configs"]["interpolation_polynomial_degree"] = 1
-        x_grid_int = copy.deepcopy(x_grid.tolist())
-        x_grid_int.append(1.0)
-        operators_card["rotations"]["_targetgrid"] = list(x_grid_int)
 
     with open(card_path, "w", encoding="UTF-8") as f:
         yaml.safe_dump(operators_card, f)
@@ -161,6 +153,8 @@ def evolve_grid(
     tcard = operators.theory_card
     opcard = operators.operator_card
     # rotate the targetgrid
+    if "integrability_version" in grid.key_values():
+        x_grid = np.append(x_grid,1.0)
     eko.io.manipulate.xgrid_reshape(
         operators, targetgrid=eko.interpolation.XGrid(x_grid)
     )
