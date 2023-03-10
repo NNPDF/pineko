@@ -105,6 +105,10 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     operators_card["configs"]["scvar_method"] = sv_method
     q2_grid = (xif * xif * muf2_grid).tolist()
     operators_card["_mugrid"] = np.sqrt(q2_grid).tolist()
+    if "integrability_version" in pineappl_grid.key_values():
+        x_grid = np.append(x_grid,1.0)
+        operators_card["configs"]["interpolation_polynomial_degree"] = 1
+        operators_card["rotations"]["xgrid"] = x_grid.tolist()
 
     with open(card_path, "w", encoding="UTF-8") as f:
         yaml.safe_dump(operators_card, f)
