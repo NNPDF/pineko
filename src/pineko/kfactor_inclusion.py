@@ -10,6 +10,8 @@ import yaml
 
 from . import check
 
+DEFAULT_PDF_SET = "NNPDF40_nnlo_as_01180"
+
 
 def sort_orders(order):
     """Define the sorting for an order. In particular the order is sorted according only to the as order."""
@@ -35,6 +37,8 @@ def read_kfactor(kfactor_path):
         data = data.reshape(-1, 2)
         central_value = data[:, 0]
         pdf_set = description.split(sep="PDFset:")[-1].split(sep="\n")[0].strip()
+        if len(pdf_set) == 0:
+            pdf_set = DEFAULT_PDF_SET
     return central_value, pdf_set
 
 
@@ -219,6 +223,28 @@ def is_already_in(to_check, list_orders):
     return False
 
 
+def construct_and_merge_grids(
+    grid_path,
+    max_as,
+    first_nonzero_order,
+    min_al,
+    centrals_kfactor,
+    alphas,
+    target_folder,
+):
+    """Create, write and merge all the grids."""
+    # Creating all the necessary grids
+    grid_list = create_grids(
+        grid_path, max_as, first_nonzero_order[0], min_al, centrals_kfactor, alphas
+    )
+    # Writing the sv grids
+    grids_paths = write_grids(gridpath=grid_path, grid_list=grid_list)
+    # Merging all together
+    merge_grids(
+        gridpath=grid_path, grid_list_path=grids_paths, target_path=target_folder
+    )
+
+
 def compute_k_factor_grid(
     grids_folder, kfactor_folder, yamldb_path, compound_path, max_as, target_folder=None
 ):
@@ -239,26 +265,29 @@ def compute_k_factor_grid(
     target_folder: pathlib.Path
         path where store the new grid (optional)
     """
+    # With respect to the usual convention here max_as is max_as-1
+    max_as_test = max_as - 1
     with open(yamldb_path, encoding="utf-8") as f:
         yamldict = yaml.safe_load(f)
     target_dataset = yamldict["target_dataset"]
     is_concatenated = False
     list_grids = []
-    for op in yamldict["operands"]:
-        list_grids.append(op[0])
+    for op in yamldict["operands"][0]:
+        list_grids.append(op)
     if len(list_grids) > 1:
         is_concatenated = True
-    # if compound file exists, take cfactor file names from there.
-    # If not then the cfactor file name can be obtained form the target dataset name alone.
-    if compound_path is not None:
-        cfac_names = [
-            i[3:-4] for i in compound_path.read_text().split() if i.endswith(".dat")
-        ]
-        cfac_paths = [kfactor_folder / f"CF_QCD_{i}.dat" for i in cfac_names]
-    else:
-        cfac_paths = [kfactor_folder / f"CF_QCD_{target_dataset}.dat"]
 
     if not is_concatenated:
+        # if compound file exists, take cfactor file names from there.
+        # If not then the cfactor file name can be obtained form the target dataset name alone.
+        if compound_path is not None:
+            cfac_names = [
+                i[3:-4] for i in compound_path.read_text().split() if i.endswith(".dat")
+            ]
+            cfac_paths = [kfactor_folder / f"CF_QCD_{i}.dat" for i in cfac_names]
+        else:
+            cfac_paths = [kfactor_folder / f"CF_QCD_{target_dataset}.dat"]
+
         grid_path = grids_folder / (f"{list_grids[0]}.pineappl.lz4")
         grid = pineappl.grid.Grid.read(grid_path)
         grid_orders = [orde.as_tuple() for orde in grid.orders()]
@@ -267,27 +296,144 @@ def compute_k_factor_grid(
         grid_orders_filtered.sort(key=sort_orders)
         first_nonzero_order = grid_orders_filtered[0]
         min_al = first_nonzero_order[1]
-        # With respect to the usual convention here max_as is max_as-1
-        max_as = max_as - 1
         if is_already_in(
-            (first_nonzero_order[0] + max_as, min_al, 0, 0), grid_orders_filtered
+            (first_nonzero_order[0] + max_as_test, min_al, 0, 0), grid_orders_filtered
         ):
-            rich.print(f"[Success] Requested order already in the grid.")
+            rich.print(f"[green] Success: Requested order already in the grid.")
             return
         # Reading the k_factor
+        if not cfac_paths[0].exists():
+            rich.print(f"[Red] Error: KFactor does not exist.")
+            return
         centrals_kfactor, pdf_set = read_kfactor(cfac_paths[0])
         alphas = lhapdf.mkAlphaS(pdf_set)
+        # Removing 1.0 entries
+        centrals_kfactor = centrals_kfactor[np.where(centrals_kfactor != 1)]
         # We need the pdf set to get the correct alpha values
-        # Creating all the necessary grids
-        grid_list = create_grids(
-            grid_path, max_as, first_nonzero_order[0], min_al, centrals_kfactor, alphas
-        )
-        # Writing the sv grids
-        grids_paths = write_grids(gridpath=grid_path, grid_list=grid_list)
-        # Merging all together
-        merge_grids(
-            gridpath=grid_path, grid_list_path=grids_paths, target_path=target_folder
+        construct_and_merge_grids(
+            grid_path,
+            max_as_test,
+            first_nonzero_order,
+            min_al,
+            centrals_kfactor,
+            alphas,
+            target_folder,
         )
     else:
-        for grid_path, cfac_path in zip(list_grids, cfac_paths):
-            print("Not yet implemented")
+        # In this case is convenient to load all the grids now and store the bin info
+        loaded_grid_list = []
+        bins_list = []
+        last_pos = 0
+        for grid_name in list_grids:
+            grid_path = grids_folder / (f"{grid_name}.pineappl.lz4")
+            grid = pineappl.grid.Grid.read(grid_path)
+            loaded_grid_list.append(grid)
+            bins_list.append((last_pos, grid.bins() + last_pos))
+            last_pos += grid.bins()
+        # if compound file exists, take cfactor file names from there.
+        # If not then the cfactor file name can be obtained form the target dataset name alone.
+        if compound_path is not None:
+            cfac_names = [
+                i[3:-4] for i in compound_path.read_text().split() if i.endswith(".dat")
+            ]
+            cfac_paths = [kfactor_folder / f"CF_QCD_{i}.dat" for i in cfac_names]
+        else:
+            cfac_paths = [kfactor_folder / f"CF_QCD_{target_dataset}.dat"]
+        # I need to check how many Kfactors I have
+        centrals_list = []
+        alphas_list = []
+        if len(cfac_paths) == len(list_grids):
+            # Reading the k_factor
+            for cfac_path in cfac_paths:
+                if not cfac_path.exists():
+                    rich.print(f"[Red] Error: KFactor does not exist.")
+                    continue
+                centrals_kfactor, pdf_set = read_kfactor(cfac_path)
+                # Removing 1.0 entries
+                centrals_kfactor = centrals_kfactor[np.where(centrals_kfactor != 1)]
+                # We need the pdf set to get the correct alpha values
+                alphas = lhapdf.mkAlphaS(pdf_set)
+                centrals_list.append(centrals_kfactor)
+                alphas_list.append(alphas)
+        # If there is only one Kfactor, this means that it contains all the factors for all the bins across all the grids.
+        elif len(cfac_paths) == 1:
+            if not cfac_paths[0].exists():
+                rich.print(f"[Red] Error: KFactor does not exist.")
+                return
+            centrals_kfactor, pdf_set = read_kfactor(cfac_paths[0])
+            centrals_kfactor = centrals_kfactor[np.where(centrals_kfactor != 1)]
+            alphas = lhapdf.mkAlphaS(pdf_set)
+            # alpha is trivial: it is always the same
+            alphas_list = [alphas for _ in list_grids]
+            # Here I need to use the bin infos
+            centrals_list = [
+                centrals_kfactor[bin_limit[0] : bin_limit[1]] for bin_limit in bins_list
+            ]
+
+        else:
+            raise ValueError(
+                "Number of kfactors does not match the number of grids and is not one."
+            )
+
+        for grid_name, grid, centrals_cfac, alpha in zip(
+            list_grids, loaded_grid_list, centrals_list, alphas_list
+        ):
+            grid_path = grids_folder / (f"{grid_name}.pineappl.lz4")
+            grid_orders = [orde.as_tuple() for orde in grid.orders()]
+            order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, 0)
+            grid_orders_filtered = list(np.array(grid_orders)[order_mask])
+            grid_orders_filtered.sort(key=sort_orders)
+            first_nonzero_order = grid_orders_filtered[0]
+            min_al = first_nonzero_order[1]
+            # With respect to the usual convention here max_as is max_as-1
+            max_as_test = max_as - 1
+            if is_already_in(
+                (first_nonzero_order[0] + max_as_test, min_al, 0, 0),
+                grid_orders_filtered,
+            ):
+                rich.print(f"[green] Success: Requested order already in the grid.")
+                continue
+            # This is the easy case
+            if grid.bins() == len(centrals_cfac):
+                rich.print(
+                    f"[orange] The number of bins match the lenght of the kFactor."
+                )
+            elif grid.bins() < len(centrals_cfac):
+                rich.print(
+                    f"[yellow] The number of bins is less than the lenght of the kFactor."
+                )
+                if not all(elem == centrals_cfac[0] for elem in centrals_cfac):
+                    # This case is actually wrong.
+                    raise ValueError("KFactor contains too many different values.")
+            else:
+                rich.print(
+                    f"[yellow] The number of bins is more than the lenght of the KFactor."
+                )
+
+                # This is the last case in which grid.bins() > len(centrals_kfactor)
+
+                # Note that sometimes there are more bins in the grid than in the cfactor file -
+                # this is not a problem becasue in those cases either all cfactor values are the
+                # same (thus there is no doubt about whether we have the correct one) or the
+                # non-exisiting cfactors would be multiplied by bins corresponding to all '0' in the
+                # grid.
+
+                # Let's check if we are in the first or second case
+                if all(elem == centrals_cfac for elem in centrals_cfac):
+                    # In this case I just need to add more elements to the kfactor
+                    for num in range(grid.bins() - len(centrals_cfac)):
+                        centrals_kfactor = np.append(centrals_cfac, centrals_cfac[0])
+                else:
+                    # In this case this means that the missing entries will multiply zero subgrids so we can just add 0s
+                    for num in range(grid.bins() - len(centrals_cfac)):
+                        centrals_kfactor = np.append(0.0, centrals_cfac[0])
+
+            construct_and_merge_grids(
+                grid_path,
+                max_as_test,
+                first_nonzero_order,
+                min_al,
+                centrals_cfac,
+                alpha,
+                target_folder,
+            )
