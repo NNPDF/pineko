@@ -208,13 +208,15 @@ def merge_grids(gridpath, grid_list_path, target_path=None):
 
 def is_already_in(to_check, list_orders):
     """Check if the requested order is already in the grid."""
-    is_in = False
     for order in list_orders:
-        if order[-2] == 0 and order[-1] == 0:
-            if (order[0] == to_check[0]) and (order[1] == to_check[1]):
-                is_in = True
-                return is_in
-    return is_in
+        if (
+            order[-2] == 0
+            and order[-1] == 0
+            and (order[0] == to_check[0])
+            and (order[1] == to_check[1])
+        ):
+            return True
+    return False
 
 
 def compute_k_factor_grid(
