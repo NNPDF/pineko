@@ -15,23 +15,23 @@ from ._base import command
 @click.argument("kfactor_folder", type=click.Path(exists=True))
 @click.argument("yamldb_path", type=click.Path(exists=True))
 @click.argument("target_folder", type=click.Path(exists=False))
+@click.argument("compound_folder", type=click.Path(exists=True))
 @click.argument("max_as", type=int)
-@click.option(
-    "--comp",
-    default=None,
-    type=click.Path(exists=True),
-    help="path to compound file if exists",
-)
 def k_factor_inclusion(
-    grids_folder, kfactor_folder, yamldb_path, target_folder, max_as, comp
+    grids_folder,
+    kfactor_folder,
+    yamldb_path,
+    target_folder,
+    compound_folder,
+    max_as,
+    comp,
 ):
     """Construct new grid with k_factor included."""
     grids_folder = pathlib.Path(grids_folder)
     kfactor_folder = pathlib.Path(kfactor_folder)
     yamldb_path = pathlib.Path(yamldb_path)
     target_folder = pathlib.Path(target_folder)
-    if comp is not None:
-        comp = pathlib.Path(comp)
+    comp = pathlib.Path(compound_folder)
     kfactor_inclusion.compute_k_factor_grid(
         grids_folder,
         kfactor_folder,

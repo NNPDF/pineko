@@ -246,7 +246,12 @@ def construct_and_merge_grids(
 
 
 def compute_k_factor_grid(
-    grids_folder, kfactor_folder, yamldb_path, compound_path, max_as, target_folder=None
+    grids_folder,
+    kfactor_folder,
+    yamldb_path,
+    compound_folder,
+    max_as,
+    target_folder=None,
 ):
     """Include the k_factor in the grid in order to have its associated order in the grid itself.
 
@@ -258,8 +263,8 @@ def compute_k_factor_grid(
         kfactors folder
     yamldb_path : pathlib.Path()
         path to the yaml file describing the dataset
-    compound_path : pathlib.Path()
-        path to the compound file if exists
+    compound_folder : pathlib.Path()
+        path to the compound folder
     max_as : int
         max as order
     target_folder: pathlib.Path
@@ -270,6 +275,7 @@ def compute_k_factor_grid(
     with open(yamldb_path, encoding="utf-8") as f:
         yamldict = yaml.safe_load(f)
     target_dataset = yamldict["target_dataset"]
+    compound_path = pathlib.Path(compound_folder) / f"FK_{target_dataset}-COMPOUND.dat"
     is_concatenated = False
     list_grids = []
     for op in yamldict["operands"][0]:
@@ -280,7 +286,7 @@ def compute_k_factor_grid(
     if not is_concatenated:
         # if compound file exists, take cfactor file names from there.
         # If not then the cfactor file name can be obtained form the target dataset name alone.
-        if compound_path is not None:
+        if compound_path.exists():
             cfac_names = [
                 i[3:-4] for i in compound_path.read_text().split() if i.endswith(".dat")
             ]
@@ -332,7 +338,7 @@ def compute_k_factor_grid(
             last_pos += grid.bins()
         # if compound file exists, take cfactor file names from there.
         # If not then the cfactor file name can be obtained form the target dataset name alone.
-        if compound_path is not None:
+        if compound_path.exists():
             cfac_names = [
                 i[3:-4] for i in compound_path.read_text().split() if i.endswith(".dat")
             ]
