@@ -313,8 +313,6 @@ def compute_k_factor_grid(
             return
         centrals_kfactor, pdf_set = read_kfactor(cfac_paths[0])
         alphas = lhapdf.mkAlphaS(pdf_set)
-        # Removing 1.0 entries
-        centrals_kfactor = centrals_kfactor[np.where(centrals_kfactor != 1)]
         # We need the pdf set to get the correct alpha values
         construct_and_merge_grids(
             grid_path,
@@ -355,8 +353,9 @@ def compute_k_factor_grid(
                     rich.print(f"[Red] Error: KFactor does not exist.")
                     continue
                 centrals_kfactor, pdf_set = read_kfactor(cfac_path)
-                # Removing 1.0 entries
-                centrals_kfactor = centrals_kfactor[np.where(centrals_kfactor != 1)]
+                # Removing 1.0 entries only for "ATLASZPT8TEVMDIST"
+                if target_dataset == "ATLASZPT8TEVMDIST":
+                    centrals_kfactor = centrals_kfactor[np.where(centrals_kfactor != 1)]
                 # We need the pdf set to get the correct alpha values
                 alphas = lhapdf.mkAlphaS(pdf_set)
                 centrals_list.append(centrals_kfactor)
@@ -367,7 +366,9 @@ def compute_k_factor_grid(
                 rich.print(f"[Red] Error: KFactor does not exist.")
                 return
             centrals_kfactor, pdf_set = read_kfactor(cfac_paths[0])
-            centrals_kfactor = centrals_kfactor[np.where(centrals_kfactor != 1)]
+            # Removing 1.0 entries only for "ATLASZPT8TEVMDIST"
+            if target_dataset == "ATLASZPT8TEVMDIST":
+                centrals_kfactor = centrals_kfactor[np.where(centrals_kfactor != 1)]
             alphas = lhapdf.mkAlphaS(pdf_set)
             # alpha is trivial: it is always the same
             alphas_list = [alphas for _ in list_grids]

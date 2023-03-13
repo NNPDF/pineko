@@ -14,17 +14,16 @@ from ._base import command
 @click.argument("grids_folder", type=click.Path(exists=True))
 @click.argument("kfactor_folder", type=click.Path(exists=True))
 @click.argument("yamldb_path", type=click.Path(exists=True))
-@click.argument("target_folder", type=click.Path(exists=False))
 @click.argument("compound_folder", type=click.Path(exists=True))
+@click.argument("target_folder", type=click.Path(exists=False))
 @click.argument("max_as", type=int)
 def k_factor_inclusion(
     grids_folder,
     kfactor_folder,
     yamldb_path,
-    target_folder,
     compound_folder,
+    target_folder,
     max_as,
-    comp,
 ):
     """Construct new grid with k_factor included."""
     grids_folder = pathlib.Path(grids_folder)
