@@ -2,13 +2,11 @@
 import io
 import pathlib
 
-import eko
 import lhapdf
 import numpy as np
 import pineappl
 import rich
 import yaml
-from eko import beta
 
 from . import check
 
