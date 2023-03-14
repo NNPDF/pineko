@@ -412,9 +412,18 @@ def compute_k_factor_grid(
                 cfac_names_num = [name for name in cfac_names if ("NUM" in name)]
                 cfac_names_den = [name for name in cfac_names if ("DEN" in name)]
                 # Sometimes they are not denoted with NUM and DEN
-                if target_dataset == "ATLAS_SINGLETOP_TCH_R_8TEV":
-                    cfac_names_num = ["ATLAS_SINGLETOP_TCH_R_8TEV_T"]
-                    cfac_names_den = ["ATLAS_SINGLETOP_TCH_R_8TEV_TB"]
+                if target_dataset in [
+                    "ATLAS_SINGLETOP_TCH_R_8TEV",
+                    "ATLAS_SINGLETOP_TCH_R_7TEV",
+                    "ATLAS_SINGLETOP_TCH_R_13TEV",
+                    "CMS_SINGLETOP_TCH_R_13TEV",
+                    "CMS_SINGLETOP_TCH_R_8TEV",
+                ]:
+                    cfac_names_num = [target_dataset + "_T"]
+                    cfac_names_den = [target_dataset + "_TB"]
+                if target_dataset == "D0ZRAP":
+                    cfac_names_num = [target_dataset]
+                    cfac_names_den = [target_dataset + "_TOT"]
                 cfac_paths_num = [
                     kfactor_folder / f"CF_QCD_{i}.dat" for i in cfac_names_num
                 ]
