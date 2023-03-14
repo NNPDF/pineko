@@ -101,7 +101,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     operators_card = copy.deepcopy(default_card)
     x_grid, _pids, _mur2_grid, muf2_grid = pineappl_grid.axes()
     sv_method = sv_scheme(tcard)
-    xif = 1.0 if sv_method in ["expanded", "exponentiated"] else tcard["XIF"]
+    xif = 1.0 if sv_method is not None else tcard["XIF"]
     operators_card["configs"]["scvar_method"] = sv_method
     q2_grid = (xif * xif * muf2_grid).tolist()
     operators_card["_mugrid"] = np.sqrt(q2_grid).tolist()
@@ -151,9 +151,7 @@ def evolve_grid(
     """
     x_grid, _pids, mur2_grid, _muf2_grid = grid.axes()
     sv_method = None
-    if operators.operator_card.configs.scvar_method is not None:
-        sv_method = operators.operator_card.configs.scvar_method.name
-    xif = 1.0 if sv_method in ["EXPANDED", "EXPONENTIATED"] else xif
+    xif = 1.0 if operators.operator_card.configs.scvar_method is not None else xif
     tcard = operators.theory_card
     opcard = operators.operator_card
     # rotate the targetgrid
