@@ -2,7 +2,7 @@
 import io
 import pathlib
 
-import lhapdf
+import lhapdf  # pylint: disable=import-error, import-outside-toplevel
 import numpy as np
 import pineappl
 import rich
