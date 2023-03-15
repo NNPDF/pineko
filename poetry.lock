@@ -500,7 +500,7 @@ python-versions = "*"
 
 [[package]]
 name = "pineappl"
-version = "0.6.0a2"
+version = "0.6.0a4"
 description = "Python bindings to PineAPPL"
 category = "main"
 optional = false
@@ -1049,7 +1049,7 @@ docs = ["Sphinx", "sphinx-rtd-theme", "sphinxcontrib-bibtex"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "189fcccf37e36420798156b21cc09832e1a7d0f518c6d5f2496eefcd5c7e48a4"
+content-hash = "7796e8fc38cfe86d76bf07f86736f15eadb5f5b5d8c028ef087dc2c6aed6c5ff"
 
 [metadata.files]
 alabaster = [
@@ -1559,21 +1559,24 @@ pickleshare = [
     {file = "pickleshare-0.7.5.tar.gz", hash = "sha256:87683d47965c1da65cdacaf31c8441d12b8044cdec9aca500cd78fc2c683afca"},
 ]
 pineappl = [
-    {file = "pineappl-0.6.0a2-cp310-cp310-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:b2ecf88be240613463b96c5b24a8ff78041d106af10d23bec435870f0873d857"},
-    {file = "pineappl-0.6.0a2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:0aa5b8510e16df6ca0aae1ad7b2e500f85a49b39e4f986af71303666c2bb1d91"},
-    {file = "pineappl-0.6.0a2-cp310-none-win_amd64.whl", hash = "sha256:32e1ed7131e3c7324d2b2b40cb08753f22ea4044dddcad8185f4f75f5a5754a0"},
-    {file = "pineappl-0.6.0a2-cp311-cp311-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:153d0795eb8e88c135349afccfa12df456180746acfb5d4e096ddc5370ff246b"},
-    {file = "pineappl-0.6.0a2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:efc0e3a4fdc9688f688b5514e9bda9e11f92caed4bf8089dba1d98366eb4b843"},
-    {file = "pineappl-0.6.0a2-cp311-none-win_amd64.whl", hash = "sha256:0f71b0ba7fd9fec4f0bc57a81f5f54831fbe61d7f6eaf871893f292eecf477e3"},
-    {file = "pineappl-0.6.0a2-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:37c39f0d341ed23efeac38bd06048ccbf6c79dac646efe55c3ed068c6f71a4b5"},
-    {file = "pineappl-0.6.0a2-cp37-none-win_amd64.whl", hash = "sha256:599f66fd2f2c812b2121232e1a8618ffeb1cfcc8425d734bcbca074bcdbceb39"},
-    {file = "pineappl-0.6.0a2-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:928261529c884dab57cacc0e81824404f009160743bda5be1c4bd17639e2cb51"},
-    {file = "pineappl-0.6.0a2-cp38-none-win_amd64.whl", hash = "sha256:8046ab59bdf8e828b2f797b2748cd5d65c2da7c0a51b880b124474b553ecae1e"},
-    {file = "pineappl-0.6.0a2-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ad455ad943ec9dc2574c761343ac037714dd311779a463e90f8374aa0168e9e0"},
-    {file = "pineappl-0.6.0a2-cp39-none-win_amd64.whl", hash = "sha256:a1a63525bc55e02f55b38ef64cb4123c6f737cc307e25baad1249f0e58fc3c3a"},
-    {file = "pineappl-0.6.0a2-pp37-pypy37_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:863617db74771c801d4ddd6ebbfe6577c9531a5c00732a87ca0be46d1f42990d"},
-    {file = "pineappl-0.6.0a2-pp38-pypy38_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5d80f1b4f7f98de9b84fe7d716985a362699a27eb9268ff653a137c7ac74aaec"},
-    {file = "pineappl-0.6.0a2-pp39-pypy39_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:84811c2f0ab8964fe7b30a3c4c57228d528e78aa141e2b9de4a6d9ce53a8eebf"},
+    {file = "pineappl-0.6.0a4-cp310-cp310-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:863968612976deff3b0c6cca1394e261e951cda0d35cca98155162d8a5c602b5"},
+    {file = "pineappl-0.6.0a4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4c2dde7b963f2659e7c85e5baffba574edc6b65f8478acdae307e985a03f1a2e"},
+    {file = "pineappl-0.6.0a4-cp310-none-win_amd64.whl", hash = "sha256:553b271ab580d184f87777cefafe58df6fa76ad76064fe62797ec3013b77eec5"},
+    {file = "pineappl-0.6.0a4-cp311-cp311-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:d18a2a4f11bd474d3df42b3763044a713a84f1e9765d2de4ce8d3299fe2ce11b"},
+    {file = "pineappl-0.6.0a4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:24889dd48229d2bba5373e5d77b4656fc8816c1e142e2ea06529415cd7574e38"},
+    {file = "pineappl-0.6.0a4-cp311-none-win_amd64.whl", hash = "sha256:baf914364e5a4da78ac7ecdabe260f3292b78dd9ec5f385cd18a25ff45753561"},
+    {file = "pineappl-0.6.0a4-cp37-cp37m-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:ae33076d6bd471b07697ea24b7e3bc03eb96ce01967c0b8d43a406b6a6dcbc6d"},
+    {file = "pineappl-0.6.0a4-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e1944d9381971cdfed6c1c48562fd9fb5d5ecfd3d997ea41b7232a978d212ad2"},
+    {file = "pineappl-0.6.0a4-cp37-none-win_amd64.whl", hash = "sha256:82d9a978501a11c1cef90cc31d1da42d825e79f98886b4da03e3740d830031b8"},
+    {file = "pineappl-0.6.0a4-cp38-cp38-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:f7283efef2cad1a649fd7a8d6617201e84983256917a20361d1a0de40ea63ccd"},
+    {file = "pineappl-0.6.0a4-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:78c8e16d51a74817883a213b9ab5f11fc7c14ca5c1b0517db40e79ffefaad77b"},
+    {file = "pineappl-0.6.0a4-cp38-none-win_amd64.whl", hash = "sha256:cca46e90838491901c351b7d26f0d1c5079161cb571d825a4b4f8826b57625d0"},
+    {file = "pineappl-0.6.0a4-cp39-cp39-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:3c3c72e44f68453f85b5e3999fb585646505905abcdf0a61aa0b4a0c73c2ee5c"},
+    {file = "pineappl-0.6.0a4-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8a00fd92684be12b89b2aba0a9b08c896d5aafdde2c8a4b43f949a47707d118a"},
+    {file = "pineappl-0.6.0a4-cp39-none-win_amd64.whl", hash = "sha256:a5d17d188c2d40c4cc14e15881fcf7c33b47fc77463c68ba266c808408d09fd3"},
+    {file = "pineappl-0.6.0a4-pp37-pypy37_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:fce7dd73348881903f7e2b91934282d634bab01e4b6552720b90c1a9efd030fc"},
+    {file = "pineappl-0.6.0a4-pp38-pypy38_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:622b2271d9795cc0d7c9bbd8f7de50ead5791b3582703d7d2731857ade65335b"},
+    {file = "pineappl-0.6.0a4-pp39-pypy39_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9a96dce8937f61afcc0e22dc0749f793e13763e80acbddb2edb73e1a7ac7cca8"},
 ]
 platformdirs = [
     {file = "platformdirs-3.1.1-py3-none-any.whl", hash = "sha256:e5986afb596e4bb5bde29a79ac9061aa955b94fca2399b7aaac4090860920dd8"},
