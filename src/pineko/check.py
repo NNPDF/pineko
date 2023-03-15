@@ -1,6 +1,18 @@
 """Tools to check compatibility of EKO and grid."""
+from dataclasses import dataclass
+
 import numpy as np
 import pineappl
+
+
+@dataclass
+class OrderAvailable:
+    """Collect the possible results of a scale variations check."""
+
+    sv_as: bool
+    sv_al: bool
+    central_as: bool
+    central_al: bool
 
 
 def islepton(el):
@@ -166,7 +178,9 @@ def contains_fact(grid, max_as, max_al):
         sv_as_present = True
     if not order_al_is_present:
         sv_al_present = True
-    return sv_as_present, sv_al_present, order_as_is_present, order_al_is_present
+    return OrderAvailable(
+        sv_as_present, sv_al_present, order_as_is_present, order_al_is_present
+    )
 
 
 def contains_ren(grid, max_as, max_al):
@@ -232,4 +246,6 @@ def contains_ren(grid, max_as, max_al):
         sv_as_present = True
     if not order_al_is_present:
         sv_al_present = True
-    return sv_as_present, sv_al_present, order_as_is_present, order_al_is_present
+    return OrderAvailable(
+        sv_as_present, sv_al_present, order_as_is_present, order_al_is_present
+    )

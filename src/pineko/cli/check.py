@@ -79,8 +79,8 @@ def sub_scvar(grid_path, scale, max_as_order, max_al_order):
         conditions = Scale[scale].value.check(grid, max_as_order, max_al_order)
     except KeyError:
         raise ValueError("Scale variation to check can be one between ren and fact")
-    sv_conditions = [conditions[0], conditions[1]]
-    cen_conditions = [conditions[-2], conditions[-1]]
+    sv_conditions = [conditions.sv_as, conditions.sv_al]
+    cen_conditions = [conditions.central_as, conditions.central_al]
     for coupling, sv_condition, cen_condition in zip(
         Coupling, sv_conditions, cen_conditions
     ):

@@ -381,35 +381,31 @@ class TheoryBuilder:
         max_al = 0
         # check for sv
         if not np.isclose(xir, 1.0):
-            is_ren_as, is_ren_al, is_cen_as, is_cen_al = check.contains_ren(
-                grid, max_as, max_al
-            )
-            if not (is_ren_as and is_ren_al):
+            ren_order_available = check.contains_ren(grid, max_as, max_al)
+            if not (ren_order_available.sv_as and ren_order_available.sv_al):
                 raise ValueError(
                     "Renormalization scale variations are not available for this grid"
                 )
-            if is_ren_as and not is_cen_as:
+            if ren_order_available.sv_as and not ren_order_available.central_as:
                 rich.print(
                     f"[orange]Warning: The grid does not contain the central as order for which the scale varied version is being asked"
                 )
-            if is_ren_al and not is_cen_al:
+            if ren_order_available.sv_al and not ren_order_available.central_al:
                 rich.print(
                     f"[orange]Warning: The grid does not contain the central al order for which the scale varied version is being asked"
                 )
         if sv_method is None:
             if not np.isclose(xif, 1.0):
-                is_fact_as, is_fact_al, is_cen_as, is_cen_al = check.contains_fact(
-                    grid, max_as, max_al
-                )
-                if not (is_fact_as and is_fact_al):
+                fact_order_available = check.contains_fact(grid, max_as, max_al)
+                if not (fact_order_available.sv_as and fact_order_available.sv_al):
                     raise ValueError(
                         "Factorization scale variations are not available for this grid"
                     )
-                if is_fact_as and not is_cen_as:
+                if fact_order_available.sv_as and not fact_order_available.central_as:
                     rich.print(
                         f"[orange]Warning: The grid does not contain the central as order for which the scale varied version is being asked"
                     )
-                if is_fact_al and not is_cen_al:
+                if fact_order_available.sv_al and not fact_order_available.central_al:
                     rich.print(
                         f"[orange]Warning: The grid does not contain the central al order for which the scale varied version is being asked"
                     )
