@@ -106,18 +106,14 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     x_grid = evolve_info.x1
     muf2_grid = evolve_info.fac1
     sv_method = sv_scheme(tcard)
-    xif = 1.0 if sv_method == "expanded" else tcard["XIF"]
+    xif = 1.0 if sv_method is not None else tcard["XIF"]
     operators_card["configs"]["scvar_method"] = sv_method
     q2_grid = (xif * xif * muf2_grid).tolist()
     operators_card["_mugrid"] = np.sqrt(q2_grid).tolist()
-    # If we are computing and integrability FK we want to add a single
-    # x point to the xgrid and decrease the interpolation polynonial
-    # degree to 1
     if "integrability_version" in pineappl_grid.key_values():
+        x_grid = np.append(x_grid, 1.0)
         operators_card["configs"]["interpolation_polynomial_degree"] = 1
-        x_grid_int = copy.deepcopy(x_grid.tolist())
-        x_grid_int.append(1.0)
-        operators_card["rotations"]["_targetgrid"] = list(x_grid_int)
+        operators_card["rotations"]["xgrid"] = x_grid.tolist()
 
     with open(card_path, "w", encoding="UTF-8") as f:
         yaml.safe_dump(operators_card, f)
@@ -163,12 +159,12 @@ def evolve_grid(
     x_grid = evolve_info.x1
     mur2_grid = evolve_info.ren1
     sv_method = None
-    if operators.operator_card.configs.scvar_method is not None:
-        sv_method = operators.operator_card.configs.scvar_method.name
-    xif = 1.0 if sv_method == "EXPANDED" else xif
+    xif = 1.0 if operators.operator_card.configs.scvar_method is not None else xif
     tcard = operators.theory_card
     opcard = operators.operator_card
     # rotate the targetgrid
+    if "integrability_version" in grid.key_values():
+        x_grid = np.append(x_grid, 1.0)
     eko.io.manipulate.xgrid_reshape(
         operators, targetgrid=eko.interpolation.XGrid(x_grid)
     )
@@ -204,7 +200,6 @@ def evolve_grid(
         * np.pi
         * sc.a_s(
             xir * xir * muf2 / xif / xif,
-            fact_scale=muf2 if sv_method == "EXPONENTIATED" else None,
         )
         for muf2 in muf2_grid
     ]
