@@ -175,9 +175,7 @@ def contains_sv(grid, max_as, max_al, sv_type: Scale):
     index_to_check = sv_type.value.index
     as_orders = get_orders_and_min(grid, max_as, max_al)
     max_as_effective = max(ord[0] for ord in as_orders)
-    max_as_effective_cen = max(
-        ord[0] for ord in as_orders if ord[index_to_check] == 0
-    )
+    max_as_effective_cen = max(ord[0] for ord in as_orders if ord[index_to_check] == 0)
     max_as_effective_sv = max(
         (ord[0] for ord in as_orders if ord[index_to_check] != 0), default=0
     )
