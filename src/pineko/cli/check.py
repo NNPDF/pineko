@@ -65,9 +65,25 @@ def sub_scvar(grid_path, scale, max_as_order, max_al_order):
     warning = "[orange]Warning:[/] grids do not contain central order for requested"
     error = "[red]Error:[/] grids do not contain"
     # Call the function
-    conditions = check.contains_sv(grid, max_as_order, max_al_order, scale)
-    sv_conditions = [conditions.sv_as, conditions.sv_al]
-    cen_conditions = [conditions.central_as, conditions.central_al]
+    scaleobj = check.CheckMax[scale]
+    checkres, max_as_effective = check.contains_sv(
+        grid, max_as_order, max_al_order, scale
+    )
+    sv_as = None
+    central_as = None
+    # TODO: fix this
+    if max_as_effective == max_as_order:
+        if checkres is check.CheckMax.BOTH:
+            sv_as = True
+            central_as = True
+        elif checkres is check.CheckMax.CENTRAL:
+            sv_as = False
+            central_as = True
+        else:
+            sv_as = False
+            central_as = False
+    sv_conditions = [sv_as, True]
+    cen_conditions = [central_as, True]
     for coupling, sv_condition, cen_condition in zip(
         Coupling, sv_conditions, cen_conditions
     ):

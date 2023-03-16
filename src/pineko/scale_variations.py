@@ -216,13 +216,13 @@ def compute_ren_sv_grid(grid_path, max_as, nf, target_path=None):
     # First let's check if the ren_sv are already there
     grid_path = pathlib.Path(grid_path)
     grid = pineappl.grid.Grid.read(grid_path)
-    ren_order_available = check.contains_sv(grid, max_as, 0, check.Scale.REN.name)
-    if ren_order_available.sv_as and ren_order_available.central_as:
+    checkres, max_as_effective = check.contains_sv(grid, max_as, 0, check.Scale.REN)
+    if max_as_effective == max_as and (checkres is not check.CheckMax.CENTRAL):
         rich.print(f"[green]Renormalization scale variations are already in the grid")
         return
-    elif ren_order_available.sv_as and not ren_order_available.central_as:
-        rich.print(
-            f"[orange]Warning: The grid does not contain the central order for which the scale varied version is being asked"
+    if max_as_effective < max_as - 1 or checkres is check.CheckMax.SCVAR:
+        raise ValueError(
+            "Central order is not high enough to compute requested sv orders"
         )
     # With respect to the usual convention here max_as is max_as-1
     max_as = max_as - 1

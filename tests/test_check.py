@@ -61,66 +61,37 @@ def test_contains_fact():
     third_order = Order((1, 0, 0, 1))
     order_list = [first_order, second_order, third_order]
     mygrid = Fake_grid(order_list)
-    fact_order_available = pineko.check.contains_sv(
-        mygrid, max_as, max_al, pineko.check.Scale.FACT.name
+    checkres, max_as_effective = pineko.check.contains_sv(
+        mygrid, max_as, max_al, pineko.check.Scale.FACT
     )
-    assert (
-        fact_order_available.sv_as,
-        fact_order_available.sv_al,
-        fact_order_available.central_as,
-        fact_order_available.central_al,
-    ) == (
-        True,
-        True,
-        True,
-        False,
-    )
+    assert checkres is pineko.check.CheckMax.BOTH
+    assert max_as_effective == 1
     order_list.pop(-1)
     mygrid_nofact = Fake_grid(order_list)
-    fact_order_available = pineko.check.contains_sv(
-        mygrid_nofact, max_as, max_al, pineko.check.Scale.FACT.name
+    checkres, max_as_effective = pineko.check.contains_sv(
+        mygrid_nofact, max_as, max_al, pineko.check.Scale.FACT
     )
-    assert (
-        fact_order_available.sv_as,
-        fact_order_available.sv_al,
-        fact_order_available.central_as,
-        fact_order_available.central_al,
-    ) == (
-        False,
-        True,
-        True,
-        False,
+    assert checkres is pineko.check.CheckMax.CENTRAL
+    assert max_as_effective == 1
+    checkres, max_as_effective = pineko.check.contains_sv(
+        mygrid_nofact, max_as - 1, max_al, pineko.check.Scale.FACT
     )
-    fact_order_available = pineko.check.contains_sv(
-        mygrid_nofact, max_as - 1, max_al, pineko.check.Scale.FACT.name
-    )
-    assert (
-        fact_order_available.sv_as,
-        fact_order_available.sv_al,
-        fact_order_available.central_as,
-        fact_order_available.central_al,
-    ) == (
-        True,
-        True,
-        False,
-        False,
-    )
+    assert checkres is pineko.check.CheckMax.BOTH
+    assert max_as_effective == 0
     order_list.pop(-1)
     mygrid_LO = Fake_grid(order_list)
-    fact_order_available = pineko.check.contains_sv(
-        mygrid_LO, max_as, max_al, pineko.check.Scale.FACT.name
+    checkres, max_as_effective = pineko.check.contains_sv(
+        mygrid_LO, max_as, max_al, pineko.check.Scale.FACT
     )
-    assert (
-        fact_order_available.sv_as,
-        fact_order_available.sv_al,
-        fact_order_available.central_as,
-        fact_order_available.central_al,
-    ) == (
-        True,
-        True,
-        False,
-        False,
+    assert checkres is pineko.check.CheckMax.BOTH
+    assert max_as_effective == 0
+    order_list = [first_order, third_order]
+    mygrid = Fake_grid(order_list)
+    checkres, max_as_effective = pineko.check.contains_sv(
+        mygrid, max_as, max_al, pineko.check.Scale.FACT
     )
+    assert checkres is pineko.check.CheckMax.SCVAR
+    assert max_as_effective == 1
 
 
 def test_contains_ren():
@@ -131,79 +102,34 @@ def test_contains_ren():
     third_order = Order((2, 0, 1, 0))
     order_list = [first_order, second_order, third_order]
     mygrid = Fake_grid(order_list)
-    ren_order_available = pineko.check.contains_sv(
-        mygrid, max_as, max_al, pineko.check.Scale.REN.name
+    checkres, max_as_effective = pineko.check.contains_sv(
+        mygrid, max_as, max_al, pineko.check.Scale.REN
     )
-    assert (
-        ren_order_available.sv_as,
-        ren_order_available.sv_al,
-        ren_order_available.central_as,
-        ren_order_available.central_al,
-    ) == (
-        True,
-        True,
-        True,
-        False,
-    )
+    assert checkres is pineko.check.CheckMax.SCVAR
+    assert max_as_effective == 2
     order_list.pop(-1)
     mygrid_new = Fake_grid(order_list)
-    ren_order_available = pineko.check.contains_sv(
-        mygrid_new, max_as, max_al, pineko.check.Scale.REN.name
+    checkres, max_as_effective = pineko.check.contains_sv(
+        mygrid_new, max_as, max_al, pineko.check.Scale.REN
     )
-    assert (
-        ren_order_available.sv_as,
-        ren_order_available.sv_al,
-        ren_order_available.central_as,
-        ren_order_available.central_al,
-    ) == (
-        True,
-        True,
-        False,
-        False,
-    )
+    assert checkres is pineko.check.CheckMax.CENTRAL
+    assert max_as_effective == 1
     order_list.append(Order((2, 0, 0, 0)))
     mygrid_noren = Fake_grid(order_list)
-    ren_order_available = pineko.check.contains_sv(
-        mygrid_noren, max_as, max_al, pineko.check.Scale.REN.name
+    checkres, max_as_effective = pineko.check.contains_sv(
+        mygrid_noren, max_as, max_al, pineko.check.Scale.REN
     )
-    assert (
-        ren_order_available.sv_as,
-        ren_order_available.sv_al,
-        ren_order_available.central_as,
-        ren_order_available.central_al,
-    ) == (
-        False,
-        True,
-        True,
-        False,
+    assert checkres is pineko.check.CheckMax.CENTRAL
+    assert max_as_effective == 2
+    checkres, max_as_effective = pineko.check.contains_sv(
+        mygrid_noren, max_as - 1, max_al, pineko.check.Scale.REN
     )
-    ren_order_available = pineko.check.contains_sv(
-        mygrid_noren, max_as - 1, max_al, pineko.check.Scale.REN.name
-    )
-    assert (
-        ren_order_available.sv_as,
-        ren_order_available.sv_al,
-        ren_order_available.central_as,
-        ren_order_available.central_al,
-    ) == (
-        True,
-        True,
-        True,
-        False,
-    )
+    assert checkres is pineko.check.CheckMax.CENTRAL
+    assert max_as_effective == 1
     order_list.pop(0)
     mygrid_noren = Fake_grid(order_list)
-    ren_order_available = pineko.check.contains_sv(
-        mygrid_noren, max_as, max_al, pineko.check.Scale.REN.name
+    checkres, max_as_effective = pineko.check.contains_sv(
+        mygrid_noren, max_as, max_al, pineko.check.Scale.REN
     )
-    assert (
-        ren_order_available.sv_as,
-        ren_order_available.sv_al,
-        ren_order_available.central_as,
-        ren_order_available.central_al,
-    ) == (
-        True,
-        True,
-        False,
-        False,
-    )
+    assert checkres is pineko.check.CheckMax.CENTRAL
+    assert max_as_effective == 2
