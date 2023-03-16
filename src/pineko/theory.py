@@ -381,7 +381,9 @@ class TheoryBuilder:
         max_al = 0
         # check for sv
         if not np.isclose(xir, 1.0):
-            ren_order_available = check.contains_ren(grid, max_as, max_al)
+            ren_order_available = check.contains_sv(
+                grid, max_as, max_al, check.Scale.REN.name
+            )
             if not (ren_order_available.sv_as and ren_order_available.sv_al):
                 raise ValueError(
                     "Renormalization scale variations are not available for this grid"
@@ -396,7 +398,9 @@ class TheoryBuilder:
                 )
         if sv_method is None:
             if not np.isclose(xif, 1.0):
-                fact_order_available = check.contains_fact(grid, max_as, max_al)
+                fact_order_available = check.contains_sv(
+                    grid, max_as, max_al, check.Scale.FACT.name
+                )
                 if not (fact_order_available.sv_as and fact_order_available.sv_al):
                     raise ValueError(
                         "Factorization scale variations are not available for this grid"

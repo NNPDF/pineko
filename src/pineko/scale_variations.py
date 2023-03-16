@@ -216,7 +216,7 @@ def compute_ren_sv_grid(grid_path, max_as, nf, target_path=None):
     # First let's check if the ren_sv are already there
     grid_path = pathlib.Path(grid_path)
     grid = pineappl.grid.Grid.read(grid_path)
-    ren_order_available = check.contains_ren(grid, max_as, max_al=0)
+    ren_order_available = check.contains_sv(grid, max_as, 0, check.Scale.REN.name)
     if ren_order_available.sv_as and ren_order_available.central_as:
         rich.print(f"[green]Renormalization scale variations are already in the grid")
         return

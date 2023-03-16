@@ -61,7 +61,9 @@ def test_contains_fact():
     third_order = Order((1, 0, 0, 1))
     order_list = [first_order, second_order, third_order]
     mygrid = Fake_grid(order_list)
-    fact_order_available = pineko.check.contains_fact(mygrid, max_as, max_al)
+    fact_order_available = pineko.check.contains_sv(
+        mygrid, max_as, max_al, pineko.check.Scale.FACT.name
+    )
     assert (
         fact_order_available.sv_as,
         fact_order_available.sv_al,
@@ -75,7 +77,9 @@ def test_contains_fact():
     )
     order_list.pop(-1)
     mygrid_nofact = Fake_grid(order_list)
-    fact_order_available = pineko.check.contains_fact(mygrid_nofact, max_as, max_al)
+    fact_order_available = pineko.check.contains_sv(
+        mygrid_nofact, max_as, max_al, pineko.check.Scale.FACT.name
+    )
     assert (
         fact_order_available.sv_as,
         fact_order_available.sv_al,
@@ -87,7 +91,9 @@ def test_contains_fact():
         True,
         False,
     )
-    fact_order_available = pineko.check.contains_fact(mygrid_nofact, max_as - 1, max_al)
+    fact_order_available = pineko.check.contains_sv(
+        mygrid_nofact, max_as - 1, max_al, pineko.check.Scale.FACT.name
+    )
     assert (
         fact_order_available.sv_as,
         fact_order_available.sv_al,
@@ -101,7 +107,9 @@ def test_contains_fact():
     )
     order_list.pop(-1)
     mygrid_LO = Fake_grid(order_list)
-    fact_order_available = pineko.check.contains_fact(mygrid_LO, max_as, max_al)
+    fact_order_available = pineko.check.contains_sv(
+        mygrid_LO, max_as, max_al, pineko.check.Scale.FACT.name
+    )
     assert (
         fact_order_available.sv_as,
         fact_order_available.sv_al,
@@ -123,7 +131,9 @@ def test_contains_ren():
     third_order = Order((2, 0, 1, 0))
     order_list = [first_order, second_order, third_order]
     mygrid = Fake_grid(order_list)
-    ren_order_available = pineko.check.contains_ren(mygrid, max_as, max_al)
+    ren_order_available = pineko.check.contains_sv(
+        mygrid, max_as, max_al, pineko.check.Scale.REN.name
+    )
     assert (
         ren_order_available.sv_as,
         ren_order_available.sv_al,
@@ -137,7 +147,9 @@ def test_contains_ren():
     )
     order_list.pop(-1)
     mygrid_new = Fake_grid(order_list)
-    ren_order_available = pineko.check.contains_ren(mygrid_new, max_as, max_al)
+    ren_order_available = pineko.check.contains_sv(
+        mygrid_new, max_as, max_al, pineko.check.Scale.REN.name
+    )
     assert (
         ren_order_available.sv_as,
         ren_order_available.sv_al,
@@ -151,7 +163,9 @@ def test_contains_ren():
     )
     order_list.append(Order((2, 0, 0, 0)))
     mygrid_noren = Fake_grid(order_list)
-    ren_order_available = pineko.check.contains_ren(mygrid_noren, max_as, max_al)
+    ren_order_available = pineko.check.contains_sv(
+        mygrid_noren, max_as, max_al, pineko.check.Scale.REN.name
+    )
     assert (
         ren_order_available.sv_as,
         ren_order_available.sv_al,
@@ -163,7 +177,9 @@ def test_contains_ren():
         True,
         False,
     )
-    ren_order_available = pineko.check.contains_ren(mygrid_noren, max_as - 1, max_al)
+    ren_order_available = pineko.check.contains_sv(
+        mygrid_noren, max_as - 1, max_al, pineko.check.Scale.REN.name
+    )
     assert (
         ren_order_available.sv_as,
         ren_order_available.sv_al,
@@ -177,7 +193,9 @@ def test_contains_ren():
     )
     order_list.pop(0)
     mygrid_noren = Fake_grid(order_list)
-    ren_order_available = pineko.check.contains_ren(mygrid_noren, max_as, max_al)
+    ren_order_available = pineko.check.contains_sv(
+        mygrid_noren, max_as, max_al, pineko.check.Scale.REN.name
+    )
     assert (
         ren_order_available.sv_as,
         ren_order_available.sv_al,

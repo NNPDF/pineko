@@ -48,22 +48,12 @@ class Coupling(Enum):
     AL = CouplingInfo("electromagnetic", "QED")
 
 
-ScaleValue = namedtuple("ScaleValue", ["descr", "check"])
-
-
-class Scale(Enum):
-    """Auxiliary class to list the possible scale variations."""
-
-    REN = ScaleValue("renormalization scale variations", check.contains_ren)
-    FACT = ScaleValue("factorization scale variations", check.contains_fact)
-
-
 @subcommand.command("scvar")
 @click.argument("grid_path", metavar="PINEAPPL", type=click.Path(exists=True))
 @click.argument(
     "scale",
     metavar="SCALE",
-    type=click.Choice(list(el.name for el in Scale), case_sensitive=False),
+    type=click.Choice(list(el.name for el in check.Scale), case_sensitive=False),
 )
 @click.argument("max_as_order", metavar="AS_ORDER", type=int)
 @click.argument("max_al_order", metavar="AL_ORDER", type=int)
@@ -75,10 +65,7 @@ def sub_scvar(grid_path, scale, max_as_order, max_al_order):
     warning = "[orange]Warning:[/] grids do not contain central order for requested"
     error = "[red]Error:[/] grids do not contain"
     # Call the function
-    try:
-        conditions = Scale[scale].value.check(grid, max_as_order, max_al_order)
-    except KeyError:
-        raise ValueError("Scale variation to check can be one between ren and fact")
+    conditions = check.contains_sv(grid, max_as_order, max_al_order, scale)
     sv_conditions = [conditions.sv_as, conditions.sv_al]
     cen_conditions = [conditions.central_as, conditions.central_al]
     for coupling, sv_condition, cen_condition in zip(
@@ -91,6 +78,6 @@ def sub_scvar(grid_path, scale, max_as_order, max_al_order):
             to_write += warning
         else:
             to_write += error
-        to_write += " " + Scale[scale].value.descr
+        to_write += " " + check.Scale[scale].value.descr
         to_write += f" for {coupling.name.lower()}"
         rich.print(to_write)
