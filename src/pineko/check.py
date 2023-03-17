@@ -1,5 +1,4 @@
 """Tools to check compatibility of EKO and grid."""
-from collections import namedtuple
 from dataclasses import dataclass
 from enum import Enum, auto
 
@@ -9,7 +8,9 @@ import pineappl
 
 @dataclass
 class ScaleValue:
-    descr: str
+    """Contain the information of a kind of scale variations and its index in the orders of a pineappl grid."""
+
+    description: str
     index: int
 
 
@@ -21,6 +22,14 @@ class Scale(Enum):
 
 
 class CheckMax(Enum):
+    """Hold the information of a scale variation check.
+
+    BOTH means that both the central order and the scale variation order are contained in the grid.
+    CENTRAL means that only the central order is present.
+    SCVAR means that only the scale variation order is present.
+
+    """
+
     BOTH = auto()
     CENTRAL = auto()
     SCVAR = auto()
