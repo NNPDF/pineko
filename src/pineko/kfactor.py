@@ -2,13 +2,12 @@
 import io
 import pathlib
 
-import lhapdf  # pylint: disable=import-error
 import numpy as np
 import pineappl
 import rich
 import yaml
 
-from . import check, scale_variations
+from . import scale_variations
 
 DEFAULT_PDF_SET = "NNPDF40_nnlo_as_01180"
 
@@ -282,6 +281,8 @@ def do_it(
 
 def create_lists_for_compound(cfac_paths, list_grids, target_dataset, bins_list):
     """Given the Kfactors paths, the list of the grids associated to them, the name of the dataset and the list of the bins of the grids, construct the centrals kfactor and alphas object."""
+    import lhapdf  # pylint: disable=import-error
+
     centrals_list = []
     alphas_list = []
     if len(cfac_paths) == len(list_grids):
@@ -346,6 +347,8 @@ def compute_k_factor_grid(
     target_folder: pathlib.Path
         path where store the new grid (optional)
     """
+    import lhapdf  # pylint: disable=import-error
+
     # With respect to the usual convention here max_as is max_as-1
     max_as_test = max_as - 1
     # Extracting info from yaml file
