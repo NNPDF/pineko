@@ -78,7 +78,6 @@ def sub_scvar(grid_path, scale, max_as_order, max_al_order):
     message = message_dict[checkres]
     if not max_as_effective == max_as_order:
         message = error
-    to_write += message
-    to_write += " " + check.Scale[scale].value.description
-    to_write += f" for {Coupling.AS.name.lower()}"
-    rich.print(to_write)
+    descr = check.Scale[scale].value.description
+    cname = Coupling.AS.name.lower()
+    rich.print(f"{message} {descr} for {cname}")
