@@ -137,12 +137,11 @@ def is_fonll_b(fns, lumi):
 
 
 def pure_qcd_orders(grid, max_as, max_al):
-    """Return the alpha_s and alpha_l orders separately and the min_as and min_al appearing in the orders."""
+    """Return the pure alpha_s orders appearing in the grid."""
     order_array = np.array([order.as_tuple() for order in grid.orders()])
     order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
     order_list = order_array[order_mask]
     as_orders = []
-    al_orders = []
     min_al = min(ord[1] for ord in order_list)
     for order in order_list:
         if order[1] == min_al:
