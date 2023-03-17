@@ -35,16 +35,6 @@ class AvailableAtMax(Enum):
     SCVAR = auto()
 
 
-@dataclass
-class OrderAvailable:
-    """Collect the possible results of a scale variations check."""
-
-    sv_as: bool
-    sv_al: bool
-    central_as: bool
-    central_al: bool
-
-
 def islepton(el):
     """Return True if el is a lepton PID, otherwise return False."""
     if 10 < abs(el) < 17:
