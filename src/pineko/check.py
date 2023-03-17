@@ -190,4 +190,5 @@ def contains_sv(grid, max_as, max_al, sv_type: Scale):
             checkres = AvailableAtMax.CENTRAL
     else:
         checkres = AvailableAtMax.SCVAR
-    return checkres, max_as_effective
+    # Since max_as_effective will be compared to max_as and we are using different conventions for the two, here we sum 1 to max_as_effective
+    return checkres, max_as_effective + 1

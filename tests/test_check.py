@@ -65,33 +65,33 @@ def test_contains_fact():
         mygrid, max_as, max_al, pineko.check.Scale.FACT
     )
     assert checkres is pineko.check.AvailableAtMax.BOTH
-    assert max_as_effective == 1
+    assert max_as_effective == max_as
     order_list.pop(-1)
     mygrid_nofact = Fake_grid(order_list)
     checkres, max_as_effective = pineko.check.contains_sv(
         mygrid_nofact, max_as, max_al, pineko.check.Scale.FACT
     )
     assert checkres is pineko.check.AvailableAtMax.CENTRAL
-    assert max_as_effective == 1
+    assert max_as_effective == max_as
     checkres, max_as_effective = pineko.check.contains_sv(
         mygrid_nofact, max_as - 1, max_al, pineko.check.Scale.FACT
     )
     assert checkres is pineko.check.AvailableAtMax.BOTH
-    assert max_as_effective == 0
+    assert max_as_effective == max_as - 1
     order_list.pop(-1)
     mygrid_LO = Fake_grid(order_list)
     checkres, max_as_effective = pineko.check.contains_sv(
         mygrid_LO, max_as, max_al, pineko.check.Scale.FACT
     )
     assert checkres is pineko.check.AvailableAtMax.BOTH
-    assert max_as_effective == 0
+    assert max_as_effective == 1
     order_list = [first_order, third_order]
     mygrid = Fake_grid(order_list)
     checkres, max_as_effective = pineko.check.contains_sv(
         mygrid, max_as, max_al, pineko.check.Scale.FACT
     )
     assert checkres is pineko.check.AvailableAtMax.SCVAR
-    assert max_as_effective == 1
+    assert max_as_effective == max_as
 
 
 def test_contains_ren():
@@ -106,30 +106,30 @@ def test_contains_ren():
         mygrid, max_as, max_al, pineko.check.Scale.REN
     )
     assert checkres is pineko.check.AvailableAtMax.SCVAR
-    assert max_as_effective == 2
+    assert max_as_effective == max_as
     order_list.pop(-1)
     mygrid_new = Fake_grid(order_list)
     checkres, max_as_effective = pineko.check.contains_sv(
         mygrid_new, max_as, max_al, pineko.check.Scale.REN
     )
     assert checkres is pineko.check.AvailableAtMax.CENTRAL
-    assert max_as_effective == 1
+    assert max_as_effective == max_as - 1
     order_list.append(Order((2, 0, 0, 0)))
     mygrid_noren = Fake_grid(order_list)
     checkres, max_as_effective = pineko.check.contains_sv(
         mygrid_noren, max_as, max_al, pineko.check.Scale.REN
     )
     assert checkres is pineko.check.AvailableAtMax.CENTRAL
-    assert max_as_effective == 2
+    assert max_as_effective == max_as
     checkres, max_as_effective = pineko.check.contains_sv(
         mygrid_noren, max_as - 1, max_al, pineko.check.Scale.REN
     )
     assert checkres is pineko.check.AvailableAtMax.CENTRAL
-    assert max_as_effective == 1
+    assert max_as_effective == max_as - 1
     order_list.pop(0)
     mygrid_noren = Fake_grid(order_list)
     checkres, max_as_effective = pineko.check.contains_sv(
         mygrid_noren, max_as, max_al, pineko.check.Scale.REN
     )
     assert checkres is pineko.check.AvailableAtMax.CENTRAL
-    assert max_as_effective == 2
+    assert max_as_effective == max_as

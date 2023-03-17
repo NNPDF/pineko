@@ -72,7 +72,7 @@ def sub_scvar(grid_path, scale, max_as_order, max_al_order):
     sv_as = None
     central_as = None
     # Remember that we have a different definition for the alpha, i.e. we need to sum 1
-    if max_as_effective + 1 == max_as_order:
+    if max_as_effective == max_as_order:
         if checkres is check.AvailableAtMax.BOTH:
             sv_as = True
             central_as = True
