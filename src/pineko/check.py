@@ -21,7 +21,7 @@ class Scale(Enum):
     FACT = ScaleValue("factorization scale variations", -1)
 
 
-class CheckMax(Enum):
+class AvailableAtMax(Enum):
     """Hold the information of a scale variation check.
 
     BOTH means that both the central order and the scale variation order are contained in the grid.
@@ -176,7 +176,7 @@ def contains_sv(grid, max_as, max_al, sv_type: Scale):
 
     Returns
     -------
-    : CheckMax
+    : AvailableAtMax
         result of the check
     : int
         effective max_as in the grid
@@ -190,9 +190,9 @@ def contains_sv(grid, max_as, max_al, sv_type: Scale):
     )
     if max_as_effective_cen == max_as_effective:
         if max_as_effective_sv == max_as_effective:
-            checkres = CheckMax.BOTH
+            checkres = AvailableAtMax.BOTH
         else:
-            checkres = CheckMax.CENTRAL
+            checkres = AvailableAtMax.CENTRAL
     else:
-        checkres = CheckMax.SCVAR
+        checkres = AvailableAtMax.SCVAR
     return checkres, max_as_effective

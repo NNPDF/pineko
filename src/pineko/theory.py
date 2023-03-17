@@ -386,9 +386,9 @@ class TheoryBuilder:
             )
             # Keep in mind that we have the different convention of max_as, i.e. we need to multiply by 1
             if max_as == max_as_effective + 1:
-                if checkres is check.CheckMax.SCVAR:
+                if checkres is check.AvailableAtMax.SCVAR:
                     raise ValueError("Central order is not available but sv order is.")
-            if max_as < max_as_effective or checkres is not check.CheckMax.BOTH:
+            if max_as < max_as_effective or checkres is not check.AvailableAtMax.BOTH:
                 raise ValueError("No available central order or sv order.")
         if sv_method is None:
             if not np.isclose(xir, 1.0):
@@ -396,11 +396,14 @@ class TheoryBuilder:
                     grid, max_as, max_al, check.Scale.FACT
                 )
                 if max_as == max_as_effective + 1:
-                    if checkres is check.CheckMax.SCVAR:
+                    if checkres is check.AvailableAtMax.SCVAR:
                         raise ValueError(
                             "Central order is not available but sv order is."
                         )
-                if max_as < max_as_effective or checkres is not check.CheckMax.BOTH:
+                if (
+                    max_as < max_as_effective
+                    or checkres is not check.AvailableAtMax.BOTH
+                ):
                     raise ValueError("No available central order or sv order.")
         # loading ekos
         with eko.EKO.edit(eko_filename) as operators:
