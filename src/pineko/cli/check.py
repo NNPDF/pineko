@@ -1,5 +1,5 @@
 """CLI entry point to check compatibility."""
-from collections import namedtuple
+from dataclasses import dataclass
 from enum import Enum
 
 import click
@@ -38,7 +38,12 @@ def sub_compatibility(grid_path, operator_path, xif):
             rich.print("[red]Error:[/]", e)
 
 
-CouplingInfo = namedtuple("CouplingInfo", ["descr", "theory"])
+@dataclass
+class CouplingInfo:
+    """Coupling known attributes, used to describe it."""
+
+    descr: str
+    theory: str
 
 
 class Coupling(Enum):
@@ -46,6 +51,15 @@ class Coupling(Enum):
 
     AS = CouplingInfo("strong", "QCD")
     AL = CouplingInfo("electromagnetic", "QED")
+
+
+SCVAR_ERROR = "[red]Error:[/] grids do not contain"
+
+SCVAR_MESSAGES = {
+    check.AvailableAtMax.BOTH: "[green]Success:[/] grids contain",
+    check.AvailableAtMax.CENTRAL: "[orange]Warning:[/] grids do not contain central order for requested",
+    check.AvailableAtMax.SCVAR: SCVAR_ERROR,
+}
 
 
 @subcommand.command("scvar")
@@ -61,23 +75,18 @@ def sub_scvar(grid_path, scale, max_as_order, max_al_order):
     """Check if PineAPPL grid contains requested scale variations for the requested order."""
     grid = pineappl.grid.Grid.read(grid_path)
     grid.optimize()
-    success = "[green]Success:[/] grids contain"
-    warning = "[orange]Warning:[/] grids do not contain central order for requested"
-    error = "[red]Error:[/] grids do not contain"
+
     # Call the function
     scaleobj = check.Scale[scale]
     checkres, max_as_effective = check.contains_sv(
         grid, max_as_order, max_al_order, scaleobj
     )
-    to_write = ""
-    message_dict = {
-        check.AvailableAtMax.BOTH: success,
-        check.AvailableAtMax.CENTRAL: error,
-        check.AvailableAtMax.SCVAR: warning,
-    }
-    message = message_dict[checkres]
+
+    # Communicate result
+    message = SCVAR_MESSAGES[checkres]
     if not max_as_effective == max_as_order:
-        message = error
+        message = SCVAR_ERROR
     descr = check.Scale[scale].value.description
     cname = Coupling.AS.name.lower()
+
     rich.print(f"{message} {descr} for {cname}")
