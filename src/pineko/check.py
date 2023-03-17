@@ -187,6 +187,7 @@ def contains_sv(grid, max_as, max_al, sv_type: Scale):
     if max_as_effective_cen == max_as_effective:
         if max_as_effective_sv == max_as_effective:
             checkres = AvailableAtMax.BOTH
+        # This is the LO case so for both FACT and REN we do not expect sv orders at all
         elif max_as_effective == min_as:
             checkres = AvailableAtMax.BOTH
         # For renormalization scale variations, the NLO sv order is not present if the first non zero order is at alpha^0
