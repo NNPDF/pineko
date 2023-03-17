@@ -136,7 +136,7 @@ def is_fonll_b(fns, lumi):
     return False
 
 
-def get_orders_and_min(grid, max_as, max_al):
+def pure_qcd_orders(grid, max_as, max_al):
     """Return the alpha_s and alpha_l orders separately and the min_as and min_al appearing in the orders."""
     order_array = np.array([order.as_tuple() for order in grid.orders()])
     order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
@@ -172,7 +172,7 @@ def contains_sv(grid, max_as, max_al, sv_type: Scale):
         effective max_as in the grid
     """
     index_to_check = sv_type.value.index
-    as_orders = get_orders_and_min(grid, max_as, max_al)
+    as_orders = pure_qcd_orders(grid, max_as, max_al)
     max_as_effective = max(ord[0] for ord in as_orders)
     max_as_effective_cen = max(ord[0] for ord in as_orders if ord[index_to_check] == 0)
     max_as_effective_sv = max(
