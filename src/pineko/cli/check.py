@@ -69,32 +69,16 @@ def sub_scvar(grid_path, scale, max_as_order, max_al_order):
     checkres, max_as_effective = check.contains_sv(
         grid, max_as_order, max_al_order, scaleobj
     )
-    if max_as_effective == max_as_order:
-        if checkres is check.AvailableAtMax.BOTH:
-            sv_as = True
-            central_as = True
-        elif checkres is check.AvailableAtMax.CENTRAL:
-            sv_as = False
-            central_as = True
-        else:
-            sv_as = True
-            central_as = False
-    else:
-        sv_as = False
-        central_as = False
-
-    sv_conditions = [sv_as, True]
-    cen_conditions = [central_as, True]
-    for coupling, sv_condition, cen_condition in zip(
-        Coupling, sv_conditions, cen_conditions
-    ):
-        to_write = ""
-        if sv_condition and cen_condition:
-            to_write += success
-        elif sv_condition and not cen_condition:
-            to_write += warning
-        else:
-            to_write += error
-        to_write += " " + check.Scale[scale].value.description
-        to_write += f" for {coupling.name.lower()}"
-        rich.print(to_write)
+    to_write = ""
+    message_dict = {
+        check.AvailableAtMax.BOTH: success,
+        check.AvailableAtMax.CENTRAL: error,
+        check.AvailableAtMax.SCVAR: warning,
+    }
+    message = message_dict[checkres]
+    if not max_as_effective == max_as_order:
+        message = error
+    to_write += message
+    to_write += " " + check.Scale[scale].value.description
+    to_write += f" for {Coupling.AS.name.lower()}"
+    rich.print(to_write)
