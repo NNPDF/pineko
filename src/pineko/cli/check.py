@@ -71,13 +71,14 @@ def sub_scvar(grid_path, scale, max_as_order, max_al_order):
     )
     sv_as = None
     central_as = None
-    # TODO: fix this
-    if max_as_effective == max_as_order:
+    # Remember that we have a different definition for the alpha, i.e. we need to sum 1
+    if max_as_effective + 1 == max_as_order:
         if checkres is check.CheckMax.BOTH:
             sv_as = True
             central_as = True
         elif checkres is check.CheckMax.CENTRAL:
             sv_as = False
+            # NOTE: At NLO ren_sv are not there anyway if the process starts at alpha^0
             central_as = True
         else:
             sv_as = False

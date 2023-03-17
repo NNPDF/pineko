@@ -384,22 +384,23 @@ class TheoryBuilder:
             checkres, max_as_effective = check.contains_sv(
                 grid, max_as, max_al, check.Scale.REN
             )
-            if max_as == max_as_effective:
+            # Keep in mind that we have the different convention of max_as, i.e. we need to multiply by 1
+            if max_as == max_as_effective + 1:
                 if checkres is check.CheckMax.SCVAR:
                     raise ValueError("Central order is not available but sv order is.")
-            if max_as < max_as_effective - 1 or checkres is not check.CheckMax.BOTH:
+            if max_as < max_as_effective or checkres is not check.CheckMax.BOTH:
                 raise ValueError("No available central order or sv order.")
         if sv_method is None:
             if not np.isclose(xir, 1.0):
                 checkres, max_as_effective = check.contains_sv(
                     grid, max_as, max_al, check.Scale.FACT
                 )
-                if max_as == max_as_effective:
+                if max_as == max_as_effective + 1:
                     if checkres is check.CheckMax.SCVAR:
                         raise ValueError(
                             "Central order is not available but sv order is."
                         )
-                if max_as < max_as_effective - 1 or checkres is not check.CheckMax.BOTH:
+                if max_as < max_as_effective or checkres is not check.CheckMax.BOTH:
                     raise ValueError("No available central order or sv order.")
         # loading ekos
         with eko.EKO.edit(eko_filename) as operators:
