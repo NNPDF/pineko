@@ -384,7 +384,6 @@ class TheoryBuilder:
             checkres, max_as_effective = check.contains_sv(
                 grid, max_as, max_al, check.Scale.REN
             )
-            # Keep in mind that we have the different convention of max_as, i.e. we need to multiply by 1
             if max_as == max_as_effective:
                 if checkres is check.AvailableAtMax.SCVAR:
                     raise ValueError("Central order is not available but sv order is.")
