@@ -69,8 +69,6 @@ def sub_scvar(grid_path, scale, max_as_order, max_al_order):
     checkres, max_as_effective = check.contains_sv(
         grid, max_as_order, max_al_order, scaleobj
     )
-    sv_as = None
-    central_as = None
     if max_as_effective == max_as_order:
         if checkres is check.AvailableAtMax.BOTH:
             sv_as = True
