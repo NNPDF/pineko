@@ -387,10 +387,10 @@ class TheoryBuilder:
             if max_as == max_as_effective:
                 if checkres is check.AvailableAtMax.SCVAR:
                     raise ValueError("Central order is not available but sv order is.")
-            if max_as < max_as_effective or checkres is not check.AvailableAtMax.BOTH:
+            if max_as < max_as_effective and checkres is not check.AvailableAtMax.BOTH:
                 raise ValueError("No available central order or sv order.")
         if sv_method is None:
-            if not np.isclose(xir, 1.0):
+            if not np.isclose(xif, 1.0):
                 checkres, max_as_effective = check.contains_sv(
                     grid, max_as, max_al, check.Scale.FACT
                 )
@@ -401,7 +401,7 @@ class TheoryBuilder:
                         )
                 if (
                     max_as < max_as_effective
-                    or checkres is not check.AvailableAtMax.BOTH
+                    and checkres is not check.AvailableAtMax.BOTH
                 ):
                     raise ValueError("No available central order or sv order.")
         # loading ekos

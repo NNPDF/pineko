@@ -221,7 +221,7 @@ def compute_ren_sv_grid(grid_path, max_as, nf, target_path=None):
     if max_as_effective == max_as and (checkres is not check.AvailableAtMax.CENTRAL):
         rich.print(f"[green]Renormalization scale variations are already in the grid")
         return
-    if max_as_effective < max_as or checkres is check.AvailableAtMax.SCVAR:
+    if max_as_effective < max_as and checkres is check.AvailableAtMax.SCVAR:
         raise ValueError(
             "Central order is not high enough to compute requested sv orders"
         )

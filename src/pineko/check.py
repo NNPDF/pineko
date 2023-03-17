@@ -179,6 +179,7 @@ def contains_sv(grid, max_as, max_al, sv_type: Scale):
     order_list = get_order_list(grid, max_as, max_al)
     as_orders = pure_qcd_orders(order_list)
     max_as_effective = max(ord[0] for ord in as_orders)
+    min_as = min(ord[0] for ord in as_orders)
     max_as_effective_cen = max(ord[0] for ord in as_orders if ord[index_to_check] == 0)
     max_as_effective_sv = max(
         (ord[0] for ord in as_orders if ord[index_to_check] != 0), default=0
@@ -186,9 +187,14 @@ def contains_sv(grid, max_as, max_al, sv_type: Scale):
     if max_as_effective_cen == max_as_effective:
         if max_as_effective_sv == max_as_effective:
             checkres = AvailableAtMax.BOTH
+        elif max_as_effective - min_as == 0:
+            checkres = AvailableAtMax.BOTH
+        # For renormalization scale variations, the NLO sv order is not present if the first non zero order is at alpha^0
+        elif max_as_effective == 1 and sv_type is Scale.REN and min_as == 0:
+            checkres = AvailableAtMax.BOTH
         else:
             checkres = AvailableAtMax.CENTRAL
     else:
         checkres = AvailableAtMax.SCVAR
-    # Since max_as_effective will be compared to max_as and we are using different conventions for the two, here we sum 1 to max_as_effective
-    return checkres, max_as_effective + 1
+    # Since max_as_effective will be compared to max_as and we are using different conventions for the two, here we sum 1 to max_as_effective and make it relative to the first non zero order
+    return checkres, max_as_effective - min_as + 1
