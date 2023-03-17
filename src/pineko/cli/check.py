@@ -95,6 +95,6 @@ def sub_scvar(grid_path, scale, max_as_order, max_al_order):
             to_write += warning
         else:
             to_write += error
-        to_write += " " + check.Scale[scale].value.descr
+        to_write += " " + check.Scale[scale].value.description
         to_write += f" for {coupling.name.lower()}"
         rich.print(to_write)
