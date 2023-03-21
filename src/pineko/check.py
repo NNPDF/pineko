@@ -5,6 +5,8 @@ from enum import Enum, auto
 import numpy as np
 import pineappl
 
+from .evolve import axes
+
 
 @dataclass
 class ScaleValue:
@@ -93,8 +95,7 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif):
     """
     # Note that this is enough but once we consider max_al different
     # from 0, it will be better to use the actual order_mask
-    mock_order_mask = np.array([True for _ord in pineappl_grid.orders()])
-    evolve_info = pineappl_grid.raw.evolve_info(mock_order_mask)
+    evolve_info = axes(pineappl_grid)
     x_grid = evolve_info.x1
     muf2_grid = evolve_info.fac1
     # Q2 grid

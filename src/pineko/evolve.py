@@ -16,6 +16,16 @@ from eko.io.types import EvolutionMethod, ScaleVariationsMethod
 from . import check, comparator, ekompatibility, version
 
 
+def axes(grid, max_as=None, max_al=None):
+    """Return the evolve_info object of the grid either with the actual orders or mocking them if max_as and max_al are None."""
+    if max_as is not None and max_al is not None:
+        order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
+    else:
+        order_mask = np.array([True for _ord in grid.orders()])
+    evolve_info = grid.raw.evolve_info(order_mask)
+    return evolve_info
+
+
 def sv_scheme(tcard):
     """Infere the factorization scale_variation scheme to be used from the theory card.
 
@@ -101,8 +111,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     operators_card = copy.deepcopy(default_card)
     # Note that this is enough but once we consider max_al different
     # from 0, it will be better to use the actual order_mask
-    mock_order_mask = np.array([True for _ord in pineappl_grid.orders()])
-    evolve_info = pineappl_grid.raw.evolve_info(mock_order_mask)
+    evolve_info = axes(pineappl_grid)
     x_grid = evolve_info.x1
     muf2_grid = evolve_info.fac1
     sv_method = sv_scheme(tcard)
@@ -154,8 +163,7 @@ def evolve_grid(
     comparison_pdf : None or str
         if given, a comparison table (with / without evolution) will be printed
     """
-    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
-    evolve_info = grid.raw.evolve_info(order_mask)
+    evolve_info = axes(grid, max_as=max_as, max_al=max_al)
     x_grid = evolve_info.x1
     mur2_grid = evolve_info.ren1
     sv_method = None
