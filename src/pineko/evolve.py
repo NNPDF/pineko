@@ -166,7 +166,7 @@ def evolve_grid(
     evolve_info = axes(grid, max_as=max_as, max_al=max_al)
     x_grid = evolve_info.x1
     mur2_grid = evolve_info.ren1
-    sv_method = None
+    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
     xif = 1.0 if operators.operator_card.configs.scvar_method is not None else xif
     tcard = operators.theory_card
     opcard = operators.operator_card
