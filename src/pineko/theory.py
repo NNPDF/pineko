@@ -20,6 +20,16 @@ from . import check, configs, evolve, parser, scale_variations, theory_card
 logger = logging.getLogger(__name__)
 
 
+def check_scvar_evolve(grid, max_as, max_al, tocheck):
+    """Check if the scale variations and central orders are to enough to construct the fktable."""
+    checkres, max_as_effective = check.contains_sv(grid, max_as, max_al, tocheck)
+    if max_as == max_as_effective:
+        if checkres is check.AvailableAtMax.SCVAR:
+            raise ValueError("Central order is not available but sv order is.")
+    if max_as < max_as_effective and checkres is not check.AvailableAtMax.BOTH:
+        raise ValueError("No available central order or sv order.")
+
+
 class TheoryBuilder:
     """Common builder application to create the ingredients for a theory.
 
@@ -381,29 +391,10 @@ class TheoryBuilder:
         max_al = 0
         # check for sv
         if not np.isclose(xir, 1.0):
-            checkres, max_as_effective = check.contains_sv(
-                grid, max_as, max_al, check.Scale.REN
-            )
-            if max_as == max_as_effective:
-                if checkres is check.AvailableAtMax.SCVAR:
-                    raise ValueError("Central order is not available but sv order is.")
-            if max_as < max_as_effective and checkres is not check.AvailableAtMax.BOTH:
-                raise ValueError("No available central order or sv order.")
+            check_scvar_evolve(grid, max_as, max_al, check.Scale.REN)
         if sv_method is None:
             if not np.isclose(xif, 1.0):
-                checkres, max_as_effective = check.contains_sv(
-                    grid, max_as, max_al, check.Scale.FACT
-                )
-                if max_as == max_as_effective:
-                    if checkres is check.AvailableAtMax.SCVAR:
-                        raise ValueError(
-                            "Central order is not available but sv order is."
-                        )
-                if (
-                    max_as < max_as_effective
-                    and checkres is not check.AvailableAtMax.BOTH
-                ):
-                    raise ValueError("No available central order or sv order.")
+                check_scvar_evolve(grid, max_as, max_al, check.Scale.FACT)
         # loading ekos
         with eko.EKO.edit(eko_filename) as operators:
             # Obtain the assumptions hash
