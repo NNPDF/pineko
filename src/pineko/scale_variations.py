@@ -43,7 +43,7 @@ def ren_sv_coeffs(m, max_as, logpart, which_part, nf):
     elif max_as == 2:
         if which_part == 0:
             if logpart == 1:
-                return -m * beta.beta_qcd((3, 0), nf) * (pifactor**2)
+                return m * beta.beta_qcd((3, 0), nf) * (pifactor**2)
             else:
                 return (
                     0.5
@@ -53,7 +53,7 @@ def ren_sv_coeffs(m, max_as, logpart, which_part, nf):
                     * (pifactor**2)
                 )
         else:
-            return -(m + 1) * beta.beta_qcd((2, 0), nf) * pifactor
+            return (m + 1) * beta.beta_qcd((2, 0), nf) * pifactor
 
 
 def compute_scale_factor(m, nec_order, to_construct_order, nf):
