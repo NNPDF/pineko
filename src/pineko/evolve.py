@@ -22,7 +22,7 @@ def axes(grid, max_as=None, max_al=None):
         order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
     else:
         order_mask = np.array([True for _ord in grid.orders()])
-    evolve_info = grid.raw.evolve_info(order_mask)
+    evolve_info = grid.evolve_info(order_mask)
     return evolve_info
 
 
