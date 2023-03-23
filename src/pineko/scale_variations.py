@@ -8,6 +8,8 @@ from eko import beta
 
 from . import check
 
+AS_NORM = 1.0 / (4.0 * np.pi)
+
 
 def sort_orders(order):
     """Define the sorting for an order. In particular the order is sorted according to the as order."""
@@ -35,25 +37,24 @@ def ren_sv_coeffs(m, max_as, logpart, which_part, nf):
     float
         renormalization scale variation contribution
     """
-    pifactor = 1.0 / (4.0 * np.pi)
     if max_as == 0:
         return 0.0
     elif max_as == 1:
-        return -(-m * beta.beta_qcd((2, 0), nf) * pifactor)
+        return -(-m * beta.beta_qcd((2, 0), nf) * AS_NORM)
     elif max_as == 2:
         if which_part == 0:
             if logpart == 1:
-                return m * beta.beta_qcd((3, 0), nf) * (pifactor**2)
+                return m * beta.beta_qcd((3, 0), nf) * (AS_NORM**2)
             else:
                 return (
                     0.5
                     * m
                     * (m + 1)
                     * (beta.beta_qcd((2, 0), nf) ** 2)
-                    * (pifactor**2)
+                    * (AS_NORM**2)
                 )
         else:
-            return (m + 1) * beta.beta_qcd((2, 0), nf) * pifactor
+            return (m + 1) * beta.beta_qcd((2, 0), nf) * AS_NORM
 
 
 def compute_scale_factor(m, nec_order, to_construct_order, nf):
