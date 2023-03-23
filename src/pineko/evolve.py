@@ -2,6 +2,7 @@
 import copy
 import os
 import pathlib
+from typing import Optional
 
 import eko
 import eko.basis_rotation as br
@@ -16,10 +17,10 @@ from eko.io.types import EvolutionMethod, ScaleVariationsMethod
 from . import check, comparator, ekompatibility, version
 
 
-def axes(grid, max_as=None, max_al=None):
+def axes(grid, max_s: Optional[tuple[int, int]] = None):
     """Return the evolve_info object of the grid either with the actual orders or mocking them if max_as and max_al are None."""
-    if max_as is not None and max_al is not None:
-        order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
+    if max_s is not None:
+        order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_s[0], max_s[1])
     else:
         order_mask = np.array([True for _ord in grid.orders()])
     evolve_info = grid.evolve_info(order_mask)
@@ -163,7 +164,8 @@ def evolve_grid(
     comparison_pdf : None or str
         if given, a comparison table (with / without evolution) will be printed
     """
-    evolve_info = axes(grid, max_as=max_as, max_al=max_al)
+    max_s = (max_as, max_al)
+    evolve_info = axes(grid, max_s)
     x_grid = evolve_info.x1
     mur2_grid = evolve_info.ren1
     order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
