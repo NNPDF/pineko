@@ -50,7 +50,7 @@ class _FakePDF:
         pids = np.arange(-6, 7, dtype=int)
         pids[6] = 21
 
-        alphas = np.linspace(0.2, 0.8, len(pids))
+        alphas = np.linspace(1.2, 1.8, len(pids))
         betas = np.linspace(1.2, 3.8, len(pids))
 
         self._alphas = dict(zip(pids, alphas))
@@ -63,11 +63,12 @@ class _FakePDF:
         return np.power(x, alpha) * np.power(1 - x, beta)
 
 
-def _trim_template(template_card):
+def _trim_template(template_card, take_points=10):
     """Trim the template card so that the number of x-values to compute is much smaller"""
     card_info = safe_load(template_card.open("r", encoding="utf-8"))
     original_x = np.array(card_info["rotations"]["xgrid"])
-    idxs = list(range(0, len(original_x), 10))
+    skip = int(len(original_x)/take_points)
+    idxs = list(range(0, len(original_x), skip))
     card_info["rotations"]["xgrid"] = original_x[idxs].tolist()
     dump(card_info, template_card.open("w", encoding="utf-8"))
 
