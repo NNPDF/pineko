@@ -105,7 +105,7 @@ def test_regression(tmp_path, rebuild=False):
 
     # Now loop over the grids and check the results of the convolution with the PDF
     pdf = _FakePDF()
-    regression_path = Path("regression_data") / f"{dataset}.npy"
+    regression_path = Path(__file__).parent / "regression_data" / f"{dataset}.npy"
 
     result = []
     for grid_name in gridnames:
