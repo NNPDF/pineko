@@ -11,6 +11,7 @@ from subprocess import run
 from urllib.request import urlretrieve
 
 import numpy as np
+import pytest
 from pineappl.fk_table import FkTable
 from yaml import dump, safe_load
 
@@ -67,13 +68,14 @@ def _trim_template(template_card, take_points=10):
     """Trim the template card so that the number of x-values to compute is much smaller"""
     card_info = safe_load(template_card.open("r", encoding="utf-8"))
     original_x = np.array(card_info["rotations"]["xgrid"])
-    skip = int(len(original_x)/take_points)
+    skip = int(len(original_x) / take_points)
     idxs = list(range(0, len(original_x), skip))
     card_info["rotations"]["xgrid"] = original_x[idxs].tolist()
     dump(card_info, template_card.open("w", encoding="utf-8"))
 
 
-def test_regression(tmp_path, rebuild=False):
+@pytest.mark.parametrize("dataset", ["LHCBWZMU8TEV", "INTEGXT3"])
+def test_regression(tmp_path, dataset, rebuild=False):
     """Run pineko through subprocess to ensure that the shell scripts are working exactly
     as intended.
     """
@@ -90,7 +92,6 @@ def test_regression(tmp_path, rebuild=False):
     _trim_template(template_card)
 
     # And use some small (but not trivial!) dataset to test
-    dataset = "LHCBWZMU8TEV"
     gridnames = _download_dataset(dataset, THEORYID, tmp_path)
 
     # Now go, first with eko creation
