@@ -59,7 +59,11 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif):
     ValueError
         If the operators and the grid are not compatible.
     """
-    x_grid, _pids, _mur2_grid, muf2_grid = pineappl_grid.axes()
+    max_as, max_al = operators.theory_card.order
+    order_mask = pineappl.grid.Order.create_mask(pineappl_grid.orders(), max_as, max_al)
+    evol_info = pineappl_grid.evolve_info(order_mask)
+    x_grid = evol_info.x1
+    muf2_grid = evol_info.fac1
     # Q2 grid
     if not np.all(
         in1d(np.unique(list(operators.mu2grid)), xif * xif * np.array(muf2_grid))
