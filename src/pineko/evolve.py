@@ -171,7 +171,7 @@ def evolve_grid(
     eko.io.manipulate.xgrid_reshape(
         operators, targetgrid=eko.interpolation.XGrid(x_grid)
     )
-    check.check_grid_and_eko_compatible(grid, operators, xif)
+    check.check_grid_and_eko_compatible(grid, operators, xif, max_as, max_al)
     # rotate to evolution (if doable and necessary)
     if np.allclose(operators.rotations.inputpids, br.flavor_basis_pids):
         eko.io.manipulate.to_evol(operators)

@@ -20,7 +20,11 @@ def subcommand():
 @click.argument("grid_path", metavar="PINEAPPL", type=click.Path(exists=True))
 @click.argument("operator_path", metavar="EKO", type=click.Path(exists=True))
 @click.option("--xif", default=1.0, help="factorization scale variation")
-def sub_compatibility(grid_path, operator_path, xif):
+@click.argument(
+    "--max_as", type=int, default=5, help="Maximum order of alpha_s to check"
+)
+@click.argument("--max_al", type=int, default=5, help="Maximum order of alpha to check")
+def sub_compatibility(grid_path, operator_path, xif, max_as, max_al):
     """Check PineAPPL grid and EKO compatibility.
 
     In order to be compatible, the grid provided in PINEAPPL and the operator
@@ -28,11 +32,17 @@ def sub_compatibility(grid_path, operator_path, xif):
 
     XIF is the factorization scale variation.
 
+    max_as and max_al default to a very high value so the comparison is done at the level
+    of the entire grid, with no orders masked.
+    If only some orders are required the user must use the MAX_AS and MAX_AL flags.
+
     """
     pineappl_grid = pineappl.grid.Grid.read(grid_path)
     with eko.EKO.read(operator_path) as operators:
         try:
-            check.check_grid_and_eko_compatible(pineappl_grid, operators, xif)
+            check.check_grid_and_eko_compatible(
+                pineappl_grid, operators, xif, max_as, max_al
+            )
             rich.print("[green]Success:[/] grids are compatible")
         except ValueError as e:
             rich.print("[red]Error:[/]", e)

@@ -42,7 +42,7 @@ def in1d(a, b, rtol=1e-05, atol=1e-08):
     )
 
 
-def check_grid_and_eko_compatible(pineappl_grid, operators, xif):
+def check_grid_and_eko_compatible(pineappl_grid, operators, xif, max_as, max_al):
     """Check whether the EKO operators and the PineAPPL grid are compatible.
 
     Parameters
@@ -53,13 +53,16 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif):
         operators
     xif : float
         factorization scale variation
+    max_as: int
+        max order of alpa_s
+    max_al: int
+        max order of alpha
 
     Raises
     ------
     ValueError
         If the operators and the grid are not compatible.
     """
-    max_as, max_al = operators.theory_card.order
     order_mask = pineappl.grid.Order.create_mask(pineappl_grid.orders(), max_as, max_al)
     evol_info = pineappl_grid.evolve_info(order_mask)
     x_grid = evol_info.x1
