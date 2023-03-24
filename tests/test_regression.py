@@ -82,9 +82,12 @@ def _trim_template(template_card, take_points=10):
 
 
 @pytest.mark.parametrize("dataset", ["LHCBWZMU8TEV", "INTEGXT3"])
-def test_regression(tmp_path, dataset, rebuild=False):
+def test_regression(tmp_path, dataset):
     """Run pineko through subprocess to ensure that the shell scripts are working exactly
     as intended.
+
+    If the data does not exist, create it and fail the test, i.e., in order to regenerate
+    the data just remove the previous dataset.npy file
     """
     # We start by downloading pineko.toml in order to generate the folder structure
     _download_resources("pineko.toml", tmp_path)
@@ -124,8 +127,9 @@ def test_regression(tmp_path, dataset, rebuild=False):
         result.append(fkt.convolute_with_one(2212, pdf.xfxQ2))
     result = np.concatenate(result)
 
-    if rebuild:
+    if not regression_path.exists():
         np.save(regression_path, result)
+        raise FileNotFoundError("Regression did not exist and has been regenerated")
 
     regression_data = np.load(regression_path)
     np.testing.assert_allclose(regression_data, result)
