@@ -12,7 +12,7 @@ from urllib.request import urlretrieve
 
 import numpy as np
 from pineappl.fk_table import FkTable
-from yaml import safe_load
+from yaml import dump, safe_load
 
 THEORIES_REPO = "https://raw.githubusercontent.com/NNPDF/theories/main"
 THEORYID = 400
@@ -25,6 +25,7 @@ def _download_resources(filename, tmp_path):
     output_file = tmp_path / filename
     output_file.parent.mkdir(exist_ok=True)
     urlretrieve(f"{THEORIES_REPO}/{filename}", output_file)
+    return output_file
 
 
 def _download_dataset(dataset, theoryid, tmp_path):
@@ -62,6 +63,15 @@ class _FakePDF:
         return np.power(x, alpha) * np.power(1 - x, beta)
 
 
+def _trim_template(template_card):
+    """Trim the template card so that the number of x-values to compute is much smaller"""
+    card_info = safe_load(template_card.open("r", encoding="utf-8"))
+    original_x = np.array(card_info["rotations"]["xgrid"])
+    idxs = list(range(0, len(original_x), 10))
+    card_info["rotations"]["xgrid"] = original_x[idxs].tolist()
+    dump(card_info, template_card.open("w", encoding="utf-8"))
+
+
 def test_regression(tmp_path, rebuild=False):
     """Run pineko through subprocess to ensure that the shell scripts are working exactly
     as intended.
@@ -73,7 +83,10 @@ def test_regression(tmp_path, rebuild=False):
 
     # Now download other necessary objects
     _download_resources(f"data/theory_cards/{THEORYID}.yaml", tmp_path)
-    _download_resources(f"data/operator_cards/{THEORYID}/_template.yaml", tmp_path)
+    template_card = _download_resources(
+        f"data/operator_cards/{THEORYID}/_template.yaml", tmp_path
+    )
+    _trim_template(template_card)
 
     # And use some small (but not trivial!) dataset to test
     dataset = "LHCBWZMU8TEV"
@@ -106,4 +119,4 @@ def test_regression(tmp_path, rebuild=False):
         np.save(regression_path, result)
 
     regression_data = np.load(regression_path)
-    np.allclose(regression_data, result)
+    np.testing.assert_allclose(regression_data, result)
