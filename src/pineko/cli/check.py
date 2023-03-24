@@ -20,10 +20,10 @@ def subcommand():
 @click.argument("grid_path", metavar="PINEAPPL", type=click.Path(exists=True))
 @click.argument("operator_path", metavar="EKO", type=click.Path(exists=True))
 @click.option("--xif", default=1.0, help="factorization scale variation")
-@click.argument(
+@click.option(
     "--max_as", type=int, default=5, help="Maximum order of alpha_s to check"
 )
-@click.argument("--max_al", type=int, default=5, help="Maximum order of alpha to check")
+@click.option("--max_al", type=int, default=5, help="Maximum order of alpha to check")
 def sub_compatibility(grid_path, operator_path, xif, max_as, max_al):
     """Check PineAPPL grid and EKO compatibility.
 
