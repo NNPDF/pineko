@@ -6,10 +6,12 @@
     are downloaded from https://github.com/NNPDF/theories during this test so this tests
     has the double effect of ensuring compatibility between both repositories.
 """
+import itertools
 from pathlib import Path
 from subprocess import run
 from urllib.request import urlretrieve
 
+from eko.io.runcards import OperatorCard
 import numpy as np
 import pytest
 from pineappl.fk_table import FkTable
@@ -37,8 +39,8 @@ def _download_dataset(dataset, theoryid, tmp_path):
     right_yaml = tmp_path / "data" / "yamldb" / f"{dataset}.yaml"
     (tmp_path / yaml_file).rename(right_yaml)
     # Download the relevant grids for this dataset
-    res = safe_load(right_yaml.open("r", encoding="utf-8"))
-    grids = [i for j in res["operands"] for i in j]
+    res = safe_load(right_yaml.read_text(encoding="utf-8"))
+    grids = list(itertools.chain(*res["operands"]))
     for grid_name in grids:
         _download_resources(f"data/grids/400/{grid_name}.pineappl.lz4", tmp_path)
     return grids
@@ -48,7 +50,7 @@ class _FakePDF:
     """A Fake lhapdf-like PDF to evolve the grids"""
 
     def __init__(self):
-        pids = np.arange(-6, 7, dtype=int)
+        pids = np.arange(-6, 7)
         pids[6] = 21
 
         alphas = np.linspace(1.2, 1.8, len(pids))
@@ -66,12 +68,12 @@ class _FakePDF:
 
 def _trim_template(template_card, take_points=10):
     """Trim the template card so that the number of x-values to compute is much smaller"""
-    card_info = safe_load(template_card.open("r", encoding="utf-8"))
+    card_info = OperatorCard(**safe_load(template_card.read_text(encoding="utf-8")))
     original_x = np.array(card_info["rotations"]["xgrid"])
     skip = int(len(original_x) / take_points)
-    idxs = list(range(0, len(original_x), skip))
-    card_info["rotations"]["xgrid"] = original_x[idxs].tolist()
-    dump(card_info, template_card.open("w", encoding="utf-8"))
+    size = len(original_x)
+    card_info["rotations"]["xgrid"] = original_x[:size:skip].tolist()
+    template_card.write_text(dump(card_info), encoding="utf-8")
 
 
 @pytest.mark.parametrize("dataset", ["LHCBWZMU8TEV", "INTEGXT3"])
