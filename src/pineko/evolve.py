@@ -98,11 +98,10 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
         written Q2 grid
 
     """
-    # Get the Leading Order-orders...
-    lo_orders = pineappl_grid.orders()[0].as_tuple()
+    # Add a +1 to the orders for the difference in convention between nnpdf and pineappl
     is_fns = int(check.is_fonll_b(tcard["FNS"], pineappl_grid.lumi()))
-    max_as = lo_orders[0] + tcard["PTO"] + is_fns
-    max_al = lo_orders[1] + tcard["QED"]
+    max_as = 1 + tcard["PTO"] + is_fns
+    max_al = 1 + tcard["QED"]
     # ... in order to create a mask ...
     order_mask = pineappl.grid.Order.create_mask(pineappl_grid.orders(), max_as, max_al)
     # ... to get the x and muF grids for the eko
