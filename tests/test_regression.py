@@ -57,7 +57,7 @@ class _FakePDF:
         self._betas = dict(zip(pids, betas))
 
     def xfxQ2(self, pid, x, q2):
-        """Compute x^alpha*(1-x)^alpha"""
+        """Compute x^alpha*(1-x)^beta"""
         alpha = self._alphas[pid]
         beta = self._betas[pid]
         return np.power(x, alpha) * np.power(1 - x, beta)
