@@ -82,7 +82,7 @@ def _trim_template(template_card, take_points=10):
 
 
 @pytest.mark.parametrize("dataset", ["LHCBWZMU8TEV", "INTEGXT3"])
-def test_regression(tmp_path, dataset, rebuild=True):
+def test_regression(tmp_path, dataset, rebuild=False):
     """Run pineko through subprocess to ensure that the shell scripts are working exactly
     as intended.
     """
