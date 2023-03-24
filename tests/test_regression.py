@@ -11,14 +11,16 @@ from pathlib import Path
 from subprocess import run
 from urllib.request import urlretrieve
 
-from eko.io.runcards import OperatorCard
 import numpy as np
 import pytest
+from eko.interpolation import XGrid
+from eko.io.runcards import OperatorCard
 from pineappl.fk_table import FkTable
 from yaml import dump, safe_load
 
 THEORIES_REPO = "https://raw.githubusercontent.com/NNPDF/theories/main"
 THEORYID = 400
+REGRESSION_ROOT = Path(__file__).parent / "regression_data"
 
 
 def _download_resources(filename, tmp_path):
@@ -50,8 +52,9 @@ class _FakePDF:
     """A Fake lhapdf-like PDF to evolve the grids"""
 
     def __init__(self):
-        pids = np.arange(-6, 7)
+        pids = np.arange(-6, 8)
         pids[6] = 21
+        pids[-1] = 22
 
         alphas = np.linspace(1.2, 1.8, len(pids))
         betas = np.linspace(1.2, 3.8, len(pids))
@@ -68,16 +71,18 @@ class _FakePDF:
 
 def _trim_template(template_card, take_points=10):
     """Trim the template card so that the number of x-values to compute is much smaller"""
-    card_info = OperatorCard(**safe_load(template_card.read_text(encoding="utf-8")))
-    original_x = np.array(card_info["rotations"]["xgrid"])
-    skip = int(len(original_x) / take_points)
-    size = len(original_x)
-    card_info["rotations"]["xgrid"] = original_x[:size:skip].tolist()
-    template_card.write_text(dump(card_info), encoding="utf-8")
+    card_info = OperatorCard.from_dict(
+        safe_load(template_card.read_text(encoding="utf-8"))
+    )
+    original_x = card_info.rotations.xgrid
+    size = len(original_x.raw)
+    skip = int(size / take_points)
+    card_info.rotations.xgrid = XGrid(original_x.raw[:size:skip])
+    template_card.write_text(dump(card_info.raw), encoding="utf-8")
 
 
 @pytest.mark.parametrize("dataset", ["LHCBWZMU8TEV", "INTEGXT3"])
-def test_regression(tmp_path, dataset, rebuild=False):
+def test_regression(tmp_path, dataset, rebuild=True):
     """Run pineko through subprocess to ensure that the shell scripts are working exactly
     as intended.
     """
@@ -109,7 +114,7 @@ def test_regression(tmp_path, dataset, rebuild=False):
 
     # Now loop over the grids and check the results of the convolution with the PDF
     pdf = _FakePDF()
-    regression_path = Path(__file__).parent / "regression_data" / f"{dataset}.npy"
+    regression_path = REGRESSION_ROOT / f"{dataset}.npy"
 
     result = []
     for grid_name in gridnames:
