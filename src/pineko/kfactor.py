@@ -353,9 +353,7 @@ def compute_k_factor_grid(
     if operation == "RATIO":
         is_concatenated = True
         for op_list in yamldict["operands"]:
-            list_op_list = []
-            for op in op_list:
-                list_op_list.append(op)
+            list_op_list = [op for op in op_list]
             list_grids.append(list_op_list)
     else:
         for op in yamldict["operands"][0]:
