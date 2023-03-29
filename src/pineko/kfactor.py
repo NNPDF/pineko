@@ -499,7 +499,7 @@ def compute_k_factor_grid(
                 # non-exisiting cfactors would be multiplied by bins corresponding to all '0' in the
                 # grid.
                 # Let's check if we are in the first or second case
-                if all(elem == centrals_cfac[0] for elem in centrals_cfac):
+                if len(np.unique(centrals_cfac))==1:
                     # In this case I just need to add more elements to the kfactor
                     for _num in range(grid.bins() - len(centrals_cfac)):
                         centrals_cfac = np.append(centrals_cfac, centrals_cfac[0])
