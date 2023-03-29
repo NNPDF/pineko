@@ -1,5 +1,6 @@
 """Module to generate scale variations."""
 import pathlib
+from typing import Tuple
 
 import numpy as np
 import pineappl
@@ -9,7 +10,7 @@ from eko import beta
 from . import check
 
 AS_NORM = 1.0 / (4.0 * np.pi)
-OrderTuple = tuple[int, int, int, int]
+OrderTuple = Tuple[int, int, int, int]
 """Tuple representing a PineAPPL order."""
 
 
