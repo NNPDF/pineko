@@ -53,30 +53,6 @@ def ren_sv_coeffs(m, max_as, logpart, which_part, nf):
     return m_factor * as_norm_fact * bcoeff
 
 
-def compute_scale_factor(m, nec_order, to_construct_order, nf):
-    """Compute the factor of renormalization scale variation.
-
-    Parameters
-    ----------
-    m : int
-        first non zero perturbative order
-    nec_order : tuple(int)
-        tuple of the order that has to be rescaled to get the scale varied order
-    to_contruct_order : tuple(int)
-        tuple of the scale varied order to be constructed
-    nf : int
-        number of active flavors
-
-    Returns
-    -------
-    float
-        full contribution of ren sv
-    """
-    max_as = to_construct_order[0] - m
-    logpart = to_construct_order[2]
-    return ren_sv_coeffs(m, max_as, logpart, nec_order[0] - m, nf)
-
-
 def compute_orders_map(m, max_as, min_al):
     """Compute a dictionary with all the necessary orders to compute to have the full renormalization scale variation.
 
@@ -152,8 +128,10 @@ def create_grids(gridpath, max_as, nf):
     for to_construct_order in nec_orders:
         list_grid_order = []
         for nec_order in nec_orders[to_construct_order]:
-            scalefactor = compute_scale_factor(
-                m_value, nec_order, to_construct_order, nf
+            # The logpart of the coefficient I am asking is just the [2] entry of to_construct_order
+            # The QCD order of the part I am rescaling is just nec_order[0] but I need to rescale it with respect to the first non-zero order
+            scalefactor = ren_sv_coeffs(
+                m_value, max_as, to_construct_order[2], nec_order[0] - m_value, nf
             )
             list_grid_order.append(
                 create_svonly(grid, nec_order, to_construct_order, scalefactor)

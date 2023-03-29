@@ -24,18 +24,6 @@ def test_ren_sv_coeffs():
     )
 
 
-def test_compute_scale_factor():
-    exp_res = beta_qcd((2, 0), 5) * (1.0 / (4.0 * np.pi))
-    # Here we are saying that we need to rescale the order (1,0,0,0) which is
-    # the NLO central, in order to obtain the order (2,0,1,0)
-    np.testing.assert_allclose(
-        scale_variations.compute_scale_factor(
-            m=0, nec_order=(1, 0, 0, 0), to_construct_order=(2, 0, 1, 0), nf=5
-        ),
-        exp_res,
-    )
-
-
 def test_compute_orders_map():
     m = 0
     max_as = 1
