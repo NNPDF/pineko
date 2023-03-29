@@ -370,8 +370,6 @@ def compute_k_factor_grid(
             cfac_paths = [kfactor_folder / f"CF_QCD_{i}.dat" for i in cfac_names]
         else:
             cfac_paths = [kfactor_folder / f"CF_QCD_{target_dataset}.dat"]
-        if not cfac_paths[0].exists():
-            raise ValueError("KFactor does not exist.")
         centrals_kfactor, pdf_set = read_kfactor(cfac_paths[0])
         alphas = lhapdf.mkAlphaS(pdf_set)
         grid_path = grids_folder / (f"{list_grids[0]}.pineappl.lz4")
