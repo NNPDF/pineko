@@ -13,7 +13,7 @@ from ._base import command
 @click.argument("kfactor_folder", type=click.Path(exists=True))
 @click.argument("yamldb_path", type=click.Path(exists=True))
 @click.argument("compound_folder", type=click.Path(exists=True))
-@click.argument("target_folder", type=click.Path(exists=False))
+@click.argument("target_folder", type=click.Path(exists=True))
 @click.argument("max_as", type=int)
 def k_factor_inclusion(
     grids_folder,
