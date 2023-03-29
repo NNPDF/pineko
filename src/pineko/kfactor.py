@@ -98,7 +98,6 @@ def compute_orders_map(m, max_as, min_al):
 def create_singlegridonly(grid, m_value, order, new_order, central_k_factor, alphas):
     """Create a grid containing only the contribution given by new_order."""
     new_grid = scale_variations.initialize_new_grid(grid, new_order)
-    new_order_tuple = [ord.as_tuple() for ord in new_order]
     # extract the relevant order to rescale from the grid for each lumi and bin
     grid_orders = [order.as_tuple() for order in grid.orders()]
     order_index = grid_orders.index(order)
@@ -109,7 +108,7 @@ def create_singlegridonly(grid, m_value, order, new_order, central_k_factor, alp
             scalefactor = compute_scale_factor(
                 m_value,
                 order,
-                new_order_tuple[0],
+                new_order,
                 Q,
                 central_k_factor,
                 bin_index,
@@ -350,7 +349,7 @@ def compute_k_factor_grid(
     is_concatenated = False
     list_grids = []
     # For RATIO dataset the thing is a bit more messy
-    if operation == "RATIO":
+    if operation in ["RATIO", "ASY"]:
         is_concatenated = True
         for op_list in yamldict["operands"]:
             list_op_list = [op for op in op_list]
@@ -384,7 +383,7 @@ def compute_k_factor_grid(
             target_folder,
         )
     else:
-        if operation == "RATIO":
+        if operation in ["RATIO", "ASY"]:
             # In this case we need to get the proper kfactors for numerator and denominator
             bins_list_num, loaded_grid_list_num = get_bin_infos_and_grids(
                 list_grids[0], grids_folder
@@ -413,6 +412,9 @@ def compute_k_factor_grid(
                 if target_dataset == "D0ZRAP":
                     cfac_names_num = [target_dataset]
                     cfac_names_den = [target_dataset + "_TOT"]
+                if "ASY" in target_dataset:
+                    cfac_names_num = [target_dataset + "_WP"]
+                    cfac_names_den = [target_dataset + "_WM"]
                 cfac_paths_num = [
                     kfactor_folder / f"CF_QCD_{i}.dat" for i in cfac_names_num
                 ]
