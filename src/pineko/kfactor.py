@@ -97,22 +97,12 @@ def compute_orders_map(m, max_as, min_al):
 
 def create_singlegridonly(grid, m_value, order, new_order, central_k_factor, alphas):
     """Create a grid containing only the contribution given by new_order."""
-    # Retrieve parameters to create new grid
-    bin_limits = [
-        float(bin) for bin in range(grid.raw.bins() + 1)
-    ]  # The +1 explanation is that n bins have n+1 bin limits, and range generates numbers from a half-open interval (range(n) generates n numbers).
-    lumi_grid = [pineappl.lumi.LumiEntry(mylum) for mylum in grid.raw.lumi()]
-    subgrid_params = pineappl.subgrid.SubgridParams()
-    new_order = [pineappl.grid.Order(*new_order)]
+    new_grid = scale_variations.initialize_new_grid(grid, new_order)
     new_order_tuple = [ord.as_tuple() for ord in new_order]
-    # create new_grid with same lumi and bin_limits of the original grid but with new_order
-    new_grid = pineappl.grid.Grid.create(
-        lumi_grid, new_order, bin_limits, subgrid_params
-    )
     # extract the relevant order to rescale from the grid for each lumi and bin
     grid_orders = [order.as_tuple() for order in grid.orders()]
     order_index = grid_orders.index(order)
-    for lumi_index in range(len(lumi_grid)):
+    for lumi_index in range(len(new_grid.lumi())):
         for bin_index in range(grid.raw.bins()):
             extracted_subgrid = grid.subgrid(order_index, bin_index, lumi_index)
             Q = 10  # Just to see
