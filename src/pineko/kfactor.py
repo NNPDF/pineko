@@ -260,7 +260,7 @@ def do_it(
     grid_orders = [orde.as_tuple() for orde in grid.orders()]
     order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, 0)
     grid_orders_filtered = list(np.array(grid_orders)[order_mask])
-    grid_orders_filtered.sort(key=scale_variations.sort_orders)
+    grid_orders_filtered.sort(key=scale_variations.sort_qcd_orders)
     first_nonzero_order = grid_orders_filtered[0]
     min_al = first_nonzero_order[1]
     if is_already_in(
