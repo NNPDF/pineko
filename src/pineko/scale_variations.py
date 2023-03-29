@@ -39,7 +39,7 @@ def ren_sv_coeffs(m, max_as, logpart, which_part, nf):
     float
         renormalization scale variation contribution
     """
-    bcoeff = beta.beta_qcd((max_as - logpart - which_part + 2), nf)
+    bcoeff = beta.beta_qcd((max_as - logpart - which_part + 2, 0), nf)
     as_norm_fact = AS_NORM ** (max_as - which_part)
     m_factor = m
     if max_as == 0:
