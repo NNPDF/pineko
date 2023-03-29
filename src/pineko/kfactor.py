@@ -13,7 +13,7 @@ DEFAULT_PDF_SET = "NNPDF40_nnlo_as_01180"
 
 
 def read_kfactor(kfactor_path):
-    """Read the k_factor and returns the central values and the pdfset used to compute it."""
+    """Read the k-factor and returns the central values and the pdfset used to compute it."""
     with open(kfactor_path, encoding="utf-8") as f:
         stars = f.readline()
         if not stars.startswith("*"):
@@ -52,7 +52,7 @@ def compute_scale_factor(
     Q: float
         energy scale of the bin
     central_k_factor: list(float)
-        list of the centrals k_factors
+        list of the centrals k-factors
     bin_index: int
         index of the bin
     alphas: lhapdf.AlphaS
@@ -276,7 +276,7 @@ def create_lists_for_compound(cfac_paths, list_grids, target_dataset, bins_list)
     centrals_list = []
     alphas_list = []
     if len(cfac_paths) == len(list_grids):
-        # Reading the k_factor
+        # Reading the k-factor
         for cfac_path in cfac_paths:
             if not cfac_path.exists():
                 rich.print(f"[Red] Error: KFactor does not exist.")
@@ -320,7 +320,7 @@ def compute_k_factor_grid(
     max_as,
     target_folder=None,
 ):
-    """Include the k_factor in the grid in order to have its associated order in the grid itself.
+    """Include the k-factor in the grid in order to have its associated order in the grid itself.
 
     Parameters
     ----------
@@ -499,7 +499,7 @@ def compute_k_factor_grid(
                 # non-exisiting cfactors would be multiplied by bins corresponding to all '0' in the
                 # grid.
                 # Let's check if we are in the first or second case
-                if len(np.unique(centrals_cfac))==1:
+                if len(np.unique(centrals_cfac)) == 1:
                     # In this case I just need to add more elements to the kfactor
                     for _num in range(grid.bins() - len(centrals_cfac)):
                         centrals_cfac = np.append(centrals_cfac, centrals_cfac[0])
