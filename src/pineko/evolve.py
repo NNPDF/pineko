@@ -2,7 +2,7 @@
 import copy
 import os
 import pathlib
-from typing import Optional
+from typing import Optional, Tuple
 
 import eko
 import eko.basis_rotation as br
@@ -17,7 +17,7 @@ from eko.io.types import EvolutionMethod, ScaleVariationsMethod
 from . import check, comparator, ekompatibility, version
 
 
-def axes(grid, max_s: Optional[tuple[int, int]] = None):
+def axes(grid, max_s: Optional[Tuple[int, int]] = None):
     """Return the evolve_info object of the grid either with the actual orders or mocking them if max_as and max_al are None."""
     if max_s is not None:
         order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_s[0], max_s[1])
