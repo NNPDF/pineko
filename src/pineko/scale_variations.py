@@ -77,8 +77,8 @@ def compute_orders_map(m, max_as, min_al):
     return orders
 
 
-def create_svonly(grid, order, new_order, scalefactor):
-    """Create a grid containing only the renormalization scale variations at a given order for a grid."""
+def initialize_new_grid(grid, new_order):
+    """Initialize a new grid only containing one order and with the same setting of an original grid."""
     # Retrieve parameters to create new grid
     bin_limits = [
         float(bin) for bin in range(grid.bins() + 1)
@@ -90,10 +90,16 @@ def create_svonly(grid, order, new_order, scalefactor):
     new_grid = pineappl.grid.Grid.create(
         lumi_grid, new_order, bin_limits, subgrid_params
     )
+    return new_grid
+
+
+def create_svonly(grid, order, new_order, scalefactor):
+    """Create a grid containing only the renormalization scale variations at a given order for a grid."""
+    new_grid = initialize_new_grid(grid, new_order)
     # extract the relevant order to rescale from the grid for each lumi and bin
     grid_orders = [order.as_tuple() for order in grid.orders()]
     order_index = grid_orders.index(order)
-    for lumi_index in range(len(lumi_grid)):
+    for lumi_index in range(len(new_grid.lumi())):
         for bin_index in range(grid.raw.bins()):
             extracted_subgrid = grid.subgrid(order_index, bin_index, lumi_index)
             extracted_subgrid.scale(scalefactor)
