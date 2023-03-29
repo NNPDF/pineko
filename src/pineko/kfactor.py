@@ -346,7 +346,7 @@ def compute_k_factor_grid(
         yamldict = yaml.safe_load(f)
     target_dataset = yamldict["target_dataset"]
     operation = yamldict["operation"]
-    compound_path = pathlib.Path(compound_folder) / f"FK_{target_dataset}-COMPOUND.dat"
+    compound_path = compound_folder / f"FK_{target_dataset}-COMPOUND.dat"
     is_concatenated = False
     list_grids = []
     # For RATIO dataset the thing is a bit more messy
