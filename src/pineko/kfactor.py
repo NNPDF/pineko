@@ -1,4 +1,4 @@
-"""Module to include k_factors in grids."""
+"""Module to include QCD K-factors in grids."""
 import io
 import pathlib
 
