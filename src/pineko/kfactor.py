@@ -31,6 +31,9 @@ def read_kfactor(kfactor_path):
         data = data.reshape(-1, 2)
         central_value = data[:, 0]
         pdf_set = description.split(sep="PDFset:")[-1].split(sep="\n")[0].strip()
+        # If there is no PDF set in the k-factor, a default PDF set will be used
+        # If the PDF set written in the file is not an actual lhapdf PDF, it will
+        # raise an error.
         if len(pdf_set) == 0:
             pdf_set = DEFAULT_PDF_SET
     return central_value, pdf_set
