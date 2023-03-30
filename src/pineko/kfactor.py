@@ -209,20 +209,6 @@ def is_already_in(to_check, list_orders):
     return False
 
 
-def get_bin_infos_and_grids(list_grids, grids_folder):
-    """Get all the bin infos of the grids and return both the bins list and the loaded grids."""
-    loaded_grid_list = []
-    bins_list = []
-    last_pos = 0
-    for grid_name in list_grids:
-        grid_path = grids_folder / (f"{grid_name}.pineappl.lz4")
-        grid = pineappl.grid.Grid.read(grid_path)
-        loaded_grid_list.append(grid)
-        bins_list.append((last_pos, grid.bins() + last_pos))
-        last_pos += grid.bins()
-    return bins_list, loaded_grid_list
-
-
 def construct_and_merge_grids(
     grid_path,
     max_as,
@@ -271,54 +257,50 @@ def do_it(
     )
 
 
-def create_lists_for_compound(cfac_paths, list_grids, target_dataset, bins_list):
-    """Given the Kfactors paths, the list of the grids associated to them, the name of the dataset and the list of the bins of the grids, construct the centrals kfactor and alphas object."""
-    import lhapdf  # pylint: disable=import-error
-
-    centrals_list = []
-    alphas_list = []
-    if len(cfac_paths) == len(list_grids):
-        # Reading the k-factor
-        for cfac_path in cfac_paths:
-            if not cfac_path.exists():
-                rich.print(f"[Red] Error: KFactor does not exist.")
-                continue
-            centrals_kfactor, pdf_set = read_kfactor(cfac_path)
-            # Removing 1.0 entries only for "ATLASZPT8TEVMDIST"
-            if target_dataset == "ATLASZPT8TEVMDIST":
-                centrals_kfactor = centrals_kfactor[np.where(centrals_kfactor != 1)]
-            # We need the pdf set to get the correct alpha values
-            alphas = lhapdf.mkAlphaS(pdf_set)
-            centrals_list.append(centrals_kfactor)
-            alphas_list.append(alphas)
-    # If there is only one Kfactor, this means that it contains all the factors for all the bins across all the grids.
-    elif len(cfac_paths) == 1:
-        if not cfac_paths[0].exists():
-            raise ValueError("KFactor does not exist.")
-        centrals_kfactor, pdf_set = read_kfactor(cfac_paths[0])
-        # Removing 1.0 entries only for "ATLASZPT8TEVMDIST"
-        if target_dataset == "ATLASZPT8TEVMDIST":
-            centrals_kfactor = centrals_kfactor[np.where(centrals_kfactor != 1)]
-        alphas = lhapdf.mkAlphaS(pdf_set)
-        # alpha is trivial: it is always the same
-        alphas_list = [alphas for _ in list_grids]
-        # Here I need to use the bin infos
-        centrals_list = [
-            centrals_kfactor[bin_limit[0] : bin_limit[1]] for bin_limit in bins_list
-        ]
-
-    else:
-        raise ValueError(
-            "Number of kfactors does not match the number of grids and is not one."
+def filter_k_factors(pigrid, centrals_kfactor):
+    """Filter the centrals k-factors according to their lenght compared to the number of bins of the grid."""
+    centrals_kfactor_filtered = np.array([])
+    if pigrid.bins() == len(centrals_kfactor):
+        rich.print(f"[orange] The number of bins match the lenght of the k-factor.")
+        centrals_kfactor_filtered = centrals_kfactor
+    elif pigrid.bins() < len(centrals_kfactor):
+        rich.print(
+            f"[yellow] The number of bins is less than the lenght of the k-factor."
         )
-    return (centrals_list, alphas_list)
+        if not all(elem == centrals_kfactor[0] for elem in centrals_kfactor):
+            # This case is actually wrong.
+            raise ValueError("KFactor contains too many different values.")
+        centrals_kfactor_filtered = centrals_kfactor
+    else:
+        rich.print(
+            f"[yellow] The number of bins is more than the lenght of the k-factor."
+        )
+
+        # This is the last case in which grid.bins() > len(centrals_kfactor)
+
+        # Note that sometimes there are more bins in the grid than in the cfactor file -
+        # this is not a problem because in those cases either all cfactor values are the
+        # same (thus there is no doubt about whether we have the correct one) or the
+        # non-exisiting cfactors would be multiplied by bins corresponding to all '0' in the
+        # grid.
+        # Let's check if we are in the first or second case
+        if len(np.unique(centrals_kfactor)) == 1:
+            # In this case I just need to add more elements to the kfactor
+            for _num in range(pigrid.bins()):
+                centrals_kfactor_filtered = np.append(
+                    centrals_kfactor_filtered, centrals_kfactor[0]
+                )
+        else:
+            # In this case this means that the missing entries will multiply zero subgrids so we can just add 0s
+            for _num in range(pigrid.bins()):
+                centrals_kfactor_filtered = np.append(centrals_kfactor_filtered, 0.0)
+    return centrals_kfactor_filtered
 
 
 def compute_k_factor_grid(
     grids_folder,
     kfactor_folder,
     yamldb_path,
-    compound_folder,
     max_as,
     target_folder=None,
 ):
@@ -332,8 +314,6 @@ def compute_k_factor_grid(
         kfactors folder
     yamldb_path : pathlib.Path()
         path to the yaml file describing the dataset
-    compound_folder : pathlib.Path()
-        path to the compound folder
     max_as : int
         max as order
     target_folder: pathlib.Path
@@ -346,173 +326,19 @@ def compute_k_factor_grid(
     # Extracting info from yaml file
     with open(yamldb_path, encoding="utf-8") as f:
         yamldict = yaml.safe_load(f)
-    target_dataset = yamldict["target_dataset"]
-    operation = yamldict["operation"]
-    compound_path = compound_folder / f"FK_{target_dataset}-COMPOUND.dat"
-    is_concatenated = False
-    list_grids = []
-    # For RATIO dataset the thing is a bit more messy
-    if operation in ["RATIO", "ASY"]:
-        is_concatenated = True
-        for op_list in yamldict["operands"]:
-            list_op_list = [op for op in op_list]
-            list_grids.append(list_op_list)
-    else:
-        for op in yamldict["operands"][0]:
-            list_grids.append(op)
-        if len(list_grids) > 1:
-            is_concatenated = True
-
-    # Simple case: dataset is not concatenated
-    if not is_concatenated:
-        if compound_path.exists():
-            cfac_names = [
-                i[3:-4] for i in compound_path.read_text().split() if i.endswith(".dat")
-            ]
-            cfac_paths = [kfactor_folder / f"CF_QCD_{i}.dat" for i in cfac_names]
-        else:
-            cfac_paths = [kfactor_folder / f"CF_QCD_{target_dataset}.dat"]
-        centrals_kfactor, pdf_set = read_kfactor(cfac_paths[0])
-        alphas = lhapdf.mkAlphaS(pdf_set)
-        grid_path = grids_folder / (f"{list_grids[0]}.pineappl.lz4")
-        grid = pineappl.grid.Grid.read(grid_path)
-        do_it(
-            centrals_kfactor,
-            alphas,
-            grid_path,
-            grid,
-            max_as,
-            max_as_test,
-            target_folder,
-        )
-    else:
-        if operation in ["RATIO", "ASY"]:
-            # In this case we need to get the proper kfactors for numerator and denominator
-            bins_list_num, loaded_grid_list_num = get_bin_infos_and_grids(
-                list_grids[0], grids_folder
-            )
-            bins_list_den, loaded_grid_list_den = get_bin_infos_and_grids(
-                list_grids[1], grids_folder
-            )
-            if compound_path.exists():
-                cfac_names = [
-                    i[3:-4]
-                    for i in compound_path.read_text().split()
-                    if i.endswith(".dat")
-                ]
-                cfac_names_num = [name for name in cfac_names if ("NUM" in name)]
-                cfac_names_den = [name for name in cfac_names if ("DEN" in name)]
-                # Sometimes they are not denoted with NUM and DEN
-                if target_dataset in [
-                    "ATLAS_SINGLETOP_TCH_R_8TEV",
-                    "ATLAS_SINGLETOP_TCH_R_7TEV",
-                    "ATLAS_SINGLETOP_TCH_R_13TEV",
-                    "CMS_SINGLETOP_TCH_R_13TEV",
-                    "CMS_SINGLETOP_TCH_R_8TEV",
-                ]:
-                    cfac_names_num = [target_dataset + "_T"]
-                    cfac_names_den = [target_dataset + "_TB"]
-                if target_dataset == "D0ZRAP":
-                    cfac_names_num = [target_dataset]
-                    cfac_names_den = [target_dataset + "_TOT"]
-                if "ASY" in target_dataset:
-                    cfac_names_num = [target_dataset + "_WP"]
-                    cfac_names_den = [target_dataset + "_WM"]
-                cfac_paths_num = [
-                    kfactor_folder / f"CF_QCD_{i}.dat" for i in cfac_names_num
-                ]
-                cfac_paths_den = [
-                    kfactor_folder / f"CF_QCD_{i}.dat" for i in cfac_names_den
-                ]
-            else:
-                raise ValueError(
-                    "Operation is RATIO but no compound file has been found."
-                )
-            centrals_list_num, alphas_list_num = create_lists_for_compound(
-                cfac_paths_num, list_grids[0], target_dataset, bins_list_num
-            )
-            centrals_list_den, alphas_list_den = create_lists_for_compound(
-                cfac_paths_den, list_grids[1], target_dataset, bins_list_den
-            )
-            # Flattening and concatenating all the lists
-            loaded_grid_list = list(
-                np.concatenate((loaded_grid_list_num, loaded_grid_list_den))
-            )
-            for grid_el, cen_el, alpha_el in zip(
-                list_grids[1], centrals_list_den, alphas_list_den
-            ):
-                list_grids[0].append(grid_el)
-                centrals_list_num.append(cen_el)
-                alphas_list_num.append(alpha_el)
-            list_grids = list_grids[0]
-            centrals_list = centrals_list_num
-            alphas_list = alphas_list_num
-        else:
-            # In this case is convenient to load all the grids now and store the bin info
-            bins_list, loaded_grid_list = get_bin_infos_and_grids(
-                list_grids, grids_folder
-            )
-            # if compound file exists, take cfactor file names from there.
-            # If not then the cfactor file name can be obtained form the target dataset name alone.
-            if compound_path.exists():
-                cfac_names = [
-                    i[3:-4]
-                    for i in compound_path.read_text().split()
-                    if i.endswith(".dat")
-                ]
-                cfac_paths = [kfactor_folder / f"CF_QCD_{i}.dat" for i in cfac_names]
-            else:
-                cfac_paths = [kfactor_folder / f"CF_QCD_{target_dataset}.dat"]
-            # I need to check how many Kfactors I have
-            centrals_list, alphas_list = create_lists_for_compound(
-                cfac_paths, list_grids, target_dataset, bins_list
-            )
-
-        # Now we are ready to do the magic for each grid
-        for grid_name, grid, centrals_cfac, alpha in zip(
-            list_grids, loaded_grid_list, centrals_list, alphas_list
-        ):
-            grid_path = grids_folder / (f"{grid_name}.pineappl.lz4")
-            # We need to check if the number of factors in the Kfactors match the number of bin
-            # If not we need to do different things according to the problem
-            # This is the easy case
-            if grid.bins() == len(centrals_cfac):
-                rich.print(
-                    f"[orange] The number of bins match the lenght of the kFactor."
-                )
-            elif grid.bins() < len(centrals_cfac):
-                rich.print(
-                    f"[yellow] The number of bins is less than the lenght of the kFactor."
-                )
-                if not all(elem == centrals_cfac[0] for elem in centrals_cfac):
-                    # This case is actually wrong.
-                    raise ValueError("KFactor contains too many different values.")
-            else:
-                rich.print(
-                    f"[yellow] The number of bins is more than the lenght of the KFactor."
-                )
-
-                # This is the last case in which grid.bins() > len(centrals_kfactor)
-
-                # Note that sometimes there are more bins in the grid than in the cfactor file -
-                # this is not a problem becasue in those cases either all cfactor values are the
-                # same (thus there is no doubt about whether we have the correct one) or the
-                # non-exisiting cfactors would be multiplied by bins corresponding to all '0' in the
-                # grid.
-                # Let's check if we are in the first or second case
-                if len(np.unique(centrals_cfac)) == 1:
-                    # In this case I just need to add more elements to the kfactor
-                    for _num in range(grid.bins() - len(centrals_cfac)):
-                        centrals_cfac = np.append(centrals_cfac, centrals_cfac[0])
-                else:
-                    # In this case this means that the missing entries will multiply zero subgrids so we can just add 0s
-                    for _num in range(grid.bins() - len(centrals_cfac)):
-                        centrals_cfac = np.append(centrals_cfac, 0.0)
+    for grid_list in yamldict["operands"]:
+        for grid in grid_list:
+            cfac_path = kfactor_folder / f"CF_QCD_{grid}.dat"
+            centrals_kfactor, pdf_set = read_kfactor(cfac_path)
+            alphas = lhapdf.mkAlphaS(pdf_set)
+            grid_path = grids_folder / (f"{grid}.pineappl.lz4")
+            pigrid = pineappl.grid.Grid.read(grid_path)
+            centrals_kfactor_filtered = filter_k_factors(pigrid, centrals_kfactor)
             do_it(
-                centrals_cfac,
-                alpha,
+                centrals_kfactor_filtered,
+                alphas,
                 grid_path,
-                grid,
+                pigrid,
                 max_as,
                 max_as_test,
                 target_folder,
