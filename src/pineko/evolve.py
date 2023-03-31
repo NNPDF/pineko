@@ -98,8 +98,17 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
         written Q2 grid
 
     """
+    # Add a +1 to the orders for the difference in convention between nnpdf and pineappl
+    is_fns = int(check.is_fonll_b(tcard["FNS"], pineappl_grid.lumi()))
+    max_as = 1 + tcard["PTO"] + is_fns
+    max_al = 1 + tcard["QED"]
+    # ... in order to create a mask ...
+    order_mask = pineappl.grid.Order.create_mask(pineappl_grid.orders(), max_as, max_al)
+    # ... to get the x and muF grids for the eko
+    evol_info = pineappl_grid.evolve_info(order_mask)
+    x_grid = evol_info.x1
+    muf2_grid = evol_info.fac1
     operators_card = copy.deepcopy(default_card)
-    x_grid, _pids, _mur2_grid, muf2_grid = pineappl_grid.axes()
     sv_method = sv_scheme(tcard)
     xif = 1.0 if sv_method is not None else tcard["XIF"]
     operators_card["configs"]["scvar_method"] = sv_method
@@ -149,8 +158,10 @@ def evolve_grid(
     comparison_pdf : None or str
         if given, a comparison table (with / without evolution) will be printed
     """
-    x_grid, _pids, mur2_grid, _muf2_grid = grid.axes()
-    sv_method = None
+    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
+    evol_info = grid.evolve_info(order_mask)
+    x_grid = evol_info.x1
+    mur2_grid = evol_info.ren1
     xif = 1.0 if operators.operator_card.configs.scvar_method is not None else xif
     tcard = operators.theory_card
     opcard = operators.operator_card
@@ -160,15 +171,13 @@ def evolve_grid(
     eko.io.manipulate.xgrid_reshape(
         operators, targetgrid=eko.interpolation.XGrid(x_grid)
     )
-    check.check_grid_and_eko_compatible(grid, operators, xif)
+    check.check_grid_and_eko_compatible(grid, operators, xif, max_as, max_al)
     # rotate to evolution (if doable and necessary)
     if np.allclose(operators.rotations.inputpids, br.flavor_basis_pids):
         eko.io.manipulate.to_evol(operators)
     # Here we are checking if the EKO contains the rotation matrix (flavor to evol)
     elif not np.allclose(operators.rotations.inputpids, br.rotate_flavor_to_evolution):
         raise ValueError("The EKO is neither in flavor nor in evolution basis.")
-    # do it
-    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
     # This is really the facto scale grid only for scheme A and C
     muf2_grid = operators.mu2grid
     # PineAPPL wants alpha_s = 4*pi*a_s
