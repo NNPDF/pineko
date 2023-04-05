@@ -6,6 +6,7 @@ import numpy as np
 import pineappl
 import rich
 import yaml
+from pineappl import import_only_subgrid
 
 from . import scale_variations
 
@@ -39,8 +40,22 @@ def read_kfactor(kfactor_path):
     return central_value, pdf_set
 
 
+def construct_scales_array(
+    mu2_ren_grid, m_value, order, new_order, central_k_factor, bin_index, alphas
+):
+    """Construct the array that will rescale the subgrid array taking into account the different renormalization scales."""
+    scales_array = []
+    for mu2 in mu2_ren_grid:
+        scales_array.append(
+            compute_scale_factor(
+                m_value, order, new_order, mu2, central_k_factor, bin_index, alphas
+            )
+        )
+    return scales_array
+
+
 def compute_scale_factor(
-    m, nec_order, to_construct_order, Q, central_k_factor, bin_index, alphas
+    m, nec_order, to_construct_order, Q2, central_k_factor, bin_index, alphas
 ):
     """Compute the factor to be multiplied to the given nec_order.
 
@@ -52,8 +67,8 @@ def compute_scale_factor(
         tuple of the order that has to be rescaled to get the final order
     to_contruct_order : tuple(int)
         tuple of the scale varied order to be constructed
-    Q: float
-        energy scale of the bin
+    Q2: float
+        energy scale squared of the bin
     central_k_factor: list(float)
         list of the centrals k-factors
     bin_index: int
@@ -67,12 +82,39 @@ def compute_scale_factor(
         full contribution factor
     """
     max_as = to_construct_order[0] - m
-    alpha_val = alphas.alphasQ(Q)
-    alpha_term = (pow(4 * np.pi, max_as - (nec_order[0] - m))) / pow(
-        alpha_val, max_as - (nec_order[0] - m)
-    )
+    alpha_val = alphas.alphasQ2(Q2)
+    alpha_term = 1.0 / pow(alpha_val, max_as - (nec_order[0] - m))
     k_term = central_k_factor[bin_index] - 1.0
     return k_term * alpha_term
+
+
+def scale_subgrid(extracted_subgrid, scales_array):
+    """Rescales the array contained in the subgrid using scales_array and returns a new subgrid constructed with the scaled array."""
+    original_array = extracted_subgrid.dense()
+    if len(original_array) != len(scales_array):
+        raise ValueError("The original and the scales arrays have different shapes.")
+    scaled_array = []
+    for scale_value, arr_to_scale in zip(scales_array, original_array):
+        scaled_array_nest = []
+        for arr in arr_to_scale:
+            scaled_array_nest.append(list(arr * scale_value))
+        scaled_array.append(scaled_array_nest)
+    x1grid = extracted_subgrid.x1_grid()
+    x2grid = extracted_subgrid.x2_grid()
+    if len(scales_array) == 0:
+        scaled_array = np.zeros(shape=(0, 0, 0), dtype=float)
+    else:
+        scaled_array = np.array(scaled_array, dtype=float)
+    mu2_grid = [
+        tuple([ren, fact])
+        for ren, fact in zip(
+            extracted_subgrid.mu2_ren_grid(), extracted_subgrid.mu2_fact_grid()
+        )
+    ]
+    scaled_subgrid = import_only_subgrid.ImportOnlySubgridV2(
+        scaled_array, mu2_grid, x1grid, x2grid
+    )
+    return scaled_subgrid
 
 
 def compute_orders_map(m, max_as, min_al):
@@ -105,21 +147,20 @@ def create_singlegridonly(grid, m_value, order, new_order, central_k_factor, alp
     grid_orders = [order.as_tuple() for order in grid.orders()]
     order_index = grid_orders.index(order)
     for lumi_index in range(len(new_grid.lumi())):
-        for bin_index in range(grid.raw.bins()):
+        for bin_index in range(grid.bins()):
             extracted_subgrid = grid.subgrid(order_index, bin_index, lumi_index)
-            Q = 10  # Just to see
-            scalefactor = compute_scale_factor(
+            scales_array = construct_scales_array(
+                extracted_subgrid.mu2_ren_grid(),
                 m_value,
                 order,
                 new_order,
-                Q,
                 central_k_factor,
                 bin_index,
                 alphas,
             )
-            extracted_subgrid.scale(scalefactor)
+            scaled_subgrid = scale_subgrid(extracted_subgrid, scales_array)
             # Set this subgrid inside the new grid
-            new_grid.set_subgrid(0, bin_index, lumi_index, extracted_subgrid)
+            new_grid.set_subgrid(0, bin_index, lumi_index, scaled_subgrid)
     # Fixing bin_limits and normalizations
     bin_dimension = grid.raw.bin_dimensions()
     limits = []
