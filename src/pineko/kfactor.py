@@ -13,6 +13,16 @@ from . import scale_variations
 DEFAULT_PDF_SET = "NNPDF40_nnlo_as_01180"
 
 
+def factgrid(subgrid):
+    """Return the array of the factorization scales squared from a subgrid."""
+    return np.array([mu2.fac for mu2 in subgrid.mu2_grid()])
+
+
+def rengrid(subgrid):
+    """Return the array of the renormalization scales squared from a subgrid."""
+    return np.array([mu2.ren for mu2 in subgrid.mu2_grid()])
+
+
 def read_kfactor(kfactor_path):
     """Read the k-factor and returns the central values and the pdfset used to compute it."""
     with open(kfactor_path, encoding="utf-8") as f:
@@ -105,12 +115,7 @@ def scale_subgrid(extracted_subgrid, scales_array):
         scaled_array = np.zeros(shape=(0, 0, 0), dtype=float)
     else:
         scaled_array = np.array(scaled_array, dtype=float)
-    mu2_grid = [
-        tuple([ren, fact])
-        for ren, fact in zip(
-            extracted_subgrid.mu2_ren_grid(), extracted_subgrid.mu2_fact_grid()
-        )
-    ]
+    mu2_grid = [tuple([mu2.ren, mu2.fac]) for mu2 in extracted_subgrid.mu2_grid()]
     scaled_subgrid = import_only_subgrid.ImportOnlySubgridV2(
         scaled_array, mu2_grid, x1grid, x2grid
     )
@@ -150,7 +155,7 @@ def create_singlegridonly(grid, m_value, order, new_order, central_k_factor, alp
         for bin_index in range(grid.bins()):
             extracted_subgrid = grid.subgrid(order_index, bin_index, lumi_index)
             scales_array = construct_scales_array(
-                extracted_subgrid.mu2_ren_grid(),
+                rengrid(extracted_subgrid),
                 m_value,
                 order,
                 new_order,
