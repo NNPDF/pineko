@@ -225,12 +225,10 @@ def write_grids(gridpath, grid_list):
 def merge_grids(gridpath, grid_list_path, target_path=None):
     """Merge the single grids in the original."""
     grid = pineappl.grid.Grid.read(gridpath)
-    base_name = gridpath.stem.split(".pineappl")[0]
-    target_name = base_name + "_pluskfactor.pineappl.lz4"
     if target_path is None:
-        target_path = gridpath.parent / target_name
+        target_path = gridpath.parent / gridpath.name
     else:
-        target_path = target_path / target_name
+        target_path = target_path / gridpath.name
     for grid_path in grid_list_path:
         grid.raw.merge_from_file(grid_path)
         grid_path.unlink()
