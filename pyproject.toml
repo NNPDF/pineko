@@ -25,7 +25,7 @@ packages = [{ include = "pineko", from = "src" }]
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
 eko = "^0.12.0"
-pineappl = { version = "0.6.0a4", allow-prereleases = true }
+pineappl = {version = "^0.6.0a5", allow-prereleases = true}
 PyYAML = "^6.0"
 numpy = "^1.21.0"
 pandas = "^1.4.1"
