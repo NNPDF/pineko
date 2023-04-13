@@ -373,6 +373,8 @@ def compute_k_factor_grid(
     for grid_list in yamldict["operands"]:
         for grid in grid_list:
             cfac_path = kfactor_folder / f"CF_QCD_{grid}.dat"
+            if "ATLASDY2D8TEV" in grid:
+                cfac_path = kfactor_folder / f"CF_QCDEWK_{grid}.dat"
             centrals_kfactor, pdf_set = read_kfactor(cfac_path)
             alphas = lhapdf.mkAlphaS(pdf_set)
             grid_path = grids_folder / (f"{grid}.pineappl.lz4")
