@@ -206,40 +206,6 @@ def create_grids(
     return grid_list
 
 
-def write_grids(gridpath, grid_list):
-    """Write the single grids."""
-    base_name = gridpath.stem.split(".pineappl")[0]
-    final_part = ".pineappl.lz4"
-    grid_paths = []
-    for order in grid_list:
-        # For each order, if more than one grid contributes, merge them all together in a single one
-        if len(grid_list[order]) > 1:
-            for grid in grid_list[order][1:]:
-                tmp_path = gridpath.parent / ("tmp" + final_part)
-                grid.raw.write_lz4(tmp_path)
-                grid_list[order][0].raw.merge_from_file(tmp_path)
-                tmp_path.unlink()
-        new_grid_path = gridpath.parent / (
-            base_name + "_new_order" + final_part
-        )  # order[2] is the ren_sv order
-        grid_paths.append(new_grid_path)
-        grid_list[order][0].raw.write_lz4(new_grid_path)
-    return grid_paths
-
-
-def merge_grids(gridpath, grid_list_path, target_path=None):
-    """Merge the single grids in the original."""
-    grid = pineappl.grid.Grid.read(gridpath)
-    if target_path is None:
-        target_path = gridpath.parent / gridpath.name
-    else:
-        target_path = target_path / gridpath.name
-    for grid_path in grid_list_path:
-        grid.raw.merge_from_file(grid_path)
-        grid_path.unlink()
-    grid.raw.write_lz4(target_path)
-
-
 def is_already_in(to_check, list_orders):
     """Check if the requested order is already in the grid."""
     for order in list_orders:
@@ -268,9 +234,9 @@ def construct_and_merge_grids(
         grid_path, max_as, first_nonzero_order[0], min_al, centrals_kfactor, alphas
     )
     # Writing the sv grids
-    grids_paths = write_grids(gridpath=grid_path, grid_list=grid_list)
+    grids_paths = scale_variations.write_grids(gridpath=grid_path, grid_list=grid_list)
     # Merging all together
-    merge_grids(
+    scale_variations.merge_grids(
         gridpath=grid_path, grid_list_path=grids_paths, target_path=target_folder
     )
 

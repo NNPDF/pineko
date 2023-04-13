@@ -148,8 +148,8 @@ def create_grids(gridpath, max_as, nf):
     return grid_list
 
 
-def write_sv_grids(gridpath, grid_list):
-    """Write the scale variations grids."""
+def write_grids(gridpath, grid_list):
+    """Write the single grids."""
     base_name = gridpath.stem.split(".pineappl")[0]
     final_part = ".pineappl.lz4"
     grid_paths = []
@@ -170,11 +170,12 @@ def write_sv_grids(gridpath, grid_list):
 
 
 def merge_grids(gridpath, grid_list_path, target_path=None):
-    """Merge the scale variations grids in the original."""
+    """Merge the single grids in the original."""
     grid = pineappl.grid.Grid.read(gridpath)
     if target_path is None:
-        base_name = gridpath.stem.split(".pineappl")[0]
-        target_path = gridpath.parent / (base_name + "_plusrensv.pineappl.lz4")
+        target_path = gridpath.parent / gridpath.name
+    else:
+        target_path = target_path / gridpath.name
     for grid_path in grid_list_path:
         grid.raw.merge_from_file(grid_path)
         grid_path.unlink()
@@ -212,7 +213,7 @@ def compute_ren_sv_grid(grid_path, max_as, nf, target_path=None):
     # Creating all the necessary grids
     grid_list = create_grids(grid_path, max_as, nf)
     # Writing the sv grids
-    sv_grids_paths = write_sv_grids(gridpath=grid_path, grid_list=grid_list)
+    sv_grids_paths = write_grids(gridpath=grid_path, grid_list=grid_list)
     # Merging all together
     merge_grids(
         gridpath=grid_path, grid_list_path=sv_grids_paths, target_path=target_path
