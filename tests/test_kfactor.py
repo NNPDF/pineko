@@ -3,7 +3,7 @@ import numpy as np
 from pineko import kfactor
 
 
-class fakealpha:
+class FakeAlpha:
     def __init__(self, const_value):
         self.const_value = const_value
 
@@ -13,7 +13,7 @@ class fakealpha:
 
 def test_compute_scale_factor():
     const_value = 0.01180
-    myfakealpha = fakealpha(const_value)
+    myfakealpha = FakeAlpha(const_value)
     fake_kfactor = [1.1, 1.2, 1.3]
     bin_index = 1
     np.testing.assert_allclose(
