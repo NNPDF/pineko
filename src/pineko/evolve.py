@@ -17,16 +17,6 @@ from eko.io.types import EvolutionMethod, ScaleVariationsMethod
 from . import check, comparator, ekompatibility, version
 
 
-def axes(grid, max_s: Optional[Tuple[int, int]] = None):
-    """Return the evolve_info object of the grid either with the actual orders or mocking them if max_as and max_al are None."""
-    if max_s is not None:
-        order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_s[0], max_s[1])
-    else:
-        order_mask = np.array([True for _ord in grid.orders()])
-    evolve_info = grid.evolve_info(order_mask)
-    return evolve_info
-
-
 def sv_scheme(tcard):
     """Infere the factorization scale_variation scheme to be used from the theory card.
 
