@@ -31,4 +31,4 @@ def benchmark_check_grid_and_eko_compatible(test_files, tmp_path):
         )
         with pytest.raises(ValueError):
             pineko.check.check_grid_and_eko_compatible(grid, ekoop, 1.0, 10, 10)
-        eko.io.manipulate.xgrid_reshape(ekoop, targetgrid=ekoop.rotations.xgrid)
+        eko.io.manipulate.xgrid_reshape(ekoop, targetgrid=ekoop.xgrid)

@@ -12,6 +12,7 @@ import rich.box
 import rich.panel
 import yaml
 from eko.io.types import ScaleVariationsMethod
+from eko.thresholds import ThresholdsAtlas
 
 from . import check, comparator, ekompatibility, version
 
@@ -113,11 +114,18 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     xif = 1.0 if sv_method is not None else tcard["XIF"]
     operators_card["configs"]["scvar_method"] = sv_method
     q2_grid = (xif * xif * muf2_grid).tolist()
-    operators_card["_mugrid"] = np.sqrt(q2_grid).tolist()
+    atlas = ThresholdsAtlas(
+        masses=np.array([tcard["mc"],tcard["mb"],tcard["mt"]]) ** 2 ,
+        q2_ref=tcard["Q0"],
+        nf_ref=tcard["nfref"],
+        thresholds_ratios=np.array([tcard["kcThr"],tcard["kbThr"],tcard["ktThr"]]) ** 2,
+        max_nf=tcard["MaxNfPdf"]
+    )
+    operators_card["mugrid"] = [(float(np.sqrt(q2)), int(atlas.nf(q2))) for q2 in q2_grid]
     if "integrability_version" in pineappl_grid.key_values():
         x_grid = np.append(x_grid, 1.0)
         operators_card["configs"]["interpolation_polynomial_degree"] = 1
-        operators_card["rotations"]["xgrid"] = x_grid.tolist()
+        operators_card["xgrid"] = x_grid.tolist()
 
     with open(card_path, "w", encoding="UTF-8") as f:
         yaml.safe_dump(operators_card, f)
@@ -184,14 +192,13 @@ def evolve_grid(
     # remember that we already accounted for xif in the opcard generation
     evmod = eko.couplings.couplings_mod_ev(opcard.configs.evolution_method)
     # Couplings ask for the square of the masses
-    quark_masses = [(x.value) ** 2 for x in tcard.quark_masses]
     sc = eko.couplings.Couplings(
         tcard.couplings,
         tcard.order,
         evmod,
-        quark_masses,
-        hqm_scheme=tcard.quark_masses_scheme,
-        thresholds_ratios=np.power(list(iter(tcard.matching)), 2.0),
+        masses=[(x.value) ** 2 for x in tcard.heavy.masses],
+        hqm_scheme=tcard.heavy.masses_scheme,
+        thresholds_ratios=np.power(tcard.heavy.matching_ratios, 2.0),
     )
     # If we are computing scheme A we also need to pass fact_scale.
 
