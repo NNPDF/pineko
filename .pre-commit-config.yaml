@@ -16,7 +16,7 @@ repos:
       - id: check-case-conflict
       - id: check-ast
   - repo: https://github.com/psf/black
-    rev: 23.1.0
+    rev: 23.3.0
     hooks:
       - id: black
   - repo: https://github.com/asottile/blacken-docs
@@ -40,6 +40,6 @@ repos:
         additional_dependencies:
           - toml
   - repo: https://github.com/pre-commit/pre-commit
-    rev: v3.0.4
+    rev: v3.2.2
     hooks:
       - id: validate_manifest
