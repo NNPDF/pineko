@@ -201,9 +201,9 @@ def evolve_grid(
         4.0
         * np.pi
         * sc.a_s(
-            xir * xir * muf2 / xif / xif,
+            xir * xir * mur2,
         )
-        for muf2 in muf2_grid
+        for mur2 in mur2_grid
     ]
     # We need to use ekompatibility in order to pass a dictionary to pineappl
     fktable = grid.evolve(
