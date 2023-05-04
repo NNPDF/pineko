@@ -169,17 +169,63 @@ def write_grids(gridpath, grid_list):
     return grid_paths
 
 
-def merge_grids(gridpath, grid_list_path, target_path=None):
+def merge_grids(
+    gridpath, grid_list_path, target_path=None, nec_orders={}, order_exists=False
+):
     """Merge the single grids in the original."""
     grid = pineappl.grid.Grid.read(gridpath)
     if target_path is None:
         target_path = gridpath.parent / gridpath.name
     else:
         target_path = target_path / gridpath.name
+    if order_exists:
+        grid = construct_and_dump_order_exists_grid(grid, list(nec_orders.keys())[0])
     for grid_path in grid_list_path:
         grid.raw.merge_from_file(grid_path)
         grid_path.unlink()
     grid.raw.write_lz4(target_path)
+
+
+def construct_and_dump_order_exists_grid(ori_grid, to_construct_order):
+    """Remove the order that has to be substituted from the grid."""
+    bin_limits = [float(bin) for bin in range(ori_grid.raw.bins() + 1)]
+    lumi_grid = [pineappl.lumi.LumiEntry(mylum) for mylum in ori_grid.raw.lumi()]
+    subgrid_params = pineappl.subgrid.SubgridParams()
+    ori_grid_orders = [order.as_tuple() for order in ori_grid.orders()]
+    new_orders = [
+        pineappl.grid.Order(*ord)
+        for ord in ori_grid_orders
+        if ord != to_construct_order
+    ]
+    new_grid = pineappl.grid.Grid.create(
+        lumi_grid, new_orders, bin_limits, subgrid_params
+    )
+    orders_indeces = [ori_grid_orders.index(order.as_tuple()) for order in new_orders]
+    for order_index in orders_indeces:
+        for lumi_index in range(len(lumi_grid)):
+            for bin_index in range(ori_grid.raw.bins()):
+                extr_subgrid = ori_grid.subgrid(order_index, bin_index, lumi_index)
+                new_grid.set_subgrid(
+                    orders_indeces.index(order_index),
+                    bin_index,
+                    lumi_index,
+                    extr_subgrid,
+                )
+    bin_dimension = ori_grid.raw.bin_dimensions()
+    limits = []
+    for num_bin in range(ori_grid.raw.bins()):
+        for dim in range(bin_dimension):
+            limits.append(
+                (
+                    ori_grid.raw.bin_left(dim)[num_bin],
+                    ori_grid.raw.bin_right(dim)[num_bin],
+                )
+            )
+    norma = ori_grid.raw.bin_normalizations()
+    remap_obj = pineappl.bin.BinRemapper(norma, limits)
+    new_grid.set_remapper(remap_obj)
+    new_grid.set_key_value("initial_state_2", "-11")
+    return new_grid
 
 
 def compute_ren_sv_grid(grid_path, max_as, nf, target_path=None):

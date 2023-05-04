@@ -51,21 +51,42 @@ def read_kfactor(kfactor_path):
 
 
 def construct_scales_array(
-    mu2_ren_grid, m_value, order, new_order, central_k_factor, bin_index, alphas
+    mu2_ren_grid,
+    m_value,
+    order,
+    new_order,
+    central_k_factor,
+    bin_index,
+    alphas,
+    order_exists,
 ):
     """Construct the array that will rescale the subgrid array taking into account the different renormalization scales."""
     scales_array = []
     for mu2 in mu2_ren_grid:
         scales_array.append(
             compute_scale_factor(
-                m_value, order, new_order, mu2, central_k_factor, bin_index, alphas
+                m_value,
+                order,
+                new_order,
+                mu2,
+                central_k_factor,
+                bin_index,
+                alphas,
+                order_exists,
             )
         )
     return scales_array
 
 
 def compute_scale_factor(
-    m, nec_order, to_construct_order, Q2, central_k_factor, bin_index, alphas
+    m,
+    nec_order,
+    to_construct_order,
+    Q2,
+    central_k_factor,
+    bin_index,
+    alphas,
+    order_exists,
 ):
     """Compute the factor to be multiplied to the given nec_order.
 
@@ -95,6 +116,8 @@ def compute_scale_factor(
     alpha_val = alphas.alphasQ2(Q2)
     alpha_term = 1.0 / pow(alpha_val, max_as - (nec_order[0] - m))
     k_term = central_k_factor[bin_index] - 1.0
+    if order_exists and (max_as - (nec_order[0] - m)) == 0:
+        k_term = central_k_factor[bin_index]
     return k_term * alpha_term
 
 
@@ -122,7 +145,7 @@ def scale_subgrid(extracted_subgrid, scales_array):
     return scaled_subgrid
 
 
-def compute_orders_map(m, max_as, min_al):
+def compute_orders_map(m, max_as, min_al, order_exists):
     """Compute a dictionary with all the necessary orders to compute the requested order.
 
     Parameters
@@ -138,14 +161,19 @@ def compute_orders_map(m, max_as, min_al):
     dict(tuple(int))
         description of all the needed orders
     """
+    add = 0
+    if order_exists:
+        add = 1
     orders = {}
     orders[(m + max_as, min_al, 0, 0)] = [
-        (m + de, min_al, 0, 0) for de in range(max_as)
+        (m + de, min_al, 0, 0) for de in range(max_as + add)
     ]
     return orders
 
 
-def create_singlegridonly(grid, m_value, order, new_order, central_k_factor, alphas):
+def create_singlegridonly(
+    grid, m_value, order, new_order, central_k_factor, alphas, order_exists
+):
     """Create a grid containing only the contribution given by new_order."""
     new_grid = scale_variations.initialize_new_grid(grid, new_order)
     # extract the relevant order to rescale from the grid for each lumi and bin
@@ -162,6 +190,7 @@ def create_singlegridonly(grid, m_value, order, new_order, central_k_factor, alp
                 central_k_factor,
                 bin_index,
                 alphas,
+                order_exists,
             )
             scaled_subgrid = scale_subgrid(extracted_subgrid, scales_array)
             # Set this subgrid inside the new grid
@@ -181,12 +210,18 @@ def create_singlegridonly(grid, m_value, order, new_order, central_k_factor, alp
 
 
 def create_grids(
-    gridpath, max_as, first_non_zero_as_order, min_al, centrals_k_factor, alphas
+    gridpath,
+    max_as,
+    first_non_zero_as_order,
+    min_al,
+    centrals_k_factor,
+    alphas,
+    order_exists,
 ):
     """Create all the necessary grids for a certain starting grid."""
     grid = pineappl.grid.Grid.read(gridpath)
     m_value = first_non_zero_as_order
-    nec_orders = compute_orders_map(m_value, max_as, min_al)
+    nec_orders = compute_orders_map(m_value, max_as, min_al, order_exists)
     grid_list = {}
     for to_construct_order in nec_orders:
         list_grid_order = []
@@ -199,11 +234,12 @@ def create_grids(
                     to_construct_order,
                     centrals_k_factor,
                     alphas,
+                    order_exists,
                 )
             )
         grid_list[to_construct_order] = list_grid_order
 
-    return grid_list
+    return grid_list, nec_orders
 
 
 def is_already_in(to_check, list_orders):
@@ -227,22 +263,40 @@ def construct_and_merge_grids(
     centrals_kfactor,
     alphas,
     target_folder,
+    order_exists,
 ):
     """Create, write and merge all the grids."""
     # Creating all the necessary grids
-    grid_list = create_grids(
-        grid_path, max_as, first_nonzero_order[0], min_al, centrals_kfactor, alphas
+    grid_list, nec_orders = create_grids(
+        grid_path,
+        max_as,
+        first_nonzero_order[0],
+        min_al,
+        centrals_kfactor,
+        alphas,
+        order_exists,
     )
     # Writing the sv grids
     grids_paths = scale_variations.write_grids(gridpath=grid_path, grid_list=grid_list)
     # Merging all together
     scale_variations.merge_grids(
-        gridpath=grid_path, grid_list_path=grids_paths, target_path=target_folder
+        gridpath=grid_path,
+        grid_list_path=grids_paths,
+        target_path=target_folder,
+        nec_orders=nec_orders,
+        order_exists=order_exists,
     )
 
 
 def do_it(
-    centrals_kfactor, alphas, grid_path, grid, max_as, max_as_test, target_folder
+    centrals_kfactor,
+    alphas,
+    grid_path,
+    grid,
+    max_as,
+    max_as_test,
+    target_folder,
+    order_exists,
 ):
     """Apply the centrals_kfactor to the grid if the order is not already there."""
     grid_orders = [orde.as_tuple() for orde in grid.orders()]
@@ -251,10 +305,14 @@ def do_it(
     grid_orders_filtered.sort(key=scale_variations.sort_qcd_orders)
     first_nonzero_order = grid_orders_filtered[0]
     min_al = first_nonzero_order[1]
-    if is_already_in(
+    is_in = is_already_in(
         (first_nonzero_order[0] + max_as_test, min_al, 0, 0), grid_orders_filtered
-    ):
+    )
+    if is_in and not order_exists:
         rich.print(f"[green] Success: Requested order already in the grid.")
+        return
+    elif not is_in and order_exists:
+        rich.print(f"[red] Abort: order exists is True but order not in the grid.")
         return
     construct_and_merge_grids(
         grid_path,
@@ -264,6 +322,7 @@ def do_it(
         centrals_kfactor,
         alphas,
         target_folder,
+        order_exists,
     )
 
 
@@ -313,6 +372,7 @@ def compute_k_factor_grid(
     yamldb_path,
     max_as,
     target_folder=None,
+    order_exists=False,
 ):
     """Include the k-factor in the grid in order to have its associated order in the grid itself.
 
@@ -354,4 +414,5 @@ def compute_k_factor_grid(
                 max_as,
                 max_as_test,
                 target_folder,
+                order_exists,
             )
