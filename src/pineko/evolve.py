@@ -104,7 +104,9 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     max_as = 1 + tcard["PTO"] + is_fns
     max_al = 1 + tcard["QED"]
     # ... in order to create a mask ...
-    order_mask = pineappl.grid.Order.create_mask(pineappl_grid.orders(), max_as, max_al)
+    order_mask = pineappl.grid.Order.create_mask(
+        pineappl_grid.orders(), max_as, max_al, True
+    )
     # ... to get the x and muF grids for the eko
     evol_info = pineappl_grid.evolve_info(order_mask)
     x_grid = evol_info.x1
@@ -115,13 +117,16 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     operators_card["configs"]["scvar_method"] = sv_method
     q2_grid = (xif * xif * muf2_grid).tolist()
     atlas = ThresholdsAtlas(
-        masses=np.array([tcard["mc"],tcard["mb"],tcard["mt"]]) ** 2 ,
+        masses=np.array([tcard["mc"], tcard["mb"], tcard["mt"]]) ** 2,
         q2_ref=tcard["Q0"],
         nf_ref=tcard["nfref"],
-        thresholds_ratios=np.array([tcard["kcThr"],tcard["kbThr"],tcard["ktThr"]]) ** 2,
-        max_nf=tcard["MaxNfPdf"]
+        thresholds_ratios=np.array([tcard["kcThr"], tcard["kbThr"], tcard["ktThr"]])
+        ** 2,
+        max_nf=tcard["MaxNfPdf"],
     )
-    operators_card["mugrid"] = [(float(np.sqrt(q2)), int(atlas.nf(q2))) for q2 in q2_grid]
+    operators_card["mugrid"] = [
+        (float(np.sqrt(q2)), int(atlas.nf(q2))) for q2 in q2_grid
+    ]
     if "integrability_version" in pineappl_grid.key_values():
         x_grid = np.append(x_grid, 1.0)
         operators_card["configs"]["interpolation_polynomial_degree"] = 1
@@ -166,7 +171,7 @@ def evolve_grid(
     comparison_pdf : None or str
         if given, a comparison table (with / without evolution) will be printed
     """
-    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
+    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al, True)
     evol_info = grid.evolve_info(order_mask)
     x_grid = evol_info.x1
     mur2_grid = evol_info.ren1
