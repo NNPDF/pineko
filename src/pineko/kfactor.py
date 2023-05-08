@@ -123,7 +123,7 @@ def compute_scale_factor(
 
 def scale_subgrid(extracted_subgrid, scales_array):
     """Rescales the array contained in the subgrid using scales_array and returns a new subgrid constructed with the scaled array."""
-    original_array = extracted_subgrid.dense()
+    original_array = extracted_subgrid.to_array3()
     if len(original_array) != len(scales_array):
         raise ValueError("The original and the scales arrays have different shapes.")
     scaled_array = []
