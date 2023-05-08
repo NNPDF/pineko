@@ -104,7 +104,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     max_as = 1 + tcard["PTO"] + is_fns
     max_al = 1 + tcard["QED"]
     # ... in order to create a mask ...
-    order_mask = pineappl.grid.Order.create_mask(pineappl_grid.orders(), max_as, max_al)
+    order_mask = pineappl.grid.Order.create_mask(pineappl_grid.orders(), max_as, max_al, True)
     # ... to get the x and muF grids for the eko
     evol_info = pineappl_grid.evolve_info(order_mask)
     x_grid = evol_info.x1
@@ -159,7 +159,7 @@ def evolve_grid(
     comparison_pdf : None or str
         if given, a comparison table (with / without evolution) will be printed
     """
-    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
+    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al, True)
     evol_info = grid.evolve_info(order_mask)
     x_grid = evol_info.x1
     mur2_grid = evol_info.ren1

@@ -300,7 +300,7 @@ def do_it(
 ):
     """Apply the centrals_kfactor to the grid if the order is not already there."""
     grid_orders = [orde.as_tuple() for orde in grid.orders()]
-    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, 0)
+    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, 0, True)
     grid_orders_filtered = list(np.array(grid_orders)[order_mask])
     grid_orders_filtered.sort(key=scale_variations.sort_qcd_orders)
     first_nonzero_order = grid_orders_filtered[0]

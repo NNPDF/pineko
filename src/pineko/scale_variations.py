@@ -124,7 +124,7 @@ def create_grids(gridpath, max_as, nf):
     """Create all the necessary scale variations grids for a certain starting grid."""
     grid = pineappl.grid.Grid.read(gridpath)
     grid_orders = [orde.as_tuple() for orde in grid.orders()]
-    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, 0)
+    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, 0, True)
     grid_orders_filtered = list(np.array(grid_orders)[order_mask])
     grid_orders_filtered.sort(key=sort_qcd_orders)
     first_nonzero_order = grid_orders_filtered[0]

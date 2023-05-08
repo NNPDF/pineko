@@ -24,9 +24,9 @@ def benchmark_kfactor_inclusion(test_files, tmp_path, test_pdf, lhapdf_path):
     pluskfactor_grid = pineappl.grid.Grid.read(pluskfactor_grid_path)
     sv_list = [(1.0, 1.0)]  # Only ren sv have to be tested
     bin_number = pluskfactor_grid.bins()
-    order_mask_nloQCD = pineappl.grid.Order.create_mask(pluskfactor_grid.orders(), 2, 0)
+    order_mask_nloQCD = pineappl.grid.Order.create_mask(pluskfactor_grid.orders(), 2, 0, True)
     order_mask_nnloQCD = pineappl.grid.Order.create_mask(
-        pluskfactor_grid.orders(), 3, 0
+        pluskfactor_grid.orders(), 3, 0, True
     )
     to_test_res_nlo = pluskfactor_grid.convolute_with_one(
         2212,
