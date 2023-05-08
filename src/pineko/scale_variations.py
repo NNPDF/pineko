@@ -224,7 +224,7 @@ def construct_and_dump_order_exists_grid(ori_grid, to_construct_order):
     norma = ori_grid.raw.bin_normalizations()
     remap_obj = pineappl.bin.BinRemapper(norma, limits)
     new_grid.set_remapper(remap_obj)
-    new_grid.set_key_value("initial_state_2", "-11")
+    new_grid.set_key_value("initial_state_2", ori_grid.key_values()["initial_state_2"])
     return new_grid
 
 
