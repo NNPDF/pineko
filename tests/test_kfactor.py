@@ -34,6 +34,7 @@ def test_compute_scale_factor():
             fake_kfactor,
             bin_index,
             myfakealpha,
+            False,
         ),
         (1.0 / const_value) * (fake_kfactor[bin_index] - 1.0),
     )
@@ -46,6 +47,7 @@ def test_compute_scale_factor():
             fake_kfactor,
             bin_index,
             myfakealpha,
+            False,
         ),
         (1.0 / (const_value**2)) * (fake_kfactor[bin_index] - 1.0),
     )
