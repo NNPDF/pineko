@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 def check_scvar_evolve(grid, max_as, max_al, tocheck):
-    """Check if the scale variations and central orders are to enough to construct the fktable."""
+    """Check scale variations and central orders consistency."""
     checkres, max_as_effective = check.contains_sv(grid, max_as, max_al, tocheck)
     if max_as == max_as_effective:
         if checkres is check.AvailableAtMax.SCVAR:
