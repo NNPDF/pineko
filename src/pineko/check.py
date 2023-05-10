@@ -181,13 +181,12 @@ def contains_sv(grid, max_as, max_al, sv_type: Scale):
         effective max_as in the grid
     """
     index_to_check = sv_type.value.index
-    order_list = orders(grid, max_as, max_al)
-    as_orders = pure_qcd(order_list)
-    max_as_effective = max(ord[0] for ord in as_orders)
-    min_as = min(ord[0] for ord in as_orders)
-    max_as_effective_cen = max(ord[0] for ord in as_orders if ord[index_to_check] == 0)
+    ords = pure_qcd(orders(grid, max_as, max_al))
+    max_as_effective = max(ord[0] for ord in ords)
+    min_as = min(ord[0] for ord in ords)
+    max_as_effective_cen = max(ord[0] for ord in ords if ord[index_to_check] == 0)
     max_as_effective_sv = max(
-        (ord[0] for ord in as_orders if ord[index_to_check] != 0), default=0
+        (ord[0] for ord in ords if ord[index_to_check] != 0), default=0
     )
     if max_as_effective_cen == max_as_effective:
         if max_as_effective_sv == max_as_effective:
