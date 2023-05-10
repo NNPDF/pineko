@@ -152,8 +152,8 @@ def orders(grid, max_as, max_al) -> list:
     return order_list
 
 
-def pure_qcd_orders(order_list):
-    """Return the pure alpha_s orders appearing in the grid."""
+def pure_qcd(order_list):
+    """Select the QCD LO and pure QCD corrections to it."""
     as_orders = []
     min_al = min(ord[1] for ord in order_list)
     for order in order_list:
@@ -185,7 +185,7 @@ def contains_sv(grid, max_as, max_al, sv_type: Scale):
     """
     index_to_check = sv_type.value.index
     order_list = orders(grid, max_as, max_al)
-    as_orders = pure_qcd_orders(order_list)
+    as_orders = pure_qcd(order_list)
     max_as_effective = max(ord[0] for ord in as_orders)
     min_as = min(ord[0] for ord in as_orders)
     max_as_effective_cen = max(ord[0] for ord in as_orders if ord[index_to_check] == 0)
