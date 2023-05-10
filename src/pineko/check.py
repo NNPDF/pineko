@@ -164,26 +164,24 @@ def contains_sv(
     grid: pineappl.grid.Grid, max_as: int, max_al: int, sv_type: Scale
 ) -> Tuple[AvailableAtMax, int]:
     """Check whether renormalization scale-variations are available in the pineappl grid."""
-    index_to_check = sv_type.value.index
+    svindex = sv_type.value.index
     ords = pure_qcd(orders(grid, max_as, max_al))
-    max_as_effective = max(ord[0] for ord in ords)
+    max_as = max(ord[0] for ord in ords)
     min_as = min(ord[0] for ord in ords)
-    max_as_effective_cen = max(ord[0] for ord in ords if ord[index_to_check] == 0)
-    max_as_effective_sv = max(
-        (ord[0] for ord in ords if ord[index_to_check] != 0), default=0
-    )
-    if max_as_effective_cen == max_as_effective:
-        if max_as_effective_sv == max_as_effective:
+    max_as_cen = max(ord[0] for ord in ords if ord[svindex] == 0)
+    max_as_sv = max((ord[0] for ord in ords if ord[svindex] != 0), default=0)
+    if max_as_cen == max_as:
+        if max_as_sv == max_as:
             checkres = AvailableAtMax.BOTH
         # This is the LO case so for both FACT and REN we do not expect sv orders at all
-        elif max_as_effective == min_as:
+        elif max_as == min_as:
             checkres = AvailableAtMax.BOTH
         # For renormalization scale variations, the NLO sv order is not present if the first non zero order is at alpha^0
-        elif max_as_effective == 1 and sv_type is Scale.REN and min_as == 0:
+        elif max_as == 1 and sv_type is Scale.REN and min_as == 0:
             checkres = AvailableAtMax.BOTH
         else:
             checkres = AvailableAtMax.CENTRAL
     else:
         checkres = AvailableAtMax.SCVAR
     # Since max_as_effective will be compared to max_as and we are using different conventions for the two, here we sum 1 to max_as_effective and make it relative to the first non zero order
-    return checkres, max_as_effective - min_as + 1
+    return checkres, max_as - min_as + 1

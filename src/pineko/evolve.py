@@ -2,7 +2,6 @@
 import copy
 import os
 import pathlib
-from typing import Optional, Tuple
 
 import eko
 import eko.basis_rotation as br
@@ -12,7 +11,7 @@ import rich
 import rich.box
 import rich.panel
 import yaml
-from eko.io.types import EvolutionMethod, ScaleVariationsMethod
+from eko.io.types import ScaleVariationsMethod
 
 from . import check, comparator, ekompatibility, version
 
