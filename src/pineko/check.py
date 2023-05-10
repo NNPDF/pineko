@@ -156,10 +156,7 @@ def pure_qcd(order_list):
     """Select the QCD LO and pure QCD corrections to it."""
     as_orders = []
     min_al = min(ord[1] for ord in order_list)
-    for order in order_list:
-        if order[1] == min_al:
-            as_orders.append(order)
-    return as_orders
+    return [ord for ord in orders if ord[1] == min_al]
 
 
 def contains_sv(grid, max_as, max_al, sv_type: Scale):
