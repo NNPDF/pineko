@@ -22,11 +22,11 @@ logger = logging.getLogger(__name__)
 
 def check_scvar_evolve(grid, max_as, max_al, kind: Scale):
     """Check scale variations and central orders consistency."""
-    checkres, max_as_effective = check.contains_sv(grid, max_as, max_al, kind)
+    available, max_as_effective = check.contains_sv(grid, max_as, max_al, kind)
     if max_as == max_as_effective:
-        if checkres is check.AvailableAtMax.SCVAR:
+        if available is check.AvailableAtMax.SCVAR:
             raise ValueError("Central order is not available but sv order is.")
-    if max_as < max_as_effective and checkres is not check.AvailableAtMax.BOTH:
+    if max_as < max_as_effective and available is not check.AvailableAtMax.BOTH:
         raise ValueError("No available central order or sv order.")
 
 
