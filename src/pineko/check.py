@@ -1,6 +1,7 @@
 """Tools to check compatibility of EKO and grid."""
 from dataclasses import dataclass
 from enum import Enum, auto
+from typing import Tuple
 
 import numpy as np
 import pineappl
@@ -152,34 +153,17 @@ def orders(grid, max_as, max_al) -> list:
     return order_list
 
 
-def pure_qcd(order_list):
+def pure_qcd(orders):
     """Select the QCD LO and pure QCD corrections to it."""
     as_orders = []
-    min_al = min(ord[1] for ord in order_list)
+    min_al = min(ord[1] for ord in orders)
     return [ord for ord in orders if ord[1] == min_al]
 
 
-def contains_sv(grid, max_as, max_al, sv_type: Scale):
-    """Check whether renormalization scale-variations are available in the pineappl grid.
-
-    Parameters
-    ----------
-    grid : pineappl.grid.Grid
-           Pineappl grid
-    max_as : int
-             max as order
-    max_al : int
-             max al order
-    sv_type : Scale
-        kind of scale_variation to be checked (either REN or FACT)
-
-    Returns
-    -------
-    : AvailableAtMax
-        result of the check
-    : int
-        effective max_as in the grid
-    """
+def contains_sv(
+    grid: pineappl.grid.Grid, max_as: int, max_al: int, sv_type: Scale
+) -> Tuple[AvailableAtMax, int]:
+    """Check whether renormalization scale-variations are available in the pineappl grid."""
     index_to_check = sv_type.value.index
     ords = pure_qcd(orders(grid, max_as, max_al))
     max_as_effective = max(ord[0] for ord in ords)
