@@ -180,7 +180,6 @@ def evolve_grid(
     # Here we are checking if the EKO contains the rotation matrix (flavor to evol)
     elif not np.allclose(operators.rotations.inputpids, br.rotate_flavor_to_evolution):
         raise ValueError("The EKO is neither in flavor nor in evolution basis.")
-    # do it
     # This is really the facto scale grid only for scheme A and C
     muf2_grid = operators.mu2grid
     # PineAPPL wants alpha_s = 4*pi*a_s
