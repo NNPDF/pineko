@@ -20,9 +20,9 @@ from . import check, configs, evolve, parser, scale_variations, theory_card
 logger = logging.getLogger(__name__)
 
 
-def check_scvar_evolve(grid, max_as, max_al, tocheck):
+def check_scvar_evolve(grid, max_as, max_al, kind: Scale):
     """Check scale variations and central orders consistency."""
-    checkres, max_as_effective = check.contains_sv(grid, max_as, max_al, tocheck)
+    checkres, max_as_effective = check.contains_sv(grid, max_as, max_al, kind)
     if max_as == max_as_effective:
         if checkres is check.AvailableAtMax.SCVAR:
             raise ValueError("Central order is not available but sv order is.")
