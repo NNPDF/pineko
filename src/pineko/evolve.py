@@ -118,7 +118,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     q2_grid = (xif * xif * muf2_grid).tolist()
     atlas = ThresholdsAtlas(
         masses=np.array([tcard["mc"], tcard["mb"], tcard["mt"]]) ** 2,
-        q2_ref=tcard["Q0"],
+        q2_ref=tcard["Q0"] ** 2,
         nf_ref=tcard["nfref"],
         thresholds_ratios=np.array([tcard["kcThr"], tcard["kbThr"], tcard["ktThr"]])
         ** 2,
