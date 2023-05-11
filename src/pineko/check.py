@@ -155,7 +155,6 @@ def orders(grid, max_as, max_al) -> list:
 
 def pure_qcd(orders):
     """Select the QCD LO and pure QCD corrections to it."""
-    as_orders = []
     min_al = min(ord[1] for ord in orders)
     return [ord for ord in orders if ord[1] == min_al]
 
