@@ -47,9 +47,8 @@ def ren_sv_coeffs(m, max_as, logpart, which_part, nf):
     if max_as == 2:
         if which_part > 0:
             m += 1
-        else:
-            if logpart > 1:
-                m = 0.5 * m * (m + 1)
+        elif logpart > 1:
+            m = 0.5 * m * (m + 1)
     return m * as_normalization * bcoeff
 
 
