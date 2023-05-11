@@ -45,7 +45,7 @@ def ren_sv_coeffs(m, max_as, logpart, which_part, nf):
     m_factor = m
     if max_as == 0:
         return 0.0
-    elif max_as == 2:
+    if max_as == 2:
         if which_part > 0:
             m_factor += 1
         else:
