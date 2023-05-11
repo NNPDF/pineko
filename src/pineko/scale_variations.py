@@ -20,7 +20,7 @@ def qcd(order: OrderTuple) -> int:
 
 
 def ren_sv_coeffs(m, max_as, logpart, which_part, nf):
-    """Return the ren_sv contribution relative to the requested log power and perturbative order contribution (which_part).
+    """Ren_sv coefficient for the requested part.
 
     Parameters
     ----------
