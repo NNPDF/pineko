@@ -238,7 +238,7 @@ def compute_ren_sv_grid(grid_path, max_as, nf, target_path=None, order_exists=Fa
         max as order
     nf : int
         number of active flavors
-    target_path: str
+    target_path: pathlib.Path
         path where store the new grid (optional)
     """
     # First let's check if the ren_sv are already there
@@ -271,7 +271,7 @@ def compute_ren_sv_grid(grid_path, max_as, nf, target_path=None, order_exists=Fa
     merge_grids(
         gridpath=grid_path,
         grid_list_path=sv_grids_paths,
-        target_path=pathlib.Path(target_path),
+        target_path=target_path,
         nec_orders=nec_orders,
         order_exists=order_exists,
     )
