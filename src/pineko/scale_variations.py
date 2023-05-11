@@ -1,6 +1,6 @@
 """Module to generate scale variations."""
 import pathlib
-from typing import Tuple
+from typing import Dict, List, Tuple
 
 import numpy as np
 import pineappl
@@ -69,12 +69,12 @@ def compute_orders_map(m, max_as, al) -> Dict[OrderTuple, List[OrderTuple]]:
     dict(tuple(int))
         description of all the needed orders
     """
-    orders = {}
-    for delt in range(max_as):
-        orders[(m + max_as, al, delt + 1, 0)] = [
+    return {
+        (m + max_as, al, delt + 1, 0): [
             (m + de, al, 0, 0) for de in range(max_as - delt)
         ]
-    return orders
+        for delt in range(max_as)
+    }
 
 
 def initialize_new_grid(grid, new_order):
