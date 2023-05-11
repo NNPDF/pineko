@@ -145,7 +145,7 @@ def create_grids(gridpath, max_as, nf):
             )
         grid_list[to_construct_order] = list_grid_order
 
-    return grid_list
+    return grid_list, nec_orders
 
 
 def write_grids(gridpath, grid_list):
@@ -228,7 +228,7 @@ def construct_and_dump_order_exists_grid(ori_grid, to_construct_order):
     return new_grid
 
 
-def compute_ren_sv_grid(grid_path, max_as, nf, target_path=None):
+def compute_ren_sv_grid(grid_path, max_as, nf, target_path=None, order_exists=False):
     """Generate renormalization scale variation terms for the given grid, according to the max_as.
 
     Parameters
@@ -248,8 +248,16 @@ def compute_ren_sv_grid(grid_path, max_as, nf, target_path=None):
     checkres, max_as_effective = check.contains_sv(grid, max_as, 0, check.Scale.REN)
     # Usual different convention with max_as
     if max_as_effective == max_as and (checkres is not check.AvailableAtMax.CENTRAL):
-        rich.print(f"[green]Renormalization scale variations are already in the grid")
-        return
+        if not order_exists:
+            rich.print(
+                f"[green]Renormalization scale variations are already in the grid"
+            )
+            return
+    else:
+        if order_exists:
+            raise ValueError(
+                "Order_exists is True but the order does not appear to be in the grid"
+            )
     if max_as_effective < max_as and checkres is check.AvailableAtMax.SCVAR:
         raise ValueError(
             "Central order is not high enough to compute requested sv orders"
@@ -257,10 +265,14 @@ def compute_ren_sv_grid(grid_path, max_as, nf, target_path=None):
     # With respect to the usual convention here max_as is max_as-1
     max_as = max_as - 1
     # Creating all the necessary grids
-    grid_list = create_grids(grid_path, max_as, nf)
+    grid_list, nec_orders = create_grids(grid_path, max_as, nf)
     # Writing the sv grids
     sv_grids_paths = write_grids(gridpath=grid_path, grid_list=grid_list)
     # Merging all together
     merge_grids(
-        gridpath=grid_path, grid_list_path=sv_grids_paths, target_path=target_path
+        gridpath=grid_path,
+        grid_list_path=sv_grids_paths,
+        target_path=pathlib.Path(target_path),
+        nec_orders=nec_orders,
+        order_exists=order_exists,
     )

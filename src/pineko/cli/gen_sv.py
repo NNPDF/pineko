@@ -13,8 +13,9 @@ from ._base import command
 @click.argument("target_path", type=click.Path(exists=False))
 @click.argument("max_as", type=int)
 @click.argument("nf", type=int)
-def ren_sv_grid(pineappl_path, target_path, max_as, nf):
+@click.argument("order_exists", type=bool)
+def ren_sv_grid(pineappl_path, target_path, max_as, nf, order_exists):
     """Construct new grid with renormalization scale variations included."""
     scale_variations.compute_ren_sv_grid(
-        pineappl_path, max_as, nf, target_path=target_path
+        pineappl_path, max_as, nf, target_path=target_path, order_exists=order_exists
     )
