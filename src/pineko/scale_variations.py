@@ -42,16 +42,15 @@ def ren_sv_coeffs(m, max_as, logpart, which_part, nf):
     """
     bcoeff = beta.beta_qcd((max_as - logpart - which_part + 2, 0), nf)
     as_norm_fact = AS_NORM ** (max_as - which_part)
-    m_factor = m
     if max_as == 0:
         return 0.0
     if max_as == 2:
         if which_part > 0:
-            m_factor += 1
+            m += 1
         else:
             if logpart > 1:
-                m_factor = 0.5 * m_factor * (m_factor + 1)
-    return m_factor * as_norm_fact * bcoeff
+                m = 0.5 * m * (m + 1)
+    return m * as_norm_fact * bcoeff
 
 
 def compute_orders_map(m, max_as, min_al):
