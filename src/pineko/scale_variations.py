@@ -53,7 +53,7 @@ def ren_sv_coeffs(m, max_as, logpart, which_part, nf):
     return m * as_normalization * bcoeff
 
 
-def compute_orders_map(m, max_as, al):
+def compute_orders_map(m, max_as, al) -> Dict[OrderTuple, List[OrderTuple]]:
     """Compute a dictionary with all the necessary orders to compute to have the full renormalization scale variation.
 
     Parameters
