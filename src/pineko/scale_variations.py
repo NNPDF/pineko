@@ -254,7 +254,7 @@ def compute_ren_sv_grid(
             "Central order is not high enough to compute requested sv orders"
         )
     # With respect to the usual convention here max_as is max_as-1
-    max_as = max_as - 1
+    max_as -= 1
     # Creating all the necessary grids
     grid_list, nec_orders = create_grids(grid_path, max_as, nf)
     # Writing the sv grids
