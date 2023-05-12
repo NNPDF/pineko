@@ -1,6 +1,6 @@
 """Module to generate scale variations."""
 import pathlib
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pineappl
@@ -230,7 +230,7 @@ def compute_ren_sv_grid(
     grid_path: pathlib.Path,
     max_as: int,
     nf: int,
-    target_path: pathlib.Path | None,
+    target_path: Optional[pathlib.Path] = None,
     order_exists: bool = False,
 ):
     """Generate renormalization scale variation terms for the given grid, according to the max_as."""
