@@ -24,12 +24,12 @@ def test_ren_sv_coeffs():
     )
 
 
-def test_compute_orders_map():
+def test_requirements():
     m = 0
     max_as = 1
     # In this case we expect only one necessary order
     exp_to_compute_ord = (1, 0, 1, 0)
     exp_nec_order = (0, 0, 0, 0)
-    assert scale_variations.compute_orders_map(m, max_as, 0)[exp_to_compute_ord] == [
+    assert scale_variations.requirements(m, max_as, 0)[exp_to_compute_ord] == [
         exp_nec_order
     ]

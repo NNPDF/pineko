@@ -52,7 +52,7 @@ def ren_sv_coeffs(m, max_as, logpart, which_part, nf):
     return m * as_normalization * bcoeff
 
 
-def compute_orders_map(m, max_as, al) -> Dict[OrderTuple, List[OrderTuple]]:
+def requirements(m, max_as, al) -> Dict[OrderTuple, List[OrderTuple]]:
     """Compute a dictionary with all the necessary orders to compute to have the full renormalization scale variation.
 
     Parameters
@@ -128,7 +128,7 @@ def create_grids(gridpath, max_as, nf):
     first_nonzero_order = grid_orders_filtered[0]
     min_al = first_nonzero_order[1]
     m_value = first_nonzero_order[0]
-    nec_orders = compute_orders_map(m_value, max_as, min_al)
+    nec_orders = requirements(m_value, max_as, min_al)
     grid_list = {}
     for to_construct_order in nec_orders:
         list_grid_order = []
