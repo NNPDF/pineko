@@ -12,7 +12,7 @@ import rich.box
 import rich.panel
 import yaml
 from eko.io.types import ScaleVariationsMethod
-from eko.matchings import Atlas
+from eko.matchings import Atlas, nf_default
 
 from . import check, comparator, ekompatibility, version
 
@@ -125,7 +125,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
         origin=(tcard["Q0"] ** 2, tcard["nfref"]),
     )
     operators_card["mugrid"] = [
-        (float(np.sqrt(q2)), int(atlas.nf(q2))) for q2 in q2_grid
+        (float(np.sqrt(q2)), int(nf_default(q2, atlas))) for q2 in q2_grid
     ]
     if "integrability_version" in pineappl_grid.key_values():
         x_grid = np.append(x_grid, 1.0)
