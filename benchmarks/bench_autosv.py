@@ -22,7 +22,8 @@ def benchmark_compute_ren_sv_grid(test_files, tmp_path, test_pdf, lhapdf_path):
     max_as = 2
     nf = 5
     pdf_name = "NNPDF40_nlo_as_01180"
-    scale_variations.compute_ren_sv_grid(new_grid_path, max_as, nf)
+    result_state = scale_variations.compute_ren_sv_grid(new_grid_path, max_as, nf)
+    assert result_state == scale_variations.ReturnState.SUCCESS
     # We are saving the new grid with the same name of the original
     plusrensv_grid_path = tmp_path / name_grid
     with lhapdf_path(test_pdf):

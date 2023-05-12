@@ -1,5 +1,6 @@
 """Module to generate scale variations."""
 import pathlib
+from enum import Enum
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
@@ -12,6 +13,17 @@ from . import check
 AS_NORM = 1.0 / (4.0 * np.pi)
 OrderTuple = Tuple[int, int, int, int]
 """Tuple representing a PineAPPL order."""
+
+
+class ReturnState(Enum):
+    """Auxiliary class to list the possible return states."""
+
+    ALREADY_THERE = f"[green]Renormalization scale variations are already in the grid"
+    ORDER_EXISTS_FAILURE = (
+        "Order_exists is True but the order does not appear to be in the grid"
+    )
+    MISSING_CENTRAL = "Central order is not high enough to compute requested sv orders"
+    SUCCESS = f"[green]Success: scale variation orders included!"
 
 
 def qcd(order: OrderTuple) -> int:
@@ -229,18 +241,11 @@ def compute_ren_sv_grid(
     # Usual different convention with max_as
     if max_as_effective == max_as and (checkres is not check.AvailableAtMax.CENTRAL):
         if not order_exists:
-            rich.print(
-                f"[green]Renormalization scale variations are already in the grid"
-            )
-            return
+            return ReturnState.ALREADY_THERE
     elif order_exists:
-        raise ValueError(
-            "Order_exists is True but the order does not appear to be in the grid"
-        )
+        return ReturnState.ORDER_EXISTS_FAILURE
     if max_as_effective < max_as and checkres is check.AvailableAtMax.SCVAR:
-        raise ValueError(
-            "Central order is not high enough to compute requested sv orders"
-        )
+        return ReturnState.MISSING_CENTRAL
     # With respect to the usual convention here max_as is max_as-1
     max_as -= 1
     # Creating all the necessary grids
@@ -255,3 +260,4 @@ def compute_ren_sv_grid(
         nec_orders=nec_orders,
         order_exists=order_exists,
     )
+    return ReturnState.SUCCESS
