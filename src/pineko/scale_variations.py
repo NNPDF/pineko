@@ -235,7 +235,6 @@ def compute_ren_sv_grid(
 ):
     """Generate renormalization scale variation terms for the given grid, according to the max_as."""
     # First let's check if the ren_sv are already there
-    grid_path = pathlib.Path(grid_path)
     checkres, max_as_effective = check.contains_sv(
         pineappl.grid.Grid.read(grid_path), max_as, 0, check.Scale.REN
     )

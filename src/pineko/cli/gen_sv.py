@@ -19,7 +19,7 @@ from ._base import command
 def ren_sv_grid(pineappl_path, target_path, max_as, nf, order_exists):
     """Construct new grid with renormalization scale variations included."""
     scale_variations.compute_ren_sv_grid(
-        pineappl_path,
+        pathlib.Path(pineappl_path),
         max_as,
         nf,
         target_path=pathlib.Path(target_path),
