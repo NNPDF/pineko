@@ -245,11 +245,10 @@ def compute_ren_sv_grid(
                 f"[green]Renormalization scale variations are already in the grid"
             )
             return
-    else:
-        if order_exists:
-            raise ValueError(
-                "Order_exists is True but the order does not appear to be in the grid"
-            )
+    elif order_exists:
+        raise ValueError(
+            "Order_exists is True but the order does not appear to be in the grid"
+        )
     if max_as_effective < max_as and checkres is check.AvailableAtMax.SCVAR:
         raise ValueError(
             "Central order is not high enough to compute requested sv orders"
