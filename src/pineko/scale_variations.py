@@ -52,21 +52,11 @@ def ren_sv_coeffs(m, max_as, logpart, which_part, nf):
     return m * as_normalization * bcoeff
 
 
-def requirements(m, max_as, al) -> Dict[OrderTuple, List[OrderTuple]]:
+def requirements(m: int, max_as: int, al: int) -> Dict[OrderTuple, List[OrderTuple]]:
     """Compute a dictionary with all the necessary orders to compute to have the full renormalization scale variation.
 
-    Parameters
-    ----------
-    m : int
-        first non zero perturbative order of the grid
-    max_as : int
-        max alpha_s order
-    min_al : int
-        al order of leading order
-    Returns
-    -------
-    dict(tuple(int))
-        description of all the needed orders
+    `m` is the first non-zero perturbative order of the grid, and `al` is the QED order of the "QCD" leading order.
+
     """
     return {
         (m + max_as, al, delt + 1, 0): [
