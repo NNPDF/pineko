@@ -12,7 +12,7 @@ import rich.box
 import rich.panel
 import yaml
 from eko.io.types import ScaleVariationsMethod
-from eko.thresholds import ThresholdsAtlas
+from eko.matchings import Atlas
 
 from . import check, comparator, ekompatibility, version
 
@@ -116,13 +116,13 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     xif = 1.0 if sv_method is not None else tcard["XIF"]
     operators_card["configs"]["scvar_method"] = sv_method
     q2_grid = (xif * xif * muf2_grid).tolist()
-    atlas = ThresholdsAtlas(
-        masses=np.array([tcard["mc"], tcard["mb"], tcard["mt"]]) ** 2,
-        q2_ref=tcard["Q0"] ** 2,
-        nf_ref=tcard["nfref"],
-        thresholds_ratios=np.array([tcard["kcThr"], tcard["kbThr"], tcard["ktThr"]])
-        ** 2,
-        max_nf=tcard["MaxNfPdf"],
+    masses = np.array([tcard["mc"], tcard["mb"], tcard["mt"]]) ** 2
+    thresholds_ratios = np.array([tcard["kcThr"], tcard["kbThr"], tcard["ktThr"]]) ** 2
+    for q in range(tcard["MaxNfPdf"], 6 + 1):
+        thresholds_ratios[q - 4] = np.inf
+    atlas = Atlas(
+        matching_scales=masses * thresholds_ratios,
+        origin=(tcard["Q0"] ** 2, tcard["nfref"]),
     )
     operators_card["mugrid"] = [
         (float(np.sqrt(q2)), int(atlas.nf(q2))) for q2 in q2_grid
