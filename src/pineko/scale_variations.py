@@ -226,20 +226,14 @@ def construct_and_dump_order_exists_grid(ori_grid, to_construct_order):
     return new_grid
 
 
-def compute_ren_sv_grid(grid_path, max_as, nf, target_path=None, order_exists=False):
-    """Generate renormalization scale variation terms for the given grid, according to the max_as.
-
-    Parameters
-    ----------
-    grid_pah : pathlib.Path()
-        pineappl grid path
-    max_as : int
-        max as order
-    nf : int
-        number of active flavors
-    target_path: pathlib.Path
-        path where store the new grid (optional)
-    """
+def compute_ren_sv_grid(
+    grid_path: pathlib.Path,
+    max_as: int,
+    nf: int,
+    target_path: pathlib.Path | None,
+    order_exists: bool = False,
+):
+    """Generate renormalization scale variation terms for the given grid, according to the max_as."""
     # First let's check if the ren_sv are already there
     grid_path = pathlib.Path(grid_path)
     grid = pineappl.grid.Grid.read(grid_path)
