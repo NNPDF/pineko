@@ -55,11 +55,11 @@ def benchmark_dglap(tmp_path, test_files, test_configs):
 
     # I need smaller x and q grids in order to compute a small eko
     small_x_grid = np.geomspace(1e-3, 1.0, 5)
-    small_q2_grid = [100.0]
+    target = (10.0, 5)
     myopcard["rotations"]["xgrid"] = small_x_grid
     myopcard["rotations"]["_targetgrid"] = small_x_grid
     myopcard["rotations"]["_inputgrid"] = small_x_grid
-    myopcard["_mugrid"] = np.sqrt(small_q2_grid).tolist()
+    myopcard["mugrid"] = [target]
     legacy_class = eko.io.runcards.Legacy(tcard, myopcard)
     new_theory = legacy_class.new_theory
     new_op = eko.io.runcards.OperatorCard.from_dict(myopcard)

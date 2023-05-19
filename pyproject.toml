@@ -54,9 +54,6 @@ pytest-cov = "^4.0.0"
 pytest-env = "^0.6.2"
 pylint = "^2.11.1"
 
-[tool.poetry.group.dev]
-optional = true
-
 [tool.poetry.group.dev.dependencies]
 pdbpp = "^0.10.3"
 ipython = "^8.0"
