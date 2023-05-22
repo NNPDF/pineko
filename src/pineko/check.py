@@ -78,7 +78,7 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif, max_as, max_al)
         )
     # x-grid
     if not np.all(
-        in1d(np.unique(operators.rotations.targetgrid.tolist()), np.array(x_grid))
+        in1d(np.unique(operators.bases.targetgrid.tolist()), np.array(x_grid))
     ):
         raise ValueError("x grid in pineappl grid and eko operator are NOT compatible!")
 

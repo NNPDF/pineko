@@ -186,10 +186,10 @@ def evolve_grid(
     )
     check.check_grid_and_eko_compatible(grid, operators, xif, max_as, max_al)
     # rotate to evolution (if doable and necessary)
-    if np.allclose(operators.rotations.inputpids, br.flavor_basis_pids):
+    if np.allclose(operators.bases.inputpids, br.flavor_basis_pids):
         eko.io.manipulate.to_evol(operators)
     # Here we are checking if the EKO contains the rotation matrix (flavor to evol)
-    elif not np.allclose(operators.rotations.inputpids, br.rotate_flavor_to_evolution):
+    elif not np.allclose(operators.bases.inputpids, br.rotate_flavor_to_evolution):
         raise ValueError("The EKO is neither in flavor nor in evolution basis.")
     # This is really the facto scale grid only for scheme A and C
     muf2_grid = operators.mu2grid
