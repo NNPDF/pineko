@@ -196,13 +196,16 @@ def evolve_grid(
     # remember that we already accounted for xif in the opcard generation
     evmod = eko.couplings.couplings_mod_ev(opcard.configs.evolution_method)
     # Couplings ask for the square of the masses
+    thresholds_ratios = np.power(tcard.heavy.matching_ratios, 2.0)
+    for q in range(tcard.couplings.max_num_flavs + 1, 6 + 1):
+        thresholds_ratios[q - 4] = np.inf
     sc = eko.couplings.Couplings(
         tcard.couplings,
         tcard.order,
         evmod,
         masses=[(x.value) ** 2 for x in tcard.heavy.masses],
         hqm_scheme=tcard.heavy.masses_scheme,
-        thresholds_ratios=np.power(tcard.heavy.matching_ratios, 2.0),
+        thresholds_ratios=thresholds_ratios,
     )
     # To compute the alphas values we are first reverting the factorization scale shift
     # and then obtaining the renormalization scale using xir.
