@@ -13,6 +13,7 @@ import rich.panel
 import yaml
 from eko.io.types import ScaleVariationsMethod
 from eko.matchings import Atlas, nf_default
+from eko.quantities import heavy_quarks
 
 from . import check, comparator, ekompatibility, version
 
@@ -118,10 +119,10 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     q2_grid = (xif * xif * muf2_grid).tolist()
     masses = np.array([tcard["mc"], tcard["mb"], tcard["mt"]]) ** 2
     thresholds_ratios = np.array([tcard["kcThr"], tcard["kbThr"], tcard["ktThr"]]) ** 2
-    for q in range(tcard["MaxNfPdf"], 6 + 1):
+    for q in range(tcard["MaxNfPdf"] + 1, 6 + 1):
         thresholds_ratios[q - 4] = np.inf
     atlas = Atlas(
-        matching_scales=masses * thresholds_ratios,
+        matching_scales=heavy_quarks.MatchingScales(masses * thresholds_ratios),
         origin=(tcard["Q0"] ** 2, tcard["nfref"]),
     )
     operators_card["mugrid"] = [
