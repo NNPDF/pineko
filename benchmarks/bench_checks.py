@@ -9,7 +9,6 @@ import pineko.check
 
 
 def benchmark_check_grid_and_eko_compatible(test_files, tmp_path):
-    oppath = tmp_path / "eko.tar"
     grid = pineappl.grid.Grid.read(
         test_files / "data/grids/400/HERA_NC_225GEV_EP_SIGMARED.pineappl.lz4"
     )
