@@ -135,7 +135,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
 
     with open(card_path, "w", encoding="UTF-8") as f:
         yaml.safe_dump(operators_card, f)
-    return x_grid, q2_grid
+    return operators_card["xgrid"], q2_grid
 
 
 def evolve_grid(
