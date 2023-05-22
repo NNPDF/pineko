@@ -110,7 +110,6 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     )
     # ... to get the x and muF grids for the eko
     evol_info = pineappl_grid.evolve_info(order_mask)
-    x_grid = evol_info.x1
     muf2_grid = evol_info.fac1
     operators_card = copy.deepcopy(default_card)
     sv_method = sv_scheme(tcard)
@@ -129,6 +128,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
         (float(np.sqrt(q2)), int(nf_default(q2, atlas))) for q2 in q2_grid
     ]
     if "integrability_version" in pineappl_grid.key_values():
+        x_grid = evol_info.x1
         x_grid = np.append(x_grid, 1.0)
         operators_card["configs"]["interpolation_polynomial_degree"] = 1
         operators_card["xgrid"] = x_grid.tolist()
