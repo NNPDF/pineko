@@ -204,8 +204,6 @@ def evolve_grid(
         hqm_scheme=tcard.heavy.masses_scheme,
         thresholds_ratios=np.power(tcard.heavy.matching_ratios, 2.0),
     )
-    # If we are computing scheme A we also need to pass fact_scale.
-
     # To compute the alphas values we are first reverting the factorization scale shift
     # and then obtaining the renormalization scale using xir.
     alphas_values = [
