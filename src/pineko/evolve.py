@@ -123,7 +123,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
         thresholds_ratios[q - 4] = np.inf
     atlas = Atlas(
         matching_scales=heavy_quarks.MatchingScales(masses * thresholds_ratios),
-        origin=(tcard["Q0"] ** 2, tcard["nfref"]),
+        origin=(tcard["Q0"] ** 2, tcard["nf0"]),
     )
     operators_card["mugrid"] = [
         (float(np.sqrt(q2)), int(nf_default(q2, atlas))) for q2 in q2_grid
