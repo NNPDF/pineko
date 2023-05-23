@@ -25,10 +25,7 @@ def benchmark_write_operator_card_from_file(tmp_path, test_files, test_configs):
     # Load the operator card
     myopcard = yaml.safe_load(target_path.read_text(encoding="utf-8"))
     # Check if it contains all the information for eko
-    assert np.allclose(myopcard["rotations"]["xgrid"], x_grid)
-    assert np.allclose(
-        myopcard["rotations"]["pids"], eko.basis_rotation.flavor_basis_pids
-    )
+    assert np.allclose(myopcard["xgrid"], x_grid)
 
     wrong_pine_path = test_files / "data/grids/208/HERA_CC_318GEV_EM_wrong.pineappl.lz4"
     with pytest.raises(FileNotFoundError):
@@ -55,11 +52,9 @@ def benchmark_dglap(tmp_path, test_files, test_configs):
 
     # I need smaller x and q grids in order to compute a small eko
     small_x_grid = np.geomspace(1e-3, 1.0, 5)
-    small_q2_grid = [100.0]
-    myopcard["rotations"]["xgrid"] = small_x_grid
-    myopcard["rotations"]["_targetgrid"] = small_x_grid
-    myopcard["rotations"]["_inputgrid"] = small_x_grid
-    myopcard["_mugrid"] = np.sqrt(small_q2_grid).tolist()
+    target = (10.0, 5)
+    myopcard["xgrid"] = small_x_grid
+    myopcard["mugrid"] = [target]
     legacy_class = eko.io.runcards.Legacy(tcard, myopcard)
     new_theory = legacy_class.new_theory
     new_op = eko.io.runcards.OperatorCard.from_dict(myopcard)
