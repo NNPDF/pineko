@@ -205,7 +205,7 @@ def evolve_grid(
         evmod,
         masses=[(x.value) ** 2 for x in tcard.heavy.masses],
         hqm_scheme=tcard.heavy.masses_scheme,
-        thresholds_ratios=thresholds_ratios,
+        thresholds_ratios=thresholds_ratios.tolist(),
     )
     # To compute the alphas values we are first reverting the factorization scale shift
     # and then obtaining the renormalization scale using xir.
