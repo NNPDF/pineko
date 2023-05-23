@@ -74,10 +74,10 @@ def _trim_template(template_card, take_points=10):
     card_info = OperatorCard.from_dict(
         safe_load(template_card.read_text(encoding="utf-8"))
     )
-    original_x = card_info.rotations.xgrid
+    original_x = card_info.xgrid
     size = len(original_x.raw)
     skip = int(size / take_points)
-    card_info.rotations.xgrid = XGrid(original_x.raw[:size:skip])
+    card_info.xgrid = XGrid(original_x.raw[:size:skip])
     template_card.write_text(dump(card_info.raw), encoding="utf-8")
 
 

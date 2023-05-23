@@ -22,14 +22,14 @@ def pineappl_layout(operator: EKO) -> Dict[str, Any]:
     oldgrid["Q2grid"] = {}
     for q2, op in operator.items():
         oldop = dict(operators=op.operator)
-        oldgrid["Q2grid"][q2] = oldop
+        oldgrid["Q2grid"][q2[0]] = oldop
 
     oldgrid["q2_ref"] = operator.mu20
-    oldgrid["targetpids"] = operator.rotations.targetpids
-    oldgrid["targetgrid"] = operator.rotations.targetgrid.raw
+    oldgrid["targetpids"] = operator.bases.targetpids
+    oldgrid["targetgrid"] = operator.bases.targetgrid.raw
     # The EKO contains the rotation matrix but we pass the list of
     # evol basis pids to pineappl.
     oldgrid["inputpids"] = basis_rotation.evol_basis_pids
-    oldgrid["inputgrid"] = operator.rotations.inputgrid.raw
+    oldgrid["inputgrid"] = operator.bases.inputgrid.raw
 
     return oldgrid

@@ -12,6 +12,8 @@ import rich.box
 import rich.panel
 import yaml
 from eko.io.types import ScaleVariationsMethod
+from eko.matchings import Atlas, nf_default
+from eko.quantities import heavy_quarks
 
 from . import check, comparator, ekompatibility, version
 
@@ -103,25 +105,37 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     max_as = 1 + tcard["PTO"] + is_fns
     max_al = 1 + tcard["QED"]
     # ... in order to create a mask ...
-    order_mask = pineappl.grid.Order.create_mask(pineappl_grid.orders(), max_as, max_al)
+    order_mask = pineappl.grid.Order.create_mask(
+        pineappl_grid.orders(), max_as, max_al, True
+    )
     # ... to get the x and muF grids for the eko
     evol_info = pineappl_grid.evolve_info(order_mask)
-    x_grid = evol_info.x1
     muf2_grid = evol_info.fac1
     operators_card = copy.deepcopy(default_card)
     sv_method = sv_scheme(tcard)
     xif = 1.0 if sv_method is not None else tcard["XIF"]
     operators_card["configs"]["scvar_method"] = sv_method
     q2_grid = (xif * xif * muf2_grid).tolist()
-    operators_card["_mugrid"] = np.sqrt(q2_grid).tolist()
+    masses = np.array([tcard["mc"], tcard["mb"], tcard["mt"]]) ** 2
+    thresholds_ratios = np.array([tcard["kcThr"], tcard["kbThr"], tcard["ktThr"]]) ** 2
+    for q in range(tcard["MaxNfPdf"] + 1, 6 + 1):
+        thresholds_ratios[q - 4] = np.inf
+    atlas = Atlas(
+        matching_scales=heavy_quarks.MatchingScales(masses * thresholds_ratios),
+        origin=(tcard["Q0"] ** 2, tcard["nf0"]),
+    )
+    operators_card["mugrid"] = [
+        (float(np.sqrt(q2)), int(nf_default(q2, atlas))) for q2 in q2_grid
+    ]
     if "integrability_version" in pineappl_grid.key_values():
+        x_grid = evol_info.x1
         x_grid = np.append(x_grid, 1.0)
         operators_card["configs"]["interpolation_polynomial_degree"] = 1
-        operators_card["rotations"]["xgrid"] = x_grid.tolist()
+        operators_card["xgrid"] = x_grid.tolist()
 
     with open(card_path, "w", encoding="UTF-8") as f:
         yaml.safe_dump(operators_card, f)
-    return x_grid, q2_grid
+    return operators_card["xgrid"], q2_grid
 
 
 def evolve_grid(
@@ -158,7 +172,7 @@ def evolve_grid(
     comparison_pdf : None or str
         if given, a comparison table (with / without evolution) will be printed
     """
-    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al)
+    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al, True)
     evol_info = grid.evolve_info(order_mask)
     x_grid = evol_info.x1
     mur2_grid = evol_info.ren1
@@ -173,28 +187,26 @@ def evolve_grid(
     )
     check.check_grid_and_eko_compatible(grid, operators, xif, max_as, max_al)
     # rotate to evolution (if doable and necessary)
-    if np.allclose(operators.rotations.inputpids, br.flavor_basis_pids):
+    if np.allclose(operators.bases.inputpids, br.flavor_basis_pids):
         eko.io.manipulate.to_evol(operators)
     # Here we are checking if the EKO contains the rotation matrix (flavor to evol)
-    elif not np.allclose(operators.rotations.inputpids, br.rotate_flavor_to_evolution):
+    elif not np.allclose(operators.bases.inputpids, br.rotate_flavor_to_evolution):
         raise ValueError("The EKO is neither in flavor nor in evolution basis.")
-    # This is really the facto scale grid only for scheme A and C
-    muf2_grid = operators.mu2grid
     # PineAPPL wants alpha_s = 4*pi*a_s
     # remember that we already accounted for xif in the opcard generation
     evmod = eko.couplings.couplings_mod_ev(opcard.configs.evolution_method)
     # Couplings ask for the square of the masses
-    quark_masses = [(x.value) ** 2 for x in tcard.quark_masses]
+    thresholds_ratios = np.power(tcard.heavy.matching_ratios, 2.0)
+    for q in range(tcard.couplings.max_num_flavs + 1, 6 + 1):
+        thresholds_ratios[q - 4] = np.inf
     sc = eko.couplings.Couplings(
         tcard.couplings,
         tcard.order,
         evmod,
-        quark_masses,
-        hqm_scheme=tcard.quark_masses_scheme,
-        thresholds_ratios=np.power(list(iter(tcard.matching)), 2.0),
+        masses=[(x.value) ** 2 for x in tcard.heavy.masses],
+        hqm_scheme=tcard.heavy.masses_scheme,
+        thresholds_ratios=thresholds_ratios.tolist(),
     )
-    # If we are computing scheme A we also need to pass fact_scale.
-
     # To compute the alphas values we are first reverting the factorization scale shift
     # and then obtaining the renormalization scale using xir.
     alphas_values = [

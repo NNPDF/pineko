@@ -34,7 +34,7 @@ def compare(pine, fktable, max_as, max_al, pdf, xir, xif):
 
     pdfset = lhapdf.mkPDF(pdf, 0)
     pdgid = int(pdfset.set().get_entry("Particle"))
-    order_mask = pineappl.grid.Order.create_mask(pine.orders(), max_as, max_al)
+    order_mask = pineappl.grid.Order.create_mask(pine.orders(), max_as, max_al, True)
     before = np.array(
         pine.convolute_with_one(
             pdgid,
