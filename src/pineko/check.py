@@ -1,6 +1,39 @@
 """Tools to check compatibility of EKO and grid."""
+from dataclasses import dataclass
+from enum import Enum, auto
+from typing import Tuple
+
 import numpy as np
 import pineappl
+
+
+@dataclass
+class ScaleValue:
+    """Contain the information of a kind of scale variations and its index in the orders of a pineappl grid."""
+
+    description: str
+    index: int
+
+
+class Scale(Enum):
+    """Auxiliary class to list the possible scale variations."""
+
+    REN = ScaleValue("renormalization scale variations", -2)
+    FACT = ScaleValue("factorization scale variations", -1)
+
+
+class AvailableAtMax(Enum):
+    """Hold the information of a scale variation check.
+
+    BOTH means that both the central order and the scale variation order are contained in the grid.
+    CENTRAL means that only the central order is present.
+    SCVAR means that only the scale variation order is present.
+
+    """
+
+    BOTH = auto()
+    CENTRAL = auto()
+    SCVAR = auto()
 
 
 def islepton(el):
@@ -108,102 +141,46 @@ def is_fonll_b(fns, lumi):
     return False
 
 
-def contains_fact(grid, max_as, max_al):
-    """Check whether fact scale-variations are available.
+def orders(grid, max_as, max_al) -> list:
+    """Select the relevant orders.
 
-    The order is specified by max_as and max_al.
+    The orders in the grid are filtered according to `max_as` and `max_al`.
 
-    Parameters
-    ----------
-    grid : pineappl.grid.Grid
-           Pineappl grid
-    max_as : int
-             max as order
-    max_al : int
-             max al order
-    Returns
-    -------
-    bool
-        is fact scale-variation available for as
-    bool
-        is fact scale-variation available for al
     """
     order_array = np.array([order.as_tuple() for order in grid.orders()])
     order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al, True)
     order_list = order_array[order_mask]
-    as_orders = []
-    al_orders = []
-    for order in order_list:
-        as_orders.append(order[0])
-        al_orders.append(order[1])
-    min_as = min(as_orders)
-    min_al = min(al_orders)
-    order_as_is_present = False
-    order_al_is_present = False
-    sv_as_present = False
-    sv_al_present = False
-    for order in order_list:
-        # fact sv starts at NLO with respect to the first non zero order
-        if order[0] == min_as + 1:
-            order_as_is_present = True
-            if order[-1] != 0:
-                sv_as_present = True
-        if order[1] == min_al + 1:
-            order_al_is_present = True
-            if order[-1] != 0:
-                sv_al_present = True
-    if not order_as_is_present:
-        sv_as_present = True
-    if not order_al_is_present:
-        sv_al_present = True
-    return sv_as_present, sv_al_present
+    return order_list
 
 
-def contains_ren(grid, max_as, max_al):
-    """Check whether renormalization scale-variations are available in the pineappl grid.
+def pure_qcd(orders):
+    """Select the QCD LO and pure QCD corrections to it."""
+    min_al = min(ord[1] for ord in orders)
+    return [ord for ord in orders if ord[1] == min_al]
 
-    Parameters
-    ----------
-    grid : pineappl.grid.Grid
-           Pineappl grid
-    max_as : int
-             max as order
-    max_al : int
-             max al order
-    Returns
-    -------
-    bool
-        is ren scale-variation available for as
-    bool
-        is ren scale-variation available for al
-    """
-    order_array = np.array([order.as_tuple() for order in grid.orders()])
-    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al, True)
-    order_list = order_array[order_mask]
-    as_orders = []
-    al_orders = []
-    for order in order_list:
-        as_orders.append(order[0])
-        al_orders.append(order[1])
-    # ren sv starts one order after the first order with as
-    min_as = 1 if min(as_orders) == 0 else min(as_orders)
-    # ren sv starts one order after the first order with al
-    min_al = 1 if min(al_orders) == 0 else min(al_orders)
-    order_as_is_present = False
-    order_al_is_present = False
-    sv_as_present = False
-    sv_al_present = False
-    for order in order_list:
-        if order[0] == min_as + 1:
-            order_as_is_present = True
-            if order[-2] != 0:
-                sv_as_present = True
-        if order[1] == min_al + 1:
-            order_al_is_present = True
-            if order[-2] != 0:
-                sv_al_present = True
-    if not order_as_is_present:
-        sv_as_present = True
-    if not order_al_is_present:
-        sv_al_present = True
-    return sv_as_present, sv_al_present
+
+def contains_sv(
+    grid: pineappl.grid.Grid, max_as: int, max_al: int, sv_type: Scale
+) -> Tuple[AvailableAtMax, int]:
+    """Check whether renormalization scale-variations are available in the pineappl grid."""
+    svindex = sv_type.value.index
+    ords = pure_qcd(orders(grid, max_as, max_al))
+    max_as = max(ord[0] for ord in ords)
+    min_as = min(ord[0] for ord in ords)
+    max_as_cen = max(ord[0] for ord in ords if ord[svindex] == 0)
+    max_as_sv = max((ord[0] for ord in ords if ord[svindex] != 0), default=0)
+    if max_as_cen == max_as:
+        if max_as_sv == max_as:
+            checkres = AvailableAtMax.BOTH
+        # This is the LO case so for both FACT and REN we do not expect sv orders at all
+        elif max_as == min_as:
+            checkres = AvailableAtMax.BOTH
+        # For renormalization scale variations, the NLO sv order is not present if the first non zero order is at alpha^0
+        elif max_as == 1 and sv_type is Scale.REN and min_as == 0:
+            checkres = AvailableAtMax.BOTH
+        else:
+            checkres = AvailableAtMax.CENTRAL
+    else:
+        checkres = AvailableAtMax.SCVAR
+    # Since max_as_effective will be compared to max_as and we are using different conventions for the two, here we sum 1 to max_as_effective and make it relative to the first non zero order
+    return checkres, max_as - min_as + 1

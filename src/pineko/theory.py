@@ -15,9 +15,19 @@ import pineappl
 import rich
 import yaml
 
-from . import check, configs, evolve, parser, theory_card
+from . import check, configs, evolve, parser, scale_variations, theory_card
 
 logger = logging.getLogger(__name__)
+
+
+def check_scvar_evolve(grid, max_as, max_al, kind: check.Scale):
+    """Check scale variations and central orders consistency."""
+    available, max_as_effective = check.contains_sv(grid, max_as, max_al, kind)
+    if max_as == max_as_effective:
+        if available is check.AvailableAtMax.SCVAR:
+            raise ValueError("Central order is not available but sv order is.")
+    if max_as < max_as_effective and available is not check.AvailableAtMax.BOTH:
+        raise ValueError("No available central order or sv order.")
 
 
 class TheoryBuilder:
@@ -40,6 +50,7 @@ class TheoryBuilder:
     def __init__(
         self, theory_id, datasets, silent=False, clear_logs=False, overwrite=False
     ):
+        """Initialize theory object."""
         self.theory_id = theory_id
         self.datasets = datasets
         self.silent = silent
@@ -380,18 +391,10 @@ class TheoryBuilder:
         max_al = 0
         # check for sv
         if not np.isclose(xir, 1.0):
-            is_ren_as, is_ren_al = check.contains_ren(grid, max_as, max_al)
-            if not (is_ren_as and is_ren_al):
-                raise ValueError(
-                    "Renormalization scale variations are not available for this grid"
-                )
+            check_scvar_evolve(grid, max_as, max_al, check.Scale.REN)
         if sv_method is None:
             if not np.isclose(xif, 1.0):
-                is_fact_as, is_fact_al = check.contains_fact(grid, max_as, max_al)
-                if not (is_fact_as and is_fact_al):
-                    raise ValueError(
-                        "Factorization scale variations are not available for this grid"
-                    )
+                check_scvar_evolve(grid, max_as, max_al, check.Scale.FACT)
         # loading ekos
         with eko.EKO.edit(eko_filename) as operators:
             # Obtain the assumptions hash
@@ -448,3 +451,14 @@ class TheoryBuilder:
         tcard = theory_card.load(self.theory_id)
         self.fks_path.mkdir(exist_ok=True)
         self.iterate(self.fk, tcard=tcard, pdf=pdf)
+
+    def construct_ren_sv_grids(self, flavors):
+        """Construct renormalization scale variations terms for all the grids in a dataset."""
+        tcard = theory_card.load(self.theory_id)
+        self.iterate(self.construct_ren_sv_grid, tcard=tcard, flavors=flavors)
+
+    def construct_ren_sv_grid(self, name, grid_path, tcard, flavors):
+        """Construct renormalization scale variations terms for a grid."""
+        max_as = int(tcard["PTO"])
+        rich.print(f"Computing renormalization scale variations for {name}")
+        scale_variations.compute_ren_sv_grid(grid_path, max_as, flavors)

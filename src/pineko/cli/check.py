@@ -1,5 +1,5 @@
 """CLI entry point to check compatibility."""
-from collections import namedtuple
+from dataclasses import dataclass
 from enum import Enum
 
 import click
@@ -46,7 +46,12 @@ def sub_compatibility(grid_path, operator_path, xif, max_as, max_al):
             rich.print("[red]Error:[/]", e)
 
 
-CouplingInfo = namedtuple("CouplingInfo", ["descr", "theory"])
+@dataclass
+class CouplingInfo:
+    """Coupling known attributes, used to describe it."""
+
+    descr: str
+    theory: str
 
 
 class Coupling(Enum):
@@ -56,14 +61,13 @@ class Coupling(Enum):
     AL = CouplingInfo("electromagnetic", "QED")
 
 
-ScaleValue = namedtuple("ScaleValue", ["descr", "check"])
+SCVAR_ERROR = "[red]Error:[/] grids do not contain"
 
-
-class Scale(Enum):
-    """Auxiliary class to list the possible scale variations."""
-
-    REN = ScaleValue("renormalization scale variations", check.contains_ren)
-    FACT = ScaleValue("factorization scale variations", check.contains_fact)
+SCVAR_MESSAGES = {
+    check.AvailableAtMax.BOTH: "[green]Success:[/] grids contain",
+    check.AvailableAtMax.CENTRAL: "[orange]Warning:[/] grids do not contain central order for requested",
+    check.AvailableAtMax.SCVAR: SCVAR_ERROR,
+}
 
 
 @subcommand.command("scvar")
@@ -71,7 +75,7 @@ class Scale(Enum):
 @click.argument(
     "scale",
     metavar="SCALE",
-    type=click.Choice(list(el.name for el in Scale), case_sensitive=False),
+    type=click.Choice(list(el.name for el in check.Scale), case_sensitive=False),
 )
 @click.argument("max_as_order", metavar="AS_ORDER", type=int)
 @click.argument("max_al_order", metavar="AL_ORDER", type=int)
@@ -79,19 +83,18 @@ def sub_scvar(grid_path, scale, max_as_order, max_al_order):
     """Check if PineAPPL grid contains requested scale variations for the requested order."""
     grid = pineappl.grid.Grid.read(grid_path)
     grid.optimize()
-    success = "[green]Success:[/] grids contain"
-    error = "[red]Error:[/] grids do not contain"
+
     # Call the function
-    try:
-        conditions = Scale[scale].value.check(grid, max_as_order, max_al_order)
-    except KeyError:
-        raise ValueError("Scale variation to check can be one between ren and fact")
-    for coupling, condition in zip(Coupling, conditions):
-        to_write = ""
-        if condition:
-            to_write += success
-        else:
-            to_write += error
-        to_write += " " + Scale[scale].value.descr
-        to_write += f" for {coupling.name.lower()}"
-        rich.print(to_write)
+    scaleobj = check.Scale[scale]
+    checkres, max_as_effective = check.contains_sv(
+        grid, max_as_order, max_al_order, scaleobj
+    )
+
+    # Communicate result
+    message = SCVAR_MESSAGES[checkres]
+    if not max_as_effective == max_as_order:
+        message = SCVAR_ERROR
+    descr = check.Scale[scale].value.description
+    cname = Coupling.AS.name.lower()
+
+    rich.print(f"{message} {descr} for {cname}")
