@@ -29,7 +29,7 @@ def k_factor_inclusion(
     kfactor_folder = pathlib.Path(kfactor_folder)
     yamldb_path = pathlib.Path(yamldb_path)
     target_folder = pathlib.Path(target_folder)
-    return_state = kfactor.compute_k_factor_grid(
+    kfactor.compute_k_factor_grid(
         grids_folder,
         kfactor_folder,
         yamldb_path,
