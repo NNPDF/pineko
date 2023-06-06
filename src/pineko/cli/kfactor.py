@@ -3,6 +3,7 @@
 import pathlib
 
 import click
+import rich
 
 from .. import kfactor
 from ._base import command
@@ -28,7 +29,7 @@ def k_factor_inclusion(
     kfactor_folder = pathlib.Path(kfactor_folder)
     yamldb_path = pathlib.Path(yamldb_path)
     target_folder = pathlib.Path(target_folder)
-    kfactor.compute_k_factor_grid(
+    return_state = kfactor.compute_k_factor_grid(
         grids_folder,
         kfactor_folder,
         yamldb_path,
