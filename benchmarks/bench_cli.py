@@ -1,9 +1,5 @@
 import pathlib
 import shutil
-<<<<<<< HEAD
-import lhapdf
-=======
->>>>>>> b592cc7cbef17a03e9e960cc24d7fb27b3334720
 
 import lhapdf
 from click.testing import CliRunner
@@ -90,6 +86,20 @@ def benchmark_compare_cli(lhapdf_path, test_files, test_pdf):
     assert "yll left" in result.output
 
 
+def benchmark_convolute_cli(test_files, tmp_path):
+    grid_path = pathlib.Path(
+        test_files / "data/grids/400/HERA_NC_225GEV_EP_SIGMARED.pineappl.lz4"
+    )
+    eko_path = pathlib.Path(test_files / "data/ekos/400/HERA_NC_225GEV_EP_SIGMARED.tar")
+    fk_path = tmp_path / "testfk.pineappl.lz4"
+    runner = CliRunner()
+    result = runner.invoke(
+        command,
+        ["convolute", str(grid_path), str(eko_path), str(fk_path), "2", "0"],
+    )
+    assert "Optimizing for Nf6Ind" in result.output
+
+
 def benchmark_scaffold_cli(test_empty_proj):
     runner = CliRunner()
     conf_file = test_empty_proj / "pineko.toml"
@@ -101,7 +111,8 @@ def benchmark_scaffold_cli(test_empty_proj):
     # and then I can check again
     res = runner.invoke(command, ["scaffold", "-c", str(conf_file), "check"])
     assert "Success: All the folders are correctly configured" in res.output
-    
+
+
 def benchmark_gen_sv_cli(test_files, tmp_path, test_pdf, lhapdf_path):
     runner = CliRunner()
     pdf_name = "NNPDF40_nlo_as_01180"
