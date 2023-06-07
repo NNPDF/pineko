@@ -63,14 +63,24 @@ An example is the following:
 
 ::
 
-  ev_op_max_order: 10
+  configs:
+  evolution_method: truncated
+  ev_op_max_order: 
+    - 10
+    - 0
   ev_op_iterations: 1
-  n_integration_cores: 6
-  backward_inversion: "exact"
-  Q2grid: [50.]
-  interpolation_is_log: True
   interpolation_polynomial_degree: 4
-  interpolation_xgrid:
+  interpolation_is_log: true
+  scvar_method: None
+  inversion_method: expanded
+  polarized: False 
+  time_like: False
+  n_integration_cores: 1
+  mu0: 1.65
+  mugrid: 
+    - - 50.0
+      - 5
+  xgrid:
     - 1.9999999999999954e-07
     - 3.034304765867952e-07
     - 4.6035014748963906e-07
@@ -86,7 +96,29 @@ An example is the following:
     - 2.97384953722449e-05
     - 4.511438394964044e-05
     - 6.843744918967896e-05
-    ...
+    - 0.00010381172986576898
+    - 0.00015745605600841445
+    - 0.00023878782918561914
+    - 0.00036205449638139736
+    - 0.0005487795323670796
+    - 0.0008314068836488144
+    - 0.0012586797144272762
+    - 0.0019034634022867384
+    - 0.0028738675812817515
+    - 0.004328500638820811
+    - 0.006496206194633799
+    - 0.009699159574043398
+    - 0.014375068581090129
+    - 0.02108918668378717
+    - 0.030521584007828916
+    - 0.04341491741702269
+    - 0.060480028754447364
+    - 0.08228122126204893
+    - 0.10914375746330703
+    - 0.14112080644440345
+    - 0.17802566042569432
+    - 0.2195041265003886
+    - 0.2651137041582823
     - 0.31438740076927585
     - 0.3668753186482242
     - 0.4221667753589648
@@ -99,8 +131,10 @@ An example is the following:
     - 0.8627839323906108
     - 0.9309440808717544
     - 1
-  debug_skip_non_singlet: False
-  debug_skip_singlet: False
+  debug:
+    skip_non_singlet: false
+    skip_singlet: false
+  eko_version: 0.0.0
 
 For more details about what is needed inside an operator card please refer to https://eko.readthedocs.io/en/latest/code/IO.html
 under the section **Operator Runcard**. Note that the actual operator cards for each FK table will be
