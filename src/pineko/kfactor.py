@@ -1,6 +1,5 @@
 """Module to include QCD K-factors in grids."""
 import io
-import pathlib
 
 import numpy as np
 import pineappl

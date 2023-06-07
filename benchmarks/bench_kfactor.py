@@ -1,5 +1,3 @@
-import shutil
-
 import lhapdf
 import numpy as np
 import pineappl

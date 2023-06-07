@@ -1,7 +1,11 @@
 import pathlib
 import shutil
+<<<<<<< HEAD
 import lhapdf
+=======
+>>>>>>> b592cc7cbef17a03e9e960cc24d7fb27b3334720
 
+import lhapdf
 from click.testing import CliRunner
 
 from pineko.cli._base import command
@@ -110,9 +114,13 @@ def benchmark_gen_sv_cli(test_files, tmp_path, test_pdf, lhapdf_path):
     shutil.copy(grid_path, new_grid_path)
     with lhapdf_path(test_pdf):
         pdf = lhapdf.mkPDF(pdf_name)
-    res = runner.invoke(command, ["ren_sv_grid", str(new_grid_path), str(target_path), max_as, nf, "False" ])
+    res = runner.invoke(
+        command,
+        ["ren_sv_grid", str(new_grid_path), str(target_path), max_as, nf, "False"],
+    )
     assert "ReturnState.SUCCESS" in res.output
-    
+
+
 def benchmark_kfactor_cli(test_files, tmp_path):
     runner = CliRunner()
     grid_folder = test_files / "data" / "grids" / "400"
@@ -120,5 +128,16 @@ def benchmark_kfactor_cli(test_files, tmp_path):
     fake_yaml_path = test_files / "data" / "yamldb" / "ATLAS_TTB_FAKE.yaml"
     max_as = "3"
     target_path = tmp_path
-    res = runner.invoke(command, ["kfactor", str(grid_folder), str(kfolder), str(fake_yaml_path), str(target_path), max_as, "False" ])
+    res = runner.invoke(
+        command,
+        [
+            "kfactor",
+            str(grid_folder),
+            str(kfolder),
+            str(fake_yaml_path),
+            str(target_path),
+            max_as,
+            "False",
+        ],
+    )
     assert "The number of bins match the lenght of the k-factor" in res.output
