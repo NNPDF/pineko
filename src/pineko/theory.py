@@ -7,6 +7,7 @@ commonly referred to as 'theory'.
 """
 import logging
 import time
+from pathlib import Path
 
 import eko
 import eko.io.legacy
@@ -224,22 +225,62 @@ class TheoryBuilder:
         tcard : dict
             theory card
         """
-        opcard_path = self.operator_cards_path / f"{name}.yaml"
-        if opcard_path.exists():
-            if not self.overwrite:
-                rich.print(f"Skipping existing operator card {opcard_path}")
-                return
-        _x_grid, q2_grid = evolve.write_operator_card_from_file(
-            grid,
-            self.operator_cards_path
-            / configs.configs["paths"]["operator_card_template_name"],
-            opcard_path,
-            tcard,
-        )
-        if opcard_path.exists():
-            rich.print(
-                f"[green]Success:[/] Wrote card with {len(q2_grid)} Q2 points to {opcard_path}"
+        # First check if the fktable is for a DIS observable in an FONLL scheme
+        # because in this case multiple opcards need to be produced for the
+        # different components of the FONLL prescription.
+        # TODO: make sure this correctly produces the components we want (what about nf0 and nfref)
+        # TODO: extend for observables where we need 5 operator cards due to bottom (heracomb_b)
+        # TODO: correct pto for FONLL-B
+        pineapplgrid = pineappl.grid.Grid.read(grid)
+        if (
+            "yadism_version" in pineapplgrid.raw.key_values()
+            and "FONLL" in tcard["FNS"]
+        ):
+            opcard_paths = [
+                Path(str(self.operator_cards_path) + i) / f"{name}.yaml" for i in "123"
+            ]
+            theoryid = str(self.theory_id)
+            if tcard["FNS"] == "FONLL-B":
+                tcards = [
+                    {**tcard, "ID": theoryid + "1", "FNS": "FFNS", "NfFF": 3},
+                    {**tcard, "ID": theoryid + "2", "FNS": "FFN0", "NfFF": 3},
+                    {**tcard, "ID": theoryid + "3", "FNS": "FFNS", "NfFF": 4},
+                ]
+            else:
+                tcards = [
+                    {**tcard, "ID": theoryid + "1", "FNS": "FFNS", "NfFF": 3},
+                    {**tcard, "ID": theoryid + "2", "FNS": "FFN0", "NfFF": 3},
+                    {**tcard, "ID": theoryid + "3", "FNS": "FFNS", "NfFF": 4},
+                ]
+        else:
+            tcards = [tcard]
+            opcard_paths = [self.operator_cards_path / f"{name}.yaml"]
+
+        for opcard_path, f_tcard in zip(opcard_paths, tcards):
+            if opcard_path.exists():
+                if not self.overwrite:
+                    rich.print(f"Skipping existing operator card {opcard_path}")
+                    return
+            _x_grid, q2_grid = evolve.write_operator_card_from_file(
+                grid,
+                self.operator_cards_path
+                / configs.configs["paths"]["operator_card_template_name"],
+                opcard_path,
+                f_tcard,
             )
+            if opcard_path.exists():
+                rich.print(
+                    f"[green]Success:[/] Wrote card with {len(q2_grid)} Q2 points to {opcard_path}"
+                )
+            if "FONLL" in tcard["FNS"]:
+                f_tcard_path = (
+                    configs.configs["paths"]["theory_cards"] / f'{f_tcard["ID"]}.yaml'
+                )
+                with open(f_tcard_path, "w") as f:
+                    yaml.dump(f_tcard, f)
+                rich.print(
+                    f"Wrote new theory card with {f_tcard['FNS']} and {f_tcard['NfFF']} to {f_tcard_path}"
+                )
 
     def opcards(self):
         """Write operator cards."""

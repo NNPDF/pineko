@@ -57,7 +57,6 @@ def get_yaml_information(yaml_file, grids_folder):
         List (of lists) with all the grids that will need to be loaded
     """
     yaml_content = _load_yaml(yaml_file)
-
     # Turn the operands and the members into paths (and check all of them exist)
     ret = []
     for operand in yaml_content["operands"]:
