@@ -64,20 +64,20 @@ An example is the following:
 ::
 
   configs:
-  evolution_method: truncated
-  ev_op_max_order: 
-    - 10
-    - 0
-  ev_op_iterations: 1
-  interpolation_polynomial_degree: 4
-  interpolation_is_log: true
-  scvar_method: None
-  inversion_method: expanded
-  polarized: False 
-  time_like: False
-  n_integration_cores: 1
+    evolution_method: truncated
+    ev_op_max_order:
+      - 10
+      - 0
+    ev_op_iterations: 1
+    interpolation_polynomial_degree: 4
+    interpolation_is_log: true
+    scvar_method: None
+    inversion_method: expanded
+    polarized: False
+    time_like: False
+    n_integration_cores: 1
   mu0: 1.65
-  mugrid: 
+  mugrid:
     - - 50.0
       - 5
   xgrid:
@@ -135,6 +135,8 @@ An example is the following:
     skip_non_singlet: false
     skip_singlet: false
   eko_version: 0.0.0
+
+::
 
 For more details about what is needed inside an operator card please refer to https://eko.readthedocs.io/en/latest/code/IO.html
 under the section **Operator Runcard**. Note that the actual operator cards for each FK table will be
