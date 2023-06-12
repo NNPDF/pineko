@@ -240,17 +240,23 @@ class TheoryBuilder:
                 Path(str(self.operator_cards_path) + i) / f"{name}.yaml" for i in "123"
             ]
             theoryid = str(self.theory_id)
-            if tcard["FNS"] == "FONLL-B":
+            if tcard["FNS"] == "FONLL-A":
                 tcards = [
-                    {**tcard, "ID": theoryid + "1", "FNS": "FFNS", "NfFF": 3},
-                    {**tcard, "ID": theoryid + "2", "FNS": "FFN0", "NfFF": 3},
-                    {**tcard, "ID": theoryid + "3", "FNS": "FFNS", "NfFF": 4},
+                    {**tcard, "ID": theoryid + "2", "FNS": "FFN0", "NfFF": 3, "PTO": 1},
+                    {**tcard, "ID": theoryid + "1", "FNS": "FFNS", "NfFF": 3, "PTO": 1},
+                    {**tcard, "ID": theoryid + "3", "FNS": "FFNS", "NfFF": 4, "PTO": 1},
+                ]
+            elif tcard["FNS"] == "FONLL-B":
+                tcards = [
+                    {**tcard, "ID": theoryid + "1", "FNS": "FFNS", "NfFF": 3, "PTO": 2},
+                    {**tcard, "ID": theoryid + "2", "FNS": "FFN0", "NfFF": 3, "PTO": 2},
+                    {**tcard, "ID": theoryid + "3", "FNS": "FFNS", "NfFF": 4, "PTO": 1},
                 ]
             else:
                 tcards = [
-                    {**tcard, "ID": theoryid + "1", "FNS": "FFNS", "NfFF": 3},
-                    {**tcard, "ID": theoryid + "2", "FNS": "FFN0", "NfFF": 3},
-                    {**tcard, "ID": theoryid + "3", "FNS": "FFNS", "NfFF": 4},
+                    {**tcard, "ID": theoryid + "1", "FNS": "FFNS", "NfFF": 3, "PTO": 2},
+                    {**tcard, "ID": theoryid + "2", "FNS": "FFN0", "NfFF": 3, "PTO": 2},
+                    {**tcard, "ID": theoryid + "3", "FNS": "FFNS", "NfFF": 4, "PTO": 2},
                 ]
         else:
             tcards = [tcard]
@@ -279,7 +285,7 @@ class TheoryBuilder:
                 with open(f_tcard_path, "w") as f:
                     yaml.dump(f_tcard, f)
                 rich.print(
-                    f"Wrote new theory card with {f_tcard['FNS']} and {f_tcard['NfFF']} to {f_tcard_path}"
+                    f"Wrote new theory card with FNS={f_tcard['FNS']} and NfFF={f_tcard['NfFF']} to {f_tcard_path}"
                 )
 
     def opcards(self):
