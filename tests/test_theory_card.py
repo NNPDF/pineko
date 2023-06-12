@@ -10,6 +10,6 @@ def test_construct_assumptions():
         "mc": 2.0,
         "mb": 3.0,
         "mt": 50.0,
-        "IC": True,
+        "IC": 1,
     }
     assert pineko.theory_card.construct_assumptions(fake_t_card) == "Nf4Sym"
