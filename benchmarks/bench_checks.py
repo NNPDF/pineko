@@ -1,5 +1,3 @@
-import pathlib
-
 import eko
 import numpy as np
 import pineappl

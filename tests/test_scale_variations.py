@@ -6,6 +6,9 @@ from pineko import scale_variations
 
 def test_ren_sv_coeffs():
     np.testing.assert_allclose(
+        scale_variations.ren_sv_coeffs(m=0, max_as=0, logpart=0, which_part=0, nf=5), 0
+    )
+    np.testing.assert_allclose(
         scale_variations.ren_sv_coeffs(m=0, max_as=1, logpart=1, which_part=0, nf=5), 0
     )
     res_nf5 = scale_variations.ren_sv_coeffs(
@@ -21,6 +24,10 @@ def test_ren_sv_coeffs():
     np.testing.assert_allclose(
         scale_variations.ren_sv_coeffs(m=0, max_as=2, logpart=1, which_part=1, nf=5),
         exp_res,
+    )
+    np.testing.assert_allclose(
+        scale_variations.ren_sv_coeffs(m=0, max_as=2, logpart=2, which_part=0, nf=5),
+        0.0,
     )
 
 
