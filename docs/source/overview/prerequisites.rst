@@ -99,7 +99,6 @@ An example is the following:
   debug:
     skip_non_singlet: false
     skip_singlet: false
-  eko_version: 0.0.0
 
 ::
 
