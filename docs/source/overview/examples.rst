@@ -1,5 +1,4 @@
 Examples
 ========
 
-In this section some examples on how actually pineko can be used in
-several situation are provided.
+Examples of real-life usage of ``pineko`` can be found in the `pineline site <https://nnpdf.github.io/pineline>`_
