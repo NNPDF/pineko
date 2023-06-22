@@ -110,7 +110,7 @@ enough to set ``ORDER_EXISTS`` to `True`.
 KFactors
 """"""""
 
-Another useful tool that `pineko` includes is ``pineko kfactor`` which allows the inclusion of a kfactor
+Another useful tool that `pineko` includes is ``pineko kfactor`` which allows the embedding of a kfactor
 as a proper order in a grid. The usage is the following::
 
   pineko kfactor GRIDS_FOLDER KFACTOR_FOLDER YAMLDB_PATH TARGET_FOLDER MAX_AS ORDER_EXISTS
