@@ -33,7 +33,7 @@ All the relevant inputs are described below. The command ``pineko scaffold new``
 *ymldb*
 -------
 
-You need all files of the *ymldb* [2]_ which define the mapping from datasets to FK tables. 
+You need all files of the *ymldb* [2]_ which define the mapping from datasets to FK tables.
 An actual (rather simple) example is the following:
 
 ::
