@@ -39,11 +39,11 @@ theory predictions for a PDF fit and therefore is often simply called *theory*.
 
 *pineko* is:
 
-* open-source since the beginning - allowing a community effort for writing a new generation of code
+* open-source - allowing a community effort for writing a new generation of tools for PDF fits
 
-* written in Python - opting for a popular, high-level langauge to facilitate other authors to participate in the project
+* written in Python - opting for a popular, high-level language to facilitate other authors to participate in the project
 
-* part of the N3PDF software compendium: |eko|, |banana|, |pineappl| and |yadism|
+* part of the N3PDF software compendium for HEP theory: |eko|, |banana|, |pineappl| and |yadism|
 
 `pineko` replaces `APFELcomb <https://github.com/NNPDF/apfelcomb/>`_ , which was
 used up to NNPDF4.0.

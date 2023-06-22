@@ -37,7 +37,7 @@ You can reuse the |EKO| from a different theory by running::
   pineko theory inherit-ekos SOURCE_THEORY_ID TARGET_THEORY_ID DATASET1 DATASET2 ...
 
 
-The relation between the source theory and the target theory is non-trivial [6]_.
+The relation between the source theory and the target theory is non-trivial [5]_.
 
 Generating the FK Table
 -----------------------
@@ -51,7 +51,7 @@ Note that you can also convolute a single grid with a single eko (obtaining a si
 
   pineko convolute GRID OPCARD FKTABLE MAX_AS MAX_AL
 
-eventually specifying the values of the *renormalization* and *factorization* scale variations with
+If necessary it is possible to specify the values of the *renormalization* and *factorization* scale variations with
 the options ``--xir`` and ``--xif``.
 
 Other functionalities
@@ -71,7 +71,7 @@ Under the subcommand ``pineko check`` you can find two possible useful checks:
     pineko check compatibility GRID EKO
 
   eventually specifying the value of the factorization scale variation with the option ``--xif``.
-2.  **scvar**. This is used to check if the provided grid contains the requested scale variations. The sintax is the following
+2.  **scvar**. This is used to check if the provided grid contains the requested scale variations. The syntax is the following
   ::
 
     pineko check scvar GRID SCALE AS_ORDER AL_ORDER
@@ -94,4 +94,4 @@ appropriate options.
 Notes
 -----
 
-.. [6] examples being scale variations, different DIS settings, etc.
+.. [5] examples being scale variations, different DIS settings, etc.
