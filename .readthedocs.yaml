@@ -17,6 +17,7 @@ build:
       - poetry install --with docs
 
 formats:
+- epub
 - pdf
 
 # python:
