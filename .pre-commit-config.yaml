@@ -15,6 +15,11 @@ repos:
       - id: check-merge-conflict
       - id: check-case-conflict
       - id: check-ast
+  - repo: https://github.com/hadialqattan/pycln
+    rev: v2.1.5
+    hooks:
+      - id: pycln
+        args: [--config=pyproject.toml]
   - repo: https://github.com/psf/black
     rev: 23.3.0
     hooks:
@@ -43,9 +48,3 @@ repos:
     rev: v3.3.3
     hooks:
       - id: validate_manifest
-
-  - repo: https://github.com/hadialqattan/pycln
-    rev: v2.1.5
-    hooks:
-      - id: pycln
-        args: [--config=pyproject.toml]

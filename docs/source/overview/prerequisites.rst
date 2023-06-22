@@ -63,14 +63,24 @@ An example is the following:
 
 ::
 
-  ev_op_max_order: 10
-  ev_op_iterations: 1
-  n_integration_cores: 6
-  backward_inversion: "exact"
-  Q2grid: [50.]
-  interpolation_is_log: True
-  interpolation_polynomial_degree: 4
-  interpolation_xgrid:
+  configs:
+    evolution_method: truncated
+    ev_op_max_order:
+      - 10
+      - 0
+    ev_op_iterations: 1
+    interpolation_polynomial_degree: 4
+    interpolation_is_log: true
+    scvar_method: None
+    inversion_method: expanded
+    polarized: False
+    time_like: False
+    n_integration_cores: 1
+  mu0: 1.65
+  mugrid:
+    - - 50.0
+      - 5
+  xgrid:
     - 1.9999999999999954e-07
     - 3.034304765867952e-07
     - 4.6035014748963906e-07
@@ -78,20 +88,7 @@ An example is the following:
     - 1.0596094959101024e-06
     - 1.607585498470808e-06
     - 2.438943292891682e-06
-    - 3.7002272069854957e-06
-    - 5.613757716930151e-06
-    - 8.516806677573355e-06
-    - 1.292101569074731e-05
-    - 1.9602505002391748e-05
-    - 2.97384953722449e-05
-    - 4.511438394964044e-05
-    - 6.843744918967896e-05
     ...
-    - 0.31438740076927585
-    - 0.3668753186482242
-    - 0.4221667753589648
-    - 0.4798989029610255
-    - 0.5397572337880445
     - 0.601472197967335
     - 0.6648139482473823
     - 0.7295868442414312
@@ -99,8 +96,11 @@ An example is the following:
     - 0.8627839323906108
     - 0.9309440808717544
     - 1
-  debug_skip_non_singlet: False
-  debug_skip_singlet: False
+  debug:
+    skip_non_singlet: false
+    skip_singlet: false
+
+::
 
 For more details about what is needed inside an operator card please refer to https://eko.readthedocs.io/en/latest/code/IO.html
 under the section **Operator Runcard**. Note that the actual operator cards for each FK table will be
