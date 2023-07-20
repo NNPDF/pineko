@@ -2,6 +2,7 @@
 import copy
 import os
 import pathlib
+from importlib import metadata
 
 import eko
 import eko.basis_rotation as br
@@ -132,6 +133,11 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
         x_grid = np.append(x_grid, 1.0)
         operators_card["configs"]["interpolation_polynomial_degree"] = 1
         operators_card["xgrid"] = x_grid.tolist()
+
+    # Add the version of eko and pineko to the operator card
+    # using importlib.metadata.version to get the correct tag in editable mode
+    operators_card["eko_version"] = metadata.version("eko")
+    operators_card["pineko_version"] = metadata.version("pineko")
 
     with open(card_path, "w", encoding="UTF-8") as f:
         yaml.safe_dump(operators_card, f)
