@@ -1,5 +1,6 @@
 """Tools related to evolution/eko."""
 import copy
+import logging
 import os
 import pathlib
 from importlib import metadata
@@ -17,6 +18,8 @@ from eko.matchings import Atlas, nf_default
 from eko.quantities import heavy_quarks
 
 from . import check, comparator, ekompatibility, version
+
+logger = logging.getLogger(__name__)
 
 
 def sv_scheme(tcard):
@@ -138,6 +141,15 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     # using importlib.metadata.version to get the correct tag in editable mode
     operators_card["eko_version"] = metadata.version("eko")
     operators_card["pineko_version"] = metadata.version("pineko")
+
+    # Some safety checks
+    if (
+        operators_card["configs"]["evolution_method"] == "truncated"
+        and operators_card["configs"]["ev_op_iterations"] > 1
+    ):
+        logger.warning(
+            "Warning! You are setting evolution_method=truncated with ev_op_iterations>1, are you sure that's what you want? "
+        )
 
     with open(card_path, "w", encoding="UTF-8") as f:
         yaml.safe_dump(operators_card, f)
