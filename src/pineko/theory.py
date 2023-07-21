@@ -263,9 +263,6 @@ class TheoryBuilder:
         opcard_path = self.operator_cards_path / f"{name}.yaml"
         with open(opcard_path, encoding="utf-8") as f:
             ocard = yaml.safe_load(f)
-        # Drop the pineko_version if it is included as this is metadata for pineko only
-        if "pineko_version" in ocard:
-            ocard.pop("pineko_version")
         return ocard
 
     def activate_logging(self, path, filename, activated_loggers=()):
