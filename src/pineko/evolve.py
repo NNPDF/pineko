@@ -3,6 +3,7 @@ import copy
 import logging
 import os
 import pathlib
+from importlib import metadata
 
 import eko
 import eko.basis_rotation as br
@@ -136,6 +137,11 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
         operators_card["configs"]["interpolation_polynomial_degree"] = 1
         operators_card["xgrid"] = x_grid.tolist()
 
+    # Add the version of eko and pineko to the operator card
+    # using importlib.metadata.version to get the correct tag in editable mode
+    operators_card["eko_version"] = metadata.version("eko")
+    pineko_version = metadata.version("pineko")
+
     # Some safety checks
     if (
         operators_card["configs"]["evolution_method"] == "truncated"
@@ -147,6 +153,8 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
 
     with open(card_path, "w", encoding="UTF-8") as f:
         yaml.safe_dump(operators_card, f)
+        f.write(f"# {pineko_version=}")
+
     return operators_card["xgrid"], q2_grid
 
 
