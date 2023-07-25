@@ -1,5 +1,3 @@
-import pathlib
-
 import pytest
 
 from pineko import configs, scaffold

@@ -2,8 +2,7 @@
 Prerequisites
 #############
 
-Generating a *theory*, as defined above, requires several files which are
-described next.
+Generating a *theory* requires several files which are described next.
 
 *pineko.toml*
 -------------
@@ -28,13 +27,14 @@ This is a standard example:
   eko = "logs/eko"
   fk = "logs/fk"
 
-All the relevant inputs are described below.
+
+All the relevant inputs are described below. The command ``pineko scaffold new`` will generate all necessary folders.
 
 *ymldb*
 -------
 
-You need all files of the *ymldb* [2]_.  [**DEBUG**: Look at the respective *load.sh* script to load from dom.]
-This defines the mapping from datasets to FK tables. An actual (rather simple) example is the following:
+You need all files of the *ymldb* [2]_ which define the mapping from datasets to FK tables.
+An actual (rather simple) example is the following:
 
 ::
 
@@ -52,25 +52,34 @@ Theory Runcards
 ---------------
 
 You need to provide the necessary theory runcards named with their respective theory ID inside the *paths.theory_cards* folder [3]_.
-For more details about theory runcards you can look to https://eko.readthedocs.io/en/latest/code/IO.html under **Theory Runcards**.
+For more details about theory runcards you can look at https://eko.readthedocs.io/en/latest/code/IO.html under **Theory Runcards**.
 
 Default Operator Card
 ---------------------
 
-You need to provide a default operator card for |EKO| for each theory you want to use [4]_.
-[**DEBUG**: Look at the respective *load.sh* script to load from dom.]
+You need to provide a default operator card for |EKO| for each theory you want to use.
 An example is the following:
 
 ::
 
-  ev_op_max_order: 10
-  ev_op_iterations: 1
-  n_integration_cores: 6
-  backward_inversion: "exact"
-  Q2grid: [50.]
-  interpolation_is_log: True
-  interpolation_polynomial_degree: 4
-  interpolation_xgrid:
+  configs:
+    evolution_method: truncated
+    ev_op_max_order:
+      - 10
+      - 0
+    ev_op_iterations: 1
+    interpolation_polynomial_degree: 4
+    interpolation_is_log: true
+    scvar_method: None
+    inversion_method: expanded
+    polarized: False
+    time_like: False
+    n_integration_cores: 1
+  mu0: 1.65
+  mugrid:
+    - - 50.0
+      - 5
+  xgrid:
     - 1.9999999999999954e-07
     - 3.034304765867952e-07
     - 4.6035014748963906e-07
@@ -78,20 +87,7 @@ An example is the following:
     - 1.0596094959101024e-06
     - 1.607585498470808e-06
     - 2.438943292891682e-06
-    - 3.7002272069854957e-06
-    - 5.613757716930151e-06
-    - 8.516806677573355e-06
-    - 1.292101569074731e-05
-    - 1.9602505002391748e-05
-    - 2.97384953722449e-05
-    - 4.511438394964044e-05
-    - 6.843744918967896e-05
     ...
-    - 0.31438740076927585
-    - 0.3668753186482242
-    - 0.4221667753589648
-    - 0.4798989029610255
-    - 0.5397572337880445
     - 0.601472197967335
     - 0.6648139482473823
     - 0.7295868442414312
@@ -99,8 +95,11 @@ An example is the following:
     - 0.8627839323906108
     - 0.9309440808717544
     - 1
-  debug_skip_non_singlet: False
-  debug_skip_singlet: False
+  debug:
+    skip_non_singlet: false
+    skip_singlet: false
+
+::
 
 For more details about what is needed inside an operator card please refer to https://eko.readthedocs.io/en/latest/code/IO.html
 under the section **Operator Runcard**. Note that the actual operator cards for each FK table will be
@@ -110,7 +109,7 @@ Grids
 -----
 
 *pineko* does **NOT** compute grids, which are instead expected input to *pineko*.
-There are typically two ways to obtain grids: computing them from scratch with `runcards <https://github.com/NNPDF/runcards/>`_
+There are typically two ways to obtain grids: computing them from scratch with `runcards <https://github.com/NNPDF/pinecards/>`_
 or reusing existing ones.
 
 Generate new Grids with *rr*
@@ -126,16 +125,14 @@ You can reuse the grids from a different theory by running::
 
   pineko theory inherit-grids SOURCE_THEORY_ID TARGET_THEORY_ID DATASET1 DATASET2 ...
 
-The relation between the source theory and the target theory is non-trivial [5]_.
+The relation between the source theory and the target theory is non-trivial [4]_.
 
 
 Notes
 -----
 
-.. [2] this is to be replaced by the new CommonData format
+.. [2] this is to be replaced by the new CommonData format implemented by NNPDF
 
-.. [3] this is to be replaced by a binding to the true theory DB
+.. [3] this is to be replaced by a binding to the NNPDF theory objects
 
-.. [4] I'm thinking how to improve this, because how could we provide a study on the interpolation accuracy? at the moment there just equal
-
-.. [5] examples being scale variations, different evolution settings, etc.
+.. [4] examples being scale variations, different evolution settings, etc.

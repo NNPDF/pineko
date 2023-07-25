@@ -14,7 +14,6 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
-import inspect
 import pathlib
 
 import pineko
@@ -24,8 +23,8 @@ here = pathlib.Path(__file__).absolute().parent
 # -- Project information -----------------------------------------------------
 
 project = "pineko"
-copyright = "2022, Andrea Barontini, Alessandro Candido, Felix Hekhorn"
-author = "Andrea Barontini, Alessandro Candido, Felix Hekhorn"
+copyright = "2023, the PineLine team"
+author = "the PineLine team"
 
 
 # -- General configuration ---------------------------------------------------
