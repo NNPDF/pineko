@@ -139,18 +139,16 @@ def produce_fonll_recipe(fns):
         "FONLL-FFNS",
     ]
     NfFF_list = [3, 3, 4, 4, 4, 5, 5, 5]
-    massiveonly_list = [False, False, False, True, False, False, True]
-    masslessonly_list = [False, False, True, False, False, True, False]
-    for fns, nfff, po, massiveonly, masslessonly in zip(
-        FNS_list, NfFF_list, pto, massiveonly_list, masslessonly_list
+    parts_list = ["full", "full", "massless", "massive", "full", "massless", "massive"]
+    for fns, nfff, po, part in zip(
+        FNS_list, NfFF_list, pto, parts_list
     ):
         fonll_recipe.append(
             {
                 "FNS": fns,
                 "NfFF": nfff,
                 "PTO": po,
-                "massiveonly": massiveonly,
-                "masslessonly": masslessonly,
+                "fonll-parts": part,
             }
         )
     return fonll_recipe
