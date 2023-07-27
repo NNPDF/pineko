@@ -1,3 +1,4 @@
+import copy
 import json
 import tempfile
 from pathlib import Path
@@ -114,3 +115,55 @@ def produce_combined_fk(ffns3, ffn03, ffns4, ffn04, ffns5, theoryid):
     fk_folder.mkdir(exist_ok=True)
     output_path_fk = fk_folder / fonll_info.dataset_name
     combined_fk.write_lz4(output_path_fk)
+
+
+# nf3, nf30, nf4til, nf4bar, nf40, nf5til, nf5bar
+# 2,2,1,2,2,1,2
+def produce_fonll_recipe(fns):
+    """nf3, nf30, nf4til, nf4bar, nf40, nf5til, nf5bar
+    2,2,1,2,2,1,2."""
+    fonll_recipe = []
+    if fns == "FONLL-A":
+        pto = [1 for _ in range(7)]
+    elif fns == "FONLL-C":
+        pto = [2 for _ in range(7)]
+    elif fns == "FONLL-B":
+        pto = [2, 2, 1, 2, 2, 1, 2]
+    FNS_list = [
+        "FONLL-FFNS",
+        "FONLL-FFN0",
+        "FONLL-FFNS",
+        "FONLL-FFNS",
+        "FONLL-FFN0",
+        "FONLL-FFNS",
+        "FONLL-FFNS",
+    ]
+    NfFF_list = [3, 3, 4, 4, 4, 5, 5, 5]
+    massiveonly_list = [False, False, False, True, False, False, True]
+    masslessonly_list = [False, False, True, False, False, True, False]
+    for fns, nfff, po, massiveonly, masslessonly in zip(
+        FNS_list, NfFF_list, pto, massiveonly_list, masslessonly_list
+    ):
+        fonll_recipe.append(
+            {
+                "FNS": fns,
+                "NfFF": nfff,
+                "PTO": po,
+                "massiveonly": massiveonly,
+                "masslessonly": masslessonly,
+            }
+        )
+    return fonll_recipe
+
+
+def produce_fonll_tcards(tcard, tcard_parent_path):
+    """Produce the six fonll tcards from an original tcard and dump them in tcard_parent_path
+    with names from '1000.yaml' to '1005.yaml'"""
+    theorycards = [copy.deepcopy(tcard) for _ in range(7)]
+    fonll_recipe = produce_fonll_recipe(tcard["FNS"])
+    for theorycard, recipe in zip(theorycards, fonll_recipe):
+        theorycard.update(recipe)
+    paths_list = [tcard_parent_path / f"100{num}.yaml" for num in range(7)]
+    for newtcard, path in zip(theorycards, paths_list):
+        with open(path, "w", encoding="UTF-8") as f:
+            yaml.safe_dump(newtcard, f)
