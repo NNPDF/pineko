@@ -140,9 +140,7 @@ def produce_fonll_recipe(fns):
     ]
     NfFF_list = [3, 3, 4, 4, 4, 5, 5, 5]
     parts_list = ["full", "full", "massless", "massive", "full", "massless", "massive"]
-    for fns, nfff, po, part in zip(
-        FNS_list, NfFF_list, pto, parts_list
-    ):
+    for fns, nfff, po, part in zip(FNS_list, NfFF_list, pto, parts_list):
         fonll_recipe.append(
             {
                 "FNS": fns,
