@@ -84,13 +84,20 @@ FK_WITH_MINUS = [1, 4]  # asy terms should be subtracted, therefore the sign
 
 
 def produce_combined_fk(
-    ffns3, ffn03, ffns4til, ffns4bar, ffn04, ffns5til, ffns5bar, theoryid
+    ffns3,
+    ffn03,
+    ffns4til,
+    ffns4bar,
+    ffn04,
+    ffns5til,
+    ffns5bar,
+    theoryid,
+    damp=(0, None),
 ):
     """Combine the FONLL FKs to produce one single final FONLL FK."""
     fonll_info = FONLLInfo(ffns3, ffn03, ffns4til, ffns4bar, ffn04, ffns5til, ffns5bar)
-
     theorycard_constituent_fks = fonll_info.theorycard_no_fns_pto
-    if theorycard_constituent_fks["DAMP"] == 0:
+    if damp[0] == 0:
         # then there is no damping, not even Heaviside only
         combined_fk = fonll_info.fks[0]
         with tempfile.TemporaryDirectory() as tmpdirname:
@@ -106,12 +113,8 @@ def produce_combined_fk(
         q2grid = fonll_info.Q2grid
         step_function_charm = mc**2 < q2grid
         step_function_bottom = mb**2 < q2grid
-        damping_factor_charm = (1 - q2grid / mc) ** theorycard_constituent_fks[
-            "DAMPPOWER"
-        ]
-        damping_factor_bottom = (1 - q2grid / mb) ** theorycard_constituent_fks[
-            "DAMPPOWER"
-        ]
+        damping_factor_charm = (1 - q2grid / mc) ** damp[1]
+        damping_factor_bottom = (1 - q2grid / mb) ** damp[1]
         damping_factor_charm *= step_function_charm
         damping_factor_bottom *= step_function_bottom
         dampings = {"mc": damping_factor_charm, "mb": damping_factor_bottom}

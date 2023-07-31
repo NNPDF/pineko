@@ -12,7 +12,7 @@ class TheoryCardError(Exception):
 
 
 class InconsistentInputsError(Exception):
-    """Raised if the inputs are not consistent with FONLL accounting for only charm mass, or both charm and bottom masses."""
+    """Raised if the inputs are not consistent with FONLL."""
 
     pass
 
@@ -35,8 +35,22 @@ def subcommand(ffns3, ffn03, ffns4til, theoryid, ffns4bar, ffn04, ffns5til, ffns
             "One between ffn04 and ffns5til has been provided without the other. Since they are both needed to construct FONLL, this does not make sense."
         )
         raise InconsistentInputsError
+    configs.configs = configs.defaults(configs.load())
+    tcard = theory_card.load(theoryid)
+    if not "DAMPPOWER" in tcard:
+        if tcard["DAMP"] != 0:
+            raise InconsistentInputsError
+        tcard["DAMPPOWER"] = None
     fonll.produce_combined_fk(
-        ffns3, ffn03, ffns4til, ffns4bar, ffn04, ffns5til, ffns5bar, theoryid
+        ffns3,
+        ffn03,
+        ffns4til,
+        ffns4bar,
+        ffn04,
+        ffns5til,
+        ffns5bar,
+        theoryid,
+        damp=(tcard["DAMP"], tcard["DAMPPOWER"]),
     )
 
 
