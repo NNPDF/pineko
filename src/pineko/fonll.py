@@ -29,9 +29,9 @@ class FONLLInfo:
     @property
     def fk_paths(self):
         """Returns the list of the fk paths needed to produce FONLL predictions."""
-        always_needed = [self.ffns3, self.ffn03, self.ffns4til]
+        paths = [self.ffns3, self.ffn03, self.ffns4til]
         if self.ffns4bar:
-            paths = always_needed + [self.ffns4bar]
+            paths = paths + [self.ffns4bar]
         if self.ffn04 and self.ffns5til:
             paths = paths + [self.ffn04, self.ffns5til]
             # It does not make sense to have ffns5bar without ffns5til
