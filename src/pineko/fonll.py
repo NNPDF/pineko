@@ -97,7 +97,7 @@ def produce_combined_fk(
             for i, fk in enumerate(fonll_info.fks[1:]):
                 tmpfile_path = Path(tmpdirname) / f"{i}.pineappl.lz4"
                 sign = -1 if i + 1 in FK_WITH_MINUS else 1
-                fk.scale_by_bin(sign)
+                fk.scale(sign)
                 fk.write_lz4(tmpfile_path)
                 combined_fk.merge_from_file(tmpfile_path)
     else:
