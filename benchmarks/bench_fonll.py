@@ -4,8 +4,9 @@ import yaml
 import pineko
 
 
-def benchmark_produce_fonll_tcards(tmp_path, test_files, test_configs):
-    tcard = pineko.theory_card.load(400)
+@pytest.mark.parametrize("theoryid", [400, 208])
+def benchmark_produce_fonll_tcards(tmp_path, test_files, test_configs, theoryid):
+    tcard = pineko.theory_card.load(theoryid)
     pineko.fonll.produce_fonll_tcards(tcard, tmp_path)
     # Check they are correct
     theorycards = []
