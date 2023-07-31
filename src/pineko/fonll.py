@@ -184,13 +184,13 @@ def produce_fonll_recipe(fns):
     return fonll_recipe
 
 
-def produce_fonll_tcards(tcard, tcard_parent_path):
-    """Produce the seven fonll tcards from an original tcard and dump them in tcard_parent_path with names from '1000.yaml' to '1006.yaml'."""
+def produce_fonll_tcards(tcard, tcard_parent_path, theoryid):
+    """Produce the seven fonll tcards from an original tcard and dump them in tcard_parent_path with names from '{theoryid}00.yaml' to '{theoryid}06.yaml'."""
     theorycards = [copy.deepcopy(tcard) for _ in range(7)]
     fonll_recipe = produce_fonll_recipe(tcard["FNS"])
     for theorycard, recipe in zip(theorycards, fonll_recipe):
         theorycard.update(recipe)
-    paths_list = [tcard_parent_path / f"100{num}.yaml" for num in range(7)]
+    paths_list = [tcard_parent_path / f"{theoryid}0{num}.yaml" for num in range(7)]
     for newtcard, path in zip(theorycards, paths_list):
         with open(path, "w", encoding="UTF-8") as f:
             yaml.safe_dump(newtcard, f)
