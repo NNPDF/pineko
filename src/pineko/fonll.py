@@ -90,7 +90,7 @@ def produce_combined_fk(
     fonll_info = FONLLInfo(ffns3, ffn03, ffns4til, ffns4bar, ffn04, ffns5til, ffns5bar)
 
     theorycard_constituent_fks = fonll_info.theorycard_no_fns_pto
-    if theorycard_constituent_fks["DAMP"] == "False":
+    if theorycard_constituent_fks["DAMP"] == 0:
         # then there is no damping, not even Heaviside only
         combined_fk = fonll_info.fks[0]
         for fk_path in fonll_info.fk_paths[1:]:
@@ -101,8 +101,12 @@ def produce_combined_fk(
         q2grid = fonll_info.Q2grid
         step_function_charm = mc**2 < q2grid
         step_function_bottom = mb**2 < q2grid
-        damping_factor_charm = (1 - q2grid / mc) ** theorycard_constituent_fks["DAMP"]
-        damping_factor_bottom = (1 - q2grid / mb) ** theorycard_constituent_fks["DAMP"]
+        damping_factor_charm = (1 - q2grid / mc) ** theorycard_constituent_fks[
+            "DAMPPOWER"
+        ]
+        damping_factor_bottom = (1 - q2grid / mb) ** theorycard_constituent_fks[
+            "DAMPPOWER"
+        ]
         damping_factor_charm *= step_function_charm
         damping_factor_bottom *= step_function_bottom
         dampings = {"mc": damping_factor_charm, "mb": damping_factor_bottom}
