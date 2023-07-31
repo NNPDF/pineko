@@ -62,7 +62,7 @@ class FONLLInfo:
             del card["PTO"]
             del card["NfFF"]
             del card["ID"]
-            del card["fonll-parts"]
+            del card["FONLLParts"]
         if not all([theorycards[0] == card in theorycards[1:]]):
             raise ValueError("theorycards not the same")
         return theorycards[0]
@@ -178,7 +178,7 @@ def produce_fonll_recipe(fns):
                 "FNS": fns,
                 "NfFF": nfff,
                 "PTO": po,
-                "fonll-parts": part,
+                "FONLLParts": part,
             }
         )
     return fonll_recipe
