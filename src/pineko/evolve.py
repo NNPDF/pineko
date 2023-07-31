@@ -130,7 +130,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
         origin=(tcard["Q0"] ** 2, tcard["nf0"]),
     )
     # If we are producing simFONLL FKs we need to look to NfFF...
-    if issimFONLL(tcard["FNS"]):
+    if check.issimFONLL(tcard["FNS"]):
         nfff = tcard["NfFF"]
         operators_card["mugrid"] = [(float(np.sqrt(q2)), int(nfff)) for q2 in q2_grid]
     else:

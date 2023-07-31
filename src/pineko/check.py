@@ -158,6 +158,13 @@ def is_fonll_b(fns, lumi):
     return False
 
 
+def issimFONLL(FNS):
+    """Check if the FNS is a simFONLL FNS."""
+    if FNS in ["FONLL-FFNS", "FONLL-FFN0"]:
+        return True
+    return False
+
+
 def orders(grid, max_as, max_al) -> list:
     """Select the relevant orders.
 
