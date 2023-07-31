@@ -90,9 +90,8 @@ def produce_combined_fk(
     fonll_info = FONLLInfo(ffns3, ffn03, ffns4til, ffns4bar, ffn04, ffns5til, ffns5bar)
 
     theorycard_constituent_fks = fonll_info.theorycard_no_fns_pto
-    if theorycard_constituent_fks["DAMP"] == 0:
+    if theorycard_constituent_fks["DAMP"] == "False":
         # then there is no damping, not even Heaviside only
-        # TODO: Add the possibility of doing only step function without damp
         combined_fk = fonll_info.fks[0]
         for fk_path in fonll_info.fk_paths[1:]:
             combined_fk.merge_from_file(fk_path)
