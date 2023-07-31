@@ -150,27 +150,29 @@ def produce_combined_fk(
     combined_fk.write_lz4(output_path_fk)
 
 
+FNS_LIST = [
+    "FONLL-FFNS",
+    "FONLL-FFN0",
+    "FONLL-FFNS",
+    "FONLL-FFNS",
+    "FONLL-FFN0",
+    "FONLL-FFNS",
+    "FONLL-FFNS",
+]
+
+NFFF_LIST = [3, 3, 4, 4, 4, 5, 5, 5]
+PARTS_LIST = ["full", "full", "massless", "massive", "full", "massless", "massive"]
+PTOS_DICT = {
+    "FONLL-A": [1 for _ in range(7)],
+    "FONLL-B": [2, 2, 1, 2, 2, 1, 2],
+    "FONLL-C": [2 for _ in range(7)],
+}
+
+
 def produce_fonll_recipe(fns):
     """Produce the different theory cards according to which FONLL is asked for."""
     fonll_recipe = []
-    if fns == "FONLL-A":
-        pto = [1 for _ in range(7)]
-    elif fns == "FONLL-C":
-        pto = [2 for _ in range(7)]
-    elif fns == "FONLL-B":
-        pto = [2, 2, 1, 2, 2, 1, 2]
-    FNS_list = [
-        "FONLL-FFNS",
-        "FONLL-FFN0",
-        "FONLL-FFNS",
-        "FONLL-FFNS",
-        "FONLL-FFN0",
-        "FONLL-FFNS",
-        "FONLL-FFNS",
-    ]
-    NfFF_list = [3, 3, 4, 4, 4, 5, 5, 5]
-    parts_list = ["full", "full", "massless", "massive", "full", "massless", "massive"]
-    for fns, nfff, po, part in zip(FNS_list, NfFF_list, pto, parts_list):
+    for fns, nfff, po, part in zip(FNS_LIST, NFFF_LIST, PTOS_DICT[fns], PARTS_LIST):
         fonll_recipe.append(
             {
                 "FNS": fns,
