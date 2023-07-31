@@ -115,10 +115,6 @@ def produce_combined_fk(
         damping_factor_charm *= step_function_charm
         damping_factor_bottom *= step_function_bottom
         dampings = {"mc": damping_factor_charm, "mb": damping_factor_bottom}
-        for i, fk in enumerate(fonll_info.fks):
-            for mass in FK_TO_DAMP:
-                if i in FK_TO_DAMP[mass]:
-                    fk.scale_by_bin(dampings[mass])
         # pineappl does not support operating with two grids in memory:
         # https://github.com/NNPDF/pineappl/blob/8a672bef6d91b07a4edfdefbe4e30e4b1dd1f976/pineappl_py/src/grid.rs#L614-L617
         with tempfile.TemporaryDirectory() as tmpdirname:
@@ -129,6 +125,9 @@ def produce_combined_fk(
                     -1 if i + 1 in FK_WITH_MINUS else 1
                 )  # The i+1 is there because the first fk is not included in the loop
                 fk.scale(sign)
+                for mass in FK_TO_DAMP:
+                    if i + 1 in FK_TO_DAMP[mass]:
+                        fk.scale_by_bin(dampings[mass])
                 fk.write_lz4(tmpfile_path)
                 combined_fk.merge_from_file(tmpfile_path)
 
