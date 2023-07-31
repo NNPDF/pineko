@@ -36,7 +36,7 @@ class FONLLInfo:
             paths = paths + [self.ffn04, self.ffns5til]
             # It does not make sense to have ffns5bar without ffns5til
             if self.ffns5bar:
-                paths = paths + [self.self.ffns5bar]
+                paths = paths + [self.ffns5bar]
         return [Path(p) for p in paths]
 
     @property
