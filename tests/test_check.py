@@ -20,6 +20,13 @@ def test_in1d():
     assert checked == np.array([True])
 
 
+def test_is_dis():
+    dis_fake_lumi = [[(1, -13, 1.0), (11, 2, 2.0)]]
+    nondis_fake_lumi = [[(1, 2, 1.5), (2, 1, 3.0)]]
+    assert pineko.check.is_dis(dis_fake_lumi) is True
+    assert pineko.check.is_dis(nondis_fake_lumi) is False
+
+
 def test_is_fonll_b():
     fns = "FONLL-B"
     lumi_first = [[(-12, 1, 2.0), (-13, 1, 5.0)]]

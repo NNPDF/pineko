@@ -78,7 +78,7 @@ class FONLLInfo:
         return cc
 
 
-# TODO: check if I want to damp the top mass corrections in 'mc' (i.e. 6)
+# Notice we rely on the order defined by the FONLLInfo class
 FK_TO_DAMP = {"mc": [1, 2, 4, 5], "mb": [4, 5]}
 FK_WITH_MINUS = [1, 4]  # asy terms should be subtracted, therefore the sign
 
