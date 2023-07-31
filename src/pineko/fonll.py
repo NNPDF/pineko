@@ -194,3 +194,4 @@ def produce_fonll_tcards(tcard, tcard_parent_path, theoryid):
     for newtcard, path in zip(theorycards, paths_list):
         with open(path, "w", encoding="UTF-8") as f:
             yaml.safe_dump(newtcard, f)
+    return paths_list

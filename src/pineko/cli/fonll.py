@@ -49,4 +49,4 @@ def fonll_tcards(theoryid):
     tcard_parent_path = theory_card.path(theoryid).parent
     if "FONLL" not in tcard["FNS"]:
         raise TheoryCardError
-    fonll.produce_fonll_tcards(tcard, tcard_parent_path, theoryid)
+    _ = fonll.produce_fonll_tcards(tcard, tcard_parent_path, theoryid)

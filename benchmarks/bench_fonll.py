@@ -7,11 +7,11 @@ import pineko
 @pytest.mark.parametrize("theoryid", [400, 208])
 def benchmark_produce_fonll_tcards(tmp_path, test_files, test_configs, theoryid):
     tcard = pineko.theory_card.load(theoryid)
-    pineko.fonll.produce_fonll_tcards(tcard, tmp_path, theoryid)
+    tcard_paths_list = pineko.fonll.produce_fonll_tcards(tcard, tmp_path, theoryid)
     # Check they are correct
     theorycards = []
-    for num in range(7):
-        with open(tmp_path / f"{theoryid}0{num}.yaml", encoding="UTF-8") as f:
+    for path in tcard_paths_list:
+        with open(path, encoding="UTF-8") as f:
             theorycards.append(yaml.safe_load(f))
     for simFONLL_tcard, fns, nfff, po, part in zip(
         theorycards,

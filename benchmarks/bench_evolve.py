@@ -13,6 +13,35 @@ import pineko.evolve
 import pineko.theory_card
 
 
+@pytest.mark.parametrize("theoryid", [400, 208])
+def benchmark_write_operator_card_from_file_simFONLL(
+    tmp_path, test_files, test_configs, theoryid
+):
+    tcard = pineko.theory_card.load(theoryid)
+    tcards_path_list = pineko.fonll.produce_fonll_tcards(tcard, tmp_path, theoryid)
+    pine_path = (
+        test_files
+        / "data"
+        / "grids"
+        / "400"
+        / "HERA_NC_225GEV_EP_SIGMARED.pineappl.lz4"
+    )
+    default_path = test_files / "data" / "operator_cards" / "400" / "_template.yaml"
+    targets_path_list = [tmp_path / f"test_opcard_{num}.yaml" for num in range(7)]
+    for target_path, tcard_path in zip(targets_path_list, tcards_path_list):
+        with open(tcard_path, encoding="utf-8") as f:
+            tcard = yaml.safe_load(f)
+        x_grid, _q2_grid = pineko.evolve.write_operator_card_from_file(
+            pine_path, default_path, target_path, tcard
+        )
+    # Check if the opcards are ok
+    for opcard_path, nfff in zip(targets_path_list, pineko.fonll.NFFF_LIST):
+        with open(opcard_path, encoding="utf-8") as f:
+            ocard = yaml.safe_load(f)
+        for entry in ocard["mugrid"]:
+            assert entry[1] == nfff
+
+
 def benchmark_write_operator_card_from_file(tmp_path, test_files, test_configs):
     pine_path = test_files / "data/grids/400/HERA_NC_225GEV_EP_SIGMARED.pineappl.lz4"
     default_path = test_files / "data/operator_cards/400/_template.yaml"
