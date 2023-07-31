@@ -93,8 +93,13 @@ def produce_combined_fk(
     if theorycard_constituent_fks["DAMP"] == 0:
         # then there is no damping, not even Heaviside only
         combined_fk = fonll_info.fks[0]
-        for fk_path in fonll_info.fk_paths[1:]:
-            combined_fk.merge_from_file(fk_path)
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            for i, fk in enumerate(fonll_info.fks[1:]):
+                tmpfile_path = Path(tmpdirname) / f"{i}.pineappl.lz4"
+                sign = -1 if i + 1 in FK_WITH_MINUS else 1
+                fk.scale_by_bin(sign)
+                fk.write_lz4(tmpfile_path)
+                combined_fk.merge_from_file(tmpfile_path)
     else:
         mc = theorycard_constituent_fks["mc"]
         mb = theorycard_constituent_fks["mb"]
