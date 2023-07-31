@@ -113,8 +113,8 @@ def produce_combined_fk(
         q2grid = fonll_info.Q2grid
         step_function_charm = mc**2 < q2grid
         step_function_bottom = mb**2 < q2grid
-        damping_factor_charm = (1 - q2grid / mc) ** damp[1]
-        damping_factor_bottom = (1 - q2grid / mb) ** damp[1]
+        damping_factor_charm = (1 - mc / q2grid) ** damp[1]
+        damping_factor_bottom = (1 - mb / q2grid) ** damp[1]
         damping_factor_charm *= step_function_charm
         damping_factor_bottom *= step_function_bottom
         dampings = {"mc": damping_factor_charm, "mb": damping_factor_bottom}
