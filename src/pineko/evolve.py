@@ -106,6 +106,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     """
     # Add a +1 to the orders for the difference in convention between nnpdf and pineappl
     is_fns = int(check.is_fonll_b(tcard["FNS"], pineappl_grid.lumi()))
+    # NB: This would not happen for simFONLL
     max_as = 1 + tcard["PTO"] + is_fns
     max_al = 1 + tcard["QED"]
     # ... in order to create a mask ...
@@ -128,9 +129,14 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
         matching_scales=heavy_quarks.MatchingScales(masses * thresholds_ratios),
         origin=(tcard["Q0"] ** 2, tcard["nf0"]),
     )
-    operators_card["mugrid"] = [
-        (float(np.sqrt(q2)), int(nf_default(q2, atlas))) for q2 in q2_grid
-    ]
+    # If we are producing simFONLL FKs we need to look to NfFF...
+    if issimFONLL(tcard["FNS"]):
+        nfff = tcard["NfFF"]
+        operators_card["mugrid"] = [(float(np.sqrt(q2)), int(nfff)) for q2 in q2_grid]
+    else:
+        operators_card["mugrid"] = [
+            (float(np.sqrt(q2)), int(nf_default(q2, atlas))) for q2 in q2_grid
+        ]
     if "integrability_version" in pineappl_grid.key_values():
         x_grid = evol_info.x1
         x_grid = np.append(x_grid, 1.0)
