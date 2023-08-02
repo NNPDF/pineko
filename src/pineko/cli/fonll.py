@@ -84,7 +84,9 @@ def subcommand(
         new_fk_path = configs.configs["paths"]["fktables"] / str(theoryid) / grid
         if new_fk_path.exists():
             if not overwrite:
-                rich.print(f"[green]Skipping existing FK Table {new_fk_path}")
+                rich.print(
+                    f"[green]Success:[/] skipping existing FK Table {new_fk_path}"
+                )
                 return
         fonll.produce_combined_fk(
             configs.configs["paths"]["fktables"] / str(ffns3) / grid
