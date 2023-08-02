@@ -24,7 +24,7 @@ def get_list_grids_name(yaml_file):
     ret = []
     for operand in yaml_content["operands"]:
         for member in operand:
-            ret.append(member + parser.EXT)
+            ret.append(f"{member}.{parser.EXT}")
     return ret
 
 
