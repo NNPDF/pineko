@@ -30,8 +30,8 @@ def get_list_grids_name(yaml_file):
 
 
 @command.command("combine_fonll")
-@click.argument("theoryID", type=int, help="theoryID of the final fktable")
-@click.argument("dataset", type=str, help="dataset name")
+@click.argument("theoryID", type=int)
+@click.argument("dataset", type=str)
 @click.option("--FFNS3", type=int, help="theoryID containing the ffns3 fktable")
 @click.option("--FFN03", type=int, help="theoryID containing the ffn03 fktable")
 @click.option("--FFNS4til", type=int, help="theoryID containing the ffns4til fktable")
