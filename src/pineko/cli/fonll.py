@@ -83,7 +83,7 @@ def subcommand(
         # Checking if it already exists
         if (configs.configs["paths"]["fktables"] / str(theoryid) / grid).exists():
             if not overwrite:
-                rich.print(f"Skipping existing FK Table {grid.stem}")
+                rich.print(f"Skipping existing FK Table {grid}")
                 return
         fonll.produce_combined_fk(
             configs.configs["paths"]["fktables"] / str(ffns3) / grid
