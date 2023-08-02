@@ -70,13 +70,27 @@ def subcommand(
     )
     for grid in grids_name:
         fonll.produce_combined_fk(
-            configs.configs["paths"]["fktables"] / str(ffns3) / grid,
-            configs.configs["paths"]["fktables"] / str(ffn03) / grid,
-            configs.configs["paths"]["fktables"] / str(ffns4til) / grid,
-            configs.configs["paths"]["fktables"] / str(ffns4bar) / grid,
-            configs.configs["paths"]["fktables"] / str(ffn04) / grid,
-            configs.configs["paths"]["fktables"] / str(ffns5til) / grid,
-            configs.configs["paths"]["fktables"] / str(ffns5bar) / grid,
+            configs.configs["paths"]["fktables"] / str(ffns3) / grid
+            if (configs.configs["paths"]["fktables"] / str(ffns3) / grid).exixts()
+            else None,
+            configs.configs["paths"]["fktables"] / str(ffn03) / grid
+            if (configs.configs["paths"]["fktables"] / str(ffn03) / grid).exists()
+            else None,
+            configs.configs["paths"]["fktables"] / str(ffns4til) / grid
+            if (configs.configs["paths"]["fktables"] / str(ffns4til) / grid).exists()
+            else None,
+            configs.configs["paths"]["fktables"] / str(ffns4bar) / grid
+            if (configs.configs["paths"]["fktables"] / str(ffns4bar) / grid).exists()
+            else None,
+            configs.configs["paths"]["fktables"] / str(ffn04) / grid
+            if (configs.configs["paths"]["fktables"] / str(ffn04)).exists()
+            else None,
+            configs.configs["paths"]["fktables"] / str(ffns5til) / grid
+            if (configs.configs["paths"]["fktables"] / str(ffns5til) / grid).exists()
+            else None,
+            configs.configs["paths"]["fktables"] / str(ffns5bar) / grid
+            if (configs.configs["paths"]["fktables"] / str(ffns5bar) / grid).exists()
+            else None,
             theoryid,
             damp=(tcard["DAMP"], tcard["DAMPPOWER"]),
         )
