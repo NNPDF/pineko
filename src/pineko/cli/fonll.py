@@ -17,6 +17,17 @@ class InconsistentInputsError(Exception):
     pass
 
 
+def get_list_grids_name(yaml_file):
+    """Return the list of the grids in the yaml file."""
+    yaml_content = parser._load_yaml(yaml_file)
+    # Turn the operands and the members into paths (and check all of them exist)
+    ret = []
+    for operand in yaml_content["operands"]:
+        for member in operand:
+            ret.append(member + parser.EXT)
+    return ret
+
+
 @command.command("combine_fonll")
 @click.argument("theoryID", type=int)
 @click.argument("dataset", type=str)
@@ -54,11 +65,9 @@ def subcommand(
             raise InconsistentInputsError
         tcard["DAMPPOWER"] = None
     # Getting the paths to the grids
-    _info, grids = parser.get_yaml_information(
-        configs.configs["paths"]["ymldb"] / f"{dataset}.yaml",
-        configs.configs["paths"]["grids"] / str(theoryid),
+    grids_name = get_list_grids_name(
+        configs.configs["paths"]["ymldb"] / f"{dataset}.yaml"
     )
-    grids_name = [grid.name for opgrids in grids for grid in opgrids]
     for grid in grids_name:
         fonll.produce_combined_fk(
             configs.configs["paths"]["fktables"] / str(ffns3) / grid,
