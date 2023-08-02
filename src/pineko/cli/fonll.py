@@ -1,7 +1,7 @@
 """CLI entry point to FONLL."""
 import click
 
-from .. import configs, fonll, theory_card
+from .. import configs, fonll, parser, theory_card
 from ._base import command
 
 
