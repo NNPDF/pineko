@@ -22,7 +22,26 @@ def test_FONLLInfo():
     partialfonll_fake_info = pineko.fonll.FONLLInfo(
         full_list[0], full_list[1], full_list[2], None, None, None, None
     )
-    assert fullfonll_fake_info.fk_paths == [pathlib.Path(fk) for fk in full_list]
-    # In this case it ignores the ffns5bar fk
-    assert wrongfonll_fake_info.fk_paths == [pathlib.Path(fk) for fk in full_list[:4]]
-    assert partialfonll_fake_info.fk_paths == [pathlib.Path(fk) for fk in full_list[:3]]
+    name_list = [
+        "ffns3",
+        "ffn03",
+        "ffns4til",
+        "ffns4bar",
+        "ffn04",
+        "ffns5til",
+        "ffns5bar",
+    ]
+    assert fullfonll_fake_info.fk_paths == {
+        name: pathlib.Path(fk) for name, fk in zip(name_list, full_list)
+    }
+    assert wrongfonll_fake_info.fk_paths == {
+        name: pathlib.Path(fk)
+        for name, fk in zip(
+            name_list[:4] + [name_list[-1]], full_list[:4] + [full_list[-1]]
+        )
+    }
+    assert partialfonll_fake_info.fk_paths == {
+        name: pathlib.Path(fk)
+        for name, fk in zip(name_list[:3], full_list[:3])
+        if fk is not None
+    }
