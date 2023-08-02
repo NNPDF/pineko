@@ -109,7 +109,7 @@ def produce_combined_fk(
         combined_fk = fk_dict[list(fk_dict)[0]]
         with tempfile.TemporaryDirectory() as tmpdirname:
             for fk in list(fk_dict)[1:]:
-                tmpfile_path = Path(tmpdirname) / f"{i}.pineappl.lz4"
+                tmpfile_path = Path(tmpdirname) / f"{fk}.pineappl.lz4"
                 sign = -1 if fk in FK_WITH_MINUS else 1
                 fk_dict[fk].scale(sign)
                 fk_dict[fk].write_lz4(tmpfile_path)
@@ -130,7 +130,7 @@ def produce_combined_fk(
         with tempfile.TemporaryDirectory() as tmpdirname:
             combined_fk = fk_dict[list(fk_dict)[0]]
             for fk in list(fk_dict)[1:]:
-                tmpfile_path = Path(tmpdirname) / f"{i}.pineappl.lz4"
+                tmpfile_path = Path(tmpdirname) / f"{fk}.pineappl.lz4"
                 sign = -1 if fk in FK_WITH_MINUS else 1
                 fk_dict[fk].scale(sign)
                 for mass in FK_TO_DAMP:
