@@ -19,15 +19,19 @@ class InconsistentInputsError(Exception):
 
 @command.command("combine_fonll")
 @click.argument("theoryID", type=int)
-@click.option("--FFNS3", type=click.Path(exists=True))
-@click.option("--FFN03", type=click.Path(exists=True))
-@click.option("--FFNS4til", type=click.Path(exists=True))
-@click.option("--FFNS4bar", type=click.Path(exists=True))
-@click.option("--FFN04", type=click.Path(exists=True))
-@click.option("--FFNS5til", type=click.Path(exists=True))
-@click.option("--FFNS5bar", type=click.Path(exists=True))
-def subcommand(theoryid, ffns3, ffn03, ffns4til, ffns4bar, ffn04, ffns5til, ffns5bar):
+@click.argument("dataset", type=str)
+@click.option("--FFNS3", type=int)
+@click.option("--FFN03", type=int)
+@click.option("--FFNS4til", type=int)
+@click.option("--FFNS4bar", type=int)
+@click.option("--FFN04", type=int)
+@click.option("--FFNS5til", type=int)
+@click.option("--FFNS5bar", type=int)
+def subcommand(
+    theoryid, dataset, ffns3, ffn03, ffns4til, ffns4bar, ffn04, ffns5til, ffns5bar
+):
     """Combine the different FKs needed to produce the FONLL prescription."""
+    # Checks
     if (ffn04 is None and ffns5til is not None) or (
         ffn04 is not None and ffns5til is None
     ):
@@ -42,24 +46,31 @@ def subcommand(theoryid, ffns3, ffn03, ffns4til, ffns4bar, ffn04, ffns5til, ffns
             "One between ffn03 and ffns4til has been provided without the other. Since they are both needed to construct FONLL, this does not make sense."
         )
         raise InconsistentInputsError
-
+    # Get theory info
     configs.configs = configs.defaults(configs.load())
     tcard = theory_card.load(theoryid)
     if not "DAMPPOWER" in tcard:
         if tcard["DAMP"] != 0:
             raise InconsistentInputsError
         tcard["DAMPPOWER"] = None
-    fonll.produce_combined_fk(
-        ffns3,
-        ffn03,
-        ffns4til,
-        ffns4bar,
-        ffn04,
-        ffns5til,
-        ffns5bar,
-        theoryid,
-        damp=(tcard["DAMP"], tcard["DAMPPOWER"]),
+    # Getting the paths to the grids
+    _info, grids = parser.get_yaml_information(
+        configs.configs["paths"]["ymldb"] / f"{dataset}.yaml",
+        configs.configs["paths"]["grids"] / str(theoryid),
     )
+    grids_name = [grid.name for opgrids in grids for grid in opgrids]
+    for grid in grids_name:
+        fonll.produce_combined_fk(
+            configs.configs["paths"]["fktables"] / str(ffns3) / grid,
+            configs.configs["paths"]["fktables"] / str(ffn03) / grid,
+            configs.configs["paths"]["fktables"] / str(ffns4til) / grid,
+            configs.configs["paths"]["fktables"] / str(ffns4bar) / grid,
+            configs.configs["paths"]["fktables"] / str(ffn04) / grid,
+            configs.configs["paths"]["fktables"] / str(ffns5til) / grid,
+            configs.configs["paths"]["fktables"] / str(ffns5bar) / grid,
+            theoryid,
+            damp=(tcard["DAMP"], tcard["DAMPPOWER"]),
+        )
 
 
 @command.command("fonll_tcards")
