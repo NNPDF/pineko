@@ -71,7 +71,7 @@ def subcommand(
     for grid in grids_name:
         fonll.produce_combined_fk(
             configs.configs["paths"]["fktables"] / str(ffns3) / grid
-            if (configs.configs["paths"]["fktables"] / str(ffns3) / grid).exixts()
+            if (configs.configs["paths"]["fktables"] / str(ffns3) / grid).exists()
             else None,
             configs.configs["paths"]["fktables"] / str(ffn03) / grid
             if (configs.configs["paths"]["fktables"] / str(ffn03) / grid).exists()
