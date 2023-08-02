@@ -81,9 +81,10 @@ def subcommand(
     )
     for grid in grids_name:
         # Checking if it already exists
-        if (configs.configs["paths"]["fktables"] / str(theoryid) / grid).exists():
+        new_fk_path = configs.configs["paths"]["fktables"] / str(theoryid) / grid
+        if new_fk_path.exists():
             if not overwrite:
-                rich.print(f"Skipping existing FK Table {grid}")
+                rich.print(f"[green]Skipping existing FK Table {new_fk_path}")
                 return
         fonll.produce_combined_fk(
             configs.configs["paths"]["fktables"] / str(ffns3) / grid
@@ -110,6 +111,10 @@ def subcommand(
             theoryid,
             damp=(tcard["DAMP"], tcard["DAMPPOWER"]),
         )
+        if new_fk_path.exists():
+            rich.print(f"[green]Success:[/] Wrote FK table to {new_fk_path}")
+        else:
+            rich.print(f"[red]Failure:[/]")
 
 
 @command.command("fonll_tcards")
