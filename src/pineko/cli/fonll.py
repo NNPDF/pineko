@@ -1,5 +1,6 @@
 """CLI entry point to FONLL."""
 import click
+import rich
 
 from .. import configs, fonll, parser, theory_card
 from ._base import command
@@ -29,17 +30,27 @@ def get_list_grids_name(yaml_file):
 
 
 @command.command("combine_fonll")
-@click.argument("theoryID", type=int)
-@click.argument("dataset", type=str)
-@click.option("--FFNS3", type=int)
-@click.option("--FFN03", type=int)
-@click.option("--FFNS4til", type=int)
-@click.option("--FFNS4bar", type=int)
-@click.option("--FFN04", type=int)
-@click.option("--FFNS5til", type=int)
-@click.option("--FFNS5bar", type=int)
+@click.argument("theoryID", type=int, help="theoryID of the final fktable")
+@click.argument("dataset", type=str, help="dataset name")
+@click.option("--FFNS3", type=int, help="theoryID containing the ffns3 fktable")
+@click.option("--FFN03", type=int, help="theoryID containing the ffn03 fktable")
+@click.option("--FFNS4til", type=int, help="theoryID containing the ffns4til fktable")
+@click.option("--FFNS4bar", type=int, help="theoryID containing the ffns4bar fktable")
+@click.option("--FFN04", type=int, help="theoryID containing the ffn04 fktable")
+@click.option("--FFNS5til", type=int, help="theoryID containing the ffns5til fktable")
+@click.option("--FFNS5bar", type=int, help="theoryID containing the ffns5bar fktable")
+@click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
 def subcommand(
-    theoryid, dataset, ffns3, ffn03, ffns4til, ffns4bar, ffn04, ffns5til, ffns5bar
+    theoryid,
+    dataset,
+    ffns3,
+    ffn03,
+    ffns4til,
+    ffns4bar,
+    ffn04,
+    ffns5til,
+    ffns5bar,
+    overwrite,
 ):
     """Combine the different FKs needed to produce the FONLL prescription."""
     # Checks
@@ -69,6 +80,11 @@ def subcommand(
         configs.configs["paths"]["ymldb"] / f"{dataset}.yaml"
     )
     for grid in grids_name:
+        # Checking if it already exists
+        if (configs.configs["paths"]["fktables"] / str(theoryid) / grid).exists():
+            if not overwrite:
+                rich.print(f"Skipping existing FK Table {grid.stem}")
+                return
         fonll.produce_combined_fk(
             configs.configs["paths"]["fktables"] / str(ffns3) / grid
             if (configs.configs["paths"]["fktables"] / str(ffns3) / grid).exists()
