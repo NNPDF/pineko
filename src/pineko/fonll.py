@@ -64,7 +64,10 @@ class FONLLInfo:
             del card["NfFF"]
             del card["ID"]
             del card["FONLLParts"]
-        if not all([theorycards[0] == card in theorycards[1:]]):
+            del card["Comments"]
+        if len(theorycards) > 1 and not all(
+            [theorycards[0] == card in theorycards[1:]]
+        ):
             raise ValueError("theorycards not the same")
         return theorycards[0]
 
