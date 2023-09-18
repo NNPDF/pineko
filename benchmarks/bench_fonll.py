@@ -23,4 +23,4 @@ def benchmark_produce_fonll_tcards(tmp_path, test_files, test_configs, theoryid)
         assert simFONLL_tcard["FNS"] == fns
         assert simFONLL_tcard["NfFF"] == nfff
         assert simFONLL_tcard["PTO"] == po
-        assert simFONLL_tcard["fonll-parts"] == part
+        assert simFONLL_tcard["FONLLParts"] == part
