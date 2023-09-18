@@ -166,6 +166,8 @@ PTOS_DICT = {
     "FONLL-A": [1 for _ in range(7)],
     "FONLL-B": [2, 2, 1, 2, 2, 1, 2],
     "FONLL-C": [2 for _ in range(7)],
+    "FONLL-D": [3, 3, 2, 3, 3, 2, 3],
+    "FONLL-E": [3 for _ in range(7)],
 }
 
 
