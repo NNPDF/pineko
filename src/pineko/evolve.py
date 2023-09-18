@@ -246,6 +246,10 @@ def evolve_grid(
         order_mask=order_mask,
         xi=(xir, xif),
     )
+    # Rotate again the eko to save disk space
+    eko.io.manipulate.xgrid_reshape(
+        operators, targetgrid=opcard.xgrid
+    )
     rich.print(f"Optimizing for {assumptions}")
     fktable.optimize(assumptions)
     fktable.set_key_value("eko_version", operators.metadata.version)
