@@ -5,6 +5,16 @@ import rich
 from .. import configs, fonll, parser, theory_card
 from ._base import command
 
+import pathlib
+
+config_setting = click.option(
+    "-c",
+    "--configs",
+    "cfg",
+    default=None,
+    type=click.Path(resolve_path=True, path_type=pathlib.Path),
+    help="Explicitly specify config file (it has to be a valid TOML file).",
+)
 
 class TheoryCardError(Exception):
     """Raised when asked for FONLL theory cards with an original tcard as input that is not asking for FONLL."""
@@ -40,6 +50,7 @@ def get_list_grids_name(yaml_file):
 @click.option("--FFNS5til", type=int, help="theoryID containing the ffns5til fktable")
 @click.option("--FFNS5bar", type=int, help="theoryID containing the ffns5bar fktable")
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
+@config_setting
 def subcommand(
     theoryid,
     dataset,
@@ -51,8 +62,16 @@ def subcommand(
     ffns5til,
     ffns5bar,
     overwrite,
+    cfg
 ):
     """Combine the different FKs needed to produce the FONLL prescription."""
+
+    path = configs.detect(cfg)
+    base_configs = configs.load(path)
+    configs.configs = configs.defaults(base_configs)
+    if cfg is not None:
+        print(f"Configurations loaded from '{path}'")
+
     # Checks
     if (ffn04 is None and ffns5til is not None) or (
         ffn04 is not None and ffns5til is None
@@ -69,7 +88,6 @@ def subcommand(
         )
         raise InconsistentInputsError
     # Get theory info
-    configs.configs = configs.defaults(configs.load())
     tcard = theory_card.load(theoryid)
     if not "DAMPPOWER" in tcard:
         if tcard["DAMP"] != 0:
@@ -121,9 +139,14 @@ def subcommand(
 
 @command.command("fonll_tcards")
 @click.argument("theoryID", type=int)
-def fonll_tcards(theoryid):
+@config_setting
+def fonll_tcards(theoryid, cfg):
     """Produce the FONLL tcards starting from the original tcard given by the theoryID."""
-    configs.configs = configs.defaults(configs.load())
+    path = configs.detect(cfg)
+    base_configs = configs.load(path)
+    configs.configs = configs.defaults(base_configs)
+    if cfg is not None:
+        print(f"Configurations loaded from '{path}'")
     tcard = theory_card.load(theoryid)
     tcard_parent_path = theory_card.path(theoryid).parent
     if "FONLL" not in tcard["FNS"]:
