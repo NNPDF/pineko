@@ -18,6 +18,7 @@ class FONLLInfo:
     def __init__(
         self, ffns3, ffn03, ffns4til, ffns4bar, ffn04, ffns5til, ffns5bar
     ) -> None:
+        """Initialize fonll info."""
         self.ffns3 = ffns3
         self.ffn03 = ffn03
         self.ffns4til = ffns4til
@@ -178,19 +179,31 @@ FNS_LIST = [
 
 NFFF_LIST = [3, 3, 4, 4, 4, 5, 5, 5]
 PARTS_LIST = ["full", "full", "massless", "massive", "full", "massless", "massive"]
-PTOS_DICT = {
-    "FONLL-A": [1 for _ in range(7)],
-    "FONLL-B": [2, 2, 1, 2, 2, 1, 2],
-    "FONLL-C": [2 for _ in range(7)],
-    "FONLL-D": [3, 3, 2, 3, 3, 2, 3],
-    "FONLL-E": [3 for _ in range(7)],
-}
+FNS_BASE_PTO = {"FONLL-A": 1, "FONLL-B": 1, "FONLL-C": 2, "FONLL-D": 2, "FONLL-E": 3}
+MIXED_ORDER_FNS = ["FONLL-B", "FONLL-D"]
+
+
+def produce_ptos(fns):
+    """Produce the list of PTOs needed for the requested fns."""
+    base_pto = FNS_BASE_PTO["fns"]
+    if fns in MIXED_ORDER_FNS:
+        return [
+            base_pto + 1,
+            base_pto + 1,
+            base_pto,
+            base_pto + 1,
+            base_pto + 1,
+            base_pto,
+            base_pto + 1,
+        ]
+    else:
+        return [base_pto for _ in range(7)]
 
 
 def produce_fonll_recipe(fns):
     """Produce the different theory cards according to which FONLL is asked for."""
     fonll_recipe = []
-    for fns, nfff, po, part in zip(FNS_LIST, NFFF_LIST, PTOS_DICT[fns], PARTS_LIST):
+    for fns, nfff, po, part in zip(FNS_LIST, NFFF_LIST, produce_ptos(fns), PARTS_LIST):
         fonll_recipe.append(
             {
                 "FNS": fns,

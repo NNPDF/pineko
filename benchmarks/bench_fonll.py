@@ -17,7 +17,7 @@ def benchmark_produce_fonll_tcards(tmp_path, test_files, test_configs, theoryid)
         theorycards,
         pineko.fonll.FNS_LIST,
         pineko.fonll.NFFF_LIST,
-        pineko.fonll.PTOS_DICT[tcard["FNS"]],
+        pineko.fonll.produce_ptos(tcard["FNS"]),
         pineko.fonll.PARTS_LIST,
     ):
         assert simFONLL_tcard["FNS"] == fns
