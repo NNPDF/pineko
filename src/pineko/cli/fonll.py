@@ -1,11 +1,11 @@
 """CLI entry point to FONLL."""
+import pathlib
+
 import click
 import rich
 
 from .. import configs, fonll, parser, theory_card
 from ._base import command
-
-import pathlib
 
 config_setting = click.option(
     "-c",
@@ -15,6 +15,7 @@ config_setting = click.option(
     type=click.Path(resolve_path=True, path_type=pathlib.Path),
     help="Explicitly specify config file (it has to be a valid TOML file).",
 )
+
 
 class TheoryCardError(Exception):
     """Raised when asked for FONLL theory cards with an original tcard as input that is not asking for FONLL."""
@@ -62,10 +63,9 @@ def subcommand(
     ffns5til,
     ffns5bar,
     overwrite,
-    cfg
+    cfg,
 ):
     """Combine the different FKs needed to produce the FONLL prescription."""
-
     path = configs.detect(cfg)
     base_configs = configs.load(path)
     configs.configs = configs.defaults(base_configs)
