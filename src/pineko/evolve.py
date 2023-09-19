@@ -202,16 +202,15 @@ def evolve_grid(
     # rotate the targetgrid
     if "integrability_version" in grid.key_values():
         x_grid = np.append(x_grid, 1.0)
-    new_operators = copy.deepcopy(operators)
     eko.io.manipulate.xgrid_reshape(
-        new_operators, targetgrid=eko.interpolation.XGrid(x_grid)
+        operators, targetgrid=eko.interpolation.XGrid(x_grid)
     )
-    check.check_grid_and_eko_compatible(grid, new_operators, xif, max_as, max_al)
+    check.check_grid_and_eko_compatible(grid, operators, xif, max_as, max_al)
     # rotate to evolution (if doable and necessary)
-    if np.allclose(new_operators.bases.inputpids, br.flavor_basis_pids):
-        eko.io.manipulate.to_evol(new_operators)
+    if np.allclose(operators.bases.inputpids, br.flavor_basis_pids):
+        eko.io.manipulate.to_evol(operators)
     # Here we are checking if the EKO contains the rotation matrix (flavor to evol)
-    elif not np.allclose(new_operators.bases.inputpids, br.rotate_flavor_to_evolution):
+    elif not np.allclose(operators.bases.inputpids, br.rotate_flavor_to_evolution):
         raise ValueError("The EKO is neither in flavor nor in evolution basis.")
     # PineAPPL wants alpha_s = 4*pi*a_s
     # remember that we already accounted for xif in the opcard generation
@@ -240,15 +239,13 @@ def evolve_grid(
     ]
     # We need to use ekompatibility in order to pass a dictionary to pineappl
     fktable = grid.evolve(
-        ekompatibility.pineappl_layout(new_operators),
+        ekompatibility.pineappl_layout(operators),
         xir * xir * mur2_grid,
         alphas_values,
         "evol",
         order_mask=order_mask,
         xi=(xir, xif),
     )
-    # Save only the original operator to save disk space
-    del new_operators
     rich.print(f"Optimizing for {assumptions}")
     fktable.optimize(assumptions)
     fktable.set_key_value("eko_version", operators.metadata.version)
