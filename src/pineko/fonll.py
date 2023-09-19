@@ -185,7 +185,7 @@ MIXED_ORDER_FNS = ["FONLL-B", "FONLL-D"]
 
 def produce_ptos(fns):
     """Produce the list of PTOs needed for the requested fns."""
-    base_pto = FNS_BASE_PTO["fns"]
+    base_pto = FNS_BASE_PTO[fns]
     if fns in MIXED_ORDER_FNS:
         return [
             base_pto + 1,
