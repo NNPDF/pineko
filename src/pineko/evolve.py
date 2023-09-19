@@ -202,6 +202,7 @@ def evolve_grid(
     # rotate the targetgrid
     if "integrability_version" in grid.key_values():
         x_grid = np.append(x_grid, 1.0)
+    orignal_operators = copy.deepcopy(operators)
     eko.io.manipulate.xgrid_reshape(
         operators, targetgrid=eko.interpolation.XGrid(x_grid)
     )
@@ -246,10 +247,8 @@ def evolve_grid(
         order_mask=order_mask,
         xi=(xir, xif),
     )
-    # Rotate again the eko to save disk space
-    eko.io.manipulate.xgrid_reshape(
-        operators, targetgrid=opcard.xgrid
-    )
+    # Save only the original operator to save disk space
+    operators = orignal_operators
     rich.print(f"Optimizing for {assumptions}")
     fktable.optimize(assumptions)
     fktable.set_key_value("eko_version", operators.metadata.version)
