@@ -16,14 +16,16 @@ class FONLLInfo:
     """Class containing all the information for FONLL predictions."""
 
     def __init__(
-        self, ffns3, ffn03, ffns4til, ffns4bar, ffn04, ffns5til, ffns5bar
+        self, ffns3, ffn03, ffns4, ffns4til, ffns4bar, ffn04, ffns5, ffns5til, ffns5bar
     ) -> None:
         """Initialize fonll info."""
         self.ffns3 = ffns3
         self.ffn03 = ffn03
+        self.ffns4 = ffns4
         self.ffns4til = ffns4til
         self.ffns4bar = ffns4bar
         self.ffn04 = ffn04
+        self.ffns5 = ffns5
         self.ffns5til = ffns5til
         self.ffns5bar = ffns5bar
 
@@ -33,9 +35,11 @@ class FONLLInfo:
         paths = {
             "ffns3": self.ffns3,
             "ffn03": self.ffn03,
+            "ffns4": self.ffns4,
             "ffns4til": self.ffns4til,
             "ffns4bar": self.ffns4bar,
             "ffn04": self.ffn04,
+            "ffns5": self.ffns5,
             "ffns5til": self.ffns5til,
             "ffns5bar": self.ffns5bar,
         }
@@ -96,16 +100,18 @@ FK_WITH_MINUS = ["ffn03", "ffn04"]  # asy terms should be subtracted, therefore 
 def produce_combined_fk(
     ffns3,
     ffn03,
+    ffns4,
     ffns4til,
     ffns4bar,
     ffn04,
+    ffns5,
     ffns5til,
     ffns5bar,
     theoryid,
     damp=(0, None),
 ):
     """Combine the FONLL FKs to produce one single final FONLL FK."""
-    fonll_info = FONLLInfo(ffns3, ffn03, ffns4til, ffns4bar, ffn04, ffns5til, ffns5bar)
+    fonll_info = FONLLInfo(ffns3, ffn03, ffns4, ffns4til, ffns4bar, ffn04, ffns5, ffns5til, ffns5bar)
     theorycard_constituent_fks = fonll_info.theorycard_no_fns_pto
     fk_dict = fonll_info.fks
     if damp[0] == 0:
@@ -167,7 +173,11 @@ def produce_combined_fk(
     combined_fk.write_lz4(output_path_fk)
 
 
-FNS_LIST = [
+FNS_BASE_PTO = {"FONLL-A": 1, "FONLL-B": 1, "FONLL-C": 2, "FONLL-D": 2, "FONLL-E": 3}
+MIXED_ORDER_FNS = ["FONLL-B", "FONLL-D"]
+
+# Mixed FONLL schemes
+MIXED_FNS_LIST = [
     "FONLL-FFNS",
     "FONLL-FFN0",
     "FONLL-FFNS",
@@ -176,16 +186,25 @@ FNS_LIST = [
     "FONLL-FFNS",
     "FONLL-FFNS",
 ]
+MIXED_NFFF_LIST = [3, 3, 4, 4, 4, 5, 5, 5]
+MIXED_PARTS_LIST = ["full", "full", "massless", "massive", "full", "massless", "massive"]
 
-NFFF_LIST = [3, 3, 4, 4, 4, 5, 5, 5]
-PARTS_LIST = ["full", "full", "massless", "massive", "full", "massless", "massive"]
-FNS_BASE_PTO = {"FONLL-A": 1, "FONLL-B": 1, "FONLL-C": 2, "FONLL-D": 2, "FONLL-E": 3}
-MIXED_ORDER_FNS = ["FONLL-B", "FONLL-D"]
+# plain FONLL schemes
+FNS_LIST = [
+    "FONLL-FFNS",
+    "FONLL-FFN0",
+    "FONLL-FFNS",
+    "FONLL-FFN0",
+    "FONLL-FFNS",
+]
+NFFF_LIST = [3, 3, 4, 4, 5]
+PARTS_LIST = ["full" for _ in range(5)]
 
 
-def produce_ptos(fns):
+def produce_ptos(fns, is_mixed):
     """Produce the list of PTOs needed for the requested fns."""
     base_pto = FNS_BASE_PTO[fns]
+    # mixed FONLL
     if fns in MIXED_ORDER_FNS:
         return [
             base_pto + 1,
@@ -196,14 +215,22 @@ def produce_ptos(fns):
             base_pto,
             base_pto + 1,
         ]
-    else:
+    # plain FONLL with damping
+    elif is_mixed:
         return [base_pto for _ in range(7)]
+    # plain FONLL without damping
+    else:
+        return [base_pto for _ in range(5)]
 
 
-def produce_fonll_recipe(fns):
+def produce_fonll_recipe(fonll_fns, damp):
     """Produce the different theory cards according to which FONLL is asked for."""
     fonll_recipe = []
-    for fns, nfff, po, part in zip(FNS_LIST, NFFF_LIST, produce_ptos(fns), PARTS_LIST):
+    is_mixed = fonll_fns in MIXED_ORDER_FNS or damp != 0
+    fns_list = MIXED_FNS_LIST if is_mixed else FNS_LIST
+    nfff_list = MIXED_NFFF_LIST if is_mixed else NFFF_LIST
+    parts_list = MIXED_PARTS_LIST if is_mixed else PARTS_LIST
+    for fns, nfff, po, part in zip(fns_list, nfff_list, produce_ptos(fonll_fns, is_mixed), parts_list):
         fonll_recipe.append(
             {
                 "FNS": fns,
@@ -217,11 +244,12 @@ def produce_fonll_recipe(fns):
 
 def produce_fonll_tcards(tcard, tcard_parent_path, theoryid):
     """Produce the seven fonll tcards from an original tcard and dump them in tcard_parent_path with names from '{theoryid}00.yaml' to '{theoryid}06.yaml'."""
-    theorycards = [copy.deepcopy(tcard) for _ in range(7)]
-    fonll_recipe = produce_fonll_recipe(tcard["FNS"])
+    fonll_recipe = produce_fonll_recipe(tcard["FNS"], tcard["DAMP"])
+    n_theory = len(fonll_recipe)
+    theorycards = [copy.deepcopy(tcard) for _ in range(n_theory)]
     for theorycard, recipe in zip(theorycards, fonll_recipe):
         theorycard.update(recipe)
-    paths_list = [tcard_parent_path / f"{theoryid}0{num}.yaml" for num in range(7)]
+    paths_list = [tcard_parent_path / f"{theoryid}0{num}.yaml" for num in range(n_theory)]
     for newtcard, path in zip(theorycards, paths_list):
         with open(path, "w", encoding="UTF-8") as f:
             yaml.safe_dump(newtcard, f)
