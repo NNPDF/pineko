@@ -19,7 +19,15 @@ def test_FONLLInfo():
     ]
     fullfonll_fake_info = pineko.fonll.FONLLInfo(*full_list)
     wrongfonll_fake_info = pineko.fonll.FONLLInfo(
-        full_list[0], full_list[1], None, full_list[3], full_list[4], None, None, None, full_list[8] 
+        full_list[0],
+        full_list[1],
+        None,
+        full_list[3],
+        full_list[4],
+        None,
+        None,
+        None,
+        full_list[8],
     )
     partialfonll_fake_info = pineko.fonll.FONLLInfo(
         full_list[0], full_list[1], None, full_list[3], None, None, None, None, None
@@ -41,11 +49,14 @@ def test_FONLLInfo():
     assert wrongfonll_fake_info.fk_paths == {
         name: pathlib.Path(fk)
         for name, fk in zip(
-            name_list[:2] + name_list[3:5] + [name_list[-1]], full_list[:2] + full_list[3:5] + [full_list[-1]]
+            name_list[:2] + name_list[3:5] + [name_list[-1]],
+            full_list[:2] + full_list[3:5] + [full_list[-1]],
         )
     }
     assert partialfonll_fake_info.fk_paths == {
         name: pathlib.Path(fk)
-        for name, fk in zip(name_list[:2] + name_list[3:4], full_list[:2] + full_list[3:4])
+        for name, fk in zip(
+            name_list[:2] + name_list[3:4], full_list[:2] + full_list[3:4]
+        )
         if fk is not None
     }

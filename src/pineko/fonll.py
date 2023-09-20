@@ -111,7 +111,9 @@ def produce_combined_fk(
     damp=(0, None),
 ):
     """Combine the FONLL FKs to produce one single final FONLL FK."""
-    fonll_info = FONLLInfo(ffns3, ffn03, ffns4, ffns4til, ffns4bar, ffn04, ffns5, ffns5til, ffns5bar)
+    fonll_info = FONLLInfo(
+        ffns3, ffn03, ffns4, ffns4til, ffns4bar, ffn04, ffns5, ffns5til, ffns5bar
+    )
     theorycard_constituent_fks = fonll_info.theorycard_no_fns_pto
     fk_dict = fonll_info.fks
     if damp[0] == 0:
@@ -187,7 +189,15 @@ MIXED_FNS_LIST = [
     "FONLL-FFNS",
 ]
 MIXED_NFFF_LIST = [3, 3, 4, 4, 4, 5, 5, 5]
-MIXED_PARTS_LIST = ["full", "full", "massless", "massive", "full", "massless", "massive"]
+MIXED_PARTS_LIST = [
+    "full",
+    "full",
+    "massless",
+    "massive",
+    "full",
+    "massless",
+    "massive",
+]
 
 # plain FONLL schemes
 FNS_LIST = [
@@ -230,7 +240,9 @@ def produce_fonll_recipe(fonll_fns, damp):
     fns_list = MIXED_FNS_LIST if is_mixed else FNS_LIST
     nfff_list = MIXED_NFFF_LIST if is_mixed else NFFF_LIST
     parts_list = MIXED_PARTS_LIST if is_mixed else PARTS_LIST
-    for fns, nfff, po, part in zip(fns_list, nfff_list, produce_ptos(fonll_fns, is_mixed), parts_list):
+    for fns, nfff, po, part in zip(
+        fns_list, nfff_list, produce_ptos(fonll_fns, is_mixed), parts_list
+    ):
         fonll_recipe.append(
             {
                 "FNS": fns,
@@ -249,7 +261,9 @@ def produce_fonll_tcards(tcard, tcard_parent_path, theoryid):
     theorycards = [copy.deepcopy(tcard) for _ in range(n_theory)]
     for theorycard, recipe in zip(theorycards, fonll_recipe):
         theorycard.update(recipe)
-    paths_list = [tcard_parent_path / f"{theoryid}0{num}.yaml" for num in range(n_theory)]
+    paths_list = [
+        tcard_parent_path / f"{theoryid}0{num}.yaml" for num in range(n_theory)
+    ]
     for newtcard, path in zip(theorycards, paths_list):
         with open(path, "w", encoding="UTF-8") as f:
             yaml.safe_dump(newtcard, f)
