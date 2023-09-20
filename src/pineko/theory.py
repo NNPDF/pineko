@@ -397,7 +397,7 @@ class TheoryBuilder:
                 check_scvar_evolve(grid, max_as, max_al, check.Scale.FACT)
         # loading ekos to produce a tmp copy
         with eko.EKO.edit(eko_filename) as operators:
-            eko_tmp_path = operators.paths.root.parent / "eko-tmp"
+            eko_tmp_path = operators.paths.root.parent / "eko-tmp.tar"
             operators.deepcopy(eko_tmp_path)
         with eko.EKO.edit(eko_tmp_path) as operators:
             # Obtain the assumptions hash
