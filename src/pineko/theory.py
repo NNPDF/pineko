@@ -395,8 +395,11 @@ class TheoryBuilder:
         if sv_method is None:
             if not np.isclose(xif, 1.0):
                 check_scvar_evolve(grid, max_as, max_al, check.Scale.FACT)
-        # loading ekos
-        with eko.EKO.edit(eko_filename) as operators:
+        # loading ekos to produce a tmp copy
+        with eko.EKO.read(eko_filename) as operators:
+            eko_tmp_path = operators.paths.root.parent / "eko-tmp.tar"
+            operators.deepcopy(eko_tmp_path)
+        with eko.EKO.edit(eko_tmp_path) as operators:
             # Obtain the assumptions hash
             assumptions = theory_card.construct_assumptions(tcard)
             # do it!
@@ -430,6 +433,9 @@ class TheoryBuilder:
                 assumptions=assumptions,
                 comparison_pdf=pdf,
             )
+        # Remove tmp ekos
+        eko_tmp_path.unlink()
+
         logger.info(
             "Finished computation of %s - took %f s",
             name,
