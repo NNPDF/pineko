@@ -128,9 +128,11 @@ def subcommand(
                 for name in (
                     ffns3,
                     ffn03,
+                    ffns4,
                     ffns4til,
                     ffns4bar,
                     ffn04,
+                    ffns5,
                     ffns5til,
                     ffns5bar,
                 )
