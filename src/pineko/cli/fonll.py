@@ -84,19 +84,25 @@ def subcommand(
 
     # Checks
     if (ffn04 is None and (ffns5til is not None or ffns5 is not None)) or (
-        ffn04 is not None and (ffns5til is None or ffns5 is None)
+        ffn04 is not None and (ffns5til is None and ffns5 is None)
     ):
-        print(
+        raise InconsistentInputsError(
             "One between ffn04 and ffns5til has been provided without the other. Since they are both needed to construct FONLL, this does not make sense."
         )
-        raise InconsistentInputsError
     if (ffn03 is None and (ffns4til is not None or ffns4 is not None)) or (
-        ffn03 is not None and (ffns4til is None or ffns4 is None)
+        ffn03 is not None and (ffns4til is None and ffns4 is None)
     ):
-        print(
+        raise InconsistentInputsError(
             "One between ffn03 and ffns4til has been provided without the other. Since they are both needed to construct FONLL, this does not make sense."
         )
-        raise InconsistentInputsError
+
+    # check that if we have ffns we dont have any bar or til
+    if ffns4 is not None or ffns5 is not None:
+        if not all([fk is None for fk in [ffns4til,ffns4bar, ffns5til,ffns5bar]]):
+            raise InconsistentInputsError(
+                "If ffns4 and ffns5 are provided, no ffnstil or ffnsbar should be provided."
+            )
+
     # Get theory info
     tcard = theory_card.load(theoryid)
     if not "DAMPPOWER" in tcard:
