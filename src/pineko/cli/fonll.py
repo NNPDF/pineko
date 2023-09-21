@@ -55,7 +55,7 @@ def get_list_grids_name(yaml_file):
 @click.option("--FFNS4til", type=int, help="theoryID containing the ffns4til fktable")
 @click.option("--FFNS4bar", type=int, help="theoryID containing the ffns4bar fktable")
 @click.option("--FFN04", type=int, help="theoryID containing the ffn04 fktable")
-@click.option("--FFNS5", type=int, help="theoryID containing the ffns4 fktable")
+@click.option("--FFNS5", type=int, help="theoryID containing the ffns5 fktable")
 @click.option("--FFNS5til", type=int, help="theoryID containing the ffns5til fktable")
 @click.option("--FFNS5bar", type=int, help="theoryID containing the ffns5bar fktable")
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
