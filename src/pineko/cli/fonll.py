@@ -98,7 +98,7 @@ def subcommand(
 
     # check that if we have ffns we dont have any bar or til
     if ffns4 is not None or ffns5 is not None:
-        if not all([fk is None for fk in [ffns4til,ffns4bar, ffns5til,ffns5bar]]):
+        if not all([fk is None for fk in [ffns4til, ffns4bar, ffns5til, ffns5bar]]):
             raise InconsistentInputsError(
                 "If ffns4 and ffns5 are provided, no ffnstil or ffnsbar should be provided."
             )
