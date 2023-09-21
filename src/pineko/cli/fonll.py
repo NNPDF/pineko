@@ -29,6 +29,12 @@ class InconsistentInputsError(Exception):
     pass
 
 
+def load_cfg(name, grid):
+    """Path of the fktable in 'name' called 'grid' if it exists, else None."""
+    path = configs.configs["paths"]["fktables"] / name / grid
+    return path if path.exists() else None
+
+
 def get_list_grids_name(yaml_file):
     """Return the list of the grids in the yaml file."""
     yaml_content = parser._load_yaml(yaml_file)
@@ -106,28 +112,20 @@ def subcommand(
                     f"[green]Success:[/] skipping existing FK Table {new_fk_path}"
                 )
                 return
-        fonll.produce_combined_fk(
-            configs.configs["paths"]["fktables"] / str(ffns3) / grid
-            if (configs.configs["paths"]["fktables"] / str(ffns3) / grid).exists()
-            else None,
-            configs.configs["paths"]["fktables"] / str(ffn03) / grid
-            if (configs.configs["paths"]["fktables"] / str(ffn03) / grid).exists()
-            else None,
-            configs.configs["paths"]["fktables"] / str(ffns4til) / grid
-            if (configs.configs["paths"]["fktables"] / str(ffns4til) / grid).exists()
-            else None,
-            configs.configs["paths"]["fktables"] / str(ffns4bar) / grid
-            if (configs.configs["paths"]["fktables"] / str(ffns4bar) / grid).exists()
-            else None,
-            configs.configs["paths"]["fktables"] / str(ffn04) / grid
-            if (configs.configs["paths"]["fktables"] / str(ffn04)).exists()
-            else None,
-            configs.configs["paths"]["fktables"] / str(ffns5til) / grid
-            if (configs.configs["paths"]["fktables"] / str(ffns5til) / grid).exists()
-            else None,
             configs.configs["paths"]["fktables"] / str(ffns5bar) / grid
-            if (configs.configs["paths"]["fktables"] / str(ffns5bar) / grid).exists()
-            else None,
+        fonll.produce_combined_fk(
+            *(
+                load_cfg(str(name), grid)
+                for name in (
+                    ffns3,
+                    ffn03,
+                    ffns4til,
+                    ffns4bar,
+                    ffn04,
+                    ffns5til,
+                    ffns5bar,
+                )
+            ),
             theoryid,
             damp=(tcard["DAMP"], tcard["DAMPPOWER"]),
         )
