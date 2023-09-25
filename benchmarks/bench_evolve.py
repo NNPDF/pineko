@@ -13,9 +13,9 @@ import pineko.evolve
 import pineko.theory_card
 
 
-@pytest.mark.parametrize("theoryid", [400, 208])
+@pytest.mark.parametrize("theoryid,is_mixed", [(400, False), (208, True)])
 def benchmark_write_operator_card_from_file_simFONLL(
-    tmp_path, test_files, test_configs, theoryid
+    tmp_path, test_files, test_configs, theoryid, is_mixed
 ):
     tcard = pineko.theory_card.load(theoryid)
     tcards_path_list = pineko.fonll.produce_fonll_tcards(tcard, tmp_path, theoryid)
@@ -27,7 +27,10 @@ def benchmark_write_operator_card_from_file_simFONLL(
         / "HERA_NC_225GEV_EP_SIGMARED.pineappl.lz4"
     )
     default_path = test_files / "data" / "operator_cards" / "400" / "_template.yaml"
-    targets_path_list = [tmp_path / f"test_opcard_{num}.yaml" for num in range(7)]
+    num_opcard = 7 if is_mixed else 5
+    targets_path_list = [
+        tmp_path / f"test_opcard_{num}.yaml" for num in range(num_opcard)
+    ]
     for target_path, tcard_path in zip(targets_path_list, tcards_path_list):
         with open(tcard_path, encoding="utf-8") as f:
             tcard = yaml.safe_load(f)
@@ -35,7 +38,10 @@ def benchmark_write_operator_card_from_file_simFONLL(
             pine_path, default_path, target_path, tcard
         )
     # Check if the opcards are ok
-    for opcard_path, nfff in zip(targets_path_list, pineko.fonll.NFFF_LIST):
+    for opcard_path, nfff in zip(
+        targets_path_list,
+        pineko.fonll.MIXED_NFFF_LIST if is_mixed else pineko.fonll.NFFF_LIST,
+    ):
         with open(opcard_path, encoding="utf-8") as f:
             ocard = yaml.safe_load(f)
         for entry in ocard["mugrid"]:

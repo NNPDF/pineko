@@ -51,9 +51,11 @@ def get_list_grids_name(yaml_file):
 @click.argument("dataset", type=str)
 @click.option("--FFNS3", type=int, help="theoryID containing the ffns3 fktable")
 @click.option("--FFN03", type=int, help="theoryID containing the ffn03 fktable")
+@click.option("--FFNS4", type=int, help="theoryID containing the ffns4 fktable")
 @click.option("--FFNS4til", type=int, help="theoryID containing the ffns4til fktable")
 @click.option("--FFNS4bar", type=int, help="theoryID containing the ffns4bar fktable")
 @click.option("--FFN04", type=int, help="theoryID containing the ffn04 fktable")
+@click.option("--FFNS5", type=int, help="theoryID containing the ffns5 fktable")
 @click.option("--FFNS5til", type=int, help="theoryID containing the ffns5til fktable")
 @click.option("--FFNS5bar", type=int, help="theoryID containing the ffns5bar fktable")
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
@@ -63,9 +65,11 @@ def subcommand(
     dataset,
     ffns3,
     ffn03,
+    ffns4,
     ffns4til,
     ffns4bar,
     ffn04,
+    ffns5,
     ffns5til,
     ffns5bar,
     overwrite,
@@ -79,20 +83,26 @@ def subcommand(
         print(f"Configurations loaded from '{path}'")
 
     # Checks
-    if (ffn04 is None and ffns5til is not None) or (
-        ffn04 is not None and ffns5til is None
+    if (ffn04 is None and (ffns5til is not None or ffns5 is not None)) or (
+        ffn04 is not None and (ffns5til is None and ffns5 is None)
     ):
-        print(
+        raise InconsistentInputsError(
             "One between ffn04 and ffns5til has been provided without the other. Since they are both needed to construct FONLL, this does not make sense."
         )
-        raise InconsistentInputsError
-    if (ffn03 is None and ffns4til is not None) or (
-        ffn03 is not None and ffns4til is None
+    if (ffn03 is None and (ffns4til is not None or ffns4 is not None)) or (
+        ffn03 is not None and (ffns4til is None and ffns4 is None)
     ):
-        print(
+        raise InconsistentInputsError(
             "One between ffn03 and ffns4til has been provided without the other. Since they are both needed to construct FONLL, this does not make sense."
         )
-        raise InconsistentInputsError
+
+    # check that if we have ffns we dont have any bar or til
+    if ffns4 is not None or ffns5 is not None:
+        if not all([fk is None for fk in [ffns4til, ffns4bar, ffns5til, ffns5bar]]):
+            raise InconsistentInputsError(
+                "If ffns4 and ffns5 are provided, no ffnstil or ffnsbar should be provided."
+            )
+
     # Get theory info
     tcard = theory_card.load(theoryid)
     if not "DAMPPOWER" in tcard:
@@ -112,16 +122,17 @@ def subcommand(
                     f"[green]Success:[/] skipping existing FK Table {new_fk_path}"
                 )
                 return
-            configs.configs["paths"]["fktables"] / str(ffns5bar) / grid
         fonll.produce_combined_fk(
             *(
                 load_cfg(str(name), grid)
                 for name in (
                     ffns3,
                     ffn03,
+                    ffns4,
                     ffns4til,
                     ffns4bar,
                     ffn04,
+                    ffns5,
                     ffns5til,
                     ffns5bar,
                 )
