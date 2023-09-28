@@ -259,12 +259,14 @@ def produce_fonll_tcards(tcard, tcard_parent_path, theoryid):
     fonll_recipe = produce_fonll_recipe(tcard["FNS"], tcard["DAMP"])
     n_theory = len(fonll_recipe)
     theorycards = [copy.deepcopy(tcard) for _ in range(n_theory)]
-    for theorycard, recipe in zip(theorycards, fonll_recipe):
+    paths_list = []
+    for num, (theorycard, recipe) in enumerate(zip(theorycards, fonll_recipe)):
+        # update cards entries
         theorycard.update(recipe)
-    paths_list = [
-        tcard_parent_path / f"{theoryid}0{num}.yaml" for num in range(n_theory)
-    ]
-    for newtcard, path in zip(theorycards, paths_list):
-        with open(path, "w", encoding="UTF-8") as f:
-            yaml.safe_dump(newtcard, f)
+        theorycard["ID"] = int(f"{theoryid}0{num}")
+        # save
+        theorycard_path = tcard_parent_path / f'{theorycard["ID"]}.yaml'
+        with open(theorycard_path, "w", encoding="UTF-8") as f:
+            yaml.safe_dump(theorycard, f)
+        paths_list.append(theorycard_path)
     return paths_list
