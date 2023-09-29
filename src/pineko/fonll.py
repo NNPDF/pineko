@@ -7,6 +7,7 @@ from pathlib import Path
 
 import numpy as np
 import pineappl
+import rich
 import yaml
 
 from . import configs
@@ -269,4 +270,5 @@ def produce_fonll_tcards(tcard, tcard_parent_path, theoryid):
         with open(theorycard_path, "w", encoding="UTF-8") as f:
             yaml.safe_dump(theorycard, f)
         paths_list.append(theorycard_path)
+        rich.print(f"[green]Wrote theory card to {theorycard_path}")
     return paths_list
