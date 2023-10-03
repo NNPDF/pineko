@@ -135,7 +135,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
         operators_card["mugrid"] = [(float(np.sqrt(q2)), int(nf)) for q2 in q2_grid]
     else:
         operators_card["mugrid"] = [
-            (float(np.sqrt(q2)), int(nf_default(q2, atlas))) for q2 in q2_grid
+            (float(np.sqrt(q2)), nf_default(q2, atlas)) for q2 in q2_grid
         ]
     if "integrability_version" in pineappl_grid.key_values():
         x_grid = evol_info.x1
