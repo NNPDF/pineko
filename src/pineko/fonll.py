@@ -189,7 +189,7 @@ MIXED_FNS_LIST = [
     "FONLL-FFNS",
     "FONLL-FFNS",
 ]
-MIXED_NFFF_LIST = [3, 3, 4, 4, 4, 5, 5, 5]
+MIXED_NFFF_LIST = [3, 3, 4, 4, 4, 5, 5]
 MIXED_PARTS_LIST = [
     "full",
     "full",
