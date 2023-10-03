@@ -14,7 +14,7 @@ import pineko.theory_card
 
 
 @pytest.mark.parametrize("theoryid,is_mixed", [(400, False), (208, True)])
-def benchmark_write_operator_card_from_file_simFONLL(
+def benchmark_write_operator_card_from_file_num_fonll(
     tmp_path, test_files, test_configs, theoryid, is_mixed
 ):
     tcard = pineko.theory_card.load(theoryid)

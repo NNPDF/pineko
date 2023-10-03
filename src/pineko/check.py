@@ -158,8 +158,8 @@ def is_fonll_b(fns, lumi):
     return False
 
 
-def issimFONLL(FNS):
-    """Check if the FNS is a simFONLL FNS."""
+def is_num_fonll(FNS):
+    """Check if the FNS is a num_fonll FNS."""
     return FNS in ["FONLL-FFNS", "FONLL-FFN0"]
 
 

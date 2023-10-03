@@ -41,11 +41,11 @@ def test_is_fonll_b():
     assert pineko.check.is_fonll_b(fns, lumi_crazy) is False
 
 
-def test_issimFONLL():
-    simFONLL_FNS = "FONLL-FFN0"
-    nonsimFONLL_FNS = "FONLL-B"
-    assert pineko.check.issimFONLL(simFONLL_FNS) is True
-    assert pineko.check.issimFONLL(nonsimFONLL_FNS) is False
+def test_is_num_fonll():
+    num_fonll_FNS = "FONLL-FFN0"
+    non_num_fonll_FNS = "FONLL-B"
+    assert pineko.check.is_num_fonll(num_fonll_FNS) is True
+    assert pineko.check.is_num_fonll(non_num_fonll_FNS) is False
 
 
 class Fake_grid:

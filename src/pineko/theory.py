@@ -388,7 +388,7 @@ class TheoryBuilder:
             grid.lumi(),
         ):
             max_as += 1
-        # NB: This would not happen for simFONLL
+        # NB: This would not happen for num_fonll
         max_al = 0
         # check for sv
         if not np.isclose(xir, 1.0):

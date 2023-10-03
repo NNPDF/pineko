@@ -129,8 +129,8 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
         matching_scales=heavy_quarks.MatchingScales(masses * thresholds_ratios),
         origin=(tcard["Q0"] ** 2, tcard["nf0"]),
     )
-    # If we are producing simFONLL FKs we need to look to NfFF...
-    if check.issimFONLL(tcard["FNS"]):
+    # If we are producing num_fonll FKs we need to look to NfFF...
+    if check.is_num_fonll(tcard["FNS"]):
         nfff = tcard["NfFF"]
         operators_card["mugrid"] = [(float(np.sqrt(q2)), int(nfff)) for q2 in q2_grid]
     else:
