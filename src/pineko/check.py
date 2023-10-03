@@ -129,8 +129,8 @@ def is_dis(lumi):
     bool
         true if the fktable is a DIS fktable
     """
-    for lists in lumi:
-        for el in lists:
+    for entry in lumi:
+        for el in entry:
             if (not islepton(el[0])) and (not islepton(el[1])):
                 # If neither of the incoming particles is a lepton we are sure
                 # it is not DIS

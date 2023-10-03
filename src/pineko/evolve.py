@@ -131,8 +131,8 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     )
     # If we are producing num_fonll FKs we need to look to NfFF...
     if check.is_num_fonll(tcard["FNS"]):
-        nfff = tcard["NfFF"]
-        operators_card["mugrid"] = [(float(np.sqrt(q2)), int(nfff)) for q2 in q2_grid]
+        nf = tcard["NfFF"]
+        operators_card["mugrid"] = [(float(np.sqrt(q2)), int(nf)) for q2 in q2_grid]
     else:
         operators_card["mugrid"] = [
             (float(np.sqrt(q2)), int(nf_default(q2, atlas))) for q2 in q2_grid
