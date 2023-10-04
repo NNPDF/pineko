@@ -20,22 +20,18 @@ config_setting = click.option(
 class TheoryCardError(Exception):
     """Raised when asked for FONLL theory cards with an original tcard as input that is not asking for FONLL."""
 
-    pass
-
 
 class InconsistentInputsError(Exception):
     """Raised if the inputs are not consistent with FONLL."""
 
-    pass
 
-
-def load_cfg(name, grid):
+def cfgpath(name, grid):
     """Path of the fktable in 'name' called 'grid' if it exists, else None."""
     path = configs.configs["paths"]["fktables"] / name / grid
     return path if path.exists() else None
 
 
-def get_list_grids_name(yaml_file):
+def grids_names(yaml_file):
     """Return the list of the grids in the yaml file."""
     yaml_content = parser._load_yaml(yaml_file)
     # Turn the operands and the members into paths (and check all of them exist)
@@ -110,9 +106,7 @@ def subcommand(
             raise InconsistentInputsError
         tcard["DAMPPOWER"] = None
     # Getting the paths to the grids
-    grids_name = get_list_grids_name(
-        configs.configs["paths"]["ymldb"] / f"{dataset}.yaml"
-    )
+    grids_name = grids_names(configs.configs["paths"]["ymldb"] / f"{dataset}.yaml")
     for grid in grids_name:
         # Checking if it already exists
         new_fk_path = configs.configs["paths"]["fktables"] / str(theoryid) / grid
@@ -124,7 +118,7 @@ def subcommand(
                 return
         fonll.produce_combined_fk(
             *(
-                load_cfg(str(name), grid)
+                cfgpath(str(name), grid)
                 for name in (
                     ffns3,
                     ffn03,
