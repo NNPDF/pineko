@@ -252,6 +252,12 @@ def produce_fonll_recipe(fonll_fns, damp):
                 "FONLLParts": part,
             }
         )
+        # In a mixed FONLL scheme we only subract the resumt terms that are
+        # present in the FFNS scheme at nf+1. E.g. for FONLL-B in FFN03 we
+        # only subract up to NLL since there is no NNLL in FFNS4
+        if is_mixed and fns == "FONLL-FFN0":
+            fonll_recipe[-1]["PTODIS"] = po
+            fonll_recipe[-1]["PTO"] = po - 1
     return fonll_recipe
 
 
