@@ -389,7 +389,8 @@ class TheoryBuilder:
         ):
             max_as += 1
 
-        # to ensure that the higher order PTODIS terms are not neglegted
+        # Relevant for FONLL-B: ensures that the higher order PTODIS terms are
+        # not neglegted
         if "PTODIS" in tcard and "FONLL" in tcard["FNS"]:
             tcard["PTO"] = tcard["PTODIS"]
 
