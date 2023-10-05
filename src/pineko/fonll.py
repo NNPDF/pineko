@@ -57,8 +57,7 @@ class FONLLInfo:
         names = {self.fk_paths[p].name for p in self.fk_paths}
         if len(names) == 1:
             return names[0]
-        else:
-            raise ValueError("not all fktables have the same name")
+        raise ValueError("not all fktables have the same name")
 
     @property
     def theorycard_no_fns_pto(self):
