@@ -75,7 +75,7 @@ class FONLLInfo:
         if len(theorycards) > 1 and not all(
             [theorycards[0] == card in theorycards[1:]]
         ):
-            raise ValueError("theorycards not the same")
+            raise ValueError("Theory cards are not compatible")
         return theorycards[0]
 
     @property
