@@ -24,5 +24,9 @@ def benchmark_produce_fonll_tcards(
     ):
         assert num_fonll_tcard["FNS"] == fns
         assert num_fonll_tcard["NfFF"] == nfff
-        assert num_fonll_tcard["PTO"] == po
+        assert (
+            num_fonll_tcard["PTO"] == po - 1
+            if is_mixed and nfff == "FONLL-FFN0"
+            else po
+        )
         assert num_fonll_tcard["FONLLParts"] == part
