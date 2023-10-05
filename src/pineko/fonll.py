@@ -84,10 +84,10 @@ class FONLLInfo:
         obs = json.loads(self.fks[list(self.fks)[0]].key_values()["runcard"])[
             "observables"
         ]
-        bb = list(obs.values())[
+        kins = list(obs.values())[
             0
-        ]  # there is only a single obseravble because it's a dis fktable
-        return np.array([i["Q2"] for i in bb])
+        ]  # there is only a single observable because it's a dis fktable
+        return np.array([i["Q2"] for i in kins])
 
 
 # Notice we rely on the order defined by the FONLLInfo class
