@@ -81,10 +81,10 @@ class FONLLInfo:
     @property
     def Q2grid(self):
         """Return the Q2grid of the fktables given by self.fks ."""
-        aa = json.loads(self.fks[list(self.fks)[0]].key_values()["runcard"])[
+        obs = json.loads(self.fks[list(self.fks)[0]].key_values()["runcard"])[
             "observables"
         ]
-        bb = list(aa.values())[
+        bb = list(obs.values())[
             0
         ]  # there is only a single obseravble because it's a dis fktable
         cc = np.array([i["Q2"] for i in bb])
