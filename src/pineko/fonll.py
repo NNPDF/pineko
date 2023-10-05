@@ -87,8 +87,7 @@ class FONLLInfo:
         bb = list(obs.values())[
             0
         ]  # there is only a single obseravble because it's a dis fktable
-        cc = np.array([i["Q2"] for i in bb])
-        return cc
+        return np.array([i["Q2"] for i in bb])
 
 
 # Notice we rely on the order defined by the FONLLInfo class
