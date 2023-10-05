@@ -388,6 +388,11 @@ class TheoryBuilder:
             grid.lumi(),
         ):
             max_as += 1
+
+        # to ensure that the higher order PTODIS terms are not neglegted
+        if "PTODIS" in tcard and "FONLL" in tcard["FNS"]:
+            tcard["PTO"] = tcard["PTODIS"]
+
         # NB: This would not happen for num_fonll
         max_al = 0
         # check for sv
