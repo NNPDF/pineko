@@ -148,8 +148,6 @@ def fonll_tcards(theoryid, cfg):
     path = configs.detect(cfg)
     base_configs = configs.load(path)
     configs.configs = configs.defaults(base_configs)
-    if cfg is not None:
-        print(f"Configurations loaded from '{path}'")
     tcard = theory_card.load(theoryid)
     tcard_parent_path = theory_card.path(theoryid).parent
     if "FONLL" not in tcard["FNS"]:
