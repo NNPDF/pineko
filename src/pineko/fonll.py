@@ -49,7 +49,7 @@ class FONLLInfo:
     @property
     def fks(self):
         """Returns the pineappl.Grid objects reading the paths provided by self.fk_paths."""
-        return {fk: pineappl.grid.Grid.read(self.fk_paths[fk]) for fk in self.fk_paths}
+        return {fk: pineappl.grid.Grid.read(path) for fk, path in self.fk_paths.items()}
 
     @property
     def dataset_name(self):
