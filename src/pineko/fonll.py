@@ -67,12 +67,13 @@ class FONLLInfo:
         for card in theorycards:
             del card["FNS"]
             del card["PTO"]
+            card.pop("PTODIS", None)
             del card["NfFF"]
             del card["ID"]
             del card["FONLLParts"]
             del card["Comments"]
         if len(theorycards) > 1 and not all(
-            [theorycards[0] == card in theorycards[1:]]
+            [theorycards[0] == card for card in theorycards[1:]]
         ):
             raise ValueError("Theory cards are not compatible")
         return theorycards[0]
