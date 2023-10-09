@@ -212,7 +212,7 @@ NFFF_LIST = [3, 3, 4, 4, 5]
 PARTS_LIST = ["full" for _ in range(5)]
 
 
-def produce_ptos(fns, is_mixed):
+def produce_ptos(fns, is_mixed_or_damp):
     """Produce the list of PTOs needed for the requested fns."""
     base_pto = FNS_BASE_PTO[fns]
     # mixed FONLL
@@ -227,7 +227,7 @@ def produce_ptos(fns, is_mixed):
             base_pto + 1,
         ]
     # plain FONLL with damping
-    elif is_mixed:
+    elif is_mixed_or_damp:
         return [base_pto for _ in range(7)]
     # plain FONLL without damping
     else:
@@ -237,12 +237,12 @@ def produce_ptos(fns, is_mixed):
 def produce_fonll_recipe(fonll_fns, damp):
     """Produce the different theory cards according to which FONLL is asked for."""
     fonll_recipe = []
-    is_mixed = fonll_fns in MIXED_ORDER_FNS or damp != 0
-    fns_list = MIXED_FNS_LIST if is_mixed else FNS_LIST
-    nfff_list = MIXED_NFFF_LIST if is_mixed else NFFF_LIST
-    parts_list = MIXED_PARTS_LIST if is_mixed else PARTS_LIST
+    is_mixed_or_damp = fonll_fns in MIXED_ORDER_FNS or damp != 0
+    fns_list = MIXED_FNS_LIST if is_mixed_or_damp else FNS_LIST
+    nfff_list = MIXED_NFFF_LIST if is_mixed_or_damp else NFFF_LIST
+    parts_list = MIXED_PARTS_LIST if is_mixed_or_damp else PARTS_LIST
     for fns, nfff, po, part in zip(
-        fns_list, nfff_list, produce_ptos(fonll_fns, is_mixed), parts_list
+        fns_list, nfff_list, produce_ptos(fonll_fns, is_mixed_or_damp), parts_list
     ):
         fonll_recipe.append(
             {
@@ -252,10 +252,10 @@ def produce_fonll_recipe(fonll_fns, damp):
                 "FONLLParts": part,
             }
         )
-        # In a mixed FONLL scheme we only subract the resumt terms that are
+        # In a mixed FONLL scheme we only subract the resummed terms that are
         # present in the FFNS scheme at nf+1. E.g. for FONLL-B in FFN03 we
         # only subract up to NLL since there is no NNLL in FFNS4
-        if is_mixed and fns == "FONLL-FFN0":
+        if fonll_fns in MIXED_ORDER_FNS and fns == "FONLL-FFN0":
             fonll_recipe[-1]["PTODIS"] = po
             fonll_recipe[-1]["PTO"] = po - 1
     return fonll_recipe
