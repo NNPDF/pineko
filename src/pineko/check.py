@@ -159,7 +159,7 @@ def is_fonll_b(fns, lumi):
 
 
 def is_num_fonll(FNS):
-    """Check if the FNS is a num_fonll FNS."""
+    """Check if the FNS is a nFONLL FNS."""
     return FNS in ["FONLL-FFNS", "FONLL-FFN0"]
 
 

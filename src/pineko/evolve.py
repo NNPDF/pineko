@@ -105,8 +105,8 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
 
     """
     # Add a +1 to the orders for the difference in convention between nnpdf and pineappl
-    is_fns = int(check.is_fonll_b(tcard["FNS"], pineappl_grid.lumi()))
     # NB: This would not happen for nFONLL
+    is_fns = int(check.is_fonll_b(tcard["FNS"], pineappl_grid.lumi()))
     max_as = 1 + tcard["PTO"] + is_fns
     max_al = 1 + tcard["QED"]
     # ... in order to create a mask ...
@@ -129,7 +129,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
         matching_scales=heavy_quarks.MatchingScales(masses * thresholds_ratios),
         origin=(tcard["Q0"] ** 2, tcard["nf0"]),
     )
-    # If we are producing num_fonll FKs we need to look to NfFF...
+    # If we are producing nFONLL FKs we need to look to NfFF...
     if check.is_num_fonll(tcard["FNS"]):
         nf = tcard["NfFF"]
         operators_card["mugrid"] = [(float(np.sqrt(q2)), int(nf)) for q2 in q2_grid]

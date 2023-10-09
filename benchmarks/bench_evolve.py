@@ -6,7 +6,6 @@ import numpy as np
 import pineappl
 import pytest
 import yaml
-from eko import couplings as sc
 
 import pineko
 import pineko.evolve

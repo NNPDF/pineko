@@ -394,7 +394,7 @@ class TheoryBuilder:
         if "PTODIS" in tcard and "FONLL" in tcard["FNS"]:
             tcard["PTO"] = tcard["PTODIS"]
 
-        # NB: This would not happen for num_fonll
+        # NB: This would not happen for nFONLL
         max_al = 0
         # check for sv
         if not np.isclose(xir, 1.0):

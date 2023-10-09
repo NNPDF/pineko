@@ -79,31 +79,49 @@ def subcommand(
         print(f"Configurations loaded from '{path}'")
 
     # Checks
-    if (ffn04 is None and (ffns5til is not None or ffns5 is not None)) or (
-        ffn04 is not None and (ffns5til is None and ffns5 is None)
-    ):
-        raise InconsistentInputsError(
-            "One between ffn04 and ffns5til has been provided without the other. Since they are both needed to construct FONLL, this does not make sense."
-        )
-    if (ffn03 is None and (ffns4til is not None or ffns4 is not None)) or (
-        ffn03 is not None and (ffns4til is None and ffns4 is None)
-    ):
-        raise InconsistentInputsError(
-            "One between ffn03 and ffns4til has been provided without the other. Since they are both needed to construct FONLL, this does not make sense."
-        )
 
-    # check that if we have ffns we dont have any bar or til
-    if ffns4 is not None or ffns5 is not None:
-        if not all([fk is None for fk in [ffns4til, ffns4bar, ffns5til, ffns5bar]]):
-            raise InconsistentInputsError(
-                "If ffns4 and ffns5 are provided, no ffnstil or ffnsbar should be provided."
-            )
+    if not ffns3 or not ffn03:
+        raise InconsistentInputsError("ffns3 and/or ffn03 is not provided.")
+
+    if any([ffns4, ffns4til, ffns4bar]):
+        if ffns4:
+            if any([ffns4til, ffns4bar]):
+                raise InconsistentInputsError(
+                    "If ffns4 is provided no ffnstil or ffnsbar should be provided."
+                )
+        else:
+            if ffns4til is None or ffns4bar is None:
+                raise InconsistentInputsError(
+                    "if ffnstil is provided also ffnsbar should be provided, and vice versa."
+                )
+    else:
+        raise InconsistentInputsError("ffns4 is not provided.")
+
+    # Do we consider two masses, i.e. mc and mb
+    two_masses = False
+    if any([ffns5, ffns5til, ffns5bar]):
+        two_masses = True
+        if ffns5:
+            if any([ffns5til, ffns5bar]):
+                raise InconsistentInputsError(
+                    "If ffns5 is provided no ffnstil or ffnsbar should be provided."
+                )
+        else:
+            if ffns5til is None or ffns5bar is None:
+                raise InconsistentInputsError(
+                    "if ffnstil is provided also ffnsbar should be provided, and vice versa."
+                )
+
+    if (ffn04 is None and two_masses) or (ffn04 is not None and not two_masses):
+        raise InconsistentInputsError(
+            "If two masses are to be considered, both ffn04 and the nf=5 coefficient should be provided"
+        )
 
     # Get theory info
     tcard = theory_card.load(theoryid)
     if not "DAMPPOWER" in tcard:
         if tcard["DAMP"] != 0:
-            raise InconsistentInputsError
+            raise InconsistentInputsError("If DAMP is set, set also DAMPPOWER")
         tcard["DAMPPOWER"] = None
     # Getting the paths to the grids
     grids_name = grids_names(configs.configs["paths"]["ymldb"] / f"{dataset}.yaml")
@@ -151,5 +169,5 @@ def fonll_tcards(theoryid, cfg):
     tcard = theory_card.load(theoryid)
     tcard_parent_path = theory_card.path(theoryid).parent
     if "FONLL" not in tcard["FNS"]:
-        raise TheoryCardError
+        raise TheoryCardError("The theorycard does not correspond to an FONLL scheme.")
     _ = fonll.produce_fonll_tcards(tcard, tcard_parent_path, theoryid)

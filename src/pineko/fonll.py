@@ -120,6 +120,8 @@ def produce_combined_fk(
     if damp[0] == 0:
         # then there is no damping, not even Heaviside only
         combined_fk = fk_dict[list(fk_dict)[0]]
+        # pineappl does not support operating with two grids in memory:
+        # https://github.com/NNPDF/pineappl/blob/8a672bef6d91b07a4edfdefbe4e30e4b1dd1f976/pineappl_py/src/grid.rs#L614-L617
         with tempfile.TemporaryDirectory() as tmpdirname:
             for fk in list(fk_dict)[1:]:
                 tmpfile_path = Path(tmpdirname) / f"{fk}.pineappl.lz4"
@@ -138,8 +140,6 @@ def produce_combined_fk(
         damping_factor_charm *= step_function_charm
         damping_factor_bottom *= step_function_bottom
         dampings = {"mc": damping_factor_charm, "mb": damping_factor_bottom}
-        # pineappl does not support operating with two grids in memory:
-        # https://github.com/NNPDF/pineappl/blob/8a672bef6d91b07a4edfdefbe4e30e4b1dd1f976/pineappl_py/src/grid.rs#L614-L617
         with tempfile.TemporaryDirectory() as tmpdirname:
             combined_fk = fk_dict[list(fk_dict)[0]]
             for fk in list(fk_dict)[1:]:
