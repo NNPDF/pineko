@@ -1,7 +1,4 @@
 import pathlib
-
-import pytest
-
 import pineko
 
 
