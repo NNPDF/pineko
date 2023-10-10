@@ -53,7 +53,7 @@ def test_FONLLInfo():
     assert partialfonll_fake_info.fk_paths == {
         name: pathlib.Path(fk)
         for name, fk in zip(
-            name_list[:2] + name_list[3:4], full_list[:2] + full_list[3:4]
+            name_list[:2] + name_list[3], full_list[:2] + full_list[3]
         )
         if fk is not None
     }
