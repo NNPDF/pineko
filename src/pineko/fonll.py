@@ -2,6 +2,7 @@
 
 import copy
 import json
+import logging
 import tempfile
 from pathlib import Path
 
@@ -11,6 +12,8 @@ import rich
 import yaml
 
 from . import configs
+
+logger = logging.getLogger(__name__)
 
 
 class FONLLInfo:
@@ -44,7 +47,13 @@ class FONLLInfo:
             "ffns5til": self.ffns5til,
             "ffns5bar": self.ffns5bar,
         }
-        return {p: Path(paths[p]) for p in paths if paths[p] is not None}
+        actually_existing_paths = [p for p in paths if paths[p] is not None]
+        for p in paths:
+            if p not in actually_existing_paths:
+                logger.warning(
+                    f"Warning! FK table for {p} does not exist and thus is being skipped."
+                )
+        return {p: Path(paths[p]) for p in actually_existing_paths}
 
     @property
     def fks(self):
