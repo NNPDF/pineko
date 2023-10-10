@@ -325,8 +325,7 @@ class TheoryBuilder:
             if not self.overwrite:
                 rich.print(f"Skipping existing operator {eko_filename}")
                 return
-            else:
-                eko_filename.unlink()
+            eko_filename.unlink()
         # do it!
         logger.info("Start computation of %s", name)
         start_time = time.perf_counter()
