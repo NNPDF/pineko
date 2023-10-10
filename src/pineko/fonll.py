@@ -119,6 +119,7 @@ def produce_combined_fk(
     ffns5bar,
     theoryid,
     damp=(0, None),
+    cfg=None,
 ):
     """Combine the FONLL FKs to produce one single final FONLL FK."""
     fonll_info = FONLLInfo(
@@ -163,7 +164,7 @@ def produce_combined_fk(
 
     # update theorycard entries for the combined fktable by reading the yamldb of the original theory
     input_theorycard_path = (
-        Path(configs.load(configs.detect())["paths"]["theory_cards"])
+        Path(configs.load(configs.detect(cfg))["paths"]["theory_cards"])
         / f"{theoryid}.yaml"
     )
     with open(input_theorycard_path) as f:
@@ -177,7 +178,7 @@ def produce_combined_fk(
     combined_fk.set_key_value("theory", str(theorycard))
 
     # save final "fonll" fktable
-    fk_folder = Path(configs.load(configs.detect())["paths"]["fktables"]) / str(
+    fk_folder = Path(configs.load(configs.detect(cfg))["paths"]["fktables"]) / str(
         theoryid
     )
     fk_folder.mkdir(exist_ok=True)

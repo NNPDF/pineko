@@ -151,6 +151,7 @@ def subcommand(
             ),
             theoryid,
             damp=(tcard["DAMP"], tcard["DAMPPOWER"]),
+            cfg=cfg,
         )
         if new_fk_path.exists():
             rich.print(f"[green]Success:[/] Wrote FK table to {new_fk_path}")
