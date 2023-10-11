@@ -3,7 +3,6 @@
 import pathlib
 
 import click
-import pineappl
 import rich
 
 from .. import scale_variations

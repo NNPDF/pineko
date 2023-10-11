@@ -308,10 +308,10 @@ def do_it(
         (first_nonzero_order[0] + max_as_test, min_al, 0, 0), grid_orders_filtered
     )
     if is_in and not order_exists:
-        rich.print(f"[green] Success: Requested order already in the grid.")
+        rich.print("[green] Success: Requested order already in the grid.")
         return
-    elif not is_in and order_exists:
-        rich.print(f"[red] Abort: order exists is True but order not in the grid.")
+    if not is_in and order_exists:
+        rich.print("[red] Abort: order exists is True but order not in the grid.")
         return
     construct_and_merge_grids(
         grid_path,
@@ -329,11 +329,11 @@ def filter_k_factors(pigrid, centrals_kfactor):
     """Filter the centrals k-factors according to their lenght compared to the number of bins of the grid."""
     centrals_kfactor_filtered = np.array([])
     if pigrid.bins() == len(centrals_kfactor):
-        rich.print(f"[orange] The number of bins match the lenght of the k-factor.")
+        rich.print("[orange] The number of bins match the lenght of the k-factor.")
         centrals_kfactor_filtered = centrals_kfactor
     elif pigrid.bins() < len(centrals_kfactor):
         rich.print(
-            f"[yellow] The number of bins is less than the lenght of the k-factor."
+            "[yellow] The number of bins is less than the lenght of the k-factor."
         )
         if not all(elem == centrals_kfactor[0] for elem in centrals_kfactor):
             # This case is actually wrong.
@@ -341,7 +341,7 @@ def filter_k_factors(pigrid, centrals_kfactor):
         centrals_kfactor_filtered = centrals_kfactor
     else:
         rich.print(
-            f"[yellow] The number of bins is more than the lenght of the k-factor."
+            "[yellow] The number of bins is more than the lenght of the k-factor."
         )
 
         # This is the last case in which grid.bins() > len(centrals_kfactor)
@@ -388,7 +388,7 @@ def compute_k_factor_grid(
     target_folder: pathlib.Path
         path where store the new grid (optional)
     """
-    import lhapdf  # pylint: disable=import-error
+    import lhapdf  # pylint: disable=import-error,import-outside-toplevel
 
     # With respect to the usual convention here max_as is max_as-1
     max_as_test = max_as - 1

@@ -5,7 +5,6 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pineappl
-import rich
 from eko import beta
 
 from . import check
@@ -18,12 +17,12 @@ OrderTuple = Tuple[int, int, int, int]
 class ReturnState(Enum):
     """Auxiliary class to list the possible return states."""
 
-    ALREADY_THERE = f"[green]Renormalization scale variations are already in the grid"
+    ALREADY_THERE = "[green]Renormalization scale variations are already in the grid"
     ORDER_EXISTS_FAILURE = (
         "Order_exists is True but the order does not appear to be in the grid"
     )
     MISSING_CENTRAL = "Central order is not high enough to compute requested sv orders"
-    SUCCESS = f"[green]Success: scale variation orders included!"
+    SUCCESS = "[green]Success: scale variation orders included!"
 
 
 def qcd(order: OrderTuple) -> int:
@@ -168,7 +167,7 @@ def write_grids(gridpath, grid_list):
 
 
 def merge_grids(
-    gridpath, grid_list_path, target_path=None, nec_orders={}, order_exists=False
+    gridpath, grid_list_path, target_path=None, nec_orders=None, order_exists=False
 ):
     """Merge the single grids in the original."""
     grid = pineappl.grid.Grid.read(gridpath)
@@ -177,7 +176,9 @@ def merge_grids(
     else:
         target_path = target_path / gridpath.name
     if order_exists:
-        grid = construct_and_dump_order_exists_grid(grid, list(nec_orders.keys())[0])
+        grid = construct_and_dump_order_exists_grid(
+            grid, list(nec_orders.keys())[0] if nec_orders is not None else []
+        )
     for grid_path in grid_list_path:
         grid.merge_from_file(grid_path)
         grid_path.unlink()

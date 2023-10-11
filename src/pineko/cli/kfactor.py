@@ -3,7 +3,6 @@
 import pathlib
 
 import click
-import rich
 
 from .. import kfactor
 from ._base import command
