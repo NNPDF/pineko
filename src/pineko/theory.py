@@ -20,10 +20,6 @@ from . import check, configs, evolve, parser, scale_variations, theory_card
 logger = logging.getLogger(__name__)
 
 
-class EmptyEkoError(Exception):
-    """Raised if the loaded eko is empty."""
-
-
 def check_scvar_evolve(grid, max_as, max_al, kind: check.Scale):
     """Check scale variations and central orders consistency."""
     available, max_as_effective = check.contains_sv(grid, max_as, max_al, kind)
@@ -409,9 +405,12 @@ class TheoryBuilder:
         # loading ekos to produce a tmp copy
         with eko.EKO.read(eko_filename) as operators:
             # Skip the computation of the fktable if the eko is empty
-            if len(operators.mu2grid) == 0:
-                raise EmptyEkoError
-            eko_tmp_path = operators.paths.root.parent / "eko-tmp.tar"
+            if len(operators.mu2grid) == 0 and check.is_num_fonll(tcard["FNS"]):
+                rich.print(f"[green] Skipping empty eko for nFONLL.")
+                return
+            eko_tmp_path = (
+                operators.paths.root.parent / f"eko-tmp-{np.random.rand()}.tar"
+            )
             operators.deepcopy(eko_tmp_path)
         with eko.EKO.edit(eko_tmp_path) as operators:
             # Obtain the assumptions hash
