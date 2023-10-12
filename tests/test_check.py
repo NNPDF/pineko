@@ -27,18 +27,22 @@ def test_is_dis():
     assert pineko.check.is_dis(nondis_fake_lumi) is False
 
 
-def test_is_fonll_b():
+def test_is_fonll_mixed():
     fns = "FONLL-B"
     lumi_first = [[(-12, 1, 2.0), (-13, 1, 5.0)]]
     lumi_second = [[(1, 11, 1.0), (3, 11, 5.0)]]
-    assert pineko.check.is_fonll_b(fns, lumi_first) is True
-    assert pineko.check.is_fonll_b(fns, lumi_second) is True
+    assert pineko.check.is_fonll_mixed(fns, lumi_first) is True
+    assert pineko.check.is_fonll_mixed(fns, lumi_second) is True
     lumi_crazy = [[(1, 1, 4.0), (2, 11, 3.0)]]
-    assert pineko.check.is_fonll_b(fns, lumi_crazy) is False
+    assert pineko.check.is_fonll_mixed(fns, lumi_crazy) is False
     fns = "FONLL-C"
-    assert pineko.check.is_fonll_b(fns, lumi_first) is False
-    assert pineko.check.is_fonll_b(fns, lumi_second) is False
-    assert pineko.check.is_fonll_b(fns, lumi_crazy) is False
+    assert pineko.check.is_fonll_mixed(fns, lumi_first) is False
+    assert pineko.check.is_fonll_mixed(fns, lumi_second) is False
+    assert pineko.check.is_fonll_mixed(fns, lumi_crazy) is False
+    fns = "FONLL-D"
+    assert pineko.check.is_fonll_mixed(fns, lumi_first) is True
+    assert pineko.check.is_fonll_mixed(fns, lumi_second) is True
+    assert pineko.check.is_fonll_mixed(fns, lumi_crazy) is False
 
 
 def test_is_num_fonll():

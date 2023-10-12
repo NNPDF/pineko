@@ -138,8 +138,8 @@ def is_dis(lumi):
     return True
 
 
-def is_fonll_b(fns, lumi):
-    """Check if the fktable we are computing is a DIS FONLL-B fktable.
+def is_fonll_mixed(fns, lumi):
+    """Check if the fktable we are computing is FONLL-B, FONLL-D or, in general, a mixed FONLL fktable.
 
     Parameters
     ----------
@@ -151,9 +151,12 @@ def is_fonll_b(fns, lumi):
     Returns
     -------
     bool
-        true if the fktable is a FONLL-B DIS fktable
+        true if the fktable is a mixed FONLL DIS fktable
     """
-    if is_dis(lumi) and fns == "FONLL-B":
+    if not is_dis(lumi):
+        return False
+    mixed_FONLL_fns = ["FONLL-B", "FONLL-D", "FONLL-F"]
+    if fns in mixed_FONLL_fns:
         return True
     return False
 

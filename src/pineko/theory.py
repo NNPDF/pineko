@@ -387,7 +387,7 @@ class TheoryBuilder:
                 return
         max_as = 1 + int(tcard["PTO"])
         # Check if we are computing FONLL-B fktable and eventually change max_as
-        if check.is_fonll_b(
+        if check.is_fonll_mixed(
             tcard["FNS"],
             grid.lumi(),
         ):
