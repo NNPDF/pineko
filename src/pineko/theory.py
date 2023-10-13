@@ -396,6 +396,18 @@ class TheoryBuilder:
 
         # NB: This would not happen for nFONLL
         max_al = 0
+
+        # check if the grid is empty
+        if check.is_num_fonll(tcard["FNS"]):
+            if (
+                pineappl.grid.Order.create_mask(
+                    grid.orders(), max_as, max_al, True
+                ).size
+                == 0
+            ):
+                rich.print(f"[green] Skipping empty grid.")
+                return
+
         # check for sv
         if not np.isclose(xir, 1.0):
             check_scvar_evolve(grid, max_as, max_al, check.Scale.REN)
