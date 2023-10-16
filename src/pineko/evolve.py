@@ -148,7 +148,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
         grid_runcard = pineappl_grid.key_values()["runcard"]
         # here a grid contains a single obrevable
         observable = list(json.loads(grid_runcard)["observables"])[0]
-        operators_card["configs"]["polarized"] = "g" in observable.split("_")[0]
+        operators_card["configs"]["polarized"] = observable.startswith("g")
 
     # Some safety checks
     if (
