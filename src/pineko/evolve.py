@@ -144,7 +144,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     pineko_version = metadata.version("pineko")
 
     # switch on polarization, only in DIS
-    if "runcard" in pineappl_grid.key_values():
+    if "yadism_version" in pineappl_grid.key_values():
         grid_runcard = pineappl_grid.key_values()["runcard"]
         # here a grid contains a single obrevable
         observable = list(json.loads(grid_runcard)["observables"])[0]
