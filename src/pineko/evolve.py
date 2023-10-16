@@ -1,5 +1,6 @@
 """Tools related to evolution/eko."""
 import copy
+import json
 import logging
 import os
 import pathlib
@@ -95,6 +96,8 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     tcard: dict
         theory card for the run, since some information in EKO is now required
         in operator card, but before was in the theory card
+    is_polarized: bool
+        if True compute th
 
     Returns
     -------
@@ -141,6 +144,13 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     # using importlib.metadata.version to get the correct tag in editable mode
     operators_card["eko_version"] = metadata.version("eko")
     pineko_version = metadata.version("pineko")
+
+    # switch on polarization, only in DIS
+    if "runcard" in pineappl_grid.key_values():
+        grid_runcard = pineappl_grid.key_values()["runcard"]
+        # here a grid contains a single obrevable
+        observable = list(json.loads(grid_runcard)["observables"])[0]
+        operators_card["configs"]["polarized"] = "g" in observable.split("_")[0]
 
     # Some safety checks
     if (
