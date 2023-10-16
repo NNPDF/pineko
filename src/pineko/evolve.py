@@ -96,8 +96,6 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     tcard: dict
         theory card for the run, since some information in EKO is now required
         in operator card, but before was in the theory card
-    is_polarized: bool
-        if True compute th
 
     Returns
     -------
