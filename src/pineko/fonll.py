@@ -24,15 +24,15 @@ class FONLLInfo:
     ) -> None:
         """Initialize fonll info."""
         self.paths = {
-            "ffns3": self.ffns3,
-            "ffn03": self.ffn03,
-            "ffns4": self.ffns4,
-            "ffns4til": self.ffns4til,
-            "ffns4bar": self.ffns4bar,
-            "ffn04": self.ffn04,
-            "ffns5": self.ffns5,
-            "ffns5til": self.ffns5til,
-            "ffns5bar": self.ffns5bar,
+            "ffns3": ffns3,
+            "ffn03": ffn03,
+            "ffns4": ffns4,
+            "ffns4til": ffns4til,
+            "ffns4bar": ffns4bar,
+            "ffn04": ffn04,
+            "ffns5": ffns5,
+            "ffns5til": ffns5til,
+            "ffns5bar": ffns5bar,
         }
         actually_existing_paths = [p for p in self.paths if self.paths[p] is not None]
         for p in self.paths:
