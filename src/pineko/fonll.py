@@ -44,7 +44,7 @@ class FONLLInfo:
     @property
     def fk_paths(self):
         """Returns the list of the fk paths needed to produce FONLL predictions."""
-        return {p: Path(self.paths[p]) for p in self.paths if self.paths is not None}
+        return {p: Path(self.paths[p]) for p in self.paths if self.paths[p] is not None}
 
     @property
     def fks(self):
