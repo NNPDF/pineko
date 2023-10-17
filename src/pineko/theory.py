@@ -421,7 +421,7 @@ class TheoryBuilder:
                 rich.print(f"[green] Skipping empty eko for nFONLL.")
                 return
             eko_tmp_path = (
-                operators.paths.root.parent / f"eko-tmp-{np.random.rand()}.tar"
+                operators.paths.root.parent / f"eko-tmp-{name}-{np.random.rand()}.tar"
             )
             operators.deepcopy(eko_tmp_path)
         with eko.EKO.edit(eko_tmp_path) as operators:
