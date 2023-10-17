@@ -1,6 +1,5 @@
 """Tools related to evolution/eko."""
 import copy
-import json
 import logging
 import os
 import pathlib
@@ -143,12 +142,10 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     operators_card["eko_version"] = metadata.version("eko")
     pineko_version = metadata.version("pineko")
 
-    # switch on polarization, only in DIS
-    if "yadism_version" in pineappl_grid.key_values():
-        grid_runcard = pineappl_grid.key_values()["runcard"]
-        # here a grid contains a single obrevable
-        observable = list(json.loads(grid_runcard)["observables"])[0]
-        operators_card["configs"]["polarized"] = observable.startswith("g")
+    # switch on polarization ?
+    kv = pineappl_grid.key_values()
+    if "polarized" in kv:
+        operators_card["configs"]["polarized"] = kv["polarized"] == "True"
 
     # Some safety checks
     if (
