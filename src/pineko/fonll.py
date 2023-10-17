@@ -23,20 +23,7 @@ class FONLLInfo:
         self, ffns3, ffn03, ffns4, ffns4til, ffns4bar, ffn04, ffns5, ffns5til, ffns5bar
     ) -> None:
         """Initialize fonll info."""
-        self.ffns3 = ffns3
-        self.ffn03 = ffn03
-        self.ffns4 = ffns4
-        self.ffns4til = ffns4til
-        self.ffns4bar = ffns4bar
-        self.ffn04 = ffn04
-        self.ffns5 = ffns5
-        self.ffns5til = ffns5til
-        self.ffns5bar = ffns5bar
-
-    @property
-    def fk_paths(self):
-        """Returns the list of the fk paths needed to produce FONLL predictions."""
-        paths = {
+        self.paths = {
             "ffns3": self.ffns3,
             "ffn03": self.ffn03,
             "ffns4": self.ffns4,
@@ -47,13 +34,17 @@ class FONLLInfo:
             "ffns5til": self.ffns5til,
             "ffns5bar": self.ffns5bar,
         }
-        actually_existing_paths = [p for p in paths if paths[p] is not None]
-        for p in paths:
+        actually_existing_paths = [p for p in self.paths if self.paths[p] is not None]
+        for p in self.paths:
             if p not in actually_existing_paths:
                 logger.warning(
                     f"Warning! FK table for {p} does not exist and thus is being skipped."
                 )
-        return {p: Path(paths[p]) for p in actually_existing_paths}
+
+    @property
+    def fk_paths(self):
+        """Returns the list of the fk paths needed to produce FONLL predictions."""
+        return {p: Path(self.paths[p]) for p in self.paths if self.paths is not None}
 
     @property
     def fks(self):
