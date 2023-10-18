@@ -62,7 +62,7 @@ class FONLLInfo:
 
     @property
     def theorycard_no_fns_pto(self):
-        """Return the common theory info between the different FONLL FKs."""
+        """Return the common theory info between the different FONLL FK tables."""
         theorycards = [json.loads(self.fks[p].key_values()["theory"]) for p in self.fks]
         # Only these should differ
         for card in theorycards:
