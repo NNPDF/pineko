@@ -58,7 +58,7 @@ class FONLLInfo:
         names = {self.fk_paths[p].name for p in self.fk_paths}
         if len(names) == 1:
             return names.pop()
-        raise ValueError("not all fktables have the same name")
+        raise ValueError("Not all FK tables share the same name")
 
     @property
     def theorycard_no_fns_pto(self):
