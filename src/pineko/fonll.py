@@ -81,7 +81,7 @@ class FONLLInfo:
 
     @property
     def Q2grid(self):
-        """Return the Q2grid of the fktables given by self.fks ."""
+        """The Q2grid of the (DIS) FK tables."""
         obs = json.loads(self.fks[list(self.fks)[0]].key_values()["runcard"])[
             "observables"
         ]
