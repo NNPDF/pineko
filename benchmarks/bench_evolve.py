@@ -46,7 +46,7 @@ def benchmark_write_operator_card_from_file_num_fonll(
         with open(opcard_path, encoding="utf-8") as f:
             ocard = yaml.safe_load(f)
         for entry in ocard["mugrid"]:
-            assert entry[1] == nfff
+            assert entry[1] == int(nfff)
 
 
 def benchmark_write_operator_card_from_file(tmp_path, test_files, test_configs):
