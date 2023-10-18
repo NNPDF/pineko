@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 import yaml
 
@@ -17,22 +18,20 @@ def benchmark_produce_fonll_tcards(
             theorycards.append(yaml.safe_load(f))
     for num_fonll_tcard, fns, nfff, po, part in zip(
         theorycards,
-        pineko.fonll.MIXED_FNS_CONFIG.transpose()[0]
+        np.array(pineko.fonll.MIXED_FNS_CONFIG).transpose().tolist()[0]
         if is_mixed
-        else pineko.fonll.FNS_CONFIG.transpose()[0],
-        pineko.fonll.MIXED_FNS_CONFIG.transpose()[1]
+        else np.array(pineko.fonll.FNS_CONFIG).transpose().tolist()[0],
+        np.array(pineko.fonll.MIXED_FNS_CONFIG).transpose().tolist()[1]
         if is_mixed
-        else pineko.fonll.FNS_CONFIG.transpose()[1],
+        else np.array(pineko.fonll.FNS_CONFIG).transpose().tolist()[1],
         pineko.fonll.produce_ptos(tcard["FNS"], is_mixed),
-        pineko.fonll.MIXED_FNS_CONFIG.transpose()[2]
+        np.array(pineko.fonll.MIXED_FNS_CONFIG).transpose().tolist()[2]
         if is_mixed
-        else pineko.fonll.FNS_CONFIG.transpose()[2],
+        else np.array(pineko.fonll.FNS_CONFIG).transpose().tolist()[2],
     ):
         assert num_fonll_tcard["FNS"] == fns
-        assert num_fonll_tcard["NfFF"] == nfff
+        assert num_fonll_tcard["NfFF"] == int(nfff)
         assert (
-            num_fonll_tcard["PTO"] == po - 1
-            if is_mixed and nfff == "FONLL-FFN0"
-            else po
+            num_fonll_tcard["PTO"] == po - 1 if is_mixed and fns == "FONLL-FFN0" else po
         )
         assert num_fonll_tcard["FONLLParts"] == part

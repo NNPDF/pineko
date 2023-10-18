@@ -39,9 +39,9 @@ def benchmark_write_operator_card_from_file_num_fonll(
     # Check if the opcards are ok
     for opcard_path, nfff in zip(
         targets_path_list,
-        pineko.fonll.MIXED_FNS_CONFIG.transpose()[1]
+        np.array(pineko.fonll.MIXED_FNS_CONFIG).transpose().tolist()[1]
         if is_mixed
-        else pineko.fonll.FNS_CONFIG.transpose()[1],
+        else np.array(pineko.fonll.FNS_CONFIG).transpose().tolist()[1],
     ):
         with open(opcard_path, encoding="utf-8") as f:
             ocard = yaml.safe_load(f)
