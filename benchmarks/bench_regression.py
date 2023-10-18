@@ -1,10 +1,10 @@
 """
-    Suite of tests that go through the entire process of creating a new fktable
-    from a empty folder.
+Suite of tests that go through the entire process of creating a new fktable
+from a empty folder.
 
-    The target theory is 400 and the relevant `.toml`, theory runcard and eko template
-    are downloaded from https://github.com/NNPDF/theories during this test so this tests
-    has the double effect of ensuring compatibility between both repositories.
+The target theory is 400 and the relevant `.toml`, theory runcard and eko template
+are downloaded from https://github.com/NNPDF/theories during this test so this tests
+has the double effect of ensuring compatibility between both repositories.
 """
 import itertools
 from pathlib import Path
@@ -82,7 +82,7 @@ def _trim_template(template_card, take_points=10):
 
 
 @pytest.mark.parametrize("dataset", ["LHCBWZMU8TEV", "INTEGXT3"])
-def test_regression(tmp_path, dataset):
+def benchmark_regression(tmp_path, dataset):
     """Run pineko through subprocess to ensure that the shell scripts are working exactly
     as intended.
 
