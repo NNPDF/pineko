@@ -155,7 +155,7 @@ def is_fonll_mixed(fns, lumi):
     """
     if not is_dis(lumi):
         return False
-    mixed_FONLL_fns = ["FONLL-B", "FONLL-D", "FONLL-F"]
+    mixed_FONLL_fns = ["FONLL-B", "FONLL-D"]
     if fns in mixed_FONLL_fns:
         return True
     return False
