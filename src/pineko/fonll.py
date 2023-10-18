@@ -256,10 +256,10 @@ def produce_fonll_recipe(fonll_fns, damp):
     ):
         fonll_recipe.append(
             {
-                "FNS": fns,
-                "NfFF": nfff,
-                "PTO": po,
-                "FONLLParts": part,
+                "FNS": str(fns),
+                "NfFF": str(nfff),
+                "PTO": int(po),
+                "FONLLParts": str(part),
             }
         )
         # In a mixed FONLL scheme we only subract the resummed terms that are
