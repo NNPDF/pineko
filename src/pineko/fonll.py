@@ -82,13 +82,7 @@ class FONLLInfo:
     @property
     def Q2grid(self):
         """The Q2grid of the (DIS) FK tables."""
-        obs = json.loads(self.fks[list(self.fks)[0]].key_values()["runcard"])[
-            "observables"
-        ]
-        kins = list(obs.values())[
-            0
-        ]  # there is only a single observable because it's a dis fktable
-        return np.array([i["Q2"] for i in kins])
+        return self.fks[list(self.fks)[0]].bin_left(0)
 
 
 # Notice we rely on the order defined by the FONLLInfo class
