@@ -113,7 +113,7 @@ def produce_combined_fk(
     damp=(0, None),
     cfg=None,
 ):
-    """Combine the FONLL FKs to produce one single final FONLL FK."""
+    """Combine the FONLL FK tables into one single FK table."""
     fonll_info = FONLLInfo(
         ffns3, ffn03, ffns4, ffns4til, ffns4bar, ffn04, ffns5, ffns5til, ffns5bar
     )
