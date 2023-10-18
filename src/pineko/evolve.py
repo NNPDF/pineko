@@ -142,6 +142,11 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     operators_card["eko_version"] = metadata.version("eko")
     pineko_version = metadata.version("pineko")
 
+    # switch on polarization ?
+    kv = pineappl_grid.key_values()
+    if "polarized" in kv:
+        operators_card["configs"]["polarized"] = kv["polarized"] == "True"
+
     # Some safety checks
     if (
         operators_card["configs"]["evolution_method"] == "truncated"
