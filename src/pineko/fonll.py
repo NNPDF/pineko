@@ -99,6 +99,19 @@ FK_TO_DAMP = {
 FK_WITH_MINUS = ["ffn03", "ffn04"]  # asy terms should be subtracted, therefore the sign
 
 
+def update_fk_theorycard(combined_fk, input_theorycard_path):
+    """Update theorycard entries for the combined fktable by reading the yamldb of the original theory."""
+    with open(input_theorycard_path) as f:
+        final_theorycard = yaml.safe_load(f)
+    theorycard = json.loads(combined_fk.key_values()["theory"])
+    theorycard["FNS"] = final_theorycard["FNS"]
+    theorycard["PTO"] = final_theorycard["PTO"]
+    theorycard["NfFF"] = final_theorycard["NfFF"]
+    theorycard["ID"] = final_theorycard["ID"]
+    # Update the theorycard with the entries set above
+    combined_fk.set_key_value("theory", str(theorycard))
+
+
 def produce_dampings(theorycard_constituent_fks, fonll_info, damp):
     """Return the damping factors for each of the relevant masses."""
     mc = theorycard_constituent_fks["mc"]
@@ -158,22 +171,11 @@ def produce_combined_fk(
                         fk_dict[fk].scale_by_bin(dampings[mass])
                 fk_dict[fk].write_lz4(tmpfile_path)
                 combined_fk.merge_from_file(tmpfile_path)
-
-    # update theorycard entries for the combined fktable by reading the yamldb of the original theory
     input_theorycard_path = (
         Path(configs.load(configs.detect(cfg))["paths"]["theory_cards"])
         / f"{theoryid}.yaml"
     )
-    with open(input_theorycard_path) as f:
-        final_theorycard = yaml.safe_load(f)
-    theorycard = json.loads(combined_fk.key_values()["theory"])
-    theorycard["FNS"] = final_theorycard["FNS"]
-    theorycard["PTO"] = final_theorycard["PTO"]
-    theorycard["NfFF"] = final_theorycard["NfFF"]
-    theorycard["ID"] = final_theorycard["ID"]
-    # Update the theorycard with the entries set above
-    combined_fk.set_key_value("theory", str(theorycard))
-
+    update_fk_theorycard(combined_fk, input_theorycard_path)
     # save final "fonll" fktable
     fk_folder = Path(configs.load(configs.detect(cfg))["paths"]["fktables"]) / str(
         theoryid
