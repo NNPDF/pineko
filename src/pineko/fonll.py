@@ -239,6 +239,7 @@ def produce_ptos(fns, is_mixed_or_damp):
     elif is_mixed_or_damp:
         return [base_pto for _ in range(7)]
     # plain FONLL without damping
+    # In the case of not mixed and not damped FK tables, 5 sub FK tables are enough
     else:
         return [base_pto for _ in range(5)]
 
