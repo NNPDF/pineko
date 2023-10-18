@@ -257,7 +257,7 @@ def produce_fonll_recipe(fonll_fns, damp):
         fonll_recipe.append(
             {
                 "FNS": str(fns),
-                "NfFF": str(nfff),
+                "NfFF": int(nfff),
                 "PTO": int(po),
                 "FONLLParts": str(part),
             }
