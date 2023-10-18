@@ -364,6 +364,14 @@ class TheoryBuilder:
         do_log = self.activate_logging(
             paths["logs"]["fk"], f"{self.theory_id}-{name}-{pdf}.log"
         )
+
+        # Relevant for FONLL-B and FONLL-D: For FFN0 terms, PTO is lower than
+        # PTODIS, thus using PTO instead of PTODIS to establish the perturbative
+        # order would result in the PTODIS terms that correspond to orders
+        # beyond PTO to be neglected
+        if "PTODIS" in tcard and "FONLL" in tcard["FNS"]:
+            tcard["PTO"] = tcard["PTODIS"]
+
         # check if grid contains SV if theory is requesting them (in particular
         # if theory is requesting scheme A or C)
         sv_method = evolve.sv_scheme(tcard)
@@ -387,11 +395,6 @@ class TheoryBuilder:
             grid.lumi(),
         ):
             max_as += 1
-
-        # Relevant for FONLL-B: ensures that the higher order PTODIS terms are
-        # not neglegted
-        if "PTODIS" in tcard and "FONLL" in tcard["FNS"]:
-            tcard["PTO"] = tcard["PTODIS"]
 
         # NB: This would not happen for nFONLL
         max_al = 0
