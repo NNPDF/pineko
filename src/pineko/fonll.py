@@ -126,6 +126,25 @@ def produce_dampings(theorycard_constituent_fks, fonll_info, damp):
     return {"mc": damping_factor_charm, "mb": damping_factor_bottom}
 
 
+def combine(fk_dict, dampings=None):
+    """Rescale, eventually using dampings, and combine the sub FK tables."""
+    # pineappl does not support operating with two grids in memory:
+    # https://github.com/NNPDF/pineappl/blob/8a672bef6d91b07a4edfdefbe4e30e4b1dd1f976/pineappl_py/src/grid.rs#L614-L617
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        combined_fk = fk_dict[list(fk_dict)[0]]
+        for fk in list(fk_dict)[1:]:
+            tmpfile_path = Path(tmpdirname) / f"{fk}.pineappl.lz4"
+            sign = -1 if fk in FK_WITH_MINUS else 1
+            fk_dict[fk].scale(sign)
+            if dampings is not None:
+                for mass in FK_TO_DAMP:
+                    if fk in FK_TO_DAMP[mass]:
+                        fk_dict[fk].scale_by_bin(dampings[mass])
+            fk_dict[fk].write_lz4(tmpfile_path)
+            combined_fk.merge_from_file(tmpfile_path)
+    return combined_fk
+
+
 def produce_combined_fk(
     ffns3,
     ffn03,
@@ -148,29 +167,10 @@ def produce_combined_fk(
     fk_dict = fonll_info.fks
     if damp[0] == 0:
         # then there is no damping, not even Heaviside only
-        combined_fk = fk_dict[list(fk_dict)[0]]
-        # pineappl does not support operating with two grids in memory:
-        # https://github.com/NNPDF/pineappl/blob/8a672bef6d91b07a4edfdefbe4e30e4b1dd1f976/pineappl_py/src/grid.rs#L614-L617
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            for fk in list(fk_dict)[1:]:
-                tmpfile_path = Path(tmpdirname) / f"{fk}.pineappl.lz4"
-                sign = -1 if fk in FK_WITH_MINUS else 1
-                fk_dict[fk].scale(sign)
-                fk_dict[fk].write_lz4(tmpfile_path)
-                combined_fk.merge_from_file(tmpfile_path)
+        combined_fk = combine(fk_dict)
     else:
         dampings = produce_dampings(theorycard_constituent_fks, fonll_info, damp)
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            combined_fk = fk_dict[list(fk_dict)[0]]
-            for fk in list(fk_dict)[1:]:
-                tmpfile_path = Path(tmpdirname) / f"{fk}.pineappl.lz4"
-                sign = -1 if fk in FK_WITH_MINUS else 1
-                fk_dict[fk].scale(sign)
-                for mass in FK_TO_DAMP:
-                    if fk in FK_TO_DAMP[mass]:
-                        fk_dict[fk].scale_by_bin(dampings[mass])
-                fk_dict[fk].write_lz4(tmpfile_path)
-                combined_fk.merge_from_file(tmpfile_path)
+        combined_fk = combine(fk_dict, dampings=dampings)
     input_theorycard_path = (
         Path(configs.load(configs.detect(cfg))["paths"]["theory_cards"])
         / f"{theoryid}.yaml"
@@ -272,7 +272,10 @@ def produce_fonll_recipe(fonll_fns, damp):
 
 
 def produce_fonll_tcards(tcard, tcard_parent_path, theoryid):
-    """Produce the seven fonll tcards from an original tcard and dump them in tcard_parent_path with names from '{theoryid}00.yaml' to '{theoryid}06.yaml'."""
+    """Produce the seven fonll tcards from an original tcard.
+
+    The produced tcards are dumped in tcard_parent_path with names from '{theoryid}00.yaml' to '{theoryid}06.yaml'.
+    """
     fonll_recipe = produce_fonll_recipe(tcard["FNS"], tcard["DAMP"])
     n_theory = len(fonll_recipe)
     theorycards = [copy.deepcopy(tcard) for _ in range(n_theory)]
