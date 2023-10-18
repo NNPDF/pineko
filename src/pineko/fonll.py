@@ -54,7 +54,7 @@ class FONLLInfo:
 
     @property
     def dataset_name(self):
-        """Return the name of the dataset given by the fktables name, if all the fktables have the same name."""
+        """Return the name of the underlaying dataset."""
         names = {self.fk_paths[p].name for p in self.fk_paths}
         if len(names) == 1:
             return names.pop()
