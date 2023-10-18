@@ -49,6 +49,7 @@ class FONLLInfo:
     @property
     def fks(self):
         """Returns the pineappl.Grid objects reading the paths provided by self.fk_paths."""
+        # recall that FK tables are just a special grid
         return {fk: pineappl.grid.Grid.read(path) for fk, path in self.fk_paths.items()}
 
     @property
