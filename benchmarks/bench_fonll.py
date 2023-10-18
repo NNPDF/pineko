@@ -17,10 +17,16 @@ def benchmark_produce_fonll_tcards(
             theorycards.append(yaml.safe_load(f))
     for num_fonll_tcard, fns, nfff, po, part in zip(
         theorycards,
-        pineko.fonll.MIXED_FNS_LIST if is_mixed else pineko.fonll.FNS_LIST,
-        pineko.fonll.MIXED_NFFF_LIST if is_mixed else pineko.fonll.NFFF_LIST,
+        pineko.fonll.MIXED_FNS_CONFIG.transpose()[0]
+        if is_mixed
+        else pineko.fonll.FNS_CONFIG.transpose()[0],
+        pineko.fonll.MIXED_FNS_CONFIG.transpose()[1]
+        if is_mixed
+        else pineko.fonll.FNS_CONFIG.transpose()[1],
         pineko.fonll.produce_ptos(tcard["FNS"], is_mixed),
-        pineko.fonll.MIXED_PARTS_LIST if is_mixed else pineko.fonll.PARTS_LIST,
+        pineko.fonll.MIXED_FNS_CONFIG.transpose()[2]
+        if is_mixed
+        else pineko.fonll.FNS_CONFIG.transpose()[2],
     ):
         assert num_fonll_tcard["FNS"] == fns
         assert num_fonll_tcard["NfFF"] == nfff

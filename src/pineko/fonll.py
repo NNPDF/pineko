@@ -183,36 +183,30 @@ FNS_BASE_PTO = {"FONLL-A": 1, "FONLL-B": 1, "FONLL-C": 2, "FONLL-D": 2, "FONLL-E
 MIXED_ORDER_FNS = ["FONLL-B", "FONLL-D"]
 
 # Mixed FONLL schemes
-MIXED_FNS_LIST = [
-    "FONLL-FFNS",
-    "FONLL-FFN0",
-    "FONLL-FFNS",
-    "FONLL-FFNS",
-    "FONLL-FFN0",
-    "FONLL-FFNS",
-    "FONLL-FFNS",
-]
-MIXED_NFFF_LIST = [3, 3, 4, 4, 4, 5, 5]
-MIXED_PARTS_LIST = [
-    "full",
-    "full",
-    "massless",
-    "massive",
-    "full",
-    "massless",
-    "massive",
-]
+
+MIXED_FNS_CONFIG = np.array(
+    [
+        ("FONLL-FFNS", 3, "full"),
+        ("FONLL-FFN0", 3, "full"),
+        ("FONLL-FFNS", 4, "massless"),
+        ("FONLL-FFNS", 4, "massive"),
+        ("FONLL-FFN0", 4, "full"),
+        ("FONLL-FFNS", 5, "massless"),
+        ("FONLL-FFNS", 5, "massive"),
+    ]
+)
 
 # plain FONLL schemes
-FNS_LIST = [
-    "FONLL-FFNS",
-    "FONLL-FFN0",
-    "FONLL-FFNS",
-    "FONLL-FFN0",
-    "FONLL-FFNS",
-]
-NFFF_LIST = [3, 3, 4, 4, 5]
-PARTS_LIST = ["full" for _ in range(5)]
+
+FNS_CONFIG = np.array(
+    [
+        ("FONLL-FFNS", 3, "full"),
+        ("FONLL-FFN0", 3, "full"),
+        ("FONLL-FFNS", 4, "full"),
+        ("FONLL-FFN0", 4, "full"),
+        ("FONLL-FFNS", 5, "full"),
+    ]
+)
 
 
 def produce_ptos(fns, is_mixed_or_damp):
@@ -242,9 +236,21 @@ def produce_fonll_recipe(fonll_fns, damp):
     """Produce the different theory cards according to which FONLL is asked for."""
     fonll_recipe = []
     is_mixed_or_damp = fonll_fns in MIXED_ORDER_FNS or damp != 0
-    fns_list = MIXED_FNS_LIST if is_mixed_or_damp else FNS_LIST
-    nfff_list = MIXED_NFFF_LIST if is_mixed_or_damp else NFFF_LIST
-    parts_list = MIXED_PARTS_LIST if is_mixed_or_damp else PARTS_LIST
+    fns_list = (
+        MIXED_FNS_CONFIG.transpose()[0]
+        if is_mixed_or_damp
+        else FNS_CONFIG.transpose()[0]
+    )
+    nfff_list = (
+        MIXED_FNS_CONFIG.transpose()[1]
+        if is_mixed_or_damp
+        else FNS_CONFIG.transpose()[1]
+    )
+    parts_list = (
+        MIXED_FNS_CONFIG.transpose()[2]
+        if is_mixed_or_damp
+        else FNS_CONFIG.transpose()[2]
+    )
     for fns, nfff, po, part in zip(
         fns_list, nfff_list, produce_ptos(fonll_fns, is_mixed_or_damp), parts_list
     ):
