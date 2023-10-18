@@ -99,6 +99,20 @@ FK_TO_DAMP = {
 FK_WITH_MINUS = ["ffn03", "ffn04"]  # asy terms should be subtracted, therefore the sign
 
 
+def produce_dampings(theorycard_constituent_fks, fonll_info, damp):
+    """Return the damping factors for each of the relevant masses."""
+    mc = theorycard_constituent_fks["mc"]
+    mb = theorycard_constituent_fks["mb"]
+    q2grid = fonll_info.Q2grid
+    step_function_charm = mc**2 < q2grid
+    step_function_bottom = mb**2 < q2grid
+    damping_factor_charm = (1 - mc / q2grid) ** damp[1]
+    damping_factor_bottom = (1 - mb / q2grid) ** damp[1]
+    damping_factor_charm *= step_function_charm
+    damping_factor_bottom *= step_function_bottom
+    return {"mc": damping_factor_charm, "mb": damping_factor_bottom}
+
+
 def produce_combined_fk(
     ffns3,
     ffn03,
@@ -132,16 +146,7 @@ def produce_combined_fk(
                 fk_dict[fk].write_lz4(tmpfile_path)
                 combined_fk.merge_from_file(tmpfile_path)
     else:
-        mc = theorycard_constituent_fks["mc"]
-        mb = theorycard_constituent_fks["mb"]
-        q2grid = fonll_info.Q2grid
-        step_function_charm = mc**2 < q2grid
-        step_function_bottom = mb**2 < q2grid
-        damping_factor_charm = (1 - mc / q2grid) ** damp[1]
-        damping_factor_bottom = (1 - mb / q2grid) ** damp[1]
-        damping_factor_charm *= step_function_charm
-        damping_factor_bottom *= step_function_bottom
-        dampings = {"mc": damping_factor_charm, "mb": damping_factor_bottom}
+        dampings = produce_dampings(theorycard_constituent_fks, fonll_info, damp)
         with tempfile.TemporaryDirectory() as tmpdirname:
             combined_fk = fk_dict[list(fk_dict)[0]]
             for fk in list(fk_dict)[1:]:
