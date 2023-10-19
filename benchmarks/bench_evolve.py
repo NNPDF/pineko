@@ -17,7 +17,7 @@ def benchmark_write_operator_card_from_file_num_fonll(
     tmp_path, test_files, test_configs, theoryid, is_mixed
 ):
     tcard = pineko.theory_card.load(theoryid)
-    tcards_path_list = pineko.fonll.produce_fonll_tcards(tcard, tmp_path, theoryid)
+    tcards_path_list = pineko.fonll.dump_tcards(tcard, tmp_path, theoryid)
     pine_path = (
         test_files
         / "data"
@@ -37,16 +37,14 @@ def benchmark_write_operator_card_from_file_num_fonll(
             pine_path, default_path, target_path, tcard
         )
     # Check if the opcards are ok
-    for opcard_path, nfff in zip(
+    for opcard_path, cfg in zip(
         targets_path_list,
-        np.array(pineko.fonll.MIXED_FNS_CONFIG).transpose().tolist()[1]
-        if is_mixed
-        else np.array(pineko.fonll.FNS_CONFIG).transpose().tolist()[1],
+        pineko.fonll.MIXED_FNS_CONFIG if is_mixed else pineko.fonll.FNS_CONFIG,
     ):
         with open(opcard_path, encoding="utf-8") as f:
             ocard = yaml.safe_load(f)
         for entry in ocard["mugrid"]:
-            assert entry[1] == int(nfff)
+            assert entry[1] == int(cfg.nf)
 
 
 def benchmark_write_operator_card_from_file(tmp_path, test_files, test_configs):

@@ -1,12 +1,12 @@
 """Module to manage FONLL predictions."""
 
 import copy
+import dataclasses
 import json
 import logging
 import tempfile
 from pathlib import Path
 
-import numpy as np
 import pineappl
 import rich
 import yaml
@@ -159,18 +159,18 @@ def produce_combined_fk(
     )
     theorycard_constituent_fks = fonll_info.theorycard_no_fns_pto
     fk_dict = fonll_info.fks
-    if damp[0] == 0:
-        # then there is no damping, not even Heaviside only
-        combined_fk = combine(fk_dict)
-    else:
-        dampings = produce_dampings(theorycard_constituent_fks, fonll_info, damp)
-        combined_fk = combine(fk_dict, dampings=dampings)
+    dampings = (
+        None
+        if damp[0] == 0
+        else produce_dampings(theorycard_constituent_fks, fonll_info, damp)
+    )
+    combined_fk = combine(fk_dict, dampings=dampings)
     input_theorycard_path = (
         Path(configs.load(configs.detect(cfg))["paths"]["theory_cards"])
         / f"{theoryid}.yaml"
     )
     update_fk_theorycard(combined_fk, input_theorycard_path)
-    # save final "fonll" fktable
+    # save final FONLL fktable
     fk_folder = Path(configs.load(configs.detect(cfg))["paths"]["fktables"]) / str(
         theoryid
     )
@@ -182,102 +182,74 @@ def produce_combined_fk(
 FNS_BASE_PTO = {"FONLL-A": 1, "FONLL-B": 1, "FONLL-C": 2, "FONLL-D": 2, "FONLL-E": 3}
 MIXED_ORDER_FNS = ["FONLL-B", "FONLL-D"]
 
-# Mixed FONLL schemes
+
+@dataclasses.dataclass
+class SubTheoryConfig:
+    """Single (sub-)theory configuration."""
+
+    scheme: str
+    nf: int
+    parts: str
+    delta_pto: int = 0
+
 
 MIXED_FNS_CONFIG = [
-    ("FONLL-FFNS", 3, "full"),
-    ("FONLL-FFN0", 3, "full"),
-    ("FONLL-FFNS", 4, "massless"),
-    ("FONLL-FFNS", 4, "massive"),
-    ("FONLL-FFN0", 4, "full"),
-    ("FONLL-FFNS", 5, "massless"),
-    ("FONLL-FFNS", 5, "massive"),
+    SubTheoryConfig("FONLL-FFNS", 3, "full", 1),
+    SubTheoryConfig("FONLL-FFN0", 3, "full", 1),
+    SubTheoryConfig("FONLL-FFNS", 4, "massless"),
+    SubTheoryConfig("FONLL-FFNS", 4, "massive", 1),
+    SubTheoryConfig("FONLL-FFN0", 4, "full", 1),
+    SubTheoryConfig("FONLL-FFNS", 5, "massless"),
+    SubTheoryConfig("FONLL-FFNS", 5, "massive", 1),
 ]
-
-
-# plain FONLL schemes
+"""Mixed FONLL schemes."""
 
 FNS_CONFIG = [
-    ("FONLL-FFNS", 3, "full"),
-    ("FONLL-FFN0", 3, "full"),
-    ("FONLL-FFNS", 4, "full"),
-    ("FONLL-FFN0", 4, "full"),
-    ("FONLL-FFNS", 5, "full"),
+    SubTheoryConfig("FONLL-FFNS", 3, "full"),
+    SubTheoryConfig("FONLL-FFN0", 3, "full"),
+    SubTheoryConfig("FONLL-FFNS", 4, "full"),
+    SubTheoryConfig("FONLL-FFN0", 4, "full"),
+    SubTheoryConfig("FONLL-FFNS", 5, "full"),
 ]
+"""Plain FONLL schemes."""
 
 
-def produce_ptos(fns, is_mixed_or_damp):
-    """Produce the list of PTOs needed for the requested fns."""
-    base_pto = FNS_BASE_PTO[fns]
-    # mixed FONLL
-    if fns in MIXED_ORDER_FNS:
-        return [
-            base_pto + 1,
-            base_pto + 1,
-            base_pto,
-            base_pto + 1,
-            base_pto + 1,
-            base_pto,
-            base_pto + 1,
-        ]
-    # plain FONLL with damping
-    elif is_mixed_or_damp:
-        return [base_pto for _ in range(7)]
-    # plain FONLL without damping
-    # In the case of not mixed and not damped FK tables, 5 sub FK tables are enough
-    else:
-        return [base_pto for _ in range(5)]
-
-
-def produce_fonll_recipe(fonll_fns, damp):
+def collect_updates(fonll_fns, damp):
     """Produce the different theory cards according to which FONLL is asked for."""
-    fonll_recipe = []
-    is_mixed_or_damp = fonll_fns in MIXED_ORDER_FNS or damp != 0
-    fns_list = (
-        np.array(MIXED_FNS_CONFIG).transpose().tolist()[0]
-        if is_mixed_or_damp
-        else np.array(FNS_CONFIG).transpose().tolist()[0]
-    )
-    nfff_list = (
-        np.array(MIXED_FNS_CONFIG).transpose().tolist()[1]
-        if is_mixed_or_damp
-        else np.array(FNS_CONFIG).transpose().tolist()[1]
-    )
-    parts_list = (
-        np.array(MIXED_FNS_CONFIG).transpose().tolist()[2]
-        if is_mixed_or_damp
-        else np.array(FNS_CONFIG).transpose().tolist()[2]
-    )
-    for fns, nfff, po, part in zip(
-        fns_list, nfff_list, produce_ptos(fonll_fns, is_mixed_or_damp), parts_list
-    ):
-        fonll_recipe.append(
+    updates = []
+    is_mixed = fonll_fns in MIXED_ORDER_FNS
+    is_damped = damp != 0
+    base_pto = FNS_BASE_PTO[fonll_fns]
+    cfgs = MIXED_FNS_CONFIG if is_mixed or is_damped else FNS_CONFIG
+    for cfg in cfgs:
+        po = int(base_pto) + (cfg.delta_pto if is_mixed else 0)
+        updates.append(
             {
-                "FNS": str(fns),
-                "NfFF": int(nfff),
-                "PTO": int(po),
-                "FONLLParts": str(part),
+                "FNS": cfg.scheme,
+                "NfFF": cfg.nf,
+                "PTO": po,
+                "FONLLParts": cfg.parts,
             }
         )
         # In a mixed FONLL scheme we only subract the resummed terms that are
         # present in the FFNS scheme at nf+1. E.g. for FONLL-B in FFN03 we
         # only subract up to NLL since there is no NNLL in FFNS4
-        if fonll_fns in MIXED_ORDER_FNS and fns == "FONLL-FFN0":
-            fonll_recipe[-1]["PTODIS"] = po
-            fonll_recipe[-1]["PTO"] = po - 1
-    return fonll_recipe
+        if fonll_fns in MIXED_ORDER_FNS and cfg.scheme == "FONLL-FFN0":
+            updates[-1]["PTODIS"] = po
+            updates[-1]["PTO"] = po - 1
+    return updates
 
 
-def produce_fonll_tcards(tcard, tcard_parent_path, theoryid):
-    """Produce the seven fonll tcards from an original tcard.
+def dump_tcards(tcard, tcard_parent_path, theoryid):
+    """Produce the seven FONLL theory cards from the original one.
 
-    The produced tcards are dumped in tcard_parent_path with names from '{theoryid}00.yaml' to '{theoryid}06.yaml'.
+    The produced theory cards are dumped in `tcard_parent_path` with names from '{theoryid}00.yaml' to '{theoryid}06.yaml'.
     """
-    fonll_recipe = produce_fonll_recipe(tcard["FNS"], tcard["DAMP"])
-    n_theory = len(fonll_recipe)
+    updates = collect_updates(tcard["FNS"], tcard["DAMP"])
+    n_theory = len(updates)
     theorycards = [copy.deepcopy(tcard) for _ in range(n_theory)]
     paths_list = []
-    for num, (theorycard, recipe) in enumerate(zip(theorycards, fonll_recipe)):
+    for num, (theorycard, recipe) in enumerate(zip(theorycards, updates)):
         # update cards entries
         theorycard.update(recipe)
         theorycard["ID"] = int(f"{theoryid}0{num}")
