@@ -21,9 +21,9 @@ FNS_BASE_PTO = {"FONLL-A": 1, "FONLL-B": 1, "FONLL-C": 2, "FONLL-D": 2, "FONLL-E
 
 The explict mapping is the following (evolution, massive parts, massless parts):
     * A: (1,1,1)
-    * B: (2,2,1)
+    * B: (1,2,1)
     * C: (2,2,2)
-    * D: (3,3,2)
+    * D: (2,3,2)
     * E: (3,3,3)
 """
 MIXED_ORDER_FNS = ["FONLL-B", "FONLL-D"]
