@@ -4,6 +4,7 @@ import copy
 import json
 import logging
 import tempfile
+from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
@@ -14,6 +15,116 @@ import yaml
 from . import configs
 
 logger = logging.getLogger(__name__)
+
+FNS_BASE_PTO = {"FONLL-A": 1, "FONLL-B": 1, "FONLL-C": 2, "FONLL-D": 2, "FONLL-E": 3}
+MIXED_ORDER_FNS = ["FONLL-B", "FONLL-D"]
+# Notice we rely on the order defined by the FONLLInfo class
+FK_TO_DAMP = {
+    "mc": ["ffn03", "ffns4til", "ffn04", "ffns5til"],
+    "mb": ["ffn04", "ffns5til"],
+}
+FK_WITH_MINUS = ["ffn03", "ffn04"]  # asy terms should be subtracted, therefore the sign
+
+
+@dataclass
+class FonllSchemeConfig:
+    """Class to group FONLL scheme configs."""
+
+    fonll_fns: str
+    is_damp: bool
+
+    def is_mixed(self) -> bool:
+        """Whether the fonll fns is of mixed type."""
+        return self.fonll_fns in MIXED_ORDER_FNS
+
+    def base_pto(self) -> int:
+        """Return the base perturbative order of the fonll fns."""
+        return FNS_BASE_PTO[self.fonll_fns]
+
+    def subfks_fns(self) -> list[str]:
+        """Return the fns of the sub FK table components of the fonll fns."""
+        if self.is_mixed() or self.is_damp:
+            return [
+                "FONLL-FFNS",
+                "FONLL-FFN0",
+                "FONLL-FFNS",
+                "FONLL-FFNS",
+                "FONLL-FFN0",
+                "FONLL-FFNS",
+                "FONLL-FFNS",
+            ]
+        else:
+            return [
+                "FONLL-FFNS",
+                "FONLL-FFN0",
+                "FONLL-FFNS",
+                "FONLL-FFN0",
+                "FONLL-FFNS",
+            ]
+
+    def subfks_nfff(self) -> list[int]:
+        """Return the nfff of the sub FK table components of the fonll fns."""
+        if self.is_mixed() or self.is_damp:
+            return [3, 3, 4, 4, 4, 5, 5]
+        else:
+            return [3, 3, 4, 4, 5]
+
+    def subfks_parts(self) -> list[str]:
+        """Return the parts of the sub FK table components of the fonll fns that need to be computed."""
+        if self.is_mixed() or self.is_damp:
+            return [
+                "full",
+                "full",
+                "massless",
+                "massive",
+                "full",
+                "massless",
+                "massive",
+            ]
+        else:
+            return ["full" for _ in range(5)]
+
+    def subfks_ptos(self) -> list[int]:
+        """Return the ptos of the sub FK table components of the fonll fns."""
+        base_pto = self.base_pto()
+        if self.is_mixed():
+            return [
+                base_pto + 1,
+                base_pto,
+                base_pto,
+                base_pto + 1,
+                base_pto,
+                base_pto,
+                base_pto + 1,
+            ]
+        elif self.is_damp:
+            return [base_pto for _ in range(7)]
+        else:
+            return [base_pto for _ in range(5)]
+
+    def produce_fonll_recipe(self) -> dict:
+        """Produce the different fonll recipes according to which FONLL is asked for."""
+        fonll_recipe = []
+        for fns, nfff, po, part in zip(
+            self.subfks_fns(),
+            self.subfks_nfff(),
+            self.subfks_ptos(),
+            self.subfks_parts(),
+        ):
+            fonll_recipe.append(
+                {
+                    "FNS": fns,
+                    "NfFF": nfff,
+                    "PTO": po,
+                    "FONLLParts": part,
+                }
+            )
+            # In a mixed FONLL scheme we only subract the resummed terms that are
+            # present in the FFNS scheme at nf+1. E.g. for FONLL-B in FFN03 we
+            # only subract up to NLL since there is no NNLL in FFNS4
+            if self.is_mixed() and fns == "FONLL-FFN0":
+                fonll_recipe[-1]["PTODIS"] = po + 1
+        return fonll_recipe
 
 
 class FONLLInfo:
@@ -83,14 +194,6 @@ class FONLLInfo:
     def Q2grid(self):
         """The Q2grid of the (DIS) FK tables."""
         return self.fks[list(self.fks)[0]].bin_left(0)
-
-
-# Notice we rely on the order defined by the FONLLInfo class
-FK_TO_DAMP = {
-    "mc": ["ffn03", "ffns4til", "ffn04", "ffns5til"],
-    "mb": ["ffn04", "ffns5til"],
-}
-FK_WITH_MINUS = ["ffn03", "ffn04"]  # asy terms should be subtracted, therefore the sign
 
 
 def update_fk_theorycard(combined_fk, input_theorycard_path):
@@ -179,33 +282,6 @@ def produce_combined_fk(
     combined_fk.write_lz4(output_path_fk)
 
 
-FNS_BASE_PTO = {"FONLL-A": 1, "FONLL-B": 1, "FONLL-C": 2, "FONLL-D": 2, "FONLL-E": 3}
-MIXED_ORDER_FNS = ["FONLL-B", "FONLL-D"]
-
-# Mixed FONLL schemes
-
-MIXED_FNS_CONFIG = [
-    ("FONLL-FFNS", 3, "full"),
-    ("FONLL-FFN0", 3, "full"),
-    ("FONLL-FFNS", 4, "massless"),
-    ("FONLL-FFNS", 4, "massive"),
-    ("FONLL-FFN0", 4, "full"),
-    ("FONLL-FFNS", 5, "massless"),
-    ("FONLL-FFNS", 5, "massive"),
-]
-
-
-# plain FONLL schemes
-
-FNS_CONFIG = [
-    ("FONLL-FFNS", 3, "full"),
-    ("FONLL-FFN0", 3, "full"),
-    ("FONLL-FFNS", 4, "full"),
-    ("FONLL-FFN0", 4, "full"),
-    ("FONLL-FFNS", 5, "full"),
-]
-
-
 def produce_ptos(fns, is_mixed_or_damp):
     """Produce the list of PTOs needed for the requested fns."""
     base_pto = FNS_BASE_PTO[fns]
@@ -229,51 +305,13 @@ def produce_ptos(fns, is_mixed_or_damp):
         return [base_pto for _ in range(5)]
 
 
-def produce_fonll_recipe(fonll_fns, damp):
-    """Produce the different theory cards according to which FONLL is asked for."""
-    fonll_recipe = []
-    is_mixed_or_damp = fonll_fns in MIXED_ORDER_FNS or damp != 0
-    fns_list = (
-        np.array(MIXED_FNS_CONFIG).transpose().tolist()[0]
-        if is_mixed_or_damp
-        else np.array(FNS_CONFIG).transpose().tolist()[0]
-    )
-    nfff_list = (
-        np.array(MIXED_FNS_CONFIG).transpose().tolist()[1]
-        if is_mixed_or_damp
-        else np.array(FNS_CONFIG).transpose().tolist()[1]
-    )
-    parts_list = (
-        np.array(MIXED_FNS_CONFIG).transpose().tolist()[2]
-        if is_mixed_or_damp
-        else np.array(FNS_CONFIG).transpose().tolist()[2]
-    )
-    for fns, nfff, po, part in zip(
-        fns_list, nfff_list, produce_ptos(fonll_fns, is_mixed_or_damp), parts_list
-    ):
-        fonll_recipe.append(
-            {
-                "FNS": str(fns),
-                "NfFF": int(nfff),
-                "PTO": int(po),
-                "FONLLParts": str(part),
-            }
-        )
-        # In a mixed FONLL scheme we only subract the resummed terms that are
-        # present in the FFNS scheme at nf+1. E.g. for FONLL-B in FFN03 we
-        # only subract up to NLL since there is no NNLL in FFNS4
-        if fonll_fns in MIXED_ORDER_FNS and fns == "FONLL-FFN0":
-            fonll_recipe[-1]["PTODIS"] = po
-            fonll_recipe[-1]["PTO"] = po - 1
-    return fonll_recipe
-
-
 def produce_fonll_tcards(tcard, tcard_parent_path, theoryid):
     """Produce the seven fonll tcards from an original tcard.
 
     The produced tcards are dumped in tcard_parent_path with names from '{theoryid}00.yaml' to '{theoryid}06.yaml'.
     """
-    fonll_recipe = produce_fonll_recipe(tcard["FNS"], tcard["DAMP"])
+    fonll_config = FonllSchemeConfig(tcard["FNS"], tcard["DAMP"])
+    fonll_recipe = fonll_config.produce_fonll_recipe()
     n_theory = len(fonll_recipe)
     theorycards = [copy.deepcopy(tcard) for _ in range(n_theory)]
     paths_list = []

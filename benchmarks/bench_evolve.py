@@ -12,11 +12,12 @@ import pineko.evolve
 import pineko.theory_card
 
 
-@pytest.mark.parametrize("theoryid,is_mixed", [(400, False), (208, True)])
+@pytest.mark.parametrize("theoryid", [400, 208])
 def benchmark_write_operator_card_from_file_num_fonll(
-    tmp_path, test_files, test_configs, theoryid, is_mixed
+    tmp_path, test_files, test_configs, theoryid
 ):
     tcard = pineko.theory_card.load(theoryid)
+    fonll_config = pineko.fonll.FonllSchemeConfig(tcard["FNS"], tcard["DAMP"])
     tcards_path_list = pineko.fonll.produce_fonll_tcards(tcard, tmp_path, theoryid)
     pine_path = (
         test_files
@@ -26,7 +27,7 @@ def benchmark_write_operator_card_from_file_num_fonll(
         / "HERA_NC_225GEV_EP_SIGMARED.pineappl.lz4"
     )
     default_path = test_files / "data" / "operator_cards" / "400" / "_template.yaml"
-    num_opcard = 7 if is_mixed else 5
+    num_opcard = 7 if fonll_config.is_mixed() else 5
     targets_path_list = [
         tmp_path / f"test_opcard_{num}.yaml" for num in range(num_opcard)
     ]
@@ -37,12 +38,7 @@ def benchmark_write_operator_card_from_file_num_fonll(
             pine_path, default_path, target_path, tcard
         )
     # Check if the opcards are ok
-    for opcard_path, nfff in zip(
-        targets_path_list,
-        np.array(pineko.fonll.MIXED_FNS_CONFIG).transpose().tolist()[1]
-        if is_mixed
-        else np.array(pineko.fonll.FNS_CONFIG).transpose().tolist()[1],
-    ):
+    for opcard_path, nfff in zip(targets_path_list, fonll_config.subfks_nfff()):
         with open(opcard_path, encoding="utf-8") as f:
             ocard = yaml.safe_load(f)
         for entry in ocard["mugrid"]:
