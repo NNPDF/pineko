@@ -171,4 +171,5 @@ def fonll_tcards(theoryid, cfg):
     tcard_parent_path = theory_card.path(theoryid).parent
     if "FONLL" not in tcard["FNS"]:
         raise TheoryCardError("The theorycard does not correspond to an FONLL scheme.")
-    _ = fonll.produce_fonll_tcards(tcard, tcard_parent_path, theoryid)
+    fonll.produce_fonll_tcards(tcard, tcard_parent_path, theoryid)
+    return
