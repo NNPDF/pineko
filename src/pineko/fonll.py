@@ -41,7 +41,7 @@ class FonllSchemeConfig:
         """Return the base perturbative order of the fonll fns."""
         return FNS_BASE_PTO[self.fonll_fns]
 
-    def subfks_fns(self) -> list[str]:
+    def subfks_fns(self) -> list:
         """Return the fns of the sub FK table components of the fonll fns."""
         if self.is_mixed() or self.is_damp:
             return [
@@ -62,14 +62,14 @@ class FonllSchemeConfig:
                 "FONLL-FFNS",
             ]
 
-    def subfks_nfff(self) -> list[int]:
+    def subfks_nfff(self) -> list:
         """Return the nfff of the sub FK table components of the fonll fns."""
         if self.is_mixed() or self.is_damp:
             return [3, 3, 4, 4, 4, 5, 5]
         else:
             return [3, 3, 4, 4, 5]
 
-    def subfks_parts(self) -> list[str]:
+    def subfks_parts(self) -> list:
         """Return the parts of the sub FK table components of the fonll fns that need to be computed."""
         if self.is_mixed() or self.is_damp:
             return [
@@ -84,7 +84,7 @@ class FonllSchemeConfig:
         else:
             return ["full" for _ in range(5)]
 
-    def subfks_ptos(self) -> list[int]:
+    def subfks_ptos(self) -> list:
         """Return the ptos of the sub FK table components of the fonll fns."""
         base_pto = self.base_pto()
         if self.is_mixed():
