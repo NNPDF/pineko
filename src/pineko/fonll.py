@@ -17,13 +17,24 @@ from . import configs
 logger = logging.getLogger(__name__)
 
 FNS_BASE_PTO = {"FONLL-A": 1, "FONLL-B": 1, "FONLL-C": 2, "FONLL-D": 2, "FONLL-E": 3}
+"""Mapping between pertubative orders as in the theory card PTO and the FONLL scheme names.
+
+The explict mapping is the following (evolution, massive parts, massless parts):
+    * A: (1,1,1)
+    * B: (2,2,1)
+    * C: (2,2,2)
+    * D: (3,3,2)
+    * E: (3,3,3)
+"""
 MIXED_ORDER_FNS = ["FONLL-B", "FONLL-D"]
+"""FONLL schemes with mixed orders."""
 # Notice we rely on the order defined by the FONLLInfo class
 FK_TO_DAMP = {
     "mc": ["ffn03", "ffns4til", "ffn04", "ffns5til"],
     "mb": ["ffn04", "ffns5til"],
 }
 FK_WITH_MINUS = ["ffn03", "ffn04"]  # asy terms should be subtracted, therefore the sign
+"""FNS schemes to be subtracted during the FONLL procedure."""
 
 
 @dataclass
