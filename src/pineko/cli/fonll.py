@@ -172,4 +172,3 @@ def fonll_tcards(theoryid, cfg):
     if "FONLL" not in tcard["FNS"]:
         raise TheoryCardError("The theorycard does not correspond to an FONLL scheme.")
     fonll.dump_tcards(tcard, tcard_parent_path, theoryid)
-    return
