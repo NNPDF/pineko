@@ -187,29 +187,34 @@ MIXED_ORDER_FNS = ["FONLL-B", "FONLL-D"]
 class SubTheoryConfig:
     """Single (sub-)theory configuration."""
 
-    scheme: str
+    asy: bool
     nf: int
     parts: str
     delta_pto: int = 0
 
+    @property
+    def scheme(self):
+        """Yadism scheme name."""
+        return "FONLL-FFN" + ("0" if self.asy else "S")
+
 
 MIXED_FNS_CONFIG = [
-    SubTheoryConfig("FONLL-FFNS", 3, "full", 1),
-    SubTheoryConfig("FONLL-FFN0", 3, "full", 1),
-    SubTheoryConfig("FONLL-FFNS", 4, "massless"),
-    SubTheoryConfig("FONLL-FFNS", 4, "massive", 1),
-    SubTheoryConfig("FONLL-FFN0", 4, "full", 1),
-    SubTheoryConfig("FONLL-FFNS", 5, "massless"),
-    SubTheoryConfig("FONLL-FFNS", 5, "massive", 1),
+    SubTheoryConfig(False, 3, "full", 1),
+    SubTheoryConfig(True, 3, "full", 1),
+    SubTheoryConfig(False, 4, "massless"),
+    SubTheoryConfig(False, 4, "massive", 1),
+    SubTheoryConfig(True, 4, "full", 1),
+    SubTheoryConfig(False, 5, "massless"),
+    SubTheoryConfig(False, 5, "massive", 1),
 ]
 """Mixed FONLL schemes."""
 
 FNS_CONFIG = [
-    SubTheoryConfig("FONLL-FFNS", 3, "full"),
-    SubTheoryConfig("FONLL-FFN0", 3, "full"),
-    SubTheoryConfig("FONLL-FFNS", 4, "full"),
-    SubTheoryConfig("FONLL-FFN0", 4, "full"),
-    SubTheoryConfig("FONLL-FFNS", 5, "full"),
+    SubTheoryConfig(False, 3, "full"),
+    SubTheoryConfig(True, 3, "full"),
+    SubTheoryConfig(False, 4, "full"),
+    SubTheoryConfig(True, 4, "full"),
+    SubTheoryConfig(False, 5, "full"),
 ]
 """Plain FONLL schemes."""
 
@@ -234,7 +239,7 @@ def collect_updates(fonll_fns, damp):
         # In a mixed FONLL scheme we only subract the resummed terms that are
         # present in the FFNS scheme at nf+1. E.g. for FONLL-B in FFN03 we
         # only subract up to NLL since there is no NNLL in FFNS4
-        if fonll_fns in MIXED_ORDER_FNS and cfg.scheme == "FONLL-FFN0":
+        if fonll_fns in MIXED_ORDER_FNS and cfg.asy:
             updates[-1]["PTODIS"] = po
             updates[-1]["PTO"] = po - 1
     return updates
