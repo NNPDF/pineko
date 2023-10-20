@@ -79,8 +79,7 @@ def save_data(
 
     date = dt.now().date()
     string = (
-        f"""
-********************************************************************************
+        f"""********************************************************************************
 SetName: {dataset_name}
 Author: {author_name}
 Date: {date}
@@ -94,7 +93,9 @@ Warnings: F1 normalization for {dataset_name}
     )
 
     os.makedirs(output_name, exist_ok=True)
-    with open(output_name + f"/CF_QCD_{dataset_name}.dat", "w") as file:
+    with open(
+        output_name + f"/CF_QCD_{dataset_name}.dat".replace("F1", "G1"), "w"
+    ) as file:
         file.write(string)
 
 
