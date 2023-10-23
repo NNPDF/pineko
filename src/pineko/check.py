@@ -116,8 +116,30 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif, max_as, max_al)
         raise ValueError("x grid in pineappl grid and eko operator are NOT compatible!")
 
 
-def is_fonll_b(fns, lumi):
-    """Check if the fktable we are computing is a DIS FONLL-B fktable.
+def is_dis(lumi):
+    """Check if the fktable we are computing is a DIS fktable.
+
+    Parameters
+    ----------
+    lumi : list(list(tuple))
+           luminosity info
+
+    Returns
+    -------
+    bool
+        true if the fktable is a DIS fktable
+    """
+    for entry in lumi:
+        for el in entry:
+            if (not islepton(el[0])) and (not islepton(el[1])):
+                # If neither of the incoming particles is a lepton we are sure
+                # it is not DIS
+                return False
+    return True
+
+
+def is_fonll_mixed(fns, lumi):
+    """Check if the fktable we are computing is FONLL-B, FONLL-D or, in general, a mixed FONLL fktable.
 
     Parameters
     ----------
@@ -129,16 +151,14 @@ def is_fonll_b(fns, lumi):
     Returns
     -------
     bool
-        true if the fktable is a FONLL-B DIS fktable
+        true if the fktable is a mixed FONLL DIS fktable
     """
-    for lists in lumi:
-        for el in lists:
-            if (not islepton(el[0])) and (not islepton(el[1])):
-                # in this case we are sure it is not DIS so for sure it is not FONLL-B
-                return False
-    if fns == "FONLL-B":
-        return True
-    return False
+    return is_dis(lumi) and fns in ["FONLL-B", "FONLL-D"]
+
+
+def is_num_fonll(fns):
+    """Check if the FNS is a nFONLL FNS."""
+    return fns in ["FONLL-FFNS", "FONLL-FFN0"]
 
 
 def orders(grid, max_as, max_al) -> list:
