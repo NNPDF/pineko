@@ -5,18 +5,24 @@ from datetime import datetime as dt
 import numpy as np
 import os
 import argparse
+from typing import List, Tuple
 
 
-def get_gpaths(folder):
+def get_gpaths(folder: str) -> Tuple[str, List[str]]:
     """
     Get a list of paths to PineAPPL grids in the specified folder.
 
-    Args:
-        folder (str): The folder path where PineAPPL grids are located.
+    Parameters
+    ----------
+    folder : str
+        The folder path where PineAPPL grids are located.
 
-    Returns:
-        pdf_name (str): The name of the PDF dataset.
-        gpaths (list): List of paths to PineAPPL grid files.
+    Returns
+    -------
+    pdf_name : str
+        The name of the PDF dataset.
+    gpaths : List[str]
+        List of paths to PineAPPL grid files.
     """
     paths = glob(folder + "/*F1*")  # Find grids with "_F1" in the filename
     gpaths = []
@@ -26,16 +32,21 @@ def get_gpaths(folder):
     return pdf_name, gpaths
 
 
-def get_prediction(gpath, pdf_name):
+def get_prediction(gpath: str, pdf_name: str) -> np.ndarray:
     """
     Get predictions by convoluting a PineAPPL grid with a LHAPDF PDF.
 
-    Args:
-        gpath (str): Path to the PineAPPL grid file.
-        pdf_name (str): The name of the LHAPDF dataset.
+    Parameters
+    ----------
+    gpath : str
+        Path to the PineAPPL grid file.
+    pdf_name : str
+        The name of the LHAPDF dataset.
 
-    Returns:
-        prediction (numpy.ndarray): Computed predictions.
+    Returns
+    -------
+    prediction : np.ndarray
+        Computed predictions.
     """
     # Load the PineAPPL grid
     grid = pineappl.grid.Grid.read(gpath)
@@ -57,21 +68,28 @@ def get_prediction(gpath, pdf_name):
 
 
 def save_data(
-    data,
-    dataset_name="<Name_of_dataset>",
-    author_name="<Your_name>",
-    theory_name="<Theory_name>",
-    output_name="results",
+    data: np.ndarray,
+    dataset_name: str,
+    pdf_name: str,
+    author_name: str,
+    theory_name: str,
+    output_name: str = "results",
 ):
     """
     Save computed data to a file with metadata.
 
-    Args:
-        data (numpy.ndarray): Computed data.
-        dataset_name (str): Name of the dataset.
-        author_name (str): Name of the author.
-        theory_name (str): Name of the theory.
-        output_name (str): Output folder name.
+    Parameters
+    ----------
+    data : np.ndarray
+        Computed data.
+    dataset_name : str
+        Name of the dataset.
+    author_name : str
+        Name of the author.
+    theory_name : str
+        Name of the theory.
+    output_name : str, optional
+        Output folder name, default is "results".
     """
     strf_data = ""
     for i in range(data.shape[0]):
@@ -85,7 +103,7 @@ Author: {author_name}
 Date: {date}
 CodesUsed: https://github.com/NNPDF/yadism
 TheoryInput: {theory_name}
-PDFset: NNPDF40_nnlo_pch_as_01180
+PDFset: {pdf_name}
 Warnings: F1 normalization for {dataset_name}
 ********************************************************************************
 """
@@ -94,7 +112,7 @@ Warnings: F1 normalization for {dataset_name}
 
     os.makedirs(output_name, exist_ok=True)
     with open(
-        output_name + f"/CF_QCD_{dataset_name}.dat".replace("F1", "G1"), "w"
+        output_name + f"/CF_NRM_{dataset_name}.dat".replace("F1", "G1"), "w"
     ) as file:
         file.write(string)
 
@@ -103,9 +121,11 @@ Warnings: F1 normalization for {dataset_name}
 parser = argparse.ArgumentParser()
 parser.add_argument("pdf", help="The name of the PDF dataset of LHAPDF")
 parser.add_argument("folder", help="The folder name of the F1 pineapple grids")
-parser.add_argument("--author", default="A.J. Hasenack")
-parser.add_argument("--theory", default="theory_800")
-parser.add_argument("--output", default="results")
+parser.add_argument("--author", help="The name of the author", default="A.J. Hasenack")
+parser.add_argument(
+    "--theory", help="The theory used, formatted as 'theory_'+int", default="theory_800"
+)
+parser.add_argument("--output", help="The name of the output folder", default="results")
 args = parser.parse_args()
 
 # Extract command line arguments
@@ -126,4 +146,4 @@ for gpath in gpaths:
 
     # Get predictions and save data
     data = get_prediction(gpath, pdf_name)
-    save_data(data, dataset_name, author, theory, output)
+    save_data(data, dataset_name, pdf_name, author, theory, output)
