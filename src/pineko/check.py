@@ -153,10 +153,7 @@ def is_fonll_mixed(fns, lumi):
     bool
         true if the fktable is a mixed FONLL DIS fktable
     """
-    if not is_dis(lumi):
-        return False
-    mixed_FONLL_fns = ["FONLL-B", "FONLL-D"]
-    if fns in mixed_FONLL_fns:
+    if is_dis(lumi) and fns in ["FONLL-B", "FONLL-D"]:
         return True
     return False
 
