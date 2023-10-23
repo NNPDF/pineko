@@ -33,7 +33,7 @@ def benchmark_write_operator_card_from_file_num_fonll(
     for target_path, tcard_path in zip(targets_path_list, tcards_path_list):
         with open(tcard_path, encoding="utf-8") as f:
             tcard = yaml.safe_load(f)
-        x_grid, _q2_grid = pineko.evolve.write_operator_card_from_file(
+        _x_grid, _q2_grid = pineko.evolve.write_operator_card_from_file(
             pine_path, default_path, target_path, tcard
         )
     # Check if the opcards are ok
