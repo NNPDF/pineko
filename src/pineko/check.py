@@ -158,9 +158,9 @@ def is_fonll_mixed(fns, lumi):
     return False
 
 
-def is_num_fonll(FNS):
+def is_num_fonll(fns):
     """Check if the FNS is a nFONLL FNS."""
-    return FNS in ["FONLL-FFNS", "FONLL-FFN0"]
+    return fns in ["FONLL-FFNS", "FONLL-FFN0"]
 
 
 def orders(grid, max_as, max_al) -> list:
