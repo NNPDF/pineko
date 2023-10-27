@@ -122,9 +122,11 @@ def produce_dampings(theorycard_constituent_fks, fonll_info, damp):
     """Return the damping factors for each of the relevant masses."""
     mc = theorycard_constituent_fks["mc"]
     mb = theorycard_constituent_fks["mb"]
+    kcthr = theorycard_constituent_fks["kcThr"]
+    kbthr = theorycard_constituent_fks["kbThr"]
     q2grid = fonll_info.Q2grid
-    step_function_charm = mc**2 < q2grid
-    step_function_bottom = mb**2 < q2grid
+    step_function_charm = (kcthr * mc) ** 2 < q2grid
+    step_function_bottom = (kbthr * mb) ** 2 < q2grid
     damping_factor_charm = (1 - mc / q2grid) ** damp[1]
     damping_factor_bottom = (1 - mb / q2grid) ** damp[1]
     damping_factor_charm *= step_function_charm
