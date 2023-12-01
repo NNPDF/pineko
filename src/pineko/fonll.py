@@ -120,8 +120,12 @@ def update_fk_theorycard(combined_fk, input_theorycard_path):
 
 def produce_dampings(theorycard_constituent_fks, fonll_info, damp):
     """Return the damping factors for each of the relevant masses."""
-    cmatching2 = (theorycard_constituent_fks["kcThr"] * theorycard_constituent_fks["mc"]) **2
-    bmatching2 = (theorycard_constituent_fks["kbThr"] * theorycard_constituent_fks["mb"]) **2
+    cmatching2 = (
+        theorycard_constituent_fks["kcThr"] * theorycard_constituent_fks["mc"]
+    ) ** 2
+    bmatching2 = (
+        theorycard_constituent_fks["kbThr"] * theorycard_constituent_fks["mb"]
+    ) ** 2
     q2grid = fonll_info.Q2grid
     step_function_charm = cmatching2 < q2grid
     step_function_bottom = bmatching2 < q2grid
