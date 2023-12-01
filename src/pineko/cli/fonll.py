@@ -121,7 +121,9 @@ def subcommand(
     tcard = theory_card.load(theoryid)
     if tcard["DAMP"] != 0:
         if not "DAMPPOWERc" in tcard or not "DAMPPOWERb" in tcard:
-            raise InconsistentInputsError("If DAMP is set, set also DAMPPOWERb and DAMPPOWERc")
+            raise InconsistentInputsError(
+                "If DAMP is set, set also DAMPPOWERb and DAMPPOWERc"
+            )
     else:
         tcard["DAMPPOWERb"] = None
         tcard["DAMPPOWERc"] = None
