@@ -118,15 +118,15 @@ def update_fk_theorycard(combined_fk, input_theorycard_path):
     combined_fk.set_key_value("theory", str(theorycard))
 
 
-def produce_dampings(theorycard_constituent_fks, fonll_info, damp):
+def produce_dampings(theorycard_constituent_fks, fonll_info, damppowerc, damppowerb):
     """Return the damping factors for each of the relevant masses."""
     cmatching2 = (theorycard_constituent_fks["kcThr"] * theorycard_constituent_fks["mc"]) **2
     bmatching2 = (theorycard_constituent_fks["kbThr"] * theorycard_constituent_fks["mb"]) **2
     q2grid = fonll_info.Q2grid
     step_function_charm = cmatching2 < q2grid
     step_function_bottom = bmatching2 < q2grid
-    damping_factor_charm = (1 - cmatching2 / q2grid) ** damp[1]
-    damping_factor_bottom = (1 - bmatching2 / q2grid) ** damp[2]
+    damping_factor_charm = (1 - cmatching2 / q2grid) ** damppowerc
+    damping_factor_bottom = (1 - bmatching2 / q2grid) ** damppowerb
     damping_factor_charm *= step_function_charm
     damping_factor_bottom *= step_function_bottom
     return {"mc": damping_factor_charm, "mb": damping_factor_bottom}
@@ -174,7 +174,7 @@ def produce_combined_fk(
     dampings = (
         None
         if damp[0] == 0
-        else produce_dampings(theorycard_constituent_fks, fonll_info, damp)
+        else produce_dampings(theorycard_constituent_fks, fonll_info, damp[1], damp[2])
     )
     combined_fk = combine(fk_dict, dampings=dampings)
     input_theorycard_path = (
