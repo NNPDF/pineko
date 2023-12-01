@@ -119,14 +119,14 @@ def subcommand(
 
     # Get theory info
     tcard = theory_card.load(theoryid)
-    if tcard["DAMP"] != 0:
+    if tcard["DAMP"] not in [-1,0]:
         if not "DAMPPOWERc" in tcard or not "DAMPPOWERb" in tcard:
             raise InconsistentInputsError(
                 "If DAMP is set, set also DAMPPOWERb and DAMPPOWERc"
             )
     else:
-        tcard["DAMPPOWERb"] = None
-        tcard["DAMPPOWERc"] = None
+        tcard["DAMPPOWERb"] = 0
+        tcard["DAMPPOWERc"] = 0
     # Getting the paths to the grids
     grids_name = grids_names(configs.configs["paths"]["ymldb"] / f"{dataset}.yaml")
     for grid in grids_name:

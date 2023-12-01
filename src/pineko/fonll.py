@@ -177,7 +177,7 @@ def produce_combined_fk(
     fk_dict = fonll_info.fks
     dampings = (
         None
-        if damp[0] == 0
+        if damp[0] == -1
         else produce_dampings(theorycard_constituent_fks, fonll_info, damp[1], damp[2])
     )
     combined_fk = combine(fk_dict, dampings=dampings)
