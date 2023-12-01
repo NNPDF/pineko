@@ -126,7 +126,7 @@ def produce_dampings(theorycard_constituent_fks, fonll_info, damp):
     step_function_charm = cmatching2 < q2grid
     step_function_bottom = bmatching2 < q2grid
     damping_factor_charm = (1 - cmatching2 / q2grid) ** damp[1]
-    damping_factor_bottom = (1 - bmatching2 / q2grid) ** damp[1]
+    damping_factor_bottom = (1 - bmatching2 / q2grid) ** damp[2]
     damping_factor_charm *= step_function_charm
     damping_factor_bottom *= step_function_bottom
     return {"mc": damping_factor_charm, "mb": damping_factor_bottom}
@@ -162,7 +162,7 @@ def produce_combined_fk(
     ffns5til,
     ffns5bar,
     theoryid,
-    damp=(0, None),
+    damp=(0, None, None),
     cfg=None,
 ):
     """Combine the FONLL FK tables into one single FK table."""

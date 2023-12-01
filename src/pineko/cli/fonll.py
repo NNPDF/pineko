@@ -119,10 +119,12 @@ def subcommand(
 
     # Get theory info
     tcard = theory_card.load(theoryid)
-    if not "DAMPPOWER" in tcard:
-        if tcard["DAMP"] != 0:
-            raise InconsistentInputsError("If DAMP is set, set also DAMPPOWER")
-        tcard["DAMPPOWER"] = None
+    if tcard["DAMP"] != 0:
+        if not "DAMPPOWERC" in tcard or not "DAMPPOWERB" in tcard:
+            raise InconsistentInputsError("If DAMP is set, set also DAMPPOWERB and DAMPPOWERC")
+    else:
+        tcard["DAMPPOWERB"] = None
+        tcard["DAMPPOWERC"] = None
     # Getting the paths to the grids
     grids_name = grids_names(configs.configs["paths"]["ymldb"] / f"{dataset}.yaml")
     for grid in grids_name:
@@ -150,7 +152,7 @@ def subcommand(
                 )
             ),
             theoryid,
-            damp=(tcard["DAMP"], tcard["DAMPPOWER"]),
+            damp=(tcard["DAMP"], tcard["DAMPPOWERC"], tcard["DAMPPOWERB"]),
             cfg=cfg,
         )
         if new_fk_path.exists():
