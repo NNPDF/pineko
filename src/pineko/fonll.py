@@ -235,7 +235,7 @@ def collect_updates(fonll_fns, damp):
     """Produce the different theory cards according to which FONLL is asked for."""
     updates = []
     is_mixed = fonll_fns in MIXED_ORDER_FNS
-    is_damped = damp != 0
+    is_damped = damp >= 0
     base_pto = FNS_BASE_PTO[fonll_fns]
     cfgs = MIXED_FNS_CONFIG if is_mixed or is_damped else FNS_CONFIG
     for cfg in cfgs:
