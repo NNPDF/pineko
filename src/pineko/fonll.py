@@ -54,17 +54,18 @@ class FONLLInfo:
             "ffns5til": ffns5til,
             "ffns5bar": ffns5bar,
         }
-        actually_existing_paths = [p for p in self.paths if self.paths[p] is not None]
+        actually_existing_paths = [p for p, g in self.paths.items() if g is not None]
         for p in self.paths:
             if p not in actually_existing_paths:
                 logger.warning(
-                    f"Warning! FK table for {p} does not exist and thus is being skipped."
+                    "Warning! FK table for %s does not exist and thus is being skipped.",
+                    p,
                 )
 
     @property
     def fk_paths(self):
         """Returns the list of the FK table paths needed to produce FONLL predictions."""
-        return {p: Path(self.paths[p]) for p in self.paths if self.paths[p] is not None}
+        return {p: Path(self.paths[p]) for p, g in self.paths.items() if g is not None}
 
     @property
     def fks(self):
@@ -106,8 +107,11 @@ class FONLLInfo:
 
 
 def update_fk_theorycard(combined_fk, input_theorycard_path):
-    """Update theorycard entries for the combined fktable by reading the yamldb of the original theory."""
-    with open(input_theorycard_path) as f:
+    """Update theorycard entries for the combined FK table.
+
+    Update by reading the yamldb of the original theory.
+    """
+    with open(input_theorycard_path, encoding="utf-8") as f:
         final_theorycard = yaml.safe_load(f)
     theorycard = json.loads(combined_fk.key_values()["theory"])
     theorycard["FNS"] = final_theorycard["FNS"]
@@ -147,8 +151,8 @@ def combine(fk_dict, dampings=None):
             sign = -1 if fk in FK_WITH_MINUS else 1
             fk_dict[fk].scale(sign)
             if dampings is not None:
-                for mass in FK_TO_DAMP:
-                    if fk in FK_TO_DAMP[mass]:
+                for mass, fks in FK_TO_DAMP.items():
+                    if fk in fks:
                         fk_dict[fk].scale_by_bin(dampings[mass])
             fk_dict[fk].write_lz4(tmpfile_path)
             combined_fk.merge_from_file(tmpfile_path)
@@ -260,7 +264,8 @@ def collect_updates(fonll_fns, damp):
 def dump_tcards(tcard, tcard_parent_path, theoryid):
     """Produce the seven FONLL theory cards from the original one.
 
-    The produced theory cards are dumped in `tcard_parent_path` with names from '{theoryid}00.yaml' to '{theoryid}06.yaml'.
+    The produced theory cards are dumped in `tcard_parent_path` with names
+    from '{theoryid}00.yaml' to '{theoryid}06.yaml'.
     """
     updates = collect_updates(tcard["FNS"], tcard["DAMP"])
     n_theory = len(updates)
