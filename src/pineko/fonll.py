@@ -181,7 +181,7 @@ def produce_combined_fk(
     fk_dict = fonll_info.fks
     dampings = (
         None
-        if damp[0] == -1
+        if damp[0] < 0
         else produce_dampings(theorycard_constituent_fks, fonll_info, damp[1], damp[2])
     )
     combined_fk = combine(fk_dict, dampings=dampings)
@@ -239,7 +239,7 @@ def collect_updates(fonll_fns, damp):
     """Produce the different theory cards according to which FONLL is asked for."""
     updates = []
     is_mixed = fonll_fns in MIXED_ORDER_FNS
-    is_damped = damp >= 0
+    is_damped = damp > 0
     base_pto = FNS_BASE_PTO[fonll_fns]
     cfgs = MIXED_FNS_CONFIG if is_mixed or is_damped else FNS_CONFIG
     for cfg in cfgs:
