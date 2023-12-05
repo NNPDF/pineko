@@ -208,7 +208,7 @@ class SubTheoryConfig:
         return "FONLL-FFN" + ("0" if self.asy else "S")
 
 
-MIXED_FNS_CONFIG = [
+FNS_CONFIG = [
     SubTheoryConfig(False, 3, "full", 1),
     SubTheoryConfig(True, 3, "full", 1),
     SubTheoryConfig(False, 4, "massless"),
@@ -219,24 +219,13 @@ MIXED_FNS_CONFIG = [
 ]
 """Mixed FONLL schemes."""
 
-FNS_CONFIG = [
-    SubTheoryConfig(False, 3, "full"),
-    SubTheoryConfig(True, 3, "full"),
-    SubTheoryConfig(False, 4, "massless"),
-    SubTheoryConfig(False, 4, "massive"),
-    SubTheoryConfig(True, 4, "full"),
-    SubTheoryConfig(False, 5, "massless"),
-    SubTheoryConfig(False, 5, "massive"),
-]
-"""Plain FONLL schemes."""
-
 
 def collect_updates(fonll_fns, damp):
     """Produce the different theory cards according to which FONLL is asked for."""
     updates = []
     is_mixed = fonll_fns in MIXED_ORDER_FNS
     base_pto = FNS_BASE_PTO[fonll_fns]
-    cfgs = MIXED_FNS_CONFIG if is_mixed else FNS_CONFIG
+    cfgs = FNS_CONFIG
     for cfg in cfgs:
         po = int(base_pto) + (cfg.delta_pto if is_mixed else 0)
         updates.append(
