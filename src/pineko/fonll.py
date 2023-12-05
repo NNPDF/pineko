@@ -220,7 +220,7 @@ FNS_CONFIG = [
 """Mixed FONLL schemes."""
 
 
-def collect_updates(fonll_fns, damp):
+def collect_updates(fonll_fns):
     """Produce the different theory cards according to which FONLL is asked for."""
     updates = []
     is_mixed = fonll_fns in MIXED_ORDER_FNS
@@ -251,7 +251,7 @@ def dump_tcards(tcard, tcard_parent_path, theoryid):
     The produced theory cards are dumped in `tcard_parent_path` with names
     from '{theoryid}00.yaml' to '{theoryid}06.yaml'.
     """
-    updates = collect_updates(tcard["FNS"], tcard["DAMP"])
+    updates = collect_updates(tcard["FNS"])
     n_theory = len(updates)
     theorycards = [copy.deepcopy(tcard) for _ in range(n_theory)]
     paths_list = []
