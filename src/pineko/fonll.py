@@ -40,17 +40,15 @@ class FONLLInfo:
     """Class containing all the information for FONLL predictions."""
 
     def __init__(
-        self, ffns3, ffn03, ffns4, ffns4til, ffns4bar, ffn04, ffns5, ffns5til, ffns5bar
+        self, ffns3, ffn03, ffns4til, ffns4bar, ffn04, ffns5til, ffns5bar
     ) -> None:
         """Initialize fonll info."""
         self.paths = {
             "ffns3": ffns3,
             "ffn03": ffn03,
-            "ffns4": ffns4,
             "ffns4til": ffns4til,
             "ffns4bar": ffns4bar,
             "ffn04": ffn04,
-            "ffns5": ffns5,
             "ffns5til": ffns5til,
             "ffns5bar": ffns5bar,
         }
@@ -162,11 +160,9 @@ def combine(fk_dict, dampings=None):
 def produce_combined_fk(
     ffns3,
     ffn03,
-    ffns4,
     ffns4til,
     ffns4bar,
     ffn04,
-    ffns5,
     ffns5til,
     ffns5bar,
     theoryid,
@@ -174,9 +170,7 @@ def produce_combined_fk(
     cfg=None,
 ):
     """Combine the FONLL FK tables into one single FK table."""
-    fonll_info = FONLLInfo(
-        ffns3, ffn03, ffns4, ffns4til, ffns4bar, ffn04, ffns5, ffns5til, ffns5bar
-    )
+    fonll_info = FONLLInfo(ffns3, ffn03, ffns4til, ffns4bar, ffn04, ffns5til, ffns5bar)
     theorycard_constituent_fks = fonll_info.theorycard_no_fns_pto
     fk_dict = fonll_info.fks
     dampings = (
@@ -228,9 +222,11 @@ MIXED_FNS_CONFIG = [
 FNS_CONFIG = [
     SubTheoryConfig(False, 3, "full"),
     SubTheoryConfig(True, 3, "full"),
-    SubTheoryConfig(False, 4, "full"),
+    SubTheoryConfig(False, 4, "massless"),
+    SubTheoryConfig(False, 4, "massive"),
     SubTheoryConfig(True, 4, "full"),
-    SubTheoryConfig(False, 5, "full"),
+    SubTheoryConfig(False, 5, "massless"),
+    SubTheoryConfig(False, 5, "massive"),
 ]
 """Plain FONLL schemes."""
 
@@ -239,9 +235,8 @@ def collect_updates(fonll_fns, damp):
     """Produce the different theory cards according to which FONLL is asked for."""
     updates = []
     is_mixed = fonll_fns in MIXED_ORDER_FNS
-    is_damped = damp == 1
     base_pto = FNS_BASE_PTO[fonll_fns]
-    cfgs = MIXED_FNS_CONFIG if is_mixed or is_damped else FNS_CONFIG
+    cfgs = MIXED_FNS_CONFIG if is_mixed else FNS_CONFIG
     for cfg in cfgs:
         po = int(base_pto) + (cfg.delta_pto if is_mixed else 0)
         updates.append(
