@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 import yaml
 
@@ -19,7 +18,7 @@ def benchmark_produce_fonll_tcards(
     base_pto = pineko.fonll.FNS_BASE_PTO[tcard["FNS"]]
     for num_fonll_tcard, cfg in zip(
         theorycards,
-        pineko.fonll.MIXED_FNS_CONFIG if is_mixed else pineko.fonll.FNS_CONFIG,
+        pineko.fonll.FNS_CONFIG,
     ):
         po = int(base_pto) + (cfg.delta_pto if is_mixed else 0)
         assert num_fonll_tcard["FNS"] == cfg.scheme

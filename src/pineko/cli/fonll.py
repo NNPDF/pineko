@@ -47,11 +47,9 @@ def grids_names(yaml_file):
 @click.argument("dataset", type=str)
 @click.option("--FFNS3", type=int, help="theoryID containing the ffns3 fktable")
 @click.option("--FFN03", type=int, help="theoryID containing the ffn03 fktable")
-@click.option("--FFNS4", type=int, help="theoryID containing the ffns4 fktable")
 @click.option("--FFNS4til", type=int, help="theoryID containing the ffns4til fktable")
 @click.option("--FFNS4bar", type=int, help="theoryID containing the ffns4bar fktable")
 @click.option("--FFN04", type=int, help="theoryID containing the ffn04 fktable")
-@click.option("--FFNS5", type=int, help="theoryID containing the ffns5 fktable")
 @click.option("--FFNS5til", type=int, help="theoryID containing the ffns5til fktable")
 @click.option("--FFNS5bar", type=int, help="theoryID containing the ffns5bar fktable")
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
@@ -61,11 +59,9 @@ def subcommand(
     dataset,
     ffns3,
     ffn03,
-    ffns4,
     ffns4til,
     ffns4bar,
     ffn04,
-    ffns5,
     ffns5til,
     ffns5bar,
     overwrite,
@@ -83,39 +79,17 @@ def subcommand(
     if not ffns3 or not ffn03:
         raise InconsistentInputsError("ffns3 and/or ffn03 is not provided.")
 
-    if any([ffns4, ffns4til, ffns4bar]):
-        if ffns4:
-            if any([ffns4til, ffns4bar]):
-                raise InconsistentInputsError(
-                    "If ffns4 is provided no ffnstil or ffnsbar should be provided."
-                )
-        else:
-            if ffns4til is None or ffns4bar is None:
-                raise InconsistentInputsError(
-                    "if ffnstil is provided also ffnsbar should be provided, and vice versa."
-                )
-    else:
-        raise InconsistentInputsError("ffns4 is not provided.")
+    if ffns4til is None or ffns4bar is None:
+        raise InconsistentInputsError(
+            "At least one of ffns4til and ffns4bar should be provided."
+        )
 
     # Do we consider two masses, i.e. mc and mb
-    two_masses = False
-    if any([ffns5, ffns5til, ffns5bar]):
-        two_masses = True
-        if ffns5:
-            if any([ffns5til, ffns5bar]):
-                raise InconsistentInputsError(
-                    "If ffns5 is provided no ffnstil or ffnsbar should be provided."
-                )
-        else:
-            if ffns5til is None or ffns5bar is None:
-                raise InconsistentInputsError(
-                    "if ffnstil is provided also ffnsbar should be provided, and vice versa."
-                )
-
-    if (ffn04 is None and two_masses) or (ffn04 is not None and not two_masses):
-        raise InconsistentInputsError(
-            "If two masses are to be considered, both ffn04 and the nf=5 coefficient should be provided"
-        )
+    if any([ffns5til, ffns5bar, ffn04]):
+        if (ffns5til is None and ffns5bar is None) or ffn04 is None:
+            raise InconsistentInputsError(
+                "To include nf5 contributions, ffn04 and at least one between ffns5til and ffns5bar are mandatory"
+            )
 
     # Get theory info
     tcard = theory_card.load(theoryid)
@@ -144,11 +118,9 @@ def subcommand(
                 for name in (
                     ffns3,
                     ffn03,
-                    ffns4,
                     ffns4til,
                     ffns4bar,
                     ffn04,
-                    ffns5,
                     ffns5til,
                     ffns5bar,
                 )
