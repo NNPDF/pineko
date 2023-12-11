@@ -9,7 +9,7 @@ import argparse
 from typing import List, Tuple
 
 
-def get_prediction(folder: str, pdf_name: str) -> np.ndarray:
+def get_prediction(folder: str) -> np.ndarray:
     """
     Get predictions by convoluting a PineAPPL grid with a LHAPDF PDF.
 
@@ -79,16 +79,13 @@ Warnings: 1/2x normalization for {dataset_name}
     )
 
     os.makedirs(output_name, exist_ok=True)
-    dataset_name = list(dataset_name)
-    dataset_name[-2] = "G"
-    dataset_name = "".join(dataset_name)
-    with open(output_name + f"/CF_NRM_{dataset_name}.dat", "w") as file:
+    with open(output_name + f"/CF_NRM_{dataset_name}_G1.dat", "w") as file:
         file.write(string)
 
 
 # Create an argument parser
 parser = argparse.ArgumentParser()
-parser.add_argument("folder", help="The folder name of the F1 pineapple grids")
+parser.add_argument("folder", help="The folder name of the commondata set")
 parser.add_argument("--author", help="The name of the author", default="A.J. Hasenack")
 parser.add_argument(
     "--theory", help="The theory used, formatted as 'theory_'+int", default="theory_800"
@@ -102,6 +99,10 @@ author = args.author
 theory = args.theory
 output = args.output
 
+dataset_name = os.path.splitext(
+    os.path.splitext(os.path.basename(os.path.normpath(folder_name)))[0]
+)[0]
+
 # Get predictions and save data
 data = get_prediction(folder_name)
-save_data(data, folder_name, author, theory, output)
+save_data(data, dataset_name, author, theory, output)

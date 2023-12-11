@@ -8,7 +8,7 @@ import argparse
 from typing import List, Tuple
 
 
-def get_gpaths(folder: str) -> Tuple[str, List[str]]:
+def get_gpaths(folder: str, data: str) -> Tuple[str, List[str]]:
     """
     Get a list of paths to PineAPPL grids in the specified folder.
 
@@ -16,6 +16,8 @@ def get_gpaths(folder: str) -> Tuple[str, List[str]]:
     ----------
     folder : str
         The folder path where PineAPPL grids are located.
+    data : str
+        Name of the commondata set.
 
     Returns
     -------
@@ -24,7 +26,7 @@ def get_gpaths(folder: str) -> Tuple[str, List[str]]:
     gpaths : List[str]
         List of paths to PineAPPL grid files.
     """
-    paths = glob(folder + "/*F1*")  # Find grids with "_F1" in the filename
+    paths = glob(folder + f"/*{data}*F1*")  # Find the grids
     gpaths = []
     for p in paths:
         gpaths.append(glob(p + "/*.pineappl.lz4")[0])
@@ -32,7 +34,7 @@ def get_gpaths(folder: str) -> Tuple[str, List[str]]:
     return gpaths
 
 
-def get_prediction(gpath: str, pdf_name: str, target: str) -> np.ndarray:
+def get_prediction(gpath: str, pdf_name: str) -> np.ndarray:
     """
     Get predictions by convoluting a PineAPPL grid with a LHAPDF PDF.
 
@@ -54,13 +56,8 @@ def get_prediction(gpath: str, pdf_name: str, target: str) -> np.ndarray:
     # Load the LHAPDF
     pdf = lhapdf.mkPDF(pdf_name)
 
-    # Make case distinction for target cases
-    if target == "proton":
-        nr = 2212
-    elif target == "neutron":
-        nr = 2112
-    else:
-        pass
+    # Proton reference number
+    nr = 2212
 
     # Perform the convolution
     prediction = grid.convolute_with_one(
@@ -117,11 +114,7 @@ Warnings: F1 normalization for {dataset_name}
 """
         + strf_data
     )
-
-    os.makedirs(output_name, exist_ok=True)
-    dataset_name = list(dataset_name)
-    dataset_name[-2] = "G"
-    dataset_name = "".join(dataset_name)
+    dataset_name += "_G1"
     with open(output_name + f"/CF_NRM_{dataset_name}.dat", "w") as file:
         file.write(string)
 
@@ -130,7 +123,7 @@ Warnings: F1 normalization for {dataset_name}
 parser = argparse.ArgumentParser()
 parser.add_argument("pdf", help="The name of the PDF dataset of LHAPDF")
 parser.add_argument("folder", help="The folder name of the F1 pineapple grids")
-parser.add_argument("target", help="Add the target type")
+parser.add_argument("data", help="Name of the commondata set")
 parser.add_argument("--author", help="The name of the author", default="A.J. Hasenack")
 parser.add_argument(
     "--theory", help="The theory used, formatted as 'theory_'+int", default="theory_800"
@@ -141,20 +134,16 @@ args = parser.parse_args()
 # Extract command line arguments
 pdf_name = args.pdf
 folder_name = args.folder
-target = args.target
+data = args.data
 author = args.author
 theory = args.theory
 output = args.output
 
 # Get PineAPPL grid paths and PDF name
-gpaths = get_gpaths(folder_name)
+gpaths = get_gpaths(folder_name, data)
 
 # Process each PineAPPL grid
 for gpath in gpaths:
-    dataset_name = os.path.splitext(
-        os.path.splitext(os.path.basename(os.path.normpath(gpath)))[0]
-    )[0]
-
     # Get predictions and save data
-    data = get_prediction(gpath, pdf_name, target)
-    save_data(data, dataset_name, pdf_name, author, theory, output)
+    df = get_prediction(gpath, pdf_name)
+    save_data(df, data, pdf_name, author, theory, output)
