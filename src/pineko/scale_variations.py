@@ -74,7 +74,7 @@ def ren_sv_coeffs(m, max_as, logpart, which_part, nf):
         (3, 1, 0): (m + 0) * beta2,
         (3, 2, 1): (m + 1) * (m + 2) / 2.0 * beta0**2,
         (3, 2, 0): m * (2 * m + 3) / 2.0 * beta0 * beta1,
-        (3, 3, 0): m * (m + 1) * (m + 2) / 6 * beta0**2,
+        (3, 3, 0): m * (m + 1) * (m + 2) / 6 * beta0**3,
     }
     return as_normalization * ren_coeffs[(max_as, logpart, which_part)]
 
