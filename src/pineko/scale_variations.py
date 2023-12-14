@@ -51,16 +51,32 @@ def ren_sv_coeffs(m, max_as, logpart, which_part, nf):
     float
         renormalization scale variation contribution
     """
-    bcoeff = beta.beta_qcd((max_as - logpart - which_part + 2, 0), nf)
-    as_normalization = AS_NORM ** (max_as - which_part)
+    # nothing to do?
     if max_as == 0:
         return 0.0
-    if max_as == 2:
-        if which_part > 0:
-            m += 1
-        elif logpart > 1:
-            m = 0.5 * m * (m + 1)
-    return m * as_normalization * bcoeff
+    # eko uses as = alpha_s/(4pi), but pineappl just alpha_s
+    as_normalization = AS_NORM ** (max_as - which_part)
+    # the coefficients can be found in the NNLO MHOU paper
+    # (which also contains a generating MMa script)
+    beta0 = beta.beta_qcd_as2(nf)
+    beta1 = beta.beta_qcd_as3(nf)
+    beta2 = beta.beta_qcd_as4(nf)
+    ren_coeffs = {
+        # NLO
+        (1, 1, 0): m * beta0,
+        # NNLO
+        (2, 1, 1): (m + 1) * beta0,
+        (2, 1, 0): (m + 0) * beta1,
+        (2, 2, 0): m * (m + 1) / 2.0 * beta0**2,
+        # N3LO
+        (3, 1, 2): (m + 2) * beta0,
+        (3, 1, 1): (m + 1) * beta1,
+        (3, 1, 0): (m + 0) * beta2,
+        (3, 2, 1): (m + 1) * (m + 2) / 2.0 * beta0**2,
+        (3, 2, 0): m * (2 * m + 3) / 2.0 * beta0 * beta1,
+        (3, 3, 0): m * (m + 1) * (m + 2) / 6 * beta0**2,
+    }
+    return as_normalization * ren_coeffs[(max_as, logpart, which_part)]
 
 
 def requirements(m: int, max_as: int, al: int) -> Dict[OrderTuple, List[OrderTuple]]:
