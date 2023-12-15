@@ -43,7 +43,7 @@ def test_ren_sv_coeffs():
                             nf=nf,
                         )
                         assert np.isfinite(c)
-                        if which_part > 0 and not m == 0:
+                        if which_part > 0 or m > 0:
                             assert c > 0.0
                         else:
                             assert c >= 0.0
