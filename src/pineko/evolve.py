@@ -119,7 +119,10 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     operators_card = copy.deepcopy(default_card)
     sv_method = sv_scheme(tcard)
     xif = 1.0 if sv_method is not None else tcard["XIF"]
+    # update scale variation method
     operators_card["configs"]["scvar_method"] = sv_method
+    # update initial scale mu0
+    operators_card["mu0"] = tcard["Q0"]
     q2_grid = (xif * xif * muf2_grid).tolist()
     masses = np.array([tcard["mc"], tcard["mb"], tcard["mt"]]) ** 2
     thresholds_ratios = np.array([tcard["kcThr"], tcard["kbThr"], tcard["ktThr"]]) ** 2
