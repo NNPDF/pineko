@@ -162,7 +162,8 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
         and operators_card["configs"]["ev_op_iterations"] > 1
     ):
         logger.warning(
-            "Warning! You are setting evolution_method=truncated with ev_op_iterations>1, are you sure that's what you want? "
+            "Warning! You are setting evolution_method=truncated with ev_op_iterations>1,"
+            "are you sure that's what you want?"
         )
 
     with open(card_path, "w", encoding="UTF-8") as f:
