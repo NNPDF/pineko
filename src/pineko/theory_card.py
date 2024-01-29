@@ -1,4 +1,5 @@
 """Tools related to theory cards."""
+
 import pathlib
 from typing import Any, Dict
 

@@ -1,4 +1,5 @@
 """Compatibility layer for EKO migration."""
+
 from typing import Any, Dict
 
 from eko import EKO, basis_rotation

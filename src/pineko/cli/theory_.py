@@ -1,4 +1,5 @@
 """'theory' mode of CLI."""
+
 import pathlib
 
 import click

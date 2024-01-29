@@ -1,4 +1,5 @@
 """Tools to check compatibility of EKO and grid."""
+
 from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Tuple
