@@ -1,4 +1,5 @@
 """CLI entry point to FONLL."""
+
 import pathlib
 
 import click

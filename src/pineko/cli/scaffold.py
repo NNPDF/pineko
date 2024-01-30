@@ -1,4 +1,5 @@
 """'scaffold' mode of CLI."""
+
 import pathlib
 
 import click

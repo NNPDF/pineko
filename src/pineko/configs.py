@@ -1,4 +1,5 @@
 """Tools related to the configuration file handling."""
+
 import copy
 import pathlib
 

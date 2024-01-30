@@ -1,4 +1,5 @@
 """CLI entry point to check compatibility."""
+
 from dataclasses import dataclass
 from enum import Enum
 

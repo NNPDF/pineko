@@ -1,4 +1,5 @@
 """CLI entry point to convolution."""
+
 import click
 import eko
 import pineappl

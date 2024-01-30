@@ -1,4 +1,5 @@
 """CLI entry point."""
+
 from . import (
     check,
     compare,
