@@ -15,6 +15,7 @@ import numpy as np
 import pineappl
 import rich
 import yaml
+from eko.runner.managed import solve
 
 from . import check, configs, evolve, parser, scale_variations, theory_card
 
@@ -331,7 +332,7 @@ class TheoryBuilder:
         logger.info("Start computation of %s", name)
         start_time = time.perf_counter()
         # Actual computation of the EKO
-        eko.runner.solve(new_theory, new_op, eko_filename)
+        solve(new_theory, new_op, eko_filename)
         logger.info(
             "Finished computation of %s - took %f s",
             name,
@@ -408,7 +409,7 @@ class TheoryBuilder:
                 ).size
                 == 0
             ):
-                rich.print(f"[green] Skipping empty grid.")
+                rich.print("[green] Skipping empty grid.")
                 return
 
         # check for sv
@@ -421,7 +422,7 @@ class TheoryBuilder:
         with eko.EKO.read(eko_filename) as operators:
             # Skip the computation of the fktable if the eko is empty
             if len(operators.mu2grid) == 0 and check.is_num_fonll(tcard["FNS"]):
-                rich.print(f"[green] Skipping empty eko for nFONLL.")
+                rich.print("[green] Skipping empty eko for nFONLL.")
                 return
             eko_tmp_path = (
                 operators.paths.root.parent / f"eko-tmp-{name}-{np.random.rand()}.tar"
