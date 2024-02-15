@@ -86,7 +86,7 @@ def fonll_tcards(theoryid, cfg):
         raise TheoryCardError("The theorycard does not correspond to an FONLL scheme.")
     fonll.dump_tcards(tcard, tcard_parent_path, theoryid)
 
-
+@command.command("fonll_ekos")
 @click.argument("theoryID", type=click.INT)
 @click.argument("datasets", type=click.STRING, nargs=-1)
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
@@ -144,6 +144,7 @@ def fonll_ekos(theoryid, datasets, overwrite, cfg):
     )
 
 
+@command.command("fonll_fks")
 @click.argument("theoryID", type=click.INT)
 @click.argument("datasets", type=click.STRING, nargs=-1)
 @click.option("--pdf", "-p", default=None, help="PDF set used for comparison")

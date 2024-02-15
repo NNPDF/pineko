@@ -10,7 +10,7 @@ from pathlib import Path
 import pineappl
 import yaml
 
-from . import configs, theory_card, parser
+from . import configs, parser, theory_card
 
 logger = logging.getLogger(__name__)
 
