@@ -8,10 +8,9 @@ import tempfile
 from pathlib import Path
 
 import pineappl
-import rich
 import yaml
 
-from . import configs
+from . import configs, theory_card, parser
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +33,14 @@ FK_TO_DAMP = {
 }
 FK_WITH_MINUS = ["ffn03", "ffn04"]  # asy terms should be subtracted, therefore the sign
 """FNS schemes to be subtracted during the FONLL procedure."""
+
+
+class TheoryCardError(Exception):
+    """Raised when asked for FONLL theory cards with an original tcard as input that is not asking for FONLL."""
+
+
+class InconsistentInputsError(Exception):
+    """Raised if the inputs are not consistent with FONLL."""
 
 
 class FONLLInfo:
@@ -157,6 +164,97 @@ def combine(fk_dict, dampings=None):
     return combined_fk
 
 
+def grids_names(yaml_file):
+    """Return the list of the grids in the yaml file."""
+    yaml_content = parser._load_yaml(yaml_file)
+    # Turn the operands and the members into paths (and check all of them exist)
+    ret = []
+    for operand in yaml_content["operands"]:
+        for member in operand:
+            ret.append(f"{member}.{parser.EXT}")
+    return ret
+
+
+def cfgpath(name, grid):
+    """Path of the fktable in 'name' called 'grid' if it exists, else None."""
+    path = configs.configs["paths"]["fktables"] / name / grid
+    return path if path.exists() else None
+
+
+def assembly_combined_fk(
+    theoryid,
+    dataset,
+    ffns3,
+    ffn03,
+    ffns4til,
+    ffns4bar,
+    ffn04,
+    ffns5til,
+    ffns5bar,
+    overwrite,
+    cfg,
+):
+    """Perform consistency checks and combine the FONLL FK tables into one single FK table."""
+    # Checks
+    if not ffns3 or not ffn03:
+        raise InconsistentInputsError("ffns3 and/or ffn03 is not provided.")
+
+    if ffns4til is None or ffns4bar is None:
+        raise InconsistentInputsError(
+            "At least one of ffns4til and ffns4bar should be provided."
+        )
+
+    # Do we consider two masses, i.e. mc and mb
+    if any([ffns5til, ffns5bar, ffn04]):
+        if (ffns5til is None and ffns5bar is None) or ffn04 is None:
+            raise InconsistentInputsError(
+                "To include nf5 contributions, ffn04 and at least one between ffns5til and ffns5bar are mandatory"
+            )
+
+    # Get theory info
+    tcard = theory_card.load(theoryid)
+    if tcard["DAMP"] == 1:
+        if not "DAMPPOWERc" in tcard or not "DAMPPOWERb" in tcard:
+            raise InconsistentInputsError(
+                "If DAMP is set, set also DAMPPOWERb and DAMPPOWERc"
+            )
+    else:
+        tcard["DAMPPOWERb"] = 0
+        tcard["DAMPPOWERc"] = 0
+    # Getting the paths to the grids
+    grids_name = grids_names(configs.configs["paths"]["ymldb"] / f"{dataset}.yaml")
+    for grid in grids_name:
+        # Checking if it already exists
+        new_fk_path = configs.configs["paths"]["fktables"] / str(theoryid) / grid
+        if new_fk_path.exists():
+            if not overwrite:
+                logger.info(
+                    "[green]Success:[/] skipping existing FK Table %s", str(new_fk_path)
+                )
+                return
+        produce_combined_fk(
+            *(
+                cfgpath(str(name), grid)
+                for name in (
+                    ffns3,
+                    ffn03,
+                    ffns4til,
+                    ffns4bar,
+                    ffn04,
+                    ffns5til,
+                    ffns5bar,
+                )
+            ),
+            theoryid,
+            damp=(tcard["DAMP"], tcard["DAMPPOWERc"], tcard["DAMPPOWERb"]),
+            cfg=cfg,
+        )
+        if new_fk_path.exists():
+            logger.info("[green]Success:[/] Wrote FK table to %s", str(new_fk_path))
+        else:
+            logger.info("[red]Failure:[/]")
+
+
 def produce_combined_fk(
     ffns3,
     ffn03,
@@ -264,5 +362,5 @@ def dump_tcards(tcard, tcard_parent_path, theoryid):
         with open(theorycard_path, "w", encoding="UTF-8") as f:
             yaml.safe_dump(theorycard, f)
         paths_list.append(theorycard_path)
-        rich.print(f"[green]Wrote theory card to {theorycard_path}")
+        logger.info("[green]Wrote theory card to %s", str(theorycard_path))
     return paths_list
