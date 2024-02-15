@@ -1,12 +1,17 @@
 """CLI entry point to FONLL."""
 
+import logging
 import pathlib
 
 import click
 import rich
 
-from .. import configs, fonll, parser, theory_card
+from .. import configs, fonll, parser, theory, theory_card
 from ._base import command
+from .theory_ import theory_
+
+logger = logging.getLogger(__name__)
+
 
 config_setting = click.option(
     "-c",
@@ -149,3 +154,59 @@ def fonll_tcards(theoryid, cfg):
     if "FONLL" not in tcard["FNS"]:
         raise TheoryCardError("The theorycard does not correspond to an FONLL scheme.")
     fonll.dump_tcards(tcard, tcard_parent_path, theoryid)
+
+
+@theory_.command()
+@click.argument("theoryID", type=click.INT)
+@click.argument("datasets", type=click.STRING, nargs=-1)
+@click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
+def fonll_ekos(theoryid, datasets, overwrite):
+    """Command to generate numerical FONLL ekos.
+
+    1. Produce the 7 theory cards that are needed for numerical FONLL.
+    2. Creates the 3 opcards for the different flavor patches.
+    3. Runs the 3 ekos for the different flavor pathces.
+    4. Inherit the ekos.
+    """
+
+    # create the 7 theory cards
+    tcard = theory_card.load(theoryid)
+    tcard_parent_path = theory_card.path(theoryid).parent
+    if "FONLL" not in tcard["FNS"]:
+        raise TheoryCardError("The theorycard does not correspond to an FONLL scheme.")
+    fonll.dump_tcards(tcard, tcard_parent_path, theoryid)
+
+    for nf_id in ["00", "04", "05"]:
+        # create opcards
+        theory.TheoryBuilder(
+            f"{theoryid}{nf_id}", datasets, overwrite=overwrite
+        ).opcards()
+
+        # run the ekos
+        theory.TheoryBuilder(
+            f"{theoryid}{nf_id}",
+            datasets,
+            silent=False,
+            clear_logs=True,
+            overwrite=overwrite,
+        ).ekos()
+
+    # now inherit ekos
+    # nf=3
+    logger.info(f"Inherit nf=3 from theory {theoryid}00")
+    theory.TheoryBuilder(f"{theoryid}00", datasets, overwrite=overwrite).inherit_ekos(
+        f"{theoryid}01"
+    )
+    # nf=4
+    logger.info(f"Inherit nf=4 from theory {theoryid}04")
+    theory.TheoryBuilder(f"{theoryid}04", datasets, overwrite=overwrite).inherit_ekos(
+        f"{theoryid}02"
+    )
+    theory.TheoryBuilder(f"{theoryid}04", datasets, overwrite=overwrite).inherit_ekos(
+        f"{theoryid}03"
+    )
+    # nf=5
+    logger.info(f"Inherit nf=5 from theory {theoryid}05")
+    theory.TheoryBuilder(f"{theoryid}05", datasets, overwrite=overwrite).inherit_ekos(
+        f"{theoryid}06"
+    )
