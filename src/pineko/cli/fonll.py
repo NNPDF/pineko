@@ -1,15 +1,14 @@
 """CLI entry point to FONLL."""
 
-import logging
 import pathlib
 
 import click
+import rich
 
 from .. import configs, fonll, theory, theory_card
 from ..fonll import TheoryCardError
 from ._base import command
 
-logger = logging.getLogger(__name__)
 
 
 config_setting = click.option(
@@ -125,12 +124,12 @@ def fonll_ekos(theoryid, datasets, overwrite, cfg):
 
     # now inherit ekos
     # nf=3
-    logger.info("Inherit nf=3 from theory %i00", theoryid)
+    rich.print(f"[green] Inherit nf=3 ekos from theory {theoryid}00")
     theory.TheoryBuilder(f"{theoryid}00", datasets, overwrite=overwrite).inherit_ekos(
         f"{theoryid}01"
     )
     # nf=4
-    logger.info("Inherit nf=4 from theory %i04", theoryid)
+    rich.print(f"[green] Inherit nf=4 ekos from theory {theoryid}04")
     theory.TheoryBuilder(f"{theoryid}04", datasets, overwrite=overwrite).inherit_ekos(
         f"{theoryid}02"
     )
@@ -138,7 +137,7 @@ def fonll_ekos(theoryid, datasets, overwrite, cfg):
         f"{theoryid}03"
     )
     # nf=5
-    logger.info("Inherit nf=5 from theory %i05", theoryid)
+    rich.print(f"[green] Inherit nf=5 ekos from theory {theoryid}05")
     theory.TheoryBuilder(f"{theoryid}05", datasets, overwrite=overwrite).inherit_ekos(
         f"{theoryid}06"
     )

@@ -8,6 +8,7 @@ import tempfile
 from pathlib import Path
 
 import pineappl
+import rich
 import yaml
 
 from . import configs, parser, theory_card
@@ -228,8 +229,8 @@ def assembly_combined_fk(
         new_fk_path = configs.configs["paths"]["fktables"] / str(theoryid) / grid
         if new_fk_path.exists():
             if not overwrite:
-                logger.info(
-                    "[green]Success:[/] skipping existing FK Table %s", str(new_fk_path)
+                rich.print(
+                    f"[green]Success:[/] skipping existing FK Table {new_fk_path}"
                 )
                 return
         produce_combined_fk(
@@ -250,9 +251,9 @@ def assembly_combined_fk(
             cfg=cfg,
         )
         if new_fk_path.exists():
-            logger.info("[green]Success:[/] Wrote FK table to %s", str(new_fk_path))
+            rich.print(f"[green]Success:[/] Wrote FK table to {new_fk_path}")
         else:
-            logger.info("[red]Failure:[/]")
+            rich.print("[red]Failure:[/]")
 
 
 def produce_combined_fk(
@@ -362,5 +363,5 @@ def dump_tcards(tcard, tcard_parent_path, theoryid):
         with open(theorycard_path, "w", encoding="UTF-8") as f:
             yaml.safe_dump(theorycard, f)
         paths_list.append(theorycard_path)
-        logger.info("[green]Wrote theory card to %s", str(theorycard_path))
+        rich.print(f"[green]Wrote theory card to {theorycard_path}")
     return paths_list
