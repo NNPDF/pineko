@@ -9,8 +9,6 @@ from .. import configs, fonll, theory, theory_card
 from ..fonll import TheoryCardError
 from ._base import command
 
-
-
 config_setting = click.option(
     "-c",
     "--configs",
@@ -85,6 +83,7 @@ def fonll_tcards(theoryid, cfg):
         raise TheoryCardError("The theorycard does not correspond to an FONLL scheme.")
     fonll.dump_tcards(tcard, tcard_parent_path, theoryid)
 
+
 @command.command("fonll_ekos")
 @click.argument("theoryID", type=click.INT)
 @click.argument("datasets", type=click.STRING, nargs=-1)
@@ -93,19 +92,11 @@ def fonll_tcards(theoryid, cfg):
 def fonll_ekos(theoryid, datasets, overwrite, cfg):
     """Command to generate numerical FONLL ekos.
 
-    1. Produce the 7 theory cards needed for numerical FONLL.
-    2. Create the 3 operator cards for the different flavor patches.
-    3. Run the 3 ekos for the different flavor patches.
-    4. Inherit the ekos.
+    1. Create the 3 operator cards for the different flavor patches.
+    2. Run the 3 ekos for the different flavor patches.
+    3. Inherit the ekos.
     """
     load_config(cfg)
-
-    # create the 7 theory cards
-    tcard = theory_card.load(theoryid)
-    tcard_parent_path = theory_card.path(theoryid).parent
-    if "FONLL" not in tcard["FNS"]:
-        raise TheoryCardError("The theorycard does not correspond to an FONLL scheme.")
-    fonll.dump_tcards(tcard, tcard_parent_path, theoryid)
 
     for nf_id in ["00", "04", "05"]:
         # create opcards
