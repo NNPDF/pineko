@@ -106,7 +106,7 @@ The manual procedure works as follow:
     where the first 3 theories are needed to perform |FONLL| on charm effects,
     while the last 4 are needed to include also bottom effects.
 
-The automatize procedure can be faster, but it might be less flexible.
+The automatized procedure can be faster, but it might be less flexible.
 In this case the workflows is:
 
   1. Generate 7 theories for all the different flavor patches with the command::
