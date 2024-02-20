@@ -1,4 +1,5 @@
 """Module to include QCD K-factors in grids."""
+
 import io
 
 import numpy as np

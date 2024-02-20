@@ -1,4 +1,5 @@
 """Tools related to evolution/eko."""
+
 import copy
 import logging
 import os
@@ -105,7 +106,8 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
 
     """
     # Add a +1 to the orders for the difference in convention between nnpdf and pineappl
-    is_fns = int(check.is_fonll_b(tcard["FNS"], pineappl_grid.lumi()))
+    # NB: This would not happen for nFONLL
+    is_fns = int(check.is_fonll_mixed(tcard["FNS"], pineappl_grid.lumi()))
     max_as = 1 + tcard["PTO"] + is_fns
     max_al = 1 + tcard["QED"]
     # ... in order to create a mask ...
@@ -118,7 +120,10 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     operators_card = copy.deepcopy(default_card)
     sv_method = sv_scheme(tcard)
     xif = 1.0 if sv_method is not None else tcard["XIF"]
+    # update scale variation method
     operators_card["configs"]["scvar_method"] = sv_method
+    # update initial scale mu0
+    operators_card["mu0"] = tcard["Q0"]
     q2_grid = (xif * xif * muf2_grid).tolist()
     masses = np.array([tcard["mc"], tcard["mb"], tcard["mt"]]) ** 2
     thresholds_ratios = np.array([tcard["kcThr"], tcard["kbThr"], tcard["ktThr"]]) ** 2
@@ -128,9 +133,14 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
         matching_scales=heavy_quarks.MatchingScales(masses * thresholds_ratios),
         origin=(tcard["Q0"] ** 2, tcard["nf0"]),
     )
-    operators_card["mugrid"] = [
-        (float(np.sqrt(q2)), int(nf_default(q2, atlas))) for q2 in q2_grid
-    ]
+    # If we are producing nFONLL FKs we need to look to NfFF...
+    if check.is_num_fonll(tcard["FNS"]):
+        nf = tcard["NfFF"]
+        operators_card["mugrid"] = [(float(np.sqrt(q2)), int(nf)) for q2 in q2_grid]
+    else:
+        operators_card["mugrid"] = [
+            (float(np.sqrt(q2)), nf_default(q2, atlas)) for q2 in q2_grid
+        ]
     if "integrability_version" in pineappl_grid.key_values():
         x_grid = evol_info.x1
         x_grid = np.append(x_grid, 1.0)
@@ -153,7 +163,8 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
         and operators_card["configs"]["ev_op_iterations"] > 1
     ):
         logger.warning(
-            "Warning! You are setting evolution_method=truncated with ev_op_iterations>1, are you sure that's what you want? "
+            "Warning! You are setting evolution_method=truncated with ev_op_iterations>1,"
+            "are you sure that's what you want?"
         )
 
     with open(card_path, "w", encoding="UTF-8") as f:

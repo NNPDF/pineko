@@ -6,6 +6,7 @@ The target theory is 400 and the relevant `.toml`, theory runcard and eko templa
 are downloaded from https://github.com/NNPDF/theories during this test so this tests
 has the double effect of ensuring compatibility between both repositories.
 """
+
 import itertools
 from pathlib import Path
 from subprocess import run

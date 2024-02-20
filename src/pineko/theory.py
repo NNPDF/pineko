@@ -5,6 +5,7 @@ all with common theory parameters. The collective list of this FK tables
 together with other theory ingredients (such as C-factors) are often
 commonly referred to as 'theory'.
 """
+
 import logging
 import time
 
@@ -14,6 +15,7 @@ import numpy as np
 import pineappl
 import rich
 import yaml
+from eko.runner.managed import solve
 
 from . import check, configs, evolve, parser, scale_variations, theory_card
 
@@ -330,7 +332,7 @@ class TheoryBuilder:
         logger.info("Start computation of %s", name)
         start_time = time.perf_counter()
         # Actual computation of the EKO
-        eko.runner.solve(new_theory, new_op, eko_filename)
+        solve(new_theory, new_op, eko_filename)
         logger.info(
             "Finished computation of %s - took %f s",
             name,
@@ -364,6 +366,14 @@ class TheoryBuilder:
         do_log = self.activate_logging(
             paths["logs"]["fk"], f"{self.theory_id}-{name}-{pdf}.log"
         )
+
+        # Relevant for FONLL-B and FONLL-D: For FFN0 terms, PTO is lower than
+        # PTODIS, thus using PTO instead of PTODIS to establish the perturbative
+        # order would result in the PTODIS terms that correspond to orders
+        # beyond PTO to be neglected
+        if "PTODIS" in tcard and "FONLL" in tcard["FNS"]:
+            tcard["PTO"] = tcard["PTODIS"]
+
         # check if grid contains SV if theory is requesting them (in particular
         # if theory is requesting scheme A or C)
         sv_method = evolve.sv_scheme(tcard)
@@ -382,12 +392,26 @@ class TheoryBuilder:
                 return
         max_as = 1 + int(tcard["PTO"])
         # Check if we are computing FONLL-B fktable and eventually change max_as
-        if check.is_fonll_b(
+        if check.is_fonll_mixed(
             tcard["FNS"],
             grid.lumi(),
         ):
             max_as += 1
+
+        # NB: This would not happen for nFONLL
         max_al = 0
+
+        # check if the grid is empty
+        if check.is_num_fonll(tcard["FNS"]):
+            if (
+                pineappl.grid.Order.create_mask(
+                    grid.orders(), max_as, max_al, True
+                ).size
+                == 0
+            ):
+                rich.print("[green] Skipping empty grid.")
+                return
+
         # check for sv
         if not np.isclose(xir, 1.0):
             check_scvar_evolve(grid, max_as, max_al, check.Scale.REN)
@@ -396,7 +420,13 @@ class TheoryBuilder:
                 check_scvar_evolve(grid, max_as, max_al, check.Scale.FACT)
         # loading ekos to produce a tmp copy
         with eko.EKO.read(eko_filename) as operators:
-            eko_tmp_path = operators.paths.root.parent / "eko-tmp.tar"
+            # Skip the computation of the fktable if the eko is empty
+            if len(operators.mu2grid) == 0 and check.is_num_fonll(tcard["FNS"]):
+                rich.print("[green] Skipping empty eko for nFONLL.")
+                return
+            eko_tmp_path = (
+                operators.paths.root.parent / f"eko-tmp-{name}-{np.random.rand()}.tar"
+            )
             operators.deepcopy(eko_tmp_path)
         with eko.EKO.edit(eko_tmp_path) as operators:
             # Obtain the assumptions hash

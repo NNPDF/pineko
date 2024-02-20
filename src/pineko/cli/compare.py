@@ -1,4 +1,5 @@
 """CLI entry point to comparison grid vs. FK Table."""
+
 import click
 import pineappl
 import rich
