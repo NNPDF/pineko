@@ -243,6 +243,8 @@ def construct_and_dump_order_exists_grid(ori_grid, to_construct_order):
     new_grid.set_key_value("initial_state_2", ori_grid.key_values()["initial_state_2"])
     if "polarized" in ori_grid.key_values():
         new_grid.set_key_value("polarized", ori_grid.key_values()["polarized"])
+    if "theory" in ori_grid.key_values():
+        new_grid.set_key_value("theory", ori_grid.key_values()["theory"])
     return new_grid
 
 
