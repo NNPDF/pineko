@@ -8,7 +8,7 @@ import argparse
 from typing import List, Tuple
 
 
-def get_gpaths(folder: str, data: str) -> Tuple[str, List[str]]:
+def get_gpaths(folder: str, data: str, theory: str) -> Tuple[str, List[str]]:
     """
     Get a list of paths to PineAPPL grids in the specified folder.
 
@@ -26,7 +26,7 @@ def get_gpaths(folder: str, data: str) -> Tuple[str, List[str]]:
     gpaths : List[str]
         List of paths to PineAPPL grid files.
     """
-    paths = glob(folder + f"/*{data}*F1*")  # Find the grids
+    paths = glob(folder + f"/{theory}*{data}*F1*")  # Find the grids
     gpaths = []
     for p in paths:
         gpaths.append(glob(p + "/*.pineappl.lz4")[0])
@@ -140,7 +140,7 @@ theory = args.theory
 output = args.output
 
 # Get PineAPPL grid paths and PDF name
-gpaths = get_gpaths(folder_name, data)
+gpaths = get_gpaths(folder_name, data, theory)
 
 # Process each PineAPPL grid
 for gpath in gpaths:
