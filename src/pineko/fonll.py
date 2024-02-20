@@ -333,6 +333,7 @@ def collect_updates(fonll_fns):
                 "NfFF": cfg.nf,
                 "PTO": po,
                 "FONLLParts": cfg.parts,
+                "PTOEKO": int(base_pto),
             }
         )
         # In a mixed FONLL scheme we only subract the resummed terms that are
