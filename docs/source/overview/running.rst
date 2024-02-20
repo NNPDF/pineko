@@ -68,7 +68,7 @@ in the final step.
 There are 2 workflows possible, one in which all the steps are performed individually
 and one that is more automatized.
 
-The automatize workflows always assumes that |FONLL| is performed both for
+The automatized workflows always assumes that |FONLL| is performed both for
 charm and bottom effects.
 
 The manual procedure works as follow:
