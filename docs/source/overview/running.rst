@@ -66,7 +66,7 @@ need to be evolved separately and joined together in a single FK table only
 in the final step.
 
 There are 2 workflows possible, one in which all the steps are performed individually
-and one that is more automatize.
+and one that is more automatized.
 
 The automatize workflows always assumes that |FONLL| is performed both for
 charm and bottom effects.
