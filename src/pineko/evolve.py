@@ -158,8 +158,8 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
         operators_card["configs"]["polarized"] = kv["polarized"] == "True"
 
     # fragmentation function grid?
-    if "timelike_evol" in kv:
-        operators_card["configs"]["timelike"] = kv["timelike_evol"] == "True"
+    if "timelike" in kv:
+        operators_card["configs"]["timelike"] = kv["timelike"] == "True"
 
     # Some safety checks
     if (
