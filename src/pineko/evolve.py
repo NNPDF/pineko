@@ -157,6 +157,10 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     if "polarized" in kv:
         operators_card["configs"]["polarized"] = kv["polarized"] == "True"
 
+    # fragmentation function grid?
+    if "timelike" in kv:
+        operators_card["configs"]["timelike"] = kv["timelike"] == "True"
+
     # Some safety checks
     if (
         operators_card["configs"]["evolution_method"] == "truncated"
