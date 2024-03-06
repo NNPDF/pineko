@@ -79,12 +79,13 @@ The manual procedure works as follow:
 
     The different flavor patches are named following the convention:
 
-      * ``THEORY_ID00`` : |FFNS| :math:`n_f=3`
-      * ``THEORY_ID01`` : |FFN0| :math:`n_f=3`
-      * ``THEORY_ID02`` : massless component of |FFNS| :math:`n_f=4`
-      * ``THEORY_ID03`` : massive component of |FFNS| :math:`n_f=4`
-      * ``THEORY_ID05`` : massless component of |FFNS| :math:`n_f=5`
-      * ``THEORY_ID06`` : massive component of |FFNS| :math:`n_f=5`
+      * ``<THEORY_ID>00`` : |FFNS| :math:`n_f=3`
+      * ``<THEORY_ID>01`` : |FFN0| :math:`n_f=3`
+      * ``<THEORY_ID>02`` : massless component of |FFNS| :math:`n_f=4`
+      * ``<THEORY_ID>03`` : massive component of |FFNS| :math:`n_f=4`
+      * ``<THEORY_ID>04`` : |FFN0| :math:`n_f=4`
+      * ``<THEORY_ID>05`` : massless component of |FFNS| :math:`n_f=5`
+      * ``<THEORY_ID>06`` : massive component of |FFNS| :math:`n_f=5`
 
     where for |FFNS| :math:`n_f=4,5` massive and massless parts are split to
     allow for a damping option.
