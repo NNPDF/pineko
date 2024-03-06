@@ -122,7 +122,7 @@ In this case the workflows is:
       pineko fonll_ekos THEORY_ID DATASET1 DATASET2 ...
 
     Note: this is usually an expensive operation as multiple ekos are run sequentially.
-    Depending on the resources that you have available it might be more convinient
+    Depending on the resources that you have available it might be more convenient
     to call the command separately for each DATASET.
 
   4. Generate the final |FONLL| FK table directly running::
