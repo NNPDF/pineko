@@ -118,7 +118,7 @@ In this case the workflows is:
 
   2. Generate the grids corresponding to all the 7 theories with the external program.
 
-  3. Generate the ekos for only 3 theories and inherit the others running::
+  3. Generate the three ekos, one for each :math:`n_f`, and inherit the others running:
 
       pineko fonll_ekos THEORY_ID DATASET1 DATASET2 ...
 
