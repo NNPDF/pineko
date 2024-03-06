@@ -86,7 +86,7 @@ The manual procedure works as follow:
       * ``THEORY_ID05`` : massless component of |FFNS| :math:`n_f=5`
       * ``THEORY_ID06`` : massive component of |FFNS| :math:`n_f=5`
 
-    where for |FFNS| :math:`n_f=4,5` massive and massless parts are splitted to
+    where for |FFNS| :math:`n_f=4,5` massive and massless parts are split to
     allow for a damping option.
 
   2. Generate the grids corresponding to all the 7 theories with the external program.
