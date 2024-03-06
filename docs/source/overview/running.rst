@@ -61,7 +61,7 @@ the options ``--xir`` and ``--xif``.
 Generating FONLL FK Tables
 --------------------------
 
-In order to generate FK tables with (numerical) |FONLL| the different flavor schemes
+In order to generate FK tables with |FONLL| the different flavor schemes
 need to be evolved separately and joined together in a single FK table only
 in the final step.
 
