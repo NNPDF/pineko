@@ -92,13 +92,13 @@ The manual procedure works as follow:
 
   2. Generate the grids corresponding to all the 7 theories with the external program.
 
-  3. Generate the operator cards for each theory with the usual command.
+  3. Generate the operator cards for each theory with the normal command listed above.
      Note that, in principle, only 3 ekos are needed, as there are only 3 different :math:`n_f` patches.
      So you might speed up the procedure taking advantage of inherit-ekos.
 
-  4. Generate the ekos for each theory with the usual commands.
+  4. Generate the ekos for each theory with the normal command listed above.
 
-  5. Generate the FK tables each of the 7 theories with the usual commands.
+  5. Generate the FK tables each of the 7 theories with the normal command listed above.
 
   6. Combine the various FK tables into a single file, using the command::
 
