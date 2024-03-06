@@ -89,7 +89,7 @@ The manual procedure works as follow:
     where for |FFNS| :math:`n_f=4,5` massive and massless parts are splitted to
     allow for a damping option.
 
-  2. Generate the grids corrisponding to all the 7 theories with the external program.
+  2. Generate the grids corresponding to all the 7 theories with the external program.
 
   3. Generate the operator cards for each theory with the usual command.
      Note that, in principle, only 3 ekos are needed, as there are only 3 different :math:`n_f` patches.
