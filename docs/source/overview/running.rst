@@ -116,7 +116,7 @@ In this case the workflows is:
 
     See above for the intermediate theories naming convention.
 
-  2. Generate the grids corrisponding to all the 7 theories with the external program.
+  2. Generate the grids corresponding to all the 7 theories with the external program.
 
   3. Generate the ekos for only 3 theories and inherit the others running::
 
