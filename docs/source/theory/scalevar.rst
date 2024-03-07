@@ -117,7 +117,7 @@ where this time the perturbative expansion of :math:`\overline{H}(\alpha_{s}(t+\
 than :math:`\mathcal{O}(\alpha_{s}^{0})`.
 
 Scale variation for |PDF| evolution
-###########################################
+###################################
 
 A completely independent source of |MHOU| arises from the truncation of the perturbative expansion of the anomalous dimensions governing the evolution
 of the |PDF|. Again, this uncertainties can be estimated trough scale variation but, in this case, there are three equivalent ways in which it can be
@@ -222,3 +222,20 @@ Note that, even if these schemes are formally equivalent, they can differ by sub
 In fact, in **scheme A** some higher order terms of the anomalous dimensions expansion can be retained according to the kind of solution adopted for the evolution equation.
 In **scheme B** the exponential has been expanded so that it corresponds to a linearized solution of the evolution equations and in **scheme C** some terms coming from the
 cross-expansion of the coefficients functions and the linearized solution of the evolution equations have been dropped.
+
+
+Adding scale variations to a grid
+#################################
+
+Since it is possible to compute scale variations terms at a certain perturbative order N+1 just from
+the knowledge of the central N order, `pineko` includes a tool to add the required scale variations order to a grid which contain the
+necessary central orders. The command to run it is::
+
+  pineko ren_sv_grid GRID_PATH OUTPUT_FOLDER_PATH MAX_AS NF ORDER_EXISTS
+
+where ``GRID_PATH`` is the path of the original grid, ``OUTPUT_FOLDER_PATH`` is the folder where the
+updated grid will be dumped, ``MAX_AS`` is the requested perturbative order of the QCD coupling and
+``NF`` is the number of active flavors one wants to consider when computing the scale variations terms.
+If the original grid has already all the scale variations terms for the requested perturbative order,
+`pineko` will do nothing. If one want to force `pineko` to overwrite the already existing orders, it is
+enough to set ``ORDER_EXISTS`` to `True`.

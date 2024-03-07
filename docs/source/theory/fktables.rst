@@ -1,6 +1,6 @@
-============================================================
+
 Fast Kernel (FK) tables
-============================================================
+=======================
 
 The direct calculation of observables during a |PDF| fit is not very practical
 since it requires first solving the |DGLAP| evolution equation for each new boundary

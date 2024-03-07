@@ -8,8 +8,9 @@ SPHINXBUILD   = sphinx-build
 SOURCEDIR     = source
 BUILDDIR      = build
 
-PINEKODIR = ../src/eko
+PINEKODIR = ../src/pineko
 PINEKOOUT = $(SOURCEDIR)/modules/pineko
+TODOOUTFILE = ./source/code_todos.rst
 
 # Put it first so that "make" without argument is like "make help".
 help:
@@ -41,4 +42,4 @@ todos:
 	python generate_code_todos.py "$(PINEKODIR)" "$(TODOOUTFILE)"
 
 clean-todos:
-	rm "$(TODOOUTFILE)"
+	rm -f "$(TODOOUTFILE)"

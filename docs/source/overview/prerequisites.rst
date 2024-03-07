@@ -58,9 +58,7 @@ Default Operator Card
 ---------------------
 
 You need to provide a default operator card for |EKO| for each theory you want to use.
-An example is the following:
-
-::
+An example is the following::
 
   configs:
     evolution_method: truncated
@@ -99,7 +97,6 @@ An example is the following:
     skip_non_singlet: false
     skip_singlet: false
 
-::
 
 For more details about what is needed inside an operator card please refer to https://eko.readthedocs.io/en/latest/code/IO.html
 under the section **Operator Runcard**. Note that the actual operator cards for each FK table will be
@@ -109,23 +106,17 @@ Grids
 -----
 
 *pineko* does **NOT** compute grids, which are instead expected input to *pineko*.
-There are typically two ways to obtain grids: computing them from scratch with `runcards <https://github.com/NNPDF/pinecards/>`_
-or reusing existing ones.
+There are typically two ways to obtain grids:
 
-Generate new Grids with *rr*
-""""""""""""""""""""""""""""
+1. computing them from scratch with
+   `pinefarm <https://github.com/NNPDF/pinefarm/>`_ (and `pinecards <https://github.com/NNPDF/pinecards/>`_).
 
-You need to run *rr* with a given theory runcard and put the generated grid file with the same name
-inside the *paths.grids/theory_id* folder. The name has to match the *ymldb* which is the case by default.
+2. You can reuse the grids from a different theory by running::
 
-Inherit Grids from Existing Theory
-""""""""""""""""""""""""""""""""""
+    pineko theory inherit-grids SOURCE_THEORY_ID TARGET_THEORY_ID DATASET1 DATASET2 ...
 
-You can reuse the grids from a different theory by running::
-
-  pineko theory inherit-grids SOURCE_THEORY_ID TARGET_THEORY_ID DATASET1 DATASET2 ...
-
-The relation between the source theory and the target theory is non-trivial [4]_.
+  The relation between the source theory and the target theory is non-trivial
+  (e.g. they may differ by scale variations, different DIS settings, etc)
 
 
 Notes
@@ -134,5 +125,3 @@ Notes
 .. [2] this is to be replaced by the new CommonData format implemented by NNPDF
 
 .. [3] this is to be replaced by a binding to the NNPDF theory objects
-
-.. [4] examples being scale variations, different evolution settings, etc.
