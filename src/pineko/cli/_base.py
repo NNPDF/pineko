@@ -32,7 +32,7 @@ config_option = click.option(
 
 def load_config(cfg):
     """Load configuration files."""
-    # if just help is needed, return before loading
+    # if only help is needed, return before loading
     if help_requested():
         return
     path = configs.detect(cfg)

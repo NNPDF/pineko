@@ -43,7 +43,7 @@ Manual procedure
 
   6. Combine the various |FK| tables into a single file, using the command::
 
-      pineko fonll combine THEORY_ID DATASET --FFNS3 THEORY_ID00 --FFN03 THEORY_ID01 --FFNS4til THEORY_ID02 --FFNS4bar THEORY_ID03 --FFN04 THEORY_ID04 --FFNS5til THEORY_ID05 --FFNS5bar THEORY_ID06
+      pineko fonll combine THEORY_ID DATASET --FFNS3 THEORY_ID00 --FFN03 THEORY_ID01 --FFNS4zeromass THEORY_ID02 --FFNS4massive THEORY_ID03 --FFN04 THEORY_ID04 --FFNS5zeromass THEORY_ID05 --FFNS5massive THEORY_ID06
 
     where the first 3 theories are needed to perform |FONLL| on charm effects,
     while the last 4 are needed to include also bottom effects.

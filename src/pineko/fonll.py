@@ -29,8 +29,8 @@ MIXED_ORDER_FNS = ["FONLL-B", "FONLL-D"]
 """FONLL schemes with mixed orders."""
 # Notice we rely on the order defined by the FONLLInfo class
 FK_TO_DAMP = {
-    "mc": ["ffn03", "ffns4til", "ffn04", "ffns5til"],
-    "mb": ["ffn04", "ffns5til"],
+    "mc": ["ffn03", "ffns4zeromass", "ffn04", "ffns5zeromass"],
+    "mb": ["ffn04", "ffns5zeromass"],
 }
 FK_WITH_MINUS = ["ffn03", "ffn04"]  # asy terms should be subtracted, therefore the sign
 """FNS schemes to be subtracted during the FONLL procedure."""
@@ -48,17 +48,24 @@ class FONLLInfo:
     """Class containing all the information for FONLL predictions."""
 
     def __init__(
-        self, ffns3, ffn03, ffns4til, ffns4bar, ffn04, ffns5til, ffns5bar
+        self,
+        ffns3,
+        ffn03,
+        ffns4zeromass,
+        ffns4massive,
+        ffn04,
+        ffns5zeromass,
+        ffns5massive,
     ) -> None:
         """Initialize fonll info."""
         self.paths = {
             "ffns3": ffns3,
             "ffn03": ffn03,
-            "ffns4til": ffns4til,
-            "ffns4bar": ffns4bar,
+            "ffns4zeromass": ffns4zeromass,
+            "ffns4massive": ffns4massive,
             "ffn04": ffn04,
-            "ffns5til": ffns5til,
-            "ffns5bar": ffns5bar,
+            "ffns5zeromass": ffns5zeromass,
+            "ffns5massive": ffns5massive,
         }
         actually_existing_paths = [p for p, g in self.paths.items() if g is not None]
         for p in self.paths:
@@ -187,11 +194,11 @@ def assembly_combined_fk(
     dataset,
     ffns3,
     ffn03,
-    ffns4til,
-    ffns4bar,
+    ffns4zeromass,
+    ffns4massive,
     ffn04,
-    ffns5til,
-    ffns5bar,
+    ffns5zeromass,
+    ffns5massive,
     overwrite,
 ):
     """Perform consistency checks and combine the FONLL FK tables into one single FK table."""
@@ -199,16 +206,16 @@ def assembly_combined_fk(
     if not ffns3 or not ffn03:
         raise InconsistentInputsError("ffns3 and/or ffn03 is not provided.")
 
-    if ffns4til is None or ffns4bar is None:
+    if ffns4zeromass is None or ffns4massive is None:
         raise InconsistentInputsError(
-            "At least one of ffns4til and ffns4bar should be provided."
+            "At least one of ffns4 zeromass and ffns4 massive should be provided."
         )
 
     # Do we consider two masses, i.e. mc and mb
-    if any([ffns5til, ffns5bar, ffn04]):
-        if (ffns5til is None and ffns5bar is None) or ffn04 is None:
+    if any([ffns5zeromass, ffns5massive, ffn04]):
+        if (ffns5zeromass is None and ffns5massive is None) or ffn04 is None:
             raise InconsistentInputsError(
-                "To include nf5 contributions, ffn04 and at least one between ffns5til and ffns5bar are mandatory"
+                "To include nf5 contributions, ffn04 and at least one between ffns5 zeromass and ffns5 massive are mandatory"
             )
 
     # Get theory info
@@ -238,11 +245,11 @@ def assembly_combined_fk(
                 for name in (
                     ffns3,
                     ffn03,
-                    ffns4til,
-                    ffns4bar,
+                    ffns4zeromass,
+                    ffns4massive,
                     ffn04,
-                    ffns5til,
-                    ffns5bar,
+                    ffns5zeromass,
+                    ffns5massive,
                 )
             ),
             theoryid,
@@ -257,16 +264,18 @@ def assembly_combined_fk(
 def produce_combined_fk(
     ffns3,
     ffn03,
-    ffns4til,
-    ffns4bar,
+    ffns4zeromass,
+    ffns4massive,
     ffn04,
-    ffns5til,
-    ffns5bar,
+    ffns5zeromass,
+    ffns5massive,
     theoryid,
     damp=(0, None, None),
 ):
     """Combine the FONLL FK tables into one single FK table."""
-    fonll_info = FONLLInfo(ffns3, ffn03, ffns4til, ffns4bar, ffn04, ffns5til, ffns5bar)
+    fonll_info = FONLLInfo(
+        ffns3, ffn03, ffns4zeromass, ffns4massive, ffn04, ffns5zeromass, ffns5massive
+    )
     theorycard_constituent_fks = fonll_info.theorycard_no_fns_pto
     fk_dict = fonll_info.fks
     dampings = (

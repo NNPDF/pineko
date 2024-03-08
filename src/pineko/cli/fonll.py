@@ -20,22 +20,30 @@ def fonll_(cfg):
 @click.argument("dataset", type=str)
 @click.option("--FFNS3", type=int, help="theoryID containing the ffns3 fktable")
 @click.option("--FFN03", type=int, help="theoryID containing the ffn03 fktable")
-@click.option("--FFNS4til", type=int, help="theoryID containing the ffns4til fktable")
-@click.option("--FFNS4bar", type=int, help="theoryID containing the ffns4bar fktable")
+@click.option(
+    "--FFNS4zeromass", type=int, help="theoryID containing the ffns4 zeromass fktable"
+)
+@click.option(
+    "--FFNS4massive", type=int, help="theoryID containing the ffns4massive fktable"
+)
 @click.option("--FFN04", type=int, help="theoryID containing the ffn04 fktable")
-@click.option("--FFNS5til", type=int, help="theoryID containing the ffns5til fktable")
-@click.option("--FFNS5bar", type=int, help="theoryID containing the ffns5bar fktable")
+@click.option(
+    "--FFNS5zeromass", type=int, help="theoryID containing the ffns5 zeromass fktable"
+)
+@click.option(
+    "--FFNS5massive", type=int, help="theoryID containing the ffns5massive fktable"
+)
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
 def combine(
     theoryid,
     dataset,
     ffns3,
     ffn03,
-    ffns4til,
-    ffns4bar,
+    ffns4zeromass,
+    ffns4massive,
     ffn04,
-    ffns5til,
-    ffns5bar,
+    ffns5zeromass,
+    ffns5massive,
     overwrite,
 ):
     """Combine the different FKs needed to produce the FONLL prescription."""
@@ -44,11 +52,11 @@ def combine(
         dataset,
         ffns3,
         ffn03,
-        ffns4til,
-        ffns4bar,
+        ffns4zeromass,
+        ffns4massive,
         ffn04,
-        ffns5til,
-        ffns5bar,
+        ffns5zeromass,
+        ffns5massive,
         overwrite,
     )
 
@@ -139,10 +147,10 @@ def fks(theoryid, datasets, pdf, overwrite):
             dataset,
             ffns3=f"{theoryid}00",
             ffn03=f"{theoryid}01",
-            ffns4til=f"{theoryid}02",
-            ffns4bar=f"{theoryid}03",
+            ffns4zeromass=f"{theoryid}02",
+            ffns4massive=f"{theoryid}03",
             ffn04=f"{theoryid}04",
-            ffns5til=f"{theoryid}05",
-            ffns5bar=f"{theoryid}06",
+            ffns5zeromass=f"{theoryid}05",
+            ffns5massive=f"{theoryid}06",
             overwrite=overwrite,
         )
