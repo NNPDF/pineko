@@ -16,7 +16,7 @@ Manual procedure
 
   1. Generate 7 theories for all the different flavor patches with command::
 
-      pineko fonll_tcards THEORY_ID
+      pineko fonll tcards THEORY_ID
 
     The different flavor patches are named following the convention:
 
@@ -43,7 +43,7 @@ Manual procedure
 
   6. Combine the various |FK| tables into a single file, using the command::
 
-      pineko combine_fonll THEORY_ID DATASET --FFNS3 THEORY_ID00 --FFN03 THEORY_ID01 --FFNS4til THEORY_ID02 --FFNS4bar THEORY_ID03 --FFN04 THEORY_ID04 --FFNS5til THEORY_ID05 --FFNS5bar THEORY_ID06
+      pineko fonll combine THEORY_ID DATASET --FFNS3 THEORY_ID00 --FFN03 THEORY_ID01 --FFNS4til THEORY_ID02 --FFNS4bar THEORY_ID03 --FFN04 THEORY_ID04 --FFNS5til THEORY_ID05 --FFNS5bar THEORY_ID06
 
     where the first 3 theories are needed to perform |FONLL| on charm effects,
     while the last 4 are needed to include also bottom effects.
@@ -55,7 +55,7 @@ This workflow can be faster, but it might be less flexible:
 
   1. Generate 7 theories for all the different flavor patches with the command::
 
-      pineko fonll_tcards THEORY_ID
+      pineko fonll tcards THEORY_ID
 
     See above for the intermediate theories naming convention.
 
@@ -63,7 +63,7 @@ This workflow can be faster, but it might be less flexible:
 
   3. Generate the three ekos, one for each :math:`n_f`, and inherit the others running::
 
-      pineko fonll_ekos THEORY_ID DATASET1 DATASET2 ...
+      pineko fonll ekos THEORY_ID DATASET1 DATASET2 ...
 
     Note: this is usually an expensive operation as multiple ekos are run sequentially.
     Depending on the resources that you have available it might be more convenient
@@ -71,4 +71,4 @@ This workflow can be faster, but it might be less flexible:
 
   4. Generate the final |FONLL| |FK| table directly running::
 
-      pineko fonll_fks THEORY_ID DATASET1 DATASET2 ...
+      pineko fonll fks THEORY_ID DATASET1 DATASET2 ...

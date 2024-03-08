@@ -193,7 +193,6 @@ def assembly_combined_fk(
     ffns5til,
     ffns5bar,
     overwrite,
-    cfg,
 ):
     """Perform consistency checks and combine the FONLL FK tables into one single FK table."""
     # Checks
@@ -248,7 +247,6 @@ def assembly_combined_fk(
             ),
             theoryid,
             damp=(tcard["DAMP"], tcard["DAMPPOWERc"], tcard["DAMPPOWERb"]),
-            cfg=cfg,
         )
         if new_fk_path.exists():
             rich.print(f"[green]Success:[/] Wrote FK table to {new_fk_path}")
@@ -266,7 +264,6 @@ def produce_combined_fk(
     ffns5bar,
     theoryid,
     damp=(0, None, None),
-    cfg=None,
 ):
     """Combine the FONLL FK tables into one single FK table."""
     fonll_info = FONLLInfo(ffns3, ffn03, ffns4til, ffns4bar, ffn04, ffns5til, ffns5bar)
@@ -279,14 +276,11 @@ def produce_combined_fk(
     )
     combined_fk = combine(fk_dict, dampings=dampings)
     input_theorycard_path = (
-        Path(configs.load(configs.detect(cfg))["paths"]["theory_cards"])
-        / f"{theoryid}.yaml"
+        Path(configs.configs["paths"]["theory_cards"]) / f"{theoryid}.yaml"
     )
     update_fk_theorycard(combined_fk, input_theorycard_path)
     # save final FONLL fktable
-    fk_folder = Path(configs.load(configs.detect(cfg))["paths"]["fktables"]) / str(
-        theoryid
-    )
+    fk_folder = Path(configs.configs["paths"]["fktables"]) / str(theoryid)
     fk_folder.mkdir(exist_ok=True)
     output_path_fk = fk_folder / fonll_info.dataset_name
     combined_fk.write_lz4(output_path_fk)

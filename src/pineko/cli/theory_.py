@@ -1,29 +1,16 @@
 """'theory' mode of CLI."""
 
-import pathlib
-
 import click
 
-from .. import configs, theory
-from ._base import command
+from .. import theory
+from ._base import command, config_option, load_config
 
 
 @command.group("theory")
-@click.option(
-    "-c",
-    "--configs",
-    "cfg",
-    default=None,
-    type=click.Path(resolve_path=True, path_type=pathlib.Path),
-    help="Explicitly specify config file (it has to be a valid TOML file).",
-)
+@config_option
 def theory_(cfg):
-    """Iterate a subcommand on a given theory and list of datasets."""
-    path = configs.detect(cfg)
-    base_configs = configs.load(path)
-    configs.configs = configs.defaults(base_configs)
-    if cfg is not None:
-        print(f"Configurations loaded from '{path}'")
+    """Detect amd load configuration file."""
+    load_config(cfg)
 
 
 @theory_.command()

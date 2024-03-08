@@ -1,34 +1,21 @@
 """CLI entry point to FONLL."""
 
-import pathlib
-
 import click
 import rich
 
-from .. import configs, fonll, theory, theory_card
+from .. import fonll, theory, theory_card
 from ..fonll import TheoryCardError
-from ._base import command
-
-config_setting = click.option(
-    "-c",
-    "--configs",
-    "cfg",
-    default=None,
-    type=click.Path(resolve_path=True, path_type=pathlib.Path),
-    help="Explicitly specify config file (it has to be a valid TOML file).",
-)
+from ._base import command, config_option, load_config
 
 
-def load_config(cfg):
-    """Iterate a subcommand on a given theory and list of datasets."""
-    path = configs.detect(cfg)
-    base_configs = configs.load(path)
-    configs.configs = configs.defaults(base_configs)
-    if cfg is not None:
-        print(f"Configurations loaded from '{path}'")
+@command.group("fonll")
+@config_option
+def fonll_(cfg):
+    """Detect amd load configuration file."""
+    load_config(cfg)
 
 
-@command.command("combine_fonll")
+@fonll_.command()
 @click.argument("theoryID", type=int)
 @click.argument("dataset", type=str)
 @click.option("--FFNS3", type=int, help="theoryID containing the ffns3 fktable")
@@ -39,8 +26,7 @@ def load_config(cfg):
 @click.option("--FFNS5til", type=int, help="theoryID containing the ffns5til fktable")
 @click.option("--FFNS5bar", type=int, help="theoryID containing the ffns5bar fktable")
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
-@config_setting
-def subcommand(
+def combine(
     theoryid,
     dataset,
     ffns3,
@@ -51,10 +37,8 @@ def subcommand(
     ffns5til,
     ffns5bar,
     overwrite,
-    cfg,
 ):
     """Combine the different FKs needed to produce the FONLL prescription."""
-    load_config(cfg)
     fonll.assembly_combined_fk(
         theoryid,
         dataset,
@@ -66,17 +50,13 @@ def subcommand(
         ffns5til,
         ffns5bar,
         overwrite,
-        cfg,
     )
 
 
-@command.command("fonll_tcards")
+@fonll_.command()
 @click.argument("theoryID", type=int)
-@config_setting
-def fonll_tcards(theoryid, cfg):
+def tcards(theoryid):
     """Produce the FONLL tcards starting from the original tcard given by the theoryID."""
-    load_config(cfg)
-
     tcard = theory_card.load(theoryid)
     tcard_parent_path = theory_card.path(theoryid).parent
     if "FONLL" not in tcard["FNS"]:
@@ -84,20 +64,17 @@ def fonll_tcards(theoryid, cfg):
     fonll.dump_tcards(tcard, tcard_parent_path, theoryid)
 
 
-@command.command("fonll_ekos")
+@fonll_.command()
 @click.argument("theoryID", type=click.INT)
 @click.argument("datasets", type=click.STRING, nargs=-1)
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
-@config_setting
-def fonll_ekos(theoryid, datasets, overwrite, cfg):
+def ekos(theoryid, datasets, overwrite):
     """Command to generate numerical FONLL ekos.
 
     1. Create the 3 operator cards for the different flavor patches.
     2. Run the 3 ekos for the different flavor patches.
     3. Inherit the ekos.
     """
-    load_config(cfg)
-
     for nf_id in ["00", "04", "05"]:
         # create opcards
         theory.TheoryBuilder(
@@ -134,20 +111,17 @@ def fonll_ekos(theoryid, datasets, overwrite, cfg):
     )
 
 
-@command.command("fonll_fks")
+@fonll_.command()
 @click.argument("theoryID", type=click.INT)
 @click.argument("datasets", type=click.STRING, nargs=-1)
 @click.option("--pdf", "-p", default=None, help="PDF set used for comparison")
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
-@config_setting
-def fonll_fks(theoryid, datasets, pdf, overwrite, cfg):
+def fks(theoryid, datasets, pdf, overwrite):
     """Command to generate numerical FONLL FK tables.
 
     1. Produce the 7 FK tables needed for numerical FONLL.
     2. Combine the FKtables into a single one.
     """
-    load_config(cfg)
-
     # create the 7 FK tables
     for th_suffix in range(0, 7):
         theory.TheoryBuilder(
@@ -171,5 +145,4 @@ def fonll_fks(theoryid, datasets, pdf, overwrite, cfg):
             ffns5til=f"{theoryid}05",
             ffns5bar=f"{theoryid}06",
             overwrite=overwrite,
-            cfg=cfg,
         )
