@@ -1,12 +1,18 @@
 """Adds global CLI options."""
 
 import pathlib
+import sys
 
 import click
 
 from .. import configs
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
+
+
+def help_requested():
+    """Check if you are requesting help."""
+    return len(set(CONTEXT_SETTINGS["help_option_names"]) & set(sys.argv)) > 0
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
@@ -26,6 +32,9 @@ config_option = click.option(
 
 def load_config(cfg):
     """Load configuration files."""
+    # if just help is needed, return before loading
+    if help_requested():
+        return
     path = configs.detect(cfg)
     base_configs = configs.load(path)
     configs.configs = configs.defaults(base_configs)
