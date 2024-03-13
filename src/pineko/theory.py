@@ -21,6 +21,20 @@ from . import check, configs, evolve, parser, scale_variations, theory_card
 
 logger = logging.getLogger(__name__)
 
+def _load_grids_from_nnpdf(dataset_name):
+    """Load the list of fktables/grids necessary from a NNPDF dataset
+    given its dataset name.
+    """
+    # Hide the validphys import to avoid unnecessary failures
+    from validphys.loader import Loader
+    from validphys.commondataparser import EXT
+
+    # We only need the metadata, so this should be enough
+    cd = Loader().check_commondata(dataset_name)
+    fks = cd.metadata.theory.FK_tables
+    # Return it flat
+    return [f"{i}.{EXT}" for operand in fks for i in operand]
+
 
 def check_scvar_evolve(grid, max_as, max_al, kind: check.Scale):
     """Check scale variations and central orders consistency."""
@@ -116,12 +130,16 @@ class TheoryBuilder:
         grids : dict
             mapping basename to path
         """
-        paths = configs.configs["paths"]
-        _info, grids = parser.get_yaml_information(
-            paths["ymldb"] / f"{ds}.yaml", self.grids_path()
-        )
+        # POC
+        # Assume somewhere some option like --nnpdf was given
+        raw_grids = _load_grids_from_nnpdf(ds)
+        grids = [self.grids_path() / i for i in raw_grids]
+#         paths = configs.configs["paths"]
+#         _info, grids = parser.get_yaml_information(
+#             paths["ymldb"] / f"{ds}.yaml", self.grids_path()
+#         )
         # the list is still nested, so flatten
-        grids = [grid for opgrids in grids for grid in opgrids]
+#         grids = [grid for opgrids in raw_grids for grid in opgrids]
         # then turn into a map name -> path
         grids = {grid.stem.rsplit(".", 1)[0]: grid for grid in grids}
         return grids
