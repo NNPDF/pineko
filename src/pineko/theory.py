@@ -317,6 +317,13 @@ class TheoryBuilder:
         )
         # setup data
         ocard = self.load_operator_card(name)
+        # For nFONLL mixed prescriptions (such as FONLL-B) the PTO written on
+        # the tcard is used to produce the grid by yadism and it might be different
+        # from the PTO needed for the PDF evolution (and so by EKO). Here we
+        # ensure that the PTO used in the EKO calculation reflects the real
+        # perturbative order of the prescription.
+        if "PTOEKO" in tcard:
+            tcard["PTO"] = tcard["PTOEKO"]
         # The operator card has been already generated in the correct format
         # The theory card needs to be converted to a format that eko can use
         legacy_class = eko.io.runcards.Legacy(tcard, ocard)

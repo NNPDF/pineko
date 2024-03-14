@@ -29,11 +29,11 @@ def test_FONLLInfo():
     name_list = [
         "ffns3",
         "ffn03",
-        "ffns4til",
-        "ffns4bar",
+        "ffns4zeromass",
+        "ffns4massive",
         "ffn04",
-        "ffns5til",
-        "ffns5bar",
+        "ffns5zeromass",
+        "ffns5massive",
     ]
     assert fullfonll_fake_info.fk_paths == {
         name: pathlib.Path(fk) for name, fk in zip(name_list, full_list)

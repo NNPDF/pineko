@@ -11,8 +11,15 @@
 .. |FFNS| replace::
     :abbr:`FFNS (Fixed Flavor Number Scheme)`
 
+.. |FFN0| replace::
+    :abbr:`FFN0 (Asymptotic Fixed Flavor Number Scheme)`
+
 .. |VFNS| replace::
     :abbr:`VFNS (Variable Flavor Number Scheme)`
+
+.. |FONLL| replace::
+    :abbr:`FONLL (Fixed Order Next-to-Leading Log)`
+
 
 
 .. perturbative orders

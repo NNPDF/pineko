@@ -23,7 +23,9 @@
     :hidden:
 
     theory/fktables
+    theory/fonll
     theory/scalevar
+    theory/kfactors
 
 
     zzz-refs

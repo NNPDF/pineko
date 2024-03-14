@@ -11,7 +11,7 @@ import pineappl
 import rich
 import yaml
 
-from . import configs
+from . import configs, parser, theory_card
 
 logger = logging.getLogger(__name__)
 
@@ -29,28 +29,43 @@ MIXED_ORDER_FNS = ["FONLL-B", "FONLL-D"]
 """FONLL schemes with mixed orders."""
 # Notice we rely on the order defined by the FONLLInfo class
 FK_TO_DAMP = {
-    "mc": ["ffn03", "ffns4til", "ffn04", "ffns5til"],
-    "mb": ["ffn04", "ffns5til"],
+    "mc": ["ffn03", "ffns4zeromass", "ffn04", "ffns5zeromass"],
+    "mb": ["ffn04", "ffns5zeromass"],
 }
 FK_WITH_MINUS = ["ffn03", "ffn04"]  # asy terms should be subtracted, therefore the sign
 """FNS schemes to be subtracted during the FONLL procedure."""
+
+
+class TheoryCardError(Exception):
+    """Raised when asked for FONLL theory cards with an original tcard as input that is not asking for FONLL."""
+
+
+class InconsistentInputsError(Exception):
+    """Raised if the inputs are not consistent with FONLL."""
 
 
 class FONLLInfo:
     """Class containing all the information for FONLL predictions."""
 
     def __init__(
-        self, ffns3, ffn03, ffns4til, ffns4bar, ffn04, ffns5til, ffns5bar
+        self,
+        ffns3,
+        ffn03,
+        ffns4zeromass,
+        ffns4massive,
+        ffn04,
+        ffns5zeromass,
+        ffns5massive,
     ) -> None:
         """Initialize fonll info."""
         self.paths = {
             "ffns3": ffns3,
             "ffn03": ffn03,
-            "ffns4til": ffns4til,
-            "ffns4bar": ffns4bar,
+            "ffns4zeromass": ffns4zeromass,
+            "ffns4massive": ffns4massive,
             "ffn04": ffn04,
-            "ffns5til": ffns5til,
-            "ffns5bar": ffns5bar,
+            "ffns5zeromass": ffns5zeromass,
+            "ffns5massive": ffns5massive,
         }
         actually_existing_paths = [p for p, g in self.paths.items() if g is not None]
         for p in self.paths:
@@ -157,20 +172,110 @@ def combine(fk_dict, dampings=None):
     return combined_fk
 
 
+def grids_names(yaml_file):
+    """Return the list of the grids in the yaml file."""
+    yaml_content = parser._load_yaml(yaml_file)
+    # Turn the operands and the members into paths (and check all of them exist)
+    ret = []
+    for operand in yaml_content["operands"]:
+        for member in operand:
+            ret.append(f"{member}.{parser.EXT}")
+    return ret
+
+
+def cfgpath(name, grid):
+    """Path of the fktable in 'name' called 'grid' if it exists, else None."""
+    path = configs.configs["paths"]["fktables"] / name / grid
+    return path if path.exists() else None
+
+
+def assembly_combined_fk(
+    theoryid,
+    dataset,
+    ffns3,
+    ffn03,
+    ffns4zeromass,
+    ffns4massive,
+    ffn04,
+    ffns5zeromass,
+    ffns5massive,
+    overwrite,
+):
+    """Perform consistency checks and combine the FONLL FK tables into one single FK table."""
+    # Checks
+    if not ffns3 or not ffn03:
+        raise InconsistentInputsError("ffns3 and/or ffn03 is not provided.")
+
+    if ffns4zeromass is None or ffns4massive is None:
+        raise InconsistentInputsError(
+            "At least one of ffns4 zeromass and ffns4 massive should be provided."
+        )
+
+    # Do we consider two masses, i.e. mc and mb
+    if any([ffns5zeromass, ffns5massive, ffn04]):
+        if (ffns5zeromass is None and ffns5massive is None) or ffn04 is None:
+            raise InconsistentInputsError(
+                "To include nf5 contributions, ffn04 and at least one between ffns5 zeromass and ffns5 massive are mandatory"
+            )
+
+    # Get theory info
+    tcard = theory_card.load(theoryid)
+    if tcard["DAMP"] == 1:
+        if not "DAMPPOWERc" in tcard or not "DAMPPOWERb" in tcard:
+            raise InconsistentInputsError(
+                "If DAMP is set, set also DAMPPOWERb and DAMPPOWERc"
+            )
+    else:
+        tcard["DAMPPOWERb"] = 0
+        tcard["DAMPPOWERc"] = 0
+    # Getting the paths to the grids
+    grids_name = grids_names(configs.configs["paths"]["ymldb"] / f"{dataset}.yaml")
+    for grid in grids_name:
+        # Checking if it already exists
+        new_fk_path = configs.configs["paths"]["fktables"] / str(theoryid) / grid
+        if new_fk_path.exists():
+            if not overwrite:
+                rich.print(
+                    f"[green]Success:[/] skipping existing FK Table {new_fk_path}"
+                )
+                return
+        produce_combined_fk(
+            *(
+                cfgpath(str(name), grid)
+                for name in (
+                    ffns3,
+                    ffn03,
+                    ffns4zeromass,
+                    ffns4massive,
+                    ffn04,
+                    ffns5zeromass,
+                    ffns5massive,
+                )
+            ),
+            theoryid,
+            damp=(tcard["DAMP"], tcard["DAMPPOWERc"], tcard["DAMPPOWERb"]),
+        )
+        if new_fk_path.exists():
+            rich.print(f"[green]Success:[/] Wrote FK table to {new_fk_path}")
+        else:
+            rich.print("[red]Failure:[/]")
+
+
 def produce_combined_fk(
     ffns3,
     ffn03,
-    ffns4til,
-    ffns4bar,
+    ffns4zeromass,
+    ffns4massive,
     ffn04,
-    ffns5til,
-    ffns5bar,
+    ffns5zeromass,
+    ffns5massive,
     theoryid,
     damp=(0, None, None),
-    cfg=None,
 ):
     """Combine the FONLL FK tables into one single FK table."""
-    fonll_info = FONLLInfo(ffns3, ffn03, ffns4til, ffns4bar, ffn04, ffns5til, ffns5bar)
+    fonll_info = FONLLInfo(
+        ffns3, ffn03, ffns4zeromass, ffns4massive, ffn04, ffns5zeromass, ffns5massive
+    )
     theorycard_constituent_fks = fonll_info.theorycard_no_fns_pto
     fk_dict = fonll_info.fks
     dampings = (
@@ -180,14 +285,11 @@ def produce_combined_fk(
     )
     combined_fk = combine(fk_dict, dampings=dampings)
     input_theorycard_path = (
-        Path(configs.load(configs.detect(cfg))["paths"]["theory_cards"])
-        / f"{theoryid}.yaml"
+        Path(configs.configs["paths"]["theory_cards"]) / f"{theoryid}.yaml"
     )
     update_fk_theorycard(combined_fk, input_theorycard_path)
     # save final FONLL fktable
-    fk_folder = Path(configs.load(configs.detect(cfg))["paths"]["fktables"]) / str(
-        theoryid
-    )
+    fk_folder = Path(configs.configs["paths"]["fktables"]) / str(theoryid)
     fk_folder.mkdir(exist_ok=True)
     output_path_fk = fk_folder / fonll_info.dataset_name
     combined_fk.write_lz4(output_path_fk)
@@ -234,6 +336,7 @@ def collect_updates(fonll_fns):
                 "NfFF": cfg.nf,
                 "PTO": po,
                 "FONLLParts": cfg.parts,
+                "PTOEKO": int(base_pto),
             }
         )
         # In a mixed FONLL scheme we only subract the resummed terms that are
