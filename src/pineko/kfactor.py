@@ -246,13 +246,13 @@ def do_it(
     orders_list = [(de, min_al, 0, 0) for de in range(min_as, max_as)]
     # create an empty grid and add the rescaled order
     order_to_update = (order_to_update, grid_orders[0][1], 0, 0)
-    new_order_grid = scale_variations.initialize_new_grid(grid, order_to_update)
-    for as_order in orders_list:
-        new_order_grid.merge(
-            construct_new_order(
-                grid, as_order, order_to_update, central_kfactor, alphas
-            )
-        )
+    new_order_grid = None
+    for i, as_order in enumerate(orders_list):
+        order_grid = construct_new_order(grid, as_order, order_to_update, central_kfactor, alphas)
+        if i == 0:
+            new_order_grid = order_grid
+        else:
+            new_order_grid.merge(order_grid)
 
     new_grid = grid
     # if the new order is there, clean the old one.
