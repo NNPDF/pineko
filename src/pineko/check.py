@@ -88,7 +88,7 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif, max_as, max_al)
     xif : float
         factorization scale variation
     max_as: int
-        max order of alpa_s
+        max order of alpha_s
     max_al: int
         max order of alpha
 

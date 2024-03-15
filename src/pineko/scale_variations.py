@@ -203,7 +203,18 @@ def merge_grids(
 
 
 def construct_and_dump_order_exists_grid(ori_grid, to_construct_order):
-    """Remove the order that has to be substituted from the grid."""
+    """Remove the order that has to be substituted from the grid.
+
+    Parameters
+    ----------
+    ori_grid:
+        original grid
+    to_construct_order:
+        order to delete
+    """
+
+    # TODO: maybe we can make this function simpler ??
+
     bin_limits = [float(bin) for bin in range(ori_grid.bins() + 1)]
     lumi_grid = [pineappl.lumi.LumiEntry(mylum) for mylum in ori_grid.lumi()]
     subgrid_params = pineappl.subgrid.SubgridParams()
