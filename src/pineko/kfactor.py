@@ -261,7 +261,6 @@ def do_it(
             grid, order_to_update
         )
     # merge the updated order with the original one.
-    import pdb; pdb.set_trace()
     new_grid.merge(new_order_grid)
     new_grid.write_lz4(target_grid_path)
 
