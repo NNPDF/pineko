@@ -13,11 +13,6 @@ from . import scale_variations
 DEFAULT_PDF_SET = "NNPDF40_nnlo_as_01180"
 
 
-# def factgrid(subgrid):
-#     """Return the array of the factorization scales squared from a subgrid."""
-#     return np.array([mu2.fac for mu2 in subgrid.mu2_grid()])
-
-
 def rengrid(subgrid):
     """Return the array of the renormalization scales squared from a subgrid."""
     return np.array([mu2.ren for mu2 in subgrid.mu2_grid()])
@@ -53,11 +48,10 @@ def read_kfactor(kfactor_path):
 def construct_scales_array(
     mu2_ren_grid,
     order,
-    new_order,
+    order_to_update,
     central_k_factor,
     bin_index,
     alphas,
-    order_exists,
 ):
     """Construct the array that will rescale the subgrid array taking into account the different renormalization scales."""
     scales_array = []
@@ -65,25 +59,23 @@ def construct_scales_array(
         scales_array.append(
             compute_scale_factor(
                 order,
-                new_order,
+                order_to_update,
                 mu2,
                 central_k_factor,
                 bin_index,
                 alphas,
-                order_exists,
             )
         )
     return scales_array
 
 
 def compute_scale_factor(
-    nec_order,
-    to_construct_order,
-    Q2,
+    order,
+    order_to_update,
+    mu2,
     central_k_factor,
     bin_index,
     alphas,
-    order_exists,
 ):
     """Compute the factor to be multiplied to the given nec_order.
 
@@ -91,9 +83,9 @@ def compute_scale_factor(
     ----------
     nec_order : tuple(int)
         tuple of the order that has to be rescaled to get the final order
-    to_contruct_order : tuple(int)
-        tuple of the scale varied order to be constructed
-    Q2: float
+    order_to_update : tuple(int)
+        order to update
+    mu2: float
         energy scale squared of the bin
     central_k_factor: list(float)
         list of the centrals k-factors
@@ -107,13 +99,11 @@ def compute_scale_factor(
     float
         full contribution factor
     """
-    max_as = to_construct_order[0]
-    alpha_val = alphas.alphasQ2(Q2)
-    alpha_term = 1.0 / pow(alpha_val, max_as - (nec_order[0]))
+    alpha_val = alphas.alphasQ2(mu2)
+    max_as = order_to_update[0]
+    as_order = order[0]
+    alpha_term = 1.0 / pow(alpha_val, max_as - as_order)
     k_term = central_k_factor[bin_index] - 1.0
-    # TODO: why do we need a double condition here ???
-    if order_exists and (max_as - (nec_order[0])) == 0:
-        k_term = central_k_factor[bin_index]
     return k_term * alpha_term
 
 
@@ -141,106 +131,6 @@ def scale_subgrid(extracted_subgrid, scales_array):
     return scaled_subgrid
 
 
-# def compute_orders_map(m, max_as, min_al, order_to_update):
-#     """Compute a dictionary with all the necessary orders to compute the requested order.
-
-#     Parameters
-#     ----------
-#     m : int
-#         first non zero perturbative order of the grid
-#     max_as : int
-#         max alpha_s order
-#     min_al : int
-#         al order of leading order
-#     order_to_update:
-#         alphas order to update
-#     Returns
-#     -------
-#     dict(tuple(int))
-#         description of all the needed orders
-#     """
-#     orders = {}
-#     # TODO: can we simply append or replace the needed
-#     # order instead of this ?
-#     orders[(order_to_update, min_al, 0, 0)] = [
-#         (m + de, min_al, 0, 0) for de in range(max_as)
-#     ]
-#     return orders
-
-
-# def create_singlegridonly(
-#     grid, order, new_order, central_k_factor, alphas, order_exists
-# ):
-#     """Create a grid containing only the contribution given by new_order."""
-#     new_grid = scale_variations.initialize_new_grid(grid, new_order)
-#     # extract the relevant order to rescale from the grid for each lumi and bin
-#     grid_orders = [order.as_tuple() for order in grid.orders()]
-#     order_index = grid_orders.index(order)
-#     for lumi_index in range(len(new_grid.lumi())):
-#         for bin_index in range(grid.bins()):
-#             extracted_subgrid = grid.subgrid(order_index, bin_index, lumi_index)
-#             scales_array = construct_scales_array(
-#                 rengrid(extracted_subgrid),
-#                 order,
-#                 new_order,
-#                 central_k_factor,
-#                 bin_index,
-#                 alphas,
-#                 order_exists,
-#             )
-#             scaled_subgrid = scale_subgrid(extracted_subgrid, scales_array)
-#             # Set this subgrid inside the new grid
-#             new_grid.set_subgrid(0, bin_index, lumi_index, scaled_subgrid)
-#     # Fixing bin_limits and normalizations
-#     bin_dimension = grid.raw.bin_dimensions()
-#     limits = []
-#     for num_bin in range(grid.raw.bins()):
-#         for dim in range(bin_dimension):
-#             limits.append(
-#                 (grid.raw.bin_left(dim)[num_bin], grid.raw.bin_right(dim)[num_bin])
-#             )
-#     norma = grid.raw.bin_normalizations()
-#     remap_obj = pineappl.bin.BinRemapper(norma, limits)
-#     new_grid.set_remapper(remap_obj)
-#     return new_grid
-
-
-# def create_grids(
-#     gridpath,
-#     as_order,
-#     min_al,
-#     order_to_update,
-#     centrals_k_factor,
-#     alphas,
-#     order_exists,
-# ):
-#     """Create all the necessary grids for a certain starting grid."""
-#     grid = pineappl.grid.Grid.read(gridpath)
-
-#     # first and last alpha_s orders
-#     m_value, max_as = as_order
-
-#     # if the order is not yet there add it
-#     max_as_required = max_as if order_exists else max_as + 1
-#     nec_orders = compute_orders_map(m_value, max_as_required, min_al, order_to_update)
-#     grid_list = {}
-#     for to_construct_order in nec_orders:
-#         list_grid_order = []
-#         for nec_order in nec_orders[to_construct_order]:
-#             list_grid_order.append(
-#                 create_singlegridonly(
-#                     grid,
-#                     nec_order,
-#                     to_construct_order,
-#                     centrals_k_factor,
-#                     alphas,
-#                     order_exists,
-#                 )
-#             )
-#         grid_list[to_construct_order] = list_grid_order
-#     return grid_list, nec_orders
-
-
 def is_already_in(to_check, list_orders):
     """Check if the requested order is already in the grid."""
     for order in list_orders:
@@ -254,78 +144,41 @@ def is_already_in(to_check, list_orders):
     return False
 
 
-# def construct_and_merge_grids(
-#     grid_path,
-#     as_order,
-#     order_to_update,
-#     min_al,
-#     centrals_kfactor,
-#     alphas,
-#     target_folder,
-#     order_exists,
-# ):
-#     """Create, write and merge all the grids."""
-#     # Creating all the necessary grids
-#     grid_list, nec_orders = create_grids(
-#         grid_path,
-#         as_order,
-#         min_al,
-#         order_to_update,
-#         centrals_kfactor,
-#         alphas,
-#         order_exists,
-#     )
-#     # Writing the sv grids
-#     grids_paths = scale_variations.write_grids(gridpath=grid_path, grid_list=grid_list)
-#     # Merging all together
-#     scale_variations.merge_grids(
-#         gridpath=grid_path,
-#         grid_list_path=grids_paths,
-#         target_path=target_folder,
-#         nec_orders=nec_orders,
-#         order_exists=order_exists,
-#     )
-
-
-def construct_new_order(grid, order_to_update, central_k_factor, alphas, order_exists):
+def construct_new_order(grid, order, order_to_update, central_kfactor, alphas):
     """Construct a scaled grid, with the given order.
 
     Parameters
     ----------
     grid : pineappl.grid
         loaded grid
-    order_to_update : int
+    order : int
+        current alpha_s order
+    order_to_update:
         alpha_s order to update
     central_kfactor : np.ndarray
         kfactors to apply
     alphas : lhapdf.AlphaS
         alphas
-    order_exists: bool
-        True if the order to update is already present
     """
 
     # extract the relevant order to rescale from the grid for each lumi and bin
     grid_orders = [order.as_tuple() for order in grid.orders()]
 
-    # TODO: is it correct to update only the central scale?
+    # NOTE: eventual QED corrections are not supported
     order_to_update = (order_to_update, grid_orders[0][1], 0, 0)
     new_grid = scale_variations.initialize_new_grid(grid, order_to_update)
-
-    # if the order is the same rescale the original else rescale the last one
-    orignal_order = order_to_update if order_exists else grid_orders[-1]
-    orginal_order_index = grid_orders.index(orignal_order)
+    orginal_order_index = grid_orders.index(order)
 
     for lumi_index in range(len(new_grid.lumi())):
         for bin_index in range(grid.bins()):
             extracted_subgrid = grid.subgrid(orginal_order_index, bin_index, lumi_index)
             scales_array = construct_scales_array(
                 rengrid(extracted_subgrid),
-                orignal_order,
+                order,
                 order_to_update,
-                central_k_factor,
+                central_kfactor,
                 bin_index,
                 alphas,
-                order_exists,
             )
             scaled_subgrid = scale_subgrid(extracted_subgrid, scales_array)
             # Set this subgrid inside the new grid
@@ -370,6 +223,7 @@ def do_it(
         True if the order to update is already present
     """
     grid_orders = [order.as_tuple() for order in grid.orders()]
+    min_as = grid_orders[0][0]
     min_al = grid_orders[0][1]
 
     # check if the order is already there
@@ -383,9 +237,18 @@ def do_it(
         rich.print("[red] Abort: order exists is True but order not in the grid.")
         return
 
-    new_order_grid = construct_new_order(
-        grid, order_to_update, central_kfactor, alphas, is_in
-    )
+    # loop on all the order to update
+    orders_list = [
+        (min_as + de, min_al, 0, 0) for de in range(order_to_update + 1)
+    ]
+    # create an enmpty grid
+    new_order_grid = scale_variations.initialize_new_grid(grid, order_to_update)
+    for as_order in orders_list:
+        new_order_grid.merge(
+            construct_new_order(
+                grid, as_order, order_to_update, central_kfactor, alphas
+            )
+        )
 
     new_grid = grid
     # if the new order is there, clean the old one.
