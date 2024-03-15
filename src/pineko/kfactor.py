@@ -227,11 +227,11 @@ def do_it(
     order_mask = pineappl.grid.Order.create_mask(grid.orders(), order_to_update, 0, True)
     grid_orders_filtered = list(np.array(grid_orders)[order_mask])
     grid_orders_filtered.sort(key=scale_variations.qcd)
-    min_as = grid_orders[0][0]
-    min_al = grid_orders[0][1]
+    min_as = grid_orders_filtered[0][0]
+    min_al = grid_orders_filtered[0][1]
 
     # check if the order is already there
-    is_in = is_already_in((order_to_update, min_al, 0, 0), grid_orders)
+    is_in = is_already_in((order_to_update, min_al, 0, 0), grid_orders_filtered)
 
     # Prevent summing orders incoherently
     if is_in and not order_exists:
@@ -242,10 +242,10 @@ def do_it(
         return
 
     # loop on all the order to update
-    max_as = grid_orders[-1][0] + 1 if is_in else grid_orders[0][0]
-    orders_list = [(de, min_al, 0, 0) for de in range(min_as, max_as)]
+    max_as = grid_orders_filtered[-1][0]
+    orders_list = [(de, min_al, 0, 0) for de in range(min_as, max_as + 1)]
     # create an empty grid and add the rescaled order
-    order_to_update = (order_to_update, grid_orders[0][1], 0, 0)
+    order_to_update = (order_to_update, grid_orders_filtered[0][1], 0, 0)
     new_order_grid = None
     for i, as_order in enumerate(orders_list):
         order_grid = construct_new_order(grid, as_order, order_to_update, central_kfactor, alphas)
@@ -261,6 +261,7 @@ def do_it(
             grid, order_to_update
         )
     # merge the updated order with the original one.
+    import pdb; pdb.set_trace()
     new_grid.merge(new_order_grid)
     new_grid.write_lz4(target_grid_path)
 
