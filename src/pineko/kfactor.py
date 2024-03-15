@@ -288,7 +288,21 @@ def is_already_in(to_check, list_orders):
 
 
 def construct_new_order(grid, order_to_update, central_k_factor, alphas, order_exists):
-    """Construct a scaled grid, with the given order."""
+    """Construct a scaled grid, with the given order.
+
+    Parameters
+    ----------
+    grid : pineappl.grid
+        loaded grid
+    order_to_update : int
+        alpha_s order to update
+    central_kfactor : np.ndarray
+        kfactors to apply
+    alphas : lhapdf.AlphaS
+        alphas
+    order_exists: bool
+        True if the order to update is already present
+    """
 
     # extract the relevant order to rescale from the grid for each lumi and bin
     grid_orders = [order.as_tuple() for order in grid.orders()]
@@ -361,6 +375,7 @@ def do_it(
     # check if the order is already there
     is_in = is_already_in((order_to_update, min_al, 0, 0), grid_orders)
 
+    # Prevent summing orders incoherently
     if is_in and not order_exists:
         rich.print("[green] Success: Requested order already in the grid.")
         return
@@ -373,8 +388,7 @@ def do_it(
     )
 
     new_grid = grid
-
-    # TODO: is this really necessary?? pineappl doesn't complain if the order is still there.
+    # if the new order is there, clean the old one.
     if is_in:
         new_grid = scale_variations.construct_and_dump_order_exists_grid(
             grid, order_to_update

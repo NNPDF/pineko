@@ -27,7 +27,6 @@ def test_compute_scale_factor():
     bin_index = 1
     np.testing.assert_allclose(
         kfactor.compute_scale_factor(
-            0,
             [0, 0, 0, 0],
             [1, 0, 0, 0],
             5.0**2,
@@ -40,7 +39,6 @@ def test_compute_scale_factor():
     )
     np.testing.assert_allclose(
         kfactor.compute_scale_factor(
-            0,
             [0, 0, 0, 0],
             [2, 0, 0, 0],
             5.0**2,
