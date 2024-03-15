@@ -151,9 +151,9 @@ def construct_new_order(grid, order, order_to_update, central_kfactor, alphas):
     ----------
     grid : pineappl.grid
         loaded grid
-    order : int
+    order : tuple
         current alpha_s order
-    order_to_update:
+    order_to_update: tuple
         alpha_s order to update
     central_kfactor : np.ndarray
         kfactors to apply
@@ -165,7 +165,6 @@ def construct_new_order(grid, order, order_to_update, central_kfactor, alphas):
     grid_orders = [order.as_tuple() for order in grid.orders()]
 
     # NOTE: eventual QED corrections are not supported
-    order_to_update = (order_to_update, grid_orders[0][1], 0, 0)
     new_grid = scale_variations.initialize_new_grid(grid, order_to_update)
     orginal_order_index = grid_orders.index(order)
 
@@ -238,10 +237,10 @@ def do_it(
         return
 
     # loop on all the order to update
-    orders_list = [
-        (min_as + de, min_al, 0, 0) for de in range(order_to_update + 1)
-    ]
-    # create an enmpty grid
+    max_as = grid_orders[-1][0] + 1 if is_in else grid_orders[0][0]
+    orders_list = [(de, min_al, 0, 0) for de in range(min_as, max_as)]
+    # create an empty grid and add the rescaled order
+    order_to_update = (order_to_update, grid_orders[0][1], 0, 0)
     new_order_grid = scale_variations.initialize_new_grid(grid, order_to_update)
     for as_order in orders_list:
         new_order_grid.merge(
@@ -256,7 +255,11 @@ def do_it(
         new_grid = scale_variations.construct_and_dump_order_exists_grid(
             grid, order_to_update
         )
+    # merge the updated order with the original one.
     new_grid.merge(new_order_grid)
+    import pdb
+
+    pdb.set_trace()
     new_grid.write_lz4(target_grid_path)
 
 

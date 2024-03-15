@@ -7,13 +7,13 @@ from pineko import kfactor
 
 def benchmark_kfactor_inclusion(test_files, tmp_path, test_pdf, lhapdf_path):
     fake_yaml_path = test_files / "data" / "yamldb" / "ATLAS_TTB_FAKE.yaml"
-    max_as = 3
+    order_to_update = 3
     pdf_name = "NNPDF40_nnlo_as_01180"
     kfactor.compute_k_factor_grid(
         test_files / "data" / "grids" / "400",
         test_files / "data" / "kfactors",
         fake_yaml_path,
-        max_as,
+        order_to_update,
         target_folder=tmp_path,
     )
     pluskfactor_grid_path = tmp_path / "ATLAS_TTB_8TEV_LJ_TRAP.pineappl.lz4"
