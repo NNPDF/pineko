@@ -13,17 +13,34 @@ from ._base import command
 @click.argument("kfactor_folder", type=click.Path(exists=True))
 @click.argument("yamldb_path", type=click.Path(exists=True))
 @click.argument("target_folder", type=click.Path(exists=True))
-@click.argument("max_as", type=int)
+@click.argument("order_to_update", type=int)
 @click.argument("order_exists", type=bool)
 def k_factor_inclusion(
     grids_folder,
     kfactor_folder,
     yamldb_path,
     target_folder,
-    max_as,
+    order_to_update,
     order_exists,
 ):
-    """Construct new grid with k_factor included."""
+    """Construct new grid with k_factor included.
+
+    parameters
+    ----------
+    grids_folder:
+        path to grids folder
+    kfactor_folder:
+        path to kfactor folder.
+    yamldb_path:
+        path to yamldb file.
+    target_folder:
+        path to updated grids folder.
+    order_to_update:
+        alpha_s order to update.
+    order_exists:
+        True if the order is already present.
+
+    """
     grids_folder = pathlib.Path(grids_folder)
     kfactor_folder = pathlib.Path(kfactor_folder)
     yamldb_path = pathlib.Path(yamldb_path)
@@ -32,7 +49,7 @@ def k_factor_inclusion(
         grids_folder,
         kfactor_folder,
         yamldb_path,
-        max_as,
+        order_to_update,
         target_folder=target_folder,
         order_exists=order_exists,
     )

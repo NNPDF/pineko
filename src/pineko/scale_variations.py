@@ -194,7 +194,7 @@ def merge_grids(
         target_path = target_path / gridpath.name
     if order_exists:
         grid = construct_and_dump_order_exists_grid(
-            grid, list(nec_orders.keys())[0] if nec_orders is not None else []
+            grid, list(nec_orders)[0] if nec_orders is not None else []
         )
     for grid_path in grid_list_path:
         grid.merge_from_file(grid_path)
@@ -240,7 +240,11 @@ def construct_and_dump_order_exists_grid(ori_grid, to_construct_order):
     norma = ori_grid.bin_normalizations()
     remap_obj = pineappl.bin.BinRemapper(norma, limits)
     new_grid.set_remapper(remap_obj)
-    new_grid.set_key_value("initial_state_2", ori_grid.key_values()["initial_state_2"])
+
+    # propagate metadata
+    for k, v in ori_grid.key_values().items():
+        new_grid.set_key_value(k, v)
+
     return new_grid
 
 

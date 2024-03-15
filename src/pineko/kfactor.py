@@ -13,6 +13,7 @@ from . import scale_variations
 DEFAULT_PDF_SET = "NNPDF40_nnlo_as_01180"
 
 
+# TODO: this can be dropped, unused
 def factgrid(subgrid):
     """Return the array of the factorization scales squared from a subgrid."""
     return np.array([mu2.fac for mu2 in subgrid.mu2_grid()])
@@ -52,7 +53,6 @@ def read_kfactor(kfactor_path):
 
 def construct_scales_array(
     mu2_ren_grid,
-    m_value,
     order,
     new_order,
     central_k_factor,
@@ -65,7 +65,6 @@ def construct_scales_array(
     for mu2 in mu2_ren_grid:
         scales_array.append(
             compute_scale_factor(
-                m_value,
                 order,
                 new_order,
                 mu2,
@@ -79,7 +78,6 @@ def construct_scales_array(
 
 
 def compute_scale_factor(
-    m,
     nec_order,
     to_construct_order,
     Q2,
@@ -92,8 +90,6 @@ def compute_scale_factor(
 
     Parameters
     ----------
-    m : int
-        first non zero perturbative order
     nec_order : tuple(int)
         tuple of the order that has to be rescaled to get the final order
     to_contruct_order : tuple(int)
@@ -112,11 +108,12 @@ def compute_scale_factor(
     float
         full contribution factor
     """
-    max_as = to_construct_order[0] - m
+    max_as = to_construct_order[0]
     alpha_val = alphas.alphasQ2(Q2)
-    alpha_term = 1.0 / pow(alpha_val, max_as - (nec_order[0] - m))
+    alpha_term = 1.0 / pow(alpha_val, max_as - (nec_order[0]))
     k_term = central_k_factor[bin_index] - 1.0
-    if order_exists and (max_as - (nec_order[0] - m)) == 0:
+    # TODO: why do we need a double condition here ???
+    if order_exists and (max_as - (nec_order[0])) == 0:
         k_term = central_k_factor[bin_index]
     return k_term * alpha_term
 
@@ -145,7 +142,7 @@ def scale_subgrid(extracted_subgrid, scales_array):
     return scaled_subgrid
 
 
-def compute_orders_map(m, max_as, min_al, order_exists):
+def compute_orders_map(m, max_as, min_al, order_to_update):
     """Compute a dictionary with all the necessary orders to compute the requested order.
 
     Parameters
@@ -156,23 +153,24 @@ def compute_orders_map(m, max_as, min_al, order_exists):
         max alpha_s order
     min_al : int
         al order of leading order
+    order_to_update:
+        alphas order to update
     Returns
     -------
     dict(tuple(int))
         description of all the needed orders
     """
-    add = 0
-    if order_exists:
-        add = 1
     orders = {}
-    orders[(m + max_as, min_al, 0, 0)] = [
-        (m + de, min_al, 0, 0) for de in range(max_as + add)
+    # TODO: can we simply append or replace the needed
+    # order instead of this ?
+    orders[(order_to_update, min_al, 0, 0)] = [
+        (m + de, min_al, 0, 0) for de in range(max_as)
     ]
     return orders
 
 
 def create_singlegridonly(
-    grid, m_value, order, new_order, central_k_factor, alphas, order_exists
+    grid, order, new_order, central_k_factor, alphas, order_exists
 ):
     """Create a grid containing only the contribution given by new_order."""
     new_grid = scale_variations.initialize_new_grid(grid, new_order)
@@ -184,7 +182,6 @@ def create_singlegridonly(
             extracted_subgrid = grid.subgrid(order_index, bin_index, lumi_index)
             scales_array = construct_scales_array(
                 rengrid(extracted_subgrid),
-                m_value,
                 order,
                 new_order,
                 central_k_factor,
@@ -211,17 +208,22 @@ def create_singlegridonly(
 
 def create_grids(
     gridpath,
-    max_as,
-    first_non_zero_as_order,
+    as_order,
     min_al,
+    order_to_update,
     centrals_k_factor,
     alphas,
     order_exists,
 ):
     """Create all the necessary grids for a certain starting grid."""
     grid = pineappl.grid.Grid.read(gridpath)
-    m_value = first_non_zero_as_order
-    nec_orders = compute_orders_map(m_value, max_as, min_al, order_exists)
+
+    # first and last alpha_s orders
+    m_value, max_as = as_order
+
+    # if the order is not yet there add it
+    max_as_required = max_as if order_exists else max_as + 1
+    nec_orders = compute_orders_map(m_value, max_as_required, min_al, order_to_update)
     grid_list = {}
     for to_construct_order in nec_orders:
         list_grid_order = []
@@ -229,7 +231,6 @@ def create_grids(
             list_grid_order.append(
                 create_singlegridonly(
                     grid,
-                    m_value,
                     nec_order,
                     to_construct_order,
                     centrals_k_factor,
@@ -238,7 +239,6 @@ def create_grids(
                 )
             )
         grid_list[to_construct_order] = list_grid_order
-
     return grid_list, nec_orders
 
 
@@ -257,8 +257,8 @@ def is_already_in(to_check, list_orders):
 
 def construct_and_merge_grids(
     grid_path,
-    max_as,
-    first_nonzero_order,
+    as_order,
+    order_to_update,
     min_al,
     centrals_kfactor,
     alphas,
@@ -269,9 +269,9 @@ def construct_and_merge_grids(
     # Creating all the necessary grids
     grid_list, nec_orders = create_grids(
         grid_path,
-        max_as,
-        first_nonzero_order[0],
+        as_order,
         min_al,
+        order_to_update,
         centrals_kfactor,
         alphas,
         order_exists,
@@ -293,31 +293,49 @@ def do_it(
     alphas,
     grid_path,
     grid,
-    max_as,
-    max_as_test,
+    order_to_update,
     target_folder,
     order_exists,
 ):
-    """Apply the centrals_kfactor to the grid if the order is not already there."""
-    grid_orders = [orde.as_tuple() for orde in grid.orders()]
-    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, 0, True)
-    grid_orders_filtered = list(np.array(grid_orders)[order_mask])
-    grid_orders_filtered.sort(key=scale_variations.qcd)
-    first_nonzero_order = grid_orders_filtered[0]
-    min_al = first_nonzero_order[1]
-    is_in = is_already_in(
-        (first_nonzero_order[0] + max_as_test, min_al, 0, 0), grid_orders_filtered
-    )
+    """Apply the centrals_kfactor to the grid.
+
+    Parameters
+    ----------
+    centrals_kfactor : np.ndarray
+        kfactors to apply
+    alphas : lhapdf.AlphaS
+        alphas
+    grid_path : pathlib.Path()
+        path to grid
+    order_to_update : int
+        alpha_s order to update
+    target_folder: pathlib.Path
+        path where store the new grid
+    order_exists: bool
+        True if the order to update is already present
+    """
+    grid_orders = [order.as_tuple() for order in grid.orders()]
+    min_al = grid_orders[0][1]
+
+    # TODO: this mask should not be necessary.
+    # order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, 0, True)
+    # grid_orders_filtered = list(np.array(grid_orders)[order_mask])
+    # grid_orders_filtered.sort(key=scale_variations.qcd)
+    # first_nonzero_order = grid_orders_filtered[0]
+
+    # check if the order is already there
+    is_in = is_already_in((order_to_update, min_al, 0, 0), grid_orders)
     if is_in and not order_exists:
         rich.print("[green] Success: Requested order already in the grid.")
         return
     if not is_in and order_exists:
         rich.print("[red] Abort: order exists is True but order not in the grid.")
         return
+
     construct_and_merge_grids(
         grid_path,
-        max_as_test,
-        first_nonzero_order,
+        (grid_orders[0][0], grid_orders[-1][0]),
+        order_to_update,
         min_al,
         centrals_kfactor,
         alphas,
@@ -327,14 +345,14 @@ def do_it(
 
 
 def filter_k_factors(pigrid, centrals_kfactor):
-    """Filter the centrals k-factors according to their lenght compared to the number of bins of the grid."""
+    """Filter the centrals k-factors according to their length compared to the number of bins of the grid."""
     centrals_kfactor_filtered = np.array([])
     if pigrid.bins() == len(centrals_kfactor):
-        rich.print("[orange] The number of bins match the lenght of the k-factor.")
+        rich.print("[orange] The number of bins match the length of the k-factor.")
         centrals_kfactor_filtered = centrals_kfactor
     elif pigrid.bins() < len(centrals_kfactor):
         rich.print(
-            "[yellow] The number of bins is less than the lenght of the k-factor."
+            "[yellow] The number of bins is less than the length of the k-factor."
         )
         if not all(elem == centrals_kfactor[0] for elem in centrals_kfactor):
             # This case is actually wrong.
@@ -342,15 +360,15 @@ def filter_k_factors(pigrid, centrals_kfactor):
         centrals_kfactor_filtered = centrals_kfactor
     else:
         rich.print(
-            "[yellow] The number of bins is more than the lenght of the k-factor."
+            "[yellow] The number of bins is more than the length of the k-factor."
         )
 
         # This is the last case in which grid.bins() > len(centrals_kfactor)
 
-        # Note that sometimes there are more bins in the grid than in the cfactor file -
-        # this is not a problem because in those cases either all cfactor values are the
+        # Note that sometimes there are more bins in the grid than in the kfactor file -
+        # this is not a problem because in those cases either all kfactor values are the
         # same (thus there is no doubt about whether we have the correct one) or the
-        # non-exisiting cfactors would be multiplied by bins corresponding to all '0' in the
+        # non-exisiting kfactor would be multiplied by bins corresponding to all '0' in the
         # grid.
         # Let's check if we are in the first or second case
         if len(np.unique(centrals_kfactor)) == 1:
@@ -370,7 +388,7 @@ def compute_k_factor_grid(
     grids_folder,
     kfactor_folder,
     yamldb_path,
-    max_as,
+    order_to_update,
     target_folder=None,
     order_exists=False,
 ):
@@ -384,20 +402,24 @@ def compute_k_factor_grid(
         kfactors folder
     yamldb_path : pathlib.Path()
         path to the yaml file describing the dataset
-    max_as : int
-        max as order
+    order_to_update : int
+        alpha_s order to update
     target_folder: pathlib.Path
-        path where store the new grid (optional)
+        path where store the new grid
+    order_exists: bool
+        True if the order to update is already present
     """
     import lhapdf  # pylint: disable=import-error,import-outside-toplevel
 
+    # TODO: please let's drop this additional bit of chaos !!!!
     # With respect to the usual convention here max_as is max_as-1
-    max_as_test = max_as - 1
+    # max_as_test = max_as - 1
     # Extracting info from yaml file
     with open(yamldb_path, encoding="utf-8") as f:
         yamldict = yaml.safe_load(f)
     for grid_list in yamldict["operands"]:
         for grid in grid_list:
+            # TODO: kfactor type should be passed as argument
             cfac_path = kfactor_folder / f"CF_QCD_{grid}.dat"
             if "ATLASDY2D8TEV" in grid:
                 cfac_path = kfactor_folder / f"CF_QCDEWK_{grid}.dat"
@@ -411,8 +433,7 @@ def compute_k_factor_grid(
                 alphas,
                 grid_path,
                 pigrid,
-                max_as,
-                max_as_test,
+                order_to_update,
                 target_folder,
                 order_exists,
             )
