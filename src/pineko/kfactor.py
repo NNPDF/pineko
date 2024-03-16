@@ -9,6 +9,7 @@ import yaml
 from pineappl import import_only_subgrid
 
 from . import scale_variations
+from . scale_variations import orders_as_tuple
 
 DEFAULT_PDF_SET = "NNPDF40_nnlo_as_01180"
 
@@ -156,7 +157,7 @@ def construct_new_order(grid, order, order_to_update, central_kfactor, alphas):
         alphas
     """
     # extract the relevant order to rescale from the grid for each lumi and bin
-    grid_orders = [order.as_tuple() for order in grid.orders()]
+    grid_orders = orders_as_tuple(grid)
 
     new_grid = scale_variations.initialize_new_grid(grid, order_to_update)
     orginal_order_index = grid_orders.index(order)
@@ -215,14 +216,15 @@ def do_it(
     order_exists: bool
         True if the order to update is already present
     """
-    grid_orders = [order.as_tuple() for order in grid.orders()]
+    grid_orders = orders_as_tuple(grid)
 
     # remove not necessary orders
-    # NOTE: eventual QED corrections are not supported
+    # NOTE: eventual QED kfactors are not supported
     order_mask = pineappl.grid.Order.create_mask(grid.orders(), pto_to_update, 0, True)
     grid_orders_filtered = list(np.array(grid_orders)[order_mask])
     grid_orders_filtered.sort(key=scale_variations.qcd)
     min_as = grid_orders_filtered[0][0]
+    # TODO: this is always going to be 0, given the mask above ...
     min_al = grid_orders_filtered[0][1]
 
     # the actual alpha_s order to update
@@ -243,7 +245,7 @@ def do_it(
     max_as = grid_orders_filtered[-1][0]
     orders_list = [(de, min_al, 0, 0) for de in range(min_as, max_as + 1)]
     # create an empty grid and add the rescaled order
-    order_to_update = (order_to_update, grid_orders_filtered[0][1], 0, 0)
+    order_to_update = (order_to_update, min_al, 0, 0)
     new_order_grid = None
     for i, as_order in enumerate(orders_list):
         order_grid = construct_new_order(
