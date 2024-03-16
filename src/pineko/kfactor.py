@@ -93,11 +93,6 @@ def compute_scale_factor(
         index of the bin
     alphas: lhapdf.AlphaS
         alpha_s object
-
-    Returns
-    -------
-    float
-        full contribution factor
     """
     alpha_val = alphas.alphasQ2(mu2)
     max_as = order_to_update[0]
@@ -160,11 +155,9 @@ def construct_new_order(grid, order, order_to_update, central_kfactor, alphas):
     alphas : lhapdf.AlphaS
         alphas
     """
-
     # extract the relevant order to rescale from the grid for each lumi and bin
     grid_orders = [order.as_tuple() for order in grid.orders()]
 
-    # NOTE: eventual QED corrections are not supported
     new_grid = scale_variations.initialize_new_grid(grid, order_to_update)
     orginal_order_index = grid_orders.index(order)
 
@@ -200,7 +193,7 @@ def do_it(
     central_kfactor,
     alphas,
     grid,
-    order_to_update,
+    pto_to_update,
     target_grid_path,
     order_exists,
 ):
@@ -214,8 +207,9 @@ def do_it(
         alphas
     grid : pineappl.grid
         loaded grid
-    order_to_update : int
-        alpha_s order to update
+    pto_to_update : int
+        perturbative order to update: 1 = LO, 2 = NLO ...
+        no matter which power of alpha_s it is.
     target_grid_path: pathlib.Path
         path where store the new grid
     order_exists: bool
@@ -224,11 +218,15 @@ def do_it(
     grid_orders = [order.as_tuple() for order in grid.orders()]
 
     # remove not necessary orders
-    order_mask = pineappl.grid.Order.create_mask(grid.orders(), order_to_update, 0, True)
+    # NOTE: eventual QED corrections are not supported
+    order_mask = pineappl.grid.Order.create_mask(grid.orders(), pto_to_update, 0, True)
     grid_orders_filtered = list(np.array(grid_orders)[order_mask])
     grid_orders_filtered.sort(key=scale_variations.qcd)
     min_as = grid_orders_filtered[0][0]
     min_al = grid_orders_filtered[0][1]
+
+    # the actual alpha_s order to update
+    order_to_update = pto_to_update + min_as - 1
 
     # check if the order is already there
     is_in = is_already_in((order_to_update, min_al, 0, 0), grid_orders_filtered)
@@ -248,7 +246,9 @@ def do_it(
     order_to_update = (order_to_update, grid_orders_filtered[0][1], 0, 0)
     new_order_grid = None
     for i, as_order in enumerate(orders_list):
-        order_grid = construct_new_order(grid, as_order, order_to_update, central_kfactor, alphas)
+        order_grid = construct_new_order(
+            grid, as_order, order_to_update, central_kfactor, alphas
+        )
         if i == 0:
             new_order_grid = order_grid
         else:
@@ -309,7 +309,7 @@ def compute_k_factor_grid(
     grids_folder,
     kfactor_folder,
     yamldb_path,
-    order_to_update,
+    pto_to_update,
     target_folder=None,
     order_exists=False,
 ):
@@ -323,8 +323,9 @@ def compute_k_factor_grid(
         kfactors folder
     yamldb_path : pathlib.Path()
         path to the yaml file describing the dataset
-    order_to_update : int
-        alpha_s order to update
+    pto_to_update : int
+        perturbative order to update: 1 = LO, 2 = NLO ...
+        no matter which power of alpha_s it is.
     target_folder: pathlib.Path
         path where store the new grid
     order_exists: bool
@@ -340,7 +341,7 @@ def compute_k_factor_grid(
     for grid_list in yamldict["operands"]:
         # loop on grids
         for grid in grid_list:
-            # TODO: kfactor type should be passed as argument
+            # TODO: generalize for other type of kfactors ?
             cfac_path = kfactor_folder / f"CF_QCD_{grid}.dat"
             if "ATLASDY2D8TEV" in grid:
                 cfac_path = kfactor_folder / f"CF_QCDEWK_{grid}.dat"
@@ -356,7 +357,7 @@ def compute_k_factor_grid(
                 central_kfactor_filtered,
                 alphas,
                 current_grid,
-                order_to_update,
+                pto_to_update,
                 target_folder / grid_name,
                 order_exists,
             )
