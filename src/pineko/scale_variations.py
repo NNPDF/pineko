@@ -31,7 +31,7 @@ def qcd(order: OrderTuple) -> int:
     return order[0]
 
 
-def orders_as_tuple(grid: pineappl.grid.Grid) -> list[OrderTuple]:
+def orders_as_tuple(grid: pineappl.grid.Grid) -> List[OrderTuple]:
     """Return grid orders as a tuple."""
     return [order.as_tuple() for order in grid.orders()]
 

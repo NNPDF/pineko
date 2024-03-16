@@ -10,7 +10,9 @@ readme = "README.md"
 authors = [
   "Alessandro Candido <alessandro.candido@mi.infn.it>",
   "Andrea Barontini <andrea.barontini@mi.infn.it>",
-  "Felix Hekhorn <felix.hekhorn@mi.infn.it>",
+  "Felix Hekhorn <felix.hekhorn@mi.infn.it>",  
+  "Giacomo Magni <gmagni@nikhef.nl>",
+  "Roy Stegeman <r.stegeman@ed.ac.uk>",
 ]
 classifiers = [
   "Programming Language :: Python",
@@ -25,7 +27,7 @@ packages = [{ include = "pineko", from = "src" }]
 [tool.poetry.dependencies]
 python = ">=3.8,<3.12"
 eko = "^0.14.0"
-pineappl = "^0.6.2"
+pineappl = "^0.6.3"
 PyYAML = "^6.0"
 numpy = "^1.21.0"
 pandas = "^1.4.1"
