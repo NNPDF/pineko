@@ -30,8 +30,11 @@ def qcd(order: OrderTuple) -> int:
     """Extract the QCD order from an OrderTuple."""
     return order[0]
 
+
 def orders_as_tuple(grid: pineappl.grid.Grid) -> list[OrderTuple]:
+    """Return grid orders as a tuple."""
     return [order.as_tuple() for order in grid.orders()]
+
 
 def ren_sv_coeffs(m, max_as, logpart, which_part, nf):
     """Ren_sv coefficient for the requested part.
@@ -139,7 +142,7 @@ def create_svonly(grid, order, new_order, scalefactor):
 def create_grids(gridpath, max_as, nf):
     """Create all the necessary scale variations grids for a certain starting grid."""
     grid = pineappl.grid.Grid.read(gridpath)
-    grid_orders =  orders_as_tuple(grid)
+    grid_orders = orders_as_tuple(grid)
     order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, 0, True)
     grid_orders_filtered = list(np.array(grid_orders)[order_mask])
     grid_orders_filtered.sort(key=qcd)
@@ -246,9 +249,7 @@ def compute_ren_sv_grid(
     for sv_order, sv_grids in grid_list.items():
         # if the new order is there, clean the old one.
         if sv_order in orders_as_tuple(grid):
-            grid = construct_and_dump_order_exists_grid(
-                grid, list(grid_list)[0]
-            )
+            grid = construct_and_dump_order_exists_grid(grid, list(grid_list)[0])
         for sv_grid in sv_grids:
             grid.merge(sv_grid)
     # save

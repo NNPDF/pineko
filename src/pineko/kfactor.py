@@ -9,7 +9,7 @@ import yaml
 from pineappl import import_only_subgrid
 
 from . import scale_variations
-from . scale_variations import orders_as_tuple
+from .scale_variations import orders_as_tuple
 
 DEFAULT_PDF_SET = "NNPDF40_nnlo_as_01180"
 
