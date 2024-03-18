@@ -104,23 +104,26 @@ def compute_scale_factor(
 
 
 def scale_subgrid(extracted_subgrid, scales_array):
-    """Rescales the array contained in the subgrid using scales_array and returns a new subgrid constructed with the scaled array."""
+    """Rescales the array contained in the subgrid using scales_array."""
     original_array = extracted_subgrid.to_array3()
     if len(original_array) != len(scales_array):
         raise ValueError("The original and the scales arrays have different shapes.")
+    # construct subgrid
     scaled_array = []
     for scale_value, arr_to_scale in zip(scales_array, original_array):
         scaled_array_nest = []
         for arr in arr_to_scale:
             scaled_array_nest.append(list(arr * scale_value))
         scaled_array.append(scaled_array_nest)
-    x1grid = extracted_subgrid.x1_grid()
-    x2grid = extracted_subgrid.x2_grid()
     if len(scales_array) == 0:
         scaled_array = np.zeros(shape=(0, 0, 0), dtype=float)
     else:
         scaled_array = np.array(scaled_array, dtype=float)
+    # get coordinates
+    x1grid = extracted_subgrid.x1_grid()
+    x2grid = extracted_subgrid.x2_grid()
     mu2_grid = [tuple([mu2.ren, mu2.fac]) for mu2 in extracted_subgrid.mu2_grid()]
+    # assemble
     scaled_subgrid = import_only_subgrid.ImportOnlySubgridV2(
         scaled_array, mu2_grid, x1grid, x2grid
     )
