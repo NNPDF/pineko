@@ -143,7 +143,7 @@ class TheoryBuilder:
             grids = [self.grids_path() / i for i in raw_grids]
         else:
             paths = configs.configs["paths"]
-            _info, grids = parser.get_yaml_information(
+            _info, raw_grids = parser.get_yaml_information(
                 paths["ymldb"] / f"{ds}.yaml", self.grids_path()
             )
             # the list is still nested, so flatten
