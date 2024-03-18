@@ -26,8 +26,8 @@ def _load_grids_from_nnpdf(dataset_name):
     """Load the list of fktables/grids necessary from a NNPDF dataset."""
     # Hide the validphys import to avoid unnecessary failures
     from validphys.commondataparser import EXT
-    from validphys.datafiles import legacy_to_new_map
     from validphys.loader import Loader
+    from nnpdf_data import legacy_to_new_map
 
     # We only need the metadata, so this should be enough
     dataset_name, variant = legacy_to_new_map(dataset_name)
