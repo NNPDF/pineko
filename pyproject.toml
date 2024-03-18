@@ -10,7 +10,7 @@ readme = "README.md"
 authors = [
   "Alessandro Candido <alessandro.candido@mi.infn.it>",
   "Andrea Barontini <andrea.barontini@mi.infn.it>",
-  "Felix Hekhorn <felix.hekhorn@mi.infn.it>",  
+  "Felix Hekhorn <felix.hekhorn@mi.infn.it>",
   "Giacomo Magni <gmagni@nikhef.nl>",
   "Roy Stegeman <r.stegeman@ed.ac.uk>",
 ]
