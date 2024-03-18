@@ -14,11 +14,6 @@ from .scale_variations import orders_as_tuple
 DEFAULT_PDF_SET = "NNPDF40_nnlo_as_01180"
 
 
-def rengrid(subgrid):
-    """Return the array of the renormalization scales squared from a subgrid."""
-    return np.array([mu2.ren for mu2 in subgrid.mu2_grid()])
-
-
 def read_kfactor(kfactor_path):
     """Read the k-factor and returns the central values and the pdfset used to compute it."""
     with open(kfactor_path, encoding="utf-8") as f:
@@ -46,49 +41,25 @@ def read_kfactor(kfactor_path):
     return central_value, pdf_set
 
 
-def construct_scales_array(
-    mu2_ren_grid,
-    order,
-    order_to_update,
-    central_k_factor,
-    bin_index,
-    alphas,
-):
-    """Construct the array that will rescale the subgrid array taking into account the different renormalization scales."""
-    scales_array = []
-    for mu2 in mu2_ren_grid:
-        scales_array.append(
-            compute_scale_factor(
-                order,
-                order_to_update,
-                mu2,
-                central_k_factor,
-                bin_index,
-                alphas,
-            )
-        )
-    return scales_array
-
-
 def compute_scale_factor(
     order,
     order_to_update,
     mu2,
-    central_k_factor,
+    central_kfactor,
     bin_index,
     alphas,
 ):
-    """Compute the factor to be multiplied to the given nec_order.
+    """Compute the factor to be multiplied to the given the required order.
 
     Parameters
     ----------
-    nec_order : tuple(int)
+    order : tuple(int)
         tuple of the order that has to be rescaled to get the final order
     order_to_update : tuple(int)
         order to update
     mu2: float
         energy scale squared of the bin
-    central_k_factor: list(float)
+    central_kfactor: list(float)
         list of the centrals k-factors
     bin_index: int
         index of the bin
@@ -99,13 +70,13 @@ def compute_scale_factor(
     max_as = order_to_update[0]
     as_order = order[0]
     alpha_term = 1.0 / pow(alpha_val, max_as - as_order)
-    k_term = central_k_factor[bin_index] - 1.0
+    k_term = central_kfactor[bin_index] - 1.0
     return k_term * alpha_term
 
 
-def scale_subgrid(extracted_subgrid, scales_array):
+def scale_subgrid(subgrid, scales_array):
     """Rescales the array contained in the subgrid using scales_array."""
-    original_array = extracted_subgrid.to_array3()
+    original_array = subgrid.to_array3()
     if len(original_array) != len(scales_array):
         raise ValueError("The original and the scales arrays have different shapes.")
     # construct subgrid
@@ -120,9 +91,9 @@ def scale_subgrid(extracted_subgrid, scales_array):
     else:
         scaled_array = np.array(scaled_array, dtype=float)
     # get coordinates
-    x1grid = extracted_subgrid.x1_grid()
-    x2grid = extracted_subgrid.x2_grid()
-    mu2_grid = [tuple([mu2.ren, mu2.fac]) for mu2 in extracted_subgrid.mu2_grid()]
+    x1grid = subgrid.x1_grid()
+    x2grid = subgrid.x2_grid()
+    mu2_grid = [tuple([mu2.ren, mu2.fac]) for mu2 in subgrid.mu2_grid()]
     # assemble
     scaled_subgrid = import_only_subgrid.ImportOnlySubgridV2(
         scaled_array, mu2_grid, x1grid, x2grid
@@ -167,16 +138,20 @@ def construct_new_order(grid, order, order_to_update, central_kfactor, alphas):
 
     for lumi_index in range(len(new_grid.lumi())):
         for bin_index in range(grid.bins()):
-            extracted_subgrid = grid.subgrid(orginal_order_index, bin_index, lumi_index)
-            scales_array = construct_scales_array(
-                rengrid(extracted_subgrid),
-                order,
-                order_to_update,
-                central_kfactor,
-                bin_index,
-                alphas,
-            )
-            scaled_subgrid = scale_subgrid(extracted_subgrid, scales_array)
+            subgrid = grid.subgrid(orginal_order_index, bin_index, lumi_index)
+            mu2_ren_grid = [mu2.ren for mu2 in subgrid.mu2_grid()]
+            scales_array = [
+                compute_scale_factor(
+                    order,
+                    order_to_update,
+                    mu2,
+                    central_kfactor,
+                    bin_index,
+                    alphas,
+                )
+                for mu2 in mu2_ren_grid
+            ]
+            scaled_subgrid = scale_subgrid(subgrid, scales_array)
             # Set this subgrid inside the new grid
             new_grid.set_subgrid(0, bin_index, lumi_index, scaled_subgrid)
     # Fixing bin_limits and normalizations
@@ -232,9 +207,10 @@ def do_it(
 
     # the actual alpha_s order to update
     order_to_update = pto_to_update + min_as - 1
+    order_to_update = (order_to_update, min_al, 0, 0)
 
     # check if the order is already there
-    is_in = is_already_in((order_to_update, min_al, 0, 0), grid_orders_filtered)
+    is_in = is_already_in(order_to_update, grid_orders_filtered)
 
     # Prevent summing orders incoherently
     if is_in and not order_exists:
@@ -248,7 +224,6 @@ def do_it(
     max_as = grid_orders_filtered[-1][0]
     orders_list = [(de, min_al, 0, 0) for de in range(min_as, max_as + 1)]
     # create an empty grid and add the rescaled order
-    order_to_update = (order_to_update, min_al, 0, 0)
     new_order_grid = None
     for i, as_order in enumerate(orders_list):
         order_grid = construct_new_order(
@@ -270,44 +245,50 @@ def do_it(
     new_grid.write_lz4(target_grid_path)
 
 
-def filter_k_factors(pigrid, centrals_kfactor):
-    """Filter the centrals k-factors according to their length compared to the number of bins of the grid."""
-    centrals_kfactor_filtered = np.array([])
-    if pigrid.bins() == len(centrals_kfactor):
-        rich.print("[orange] The number of bins match the length of the k-factor.")
-        centrals_kfactor_filtered = centrals_kfactor
-    elif pigrid.bins() < len(centrals_kfactor):
+def filter_kfactor(grid, centrals_kfactor):
+    """Filter the centrals k-factors according to their length compared to the number of bins of the grid.
+
+    Parameters
+    ----------
+    grid: pineappl.grid
+        loaded grid
+    centrals_kfactor: list
+        list of kfactor for each point
+    """
+    if grid.bins() == len(centrals_kfactor):
+        rich.print("[green] The number of bins match the length of the k-factor.")
+        return centrals_kfactor
+    if grid.bins() < len(centrals_kfactor):
         rich.print(
             "[yellow] The number of bins is less than the length of the k-factor."
         )
         if not all(elem == centrals_kfactor[0] for elem in centrals_kfactor):
             # This case is actually wrong.
             raise ValueError("KFactor contains too many different values.")
-        centrals_kfactor_filtered = centrals_kfactor
+        return centrals_kfactor
+
+    rich.print("[yellow] The number of bins is more than the length of the k-factor.")
+
+    # This is the last case in which grid.bins() > len(centrals_kfactor)
+    # Note that sometimes there are more bins in the grid than in the kfactor file -
+    # this is not a problem because in those cases either all kfactor values are the
+    # same (thus there is no doubt about whether we have the correct one) or the
+    # non-exisiting kfactor would be multiplied by bins corresponding to all '0' in the
+    # grid.
+    # Let's check if we are in the first or second case
+    centrals_kfactor_filtered = []
+    if len(np.unique(centrals_kfactor)) == 1:
+        # In this case I just need to add more elements to the kfactor
+        for _num in range(grid.bins()):
+            centrals_kfactor_filtered.append(
+                centrals_kfactor_filtered, centrals_kfactor[0]
+            )
     else:
-        rich.print(
-            "[yellow] The number of bins is more than the length of the k-factor."
-        )
-
-        # This is the last case in which grid.bins() > len(centrals_kfactor)
-
-        # Note that sometimes there are more bins in the grid than in the kfactor file -
-        # this is not a problem because in those cases either all kfactor values are the
-        # same (thus there is no doubt about whether we have the correct one) or the
-        # non-exisiting kfactor would be multiplied by bins corresponding to all '0' in the
-        # grid.
-        # Let's check if we are in the first or second case
-        if len(np.unique(centrals_kfactor)) == 1:
-            # In this case I just need to add more elements to the kfactor
-            for _num in range(pigrid.bins()):
-                centrals_kfactor_filtered = np.append(
-                    centrals_kfactor_filtered, centrals_kfactor[0]
-                )
-        else:
-            # In this case this means that the missing entries will multiply zero subgrids so we can just add 0s
-            for _num in range(pigrid.bins()):
-                centrals_kfactor_filtered = np.append(centrals_kfactor_filtered, 0.0)
-    return centrals_kfactor_filtered
+        # In this case this means that the missing entries will
+        # multiply zero subgrids so we can just add 0s
+        for _num in range(grid.bins()):
+            centrals_kfactor_filtered.append(centrals_kfactor_filtered, 0.0)
+    return np.array(centrals_kfactor_filtered)
 
 
 def compute_k_factor_grid(
@@ -355,7 +336,7 @@ def compute_k_factor_grid(
             current_grid = pineappl.grid.Grid.read(grids_folder / grid_name)
 
             central_kfactor, pdf_set = read_kfactor(cfac_path)
-            central_kfactor_filtered = filter_k_factors(current_grid, central_kfactor)
+            central_kfactor_filtered = filter_kfactor(current_grid, central_kfactor)
             alphas = lhapdf.mkAlphaS(pdf_set)
 
             do_it(
