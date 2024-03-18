@@ -280,14 +280,12 @@ def filter_kfactor(grid, centrals_kfactor):
     if len(np.unique(centrals_kfactor)) == 1:
         # In this case I just need to add more elements to the kfactor
         for _num in range(grid.bins()):
-            centrals_kfactor_filtered.append(
-                centrals_kfactor_filtered, centrals_kfactor[0]
-            )
+            centrals_kfactor_filtered.append(centrals_kfactor[0])
     else:
         # In this case this means that the missing entries will
         # multiply zero subgrids so we can just add 0s
         for _num in range(grid.bins()):
-            centrals_kfactor_filtered.append(centrals_kfactor_filtered, 0.0)
+            centrals_kfactor_filtered.append(0.0)
     return np.array(centrals_kfactor_filtered)
 
 

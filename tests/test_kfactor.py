@@ -49,25 +49,25 @@ def test_compute_scale_factor():
     )
 
 
-def test_filter_k_factors():
+def test_filter_kfactors():
     fakegrid = FakeGrid(3)
     # This is the case in which kfactor lenght matches with number of bins
     np.testing.assert_allclose(
-        kfactor.filter_k_factors(fakegrid, [1.0, 1.2, 1.3]), [1.0, 1.2, 1.3]
+        kfactor.filter_kfactor(fakegrid, [1.0, 1.2, 1.3]), [1.0, 1.2, 1.3]
     )
     # This is the case in which kfactor lenght > number of bins and kfactors are all the same
     np.testing.assert_allclose(
-        kfactor.filter_k_factors(fakegrid, [1.1, 1.1, 1.1, 1.1, 1.1]),
+        kfactor.filter_kfactor(fakegrid, [1.1, 1.1, 1.1, 1.1, 1.1]),
         [1.1, 1.1, 1.1, 1.1, 1.1],
     )
     # This is the case in which kfactor lenght < number of bins and kfactors are all the same
     np.testing.assert_allclose(
-        kfactor.filter_k_factors(fakegrid, [1.1, 1.1]), [1.1, 1.1, 1.1]
+        kfactor.filter_kfactor(fakegrid, [1.1, 1.1]), [1.1, 1.1, 1.1]
     )
     # This is the case in which kfactor lenght < number of bins and kfactors are not all the same
     np.testing.assert_allclose(
-        kfactor.filter_k_factors(fakegrid, [1.1, 1.3]), [0.0, 0.0, 0.0]
+        kfactor.filter_kfactor(fakegrid, [1.1, 1.3]), [0.0, 0.0, 0.0]
     )
     with pytest.raises(ValueError):
         # This is the case in which kfactor lenght > number of bins and kfactors are not all the same
-        kfactor.filter_k_factors(fakegrid, [1.1, 1.2, 1.1, 1.7, 1.1])
+        kfactor.filter_kfactor(fakegrid, [1.1, 1.2, 1.1, 1.7, 1.1])
