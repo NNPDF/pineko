@@ -147,4 +147,4 @@ def benchmark_kfactor_cli(test_files, tmp_path):
             ordr_to_update,
         ],
     )
-    assert "The number of bins match the length of the k-factor" in res.output
+    assert "The number of bins match the length of the kfactor" in res.output

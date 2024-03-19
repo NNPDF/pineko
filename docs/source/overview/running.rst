@@ -63,7 +63,7 @@ handy utility functions:
 
 - applying the :doc:`FONLL prescription</theory/fonll>`
 - applying the :doc:`scale variation prescription</theory/scalevar>`
-- burning the :doc:`K-factor</theory/kfactors>` into grids
+- burning the :doc:`Kfactor</theory/kfactors>` into grids
 
 
 Checking the grids

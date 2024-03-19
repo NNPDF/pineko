@@ -1,4 +1,4 @@
-"""Module to include QCD K-factors in grids."""
+"""Module to include QCD kfactors in grids."""
 
 import io
 
@@ -14,8 +14,8 @@ from .scale_variations import orders_as_tuple
 DEFAULT_PDF_SET = "NNPDF40_nnlo_as_01180"
 
 
-def read_kfactor(kfactor_path):
-    """Read the k-factor and returns the central values and the pdfset used to compute it."""
+def read_from_file(kfactor_path):
+    """Read the kfactor and returns the central values and the pdfset used to compute it."""
     with open(kfactor_path, encoding="utf-8") as f:
         stars = f.readline()
         if not stars.startswith("*"):
@@ -33,7 +33,7 @@ def read_kfactor(kfactor_path):
         data = data.reshape(-1, 2)
         central_value = data[:, 0]
         pdf_set = description.split(sep="PDFset:")[-1].split(sep="\n")[0].strip()
-        # If there is no PDF set in the k-factor, a default PDF set will be used
+        # If there is no PDF set in the kfactor, a default PDF set will be used
         # If the PDF set written in the file is not an actual lhapdf PDF, it will
         # raise an error.
         if len(pdf_set) == 0:
@@ -60,7 +60,7 @@ def compute_scale_factor(
     mu2: float
         energy scale squared of the bin
     central_kfactor: list(float)
-        list of the centrals k-factors
+        list of the centrals kfactors
     bin_index: int
         index of the bin
     alphas: lhapdf.AlphaS
@@ -246,7 +246,7 @@ def do_it(
 
 
 def to_list(grid, central_kfactors):
-    """Cast the centrals k-factors to the correct length.
+    """Cast the centrals kfactors to the correct length.
 
     Apply a normalization according to the length compared to the number of bins of the grid.
 
@@ -258,18 +258,18 @@ def to_list(grid, central_kfactors):
         list of kfactor for each point
     """
     if grid.bins() == len(central_kfactors):
-        rich.print("The number of bins match the length of the k-factor.")
+        rich.print("The number of bins match the length of the kfactor.")
         return central_kfactors
     if grid.bins() < len(central_kfactors):
         rich.print(
-            "[yellow] The number of bins is less than the length of the k-factor."
+            "[yellow] The number of bins is less than the length of the kfactor."
         )
         if not len(np.unique(central_kfactors)) == 1:
             # This case is actually wrong.
-            raise ValueError("k-factor contains too many different values.")
+            raise ValueError("kfactor contains too many different values.")
         return central_kfactors
 
-    rich.print("[yellow] The number of bins is more than the length of the k-factor.")
+    rich.print("[yellow] The number of bins is more than the length of the kfactor.")
 
     # This is the last case in which grid.bins() > len(centrals_kfactor)
     # Note that sometimes there are more bins in the grid than in the kfactor file -
@@ -286,7 +286,7 @@ def to_list(grid, central_kfactors):
     return np.full(grid.bins(), 0)
 
 
-def compute_k_factor_grid(
+def apply_to_dataset(
     grids_folder,
     kfactor_folder,
     yamldb_path,
@@ -294,7 +294,7 @@ def compute_k_factor_grid(
     target_folder=None,
     order_exists=False,
 ):
-    """Include the k-factor in the grid in order to have its associated order in the grid itself.
+    """Include the kfactor in the grid in order to have its associated order in the grid itself.
 
     Parameters
     ----------
@@ -330,7 +330,7 @@ def compute_k_factor_grid(
             grid_name = f"{grid}.pineappl.lz4"
             current_grid = pineappl.grid.Grid.read(grids_folder / grid_name)
 
-            central_kfactor, pdf_set = read_kfactor(cfac_path)
+            central_kfactor, pdf_set = read_from_file(cfac_path)
             central_kfactor_filtered = to_list(current_grid, central_kfactor)
             alphas = lhapdf.mkAlphaS(pdf_set)
 
