@@ -22,9 +22,20 @@ from . import check, configs, evolve, parser, scale_variations, theory_card
 logger = logging.getLogger(__name__)
 
 
-def _load_grids_from_nnpdf(dataset_name):
-    """Load the list of fktables/grids necessary from a NNPDF dataset."""
-    # Hide the validphys import to avoid unnecessary failures
+def read_grids_from_nnpdf(dataset_name):
+    """Read the list of fktables given a dataset name.
+
+    If NNPDF is not available, returns None.
+
+    Parameters
+    ----------
+        dataset_name: str
+    """
+    generic_info = configs.configs.get(configs.GENERIC_OPTIONS, {})
+    if not generic_info.get("nnpdf", False):
+        return None
+
+    # Import NNPDF only if we really want it!
     from nnpdf_data import legacy_to_new_map
     from validphys.commondataparser import EXT
     from validphys.loader import Loader
@@ -79,12 +90,6 @@ class TheoryBuilder:
         """Suffix paths.operator_cards with theory id."""
         return configs.configs["paths"]["operator_cards"] / str(self.theory_id)
 
-    @property
-    def use_nnpdf(self):
-        """Whether to use NNPDF for the loading of data information."""
-        generic_info = configs.configs.get(configs.GENERIC_OPTIONS, {})
-        return generic_info.get("nnpdf", False)
-
     def ekos_path(self, tid=None):
         """Suffix paths.ekos with theory id.
 
@@ -137,9 +142,9 @@ class TheoryBuilder:
         grids : dict
             mapping basename to path
         """
-        if self.use_nnpdf:
-            # Take fktable information from NNPDF
-            raw_grids = _load_grids_from_nnpdf(ds)
+        # Take fktable information from NNPDF
+        raw_grids = read_grids_from_nnpdf(ds)
+        if raw_grids is not None:
             grids = [self.grids_path() / i for i in raw_grids]
         else:
             paths = configs.configs["paths"]

@@ -12,6 +12,7 @@ import rich
 import yaml
 
 from . import configs, parser, theory_card
+from .theory import read_grids_from_nnpdf
 
 logger = logging.getLogger(__name__)
 
@@ -228,8 +229,12 @@ def assembly_combined_fk(
     else:
         tcard["DAMPPOWERb"] = 0
         tcard["DAMPPOWERc"] = 0
+
     # Getting the paths to the grids
-    grids_name = grids_names(configs.configs["paths"]["ymldb"] / f"{dataset}.yaml")
+    grids_name = read_grids_from_nnpdf(dataset)
+    if grids_name is None:
+        grids_name = grids_names(configs.configs["paths"]["ymldb"] / f"{dataset}.yaml")
+
     for grid in grids_name:
         # Checking if it already exists
         new_fk_path = configs.configs["paths"]["fktables"] / str(theoryid) / grid
