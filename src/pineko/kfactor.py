@@ -291,7 +291,7 @@ def apply_to_dataset(
     kfactor_folder,
     yamldb_path,
     pto_to_update,
-    target_folder=None,
+    target_folder,
     order_exists=False,
 ):
     """Include the kfactor in the grid in order to have its associated order in the grid itself.

@@ -14,7 +14,7 @@ where:
 - ``TARGET_FOLDER`` is the folder where the new updated grids is going to be saved,
 - ``PTO_TO_UPDATE`` is the :math:`\alpha_s` perturbative order to update or create,
   with the convention that ``LO=1``, ``NLO=2`` and so on, irrespectively to the powers of :math:`\alpha_s`.
-  Note also that this differs from the conventions by the NNPDF collaboration, 
+  Note also that this differs from the conventions by the NNPDF collaboration,
   but it is consistent with the pineappl convention.
 - ``--order_exists`` is a flag used to apply the kfactor to the specified perturbative order, insead of the next.
 

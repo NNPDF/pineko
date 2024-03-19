@@ -14,7 +14,7 @@ def benchmark_kfactor_inclusion(test_files, tmp_path, test_pdf, lhapdf_path):
         test_files / "data" / "kfactors",
         fake_yaml_path,
         pto_to_update,
-        target_folder=tmp_path,
+        tmp_path,
     )
     pluskfactor_grid_path = tmp_path / "ATLAS_TTB_8TEV_LJ_TRAP.pineappl.lz4"
     with lhapdf_path(test_pdf):
