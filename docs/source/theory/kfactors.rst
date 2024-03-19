@@ -8,8 +8,6 @@ as a proper order in a grid. The usage is the following::
 
 where
 
-where
-
 - ``GRIDS_FOLDER`` is the folder containing the grids to update,
 - ``KFACTOR_FOLDER`` is the folder containing the kfactor files,
 - ``YAMLDB_FILE`` is the path to the yamldb file of the requested dataset,
