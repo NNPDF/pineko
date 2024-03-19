@@ -1,6 +1,7 @@
 """Module to include QCD K-factors in grids."""
 
 import io
+from collections.abc import Collection
 
 import numpy as np
 import pineappl
@@ -245,27 +246,29 @@ def do_it(
     new_grid.write_lz4(target_grid_path)
 
 
-def filter_kfactor(grid, centrals_kfactor):
-    """Filter the centrals k-factors according to their length compared to the number of bins of the grid.
+def to_list(grid, central_kfactors: Collection[float]) -> Collection[float]:
+    """Cast the centrals k-factors to the correct length.
+
+    Apply a normalization according to the length compared to the number of bins of the grid.
 
     Parameters
     ----------
-    grid: pineappl.grid
-        loaded grid
+    grid: pineappl.grid.Grid
+        grid
     centrals_kfactor: list
         list of kfactor for each point
     """
-    if grid.bins() == len(centrals_kfactor):
-        rich.print("[green] The number of bins match the length of the k-factor.")
-        return centrals_kfactor
-    if grid.bins() < len(centrals_kfactor):
+    if grid.bins() == len(central_kfactors):
+        rich.print("The number of bins match the length of the k-factor.")
+        return central_kfactors
+    if grid.bins() < len(central_kfactors):
         rich.print(
             "[yellow] The number of bins is less than the length of the k-factor."
         )
-        if not all(elem == centrals_kfactor[0] for elem in centrals_kfactor):
+        if not len(np.unique(central_kfactors)) == 1:
             # This case is actually wrong.
-            raise ValueError("KFactor contains too many different values.")
-        return centrals_kfactor
+            raise ValueError("k-factor contains too many different values.")
+        return central_kfactors
 
     rich.print("[yellow] The number of bins is more than the length of the k-factor.")
 
@@ -276,17 +279,12 @@ def filter_kfactor(grid, centrals_kfactor):
     # non-exisiting kfactor would be multiplied by bins corresponding to all '0' in the
     # grid.
     # Let's check if we are in the first or second case
-    centrals_kfactor_filtered = []
-    if len(np.unique(centrals_kfactor)) == 1:
+    if len(np.unique(central_kfactors)) == 1:
         # In this case I just need to add more elements to the kfactor
-        for _num in range(grid.bins()):
-            centrals_kfactor_filtered.append(centrals_kfactor[0])
-    else:
-        # In this case this means that the missing entries will
-        # multiply zero subgrids so we can just add 0s
-        for _num in range(grid.bins()):
-            centrals_kfactor_filtered.append(0.0)
-    return np.array(centrals_kfactor_filtered)
+        return np.full(grid.bins(), central_kfactors[0])
+    # In this case this means that the missing entries will
+    # multiply zero subgrids so we can just add 0s
+    return np.full(grid.bins(), 0)
 
 
 def compute_k_factor_grid(
@@ -334,7 +332,7 @@ def compute_k_factor_grid(
             current_grid = pineappl.grid.Grid.read(grids_folder / grid_name)
 
             central_kfactor, pdf_set = read_kfactor(cfac_path)
-            central_kfactor_filtered = filter_kfactor(current_grid, central_kfactor)
+            central_kfactor_filtered = to_list(current_grid, central_kfactor)
             alphas = lhapdf.mkAlphaS(pdf_set)
 
             do_it(
