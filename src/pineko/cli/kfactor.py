@@ -14,7 +14,7 @@ from ._base import command
 @click.argument("yamldb_file", type=click.Path(exists=True))
 @click.argument("target_folder", type=click.Path(exists=True))
 @click.argument("pto_to_update", type=int)
-@click.option("--order_exists", is_flag=True, help="Owerwrite an existing order.")
+@click.option("--order_exists", is_flag=True, help="Overwrite an existing order.")
 def k_factor_inclusion(
     grids_folder,
     kfactor_folder,
