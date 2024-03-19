@@ -1,7 +1,6 @@
 """Module to include QCD K-factors in grids."""
 
 import io
-from collections.abc import Collection
 
 import numpy as np
 import pineappl
@@ -246,7 +245,7 @@ def do_it(
     new_grid.write_lz4(target_grid_path)
 
 
-def to_list(grid, central_kfactors: Collection[float]) -> Collection[float]:
+def to_list(grid, central_kfactors):
     """Cast the centrals k-factors to the correct length.
 
     Apply a normalization according to the length compared to the number of bins of the grid.
