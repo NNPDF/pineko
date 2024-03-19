@@ -8,7 +8,7 @@ import argparse
 from typing import List, Tuple
 
 
-def get_gpaths(folder: str, data: str, theory: str) -> Tuple[str, List[str]]:
+def get_file(folder: str, data: str, theory: str) -> Tuple[str, List[str]]:
     """
     Get a list of paths to PineAPPL grids in the specified folder.
 
@@ -26,12 +26,8 @@ def get_gpaths(folder: str, data: str, theory: str) -> Tuple[str, List[str]]:
     gpaths : List[str]
         List of paths to PineAPPL grid files.
     """
-    paths = glob(folder + f"/{theory}*{data}*F1*")  # Find the grids
-    gpaths = []
-    for p in paths:
-        gpaths.append(glob(p + "/*.pineappl.lz4")[0])
-    print(f"Found {len(gpaths)} pineapple grids.")
-    return gpaths
+    file = glob(folder + f"/{data}_F1.pineappl.lz4")[0]
+    return file
 
 
 def get_prediction(gpath: str, pdf_name: str) -> np.ndarray:
@@ -140,10 +136,8 @@ theory = args.theory
 output = args.output
 
 # Get PineAPPL grid paths and PDF name
-gpaths = get_gpaths(folder_name, data, theory)
+file = get_file(folder_name, data, theory)
 
-# Process each PineAPPL grid
-for gpath in gpaths:
-    # Get predictions and save data
-    df = get_prediction(gpath, pdf_name)
-    save_data(df, data, pdf_name, author, theory, output)
+# Get predictions and save data
+df = get_prediction(file, pdf_name)
+save_data(df, data, pdf_name, author, theory, output)
