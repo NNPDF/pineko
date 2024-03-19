@@ -101,7 +101,7 @@ def scale_subgrid(subgrid, scales_array):
     return scaled_subgrid
 
 
-def is_already_in(to_check, list_orders):
+def is_already_in_no_logs(to_check, list_orders):
     """Check if the requested order is already in the grid."""
     for order in list_orders:
         if (
@@ -210,7 +210,7 @@ def do_it(
     order_to_update = (order_to_update, min_al, 0, 0)
 
     # check if the order is already there
-    is_in = is_already_in(order_to_update, grid_orders_filtered)
+    is_in = is_already_in_no_logs(order_to_update, grid_orders_filtered)
 
     # Prevent summing orders incoherently
     if is_in and not order_exists:
