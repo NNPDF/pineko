@@ -168,7 +168,7 @@ def construct_new_order(grid, order, order_to_update, central_kfactor, alphas):
     return new_grid
 
 
-def do_it(
+def apply_to_grid(
     central_kfactor,
     alphas,
     grid,
@@ -334,7 +334,7 @@ def apply_to_dataset(
             central_kfactor_filtered = to_list(current_grid, central_kfactor)
             alphas = lhapdf.mkAlphaS(pdf_set)
 
-            do_it(
+            apply_to_grid(
                 central_kfactor_filtered,
                 alphas,
                 current_grid,
