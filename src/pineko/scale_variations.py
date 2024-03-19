@@ -190,13 +190,13 @@ def construct_and_dump_order_exists_grid(ori_grid, to_construct_order):
     new_grid = pineappl.grid.Grid.create(
         lumi_grid, new_orders, bin_limits, subgrid_params
     )
-    orders_indeces = [ori_grid_orders.index(order.as_tuple()) for order in new_orders]
-    for order_index in orders_indeces:
+    orders_indices = [ori_grid_orders.index(order.as_tuple()) for order in new_orders]
+    for order_index in orders_indices:
         for lumi_index in range(len(lumi_grid)):
             for bin_index in range(ori_grid.bins()):
                 extr_subgrid = ori_grid.subgrid(order_index, bin_index, lumi_index)
                 new_grid.set_subgrid(
-                    orders_indeces.index(order_index),
+                    orders_indices.index(order_index),
                     bin_index,
                     lumi_index,
                     extr_subgrid,

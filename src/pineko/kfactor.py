@@ -134,11 +134,11 @@ def construct_new_order(grid, order, order_to_update, central_kfactor, alphas):
     grid_orders = orders_as_tuple(grid)
 
     new_grid = scale_variations.initialize_new_grid(grid, order_to_update)
-    orginal_order_index = grid_orders.index(order)
+    original_order_index = grid_orders.index(order)
 
     for lumi_index in range(len(new_grid.lumi())):
         for bin_index in range(grid.bins()):
-            subgrid = grid.subgrid(orginal_order_index, bin_index, lumi_index)
+            subgrid = grid.subgrid(original_order_index, bin_index, lumi_index)
             mu2_ren_grid = [mu2.ren for mu2 in subgrid.mu2_grid()]
             scales_array = [
                 compute_scale_factor(
@@ -275,7 +275,7 @@ def to_list(grid, central_kfactors):
     # Note that sometimes there are more bins in the grid than in the kfactor file -
     # this is not a problem because in those cases either all kfactor values are the
     # same (thus there is no doubt about whether we have the correct one) or the
-    # non-exisiting kfactor would be multiplied by bins corresponding to all '0' in the
+    # non-existing kfactor would be multiplied by bins corresponding to all '0' in the
     # grid.
     # Let's check if we are in the first or second case
     if len(np.unique(central_kfactors)) == 1:
@@ -323,14 +323,14 @@ def apply_to_dataset(
         # loop on grids
         for grid in grid_list:
             # TODO: generalize for other type of kfactors ?
-            cfac_path = kfactor_folder / f"CF_QCD_{grid}.dat"
+            kfactor_path = kfactor_folder / f"CF_QCD_{grid}.dat"
             if "ATLASDY2D8TEV" in grid:
-                cfac_path = kfactor_folder / f"CF_QCDEWK_{grid}.dat"
+                kfactor_path = kfactor_folder / f"CF_QCDEWK_{grid}.dat"
 
             grid_name = f"{grid}.pineappl.lz4"
             current_grid = pineappl.grid.Grid.read(grids_folder / grid_name)
 
-            central_kfactor, pdf_set = read_from_file(cfac_path)
+            central_kfactor, pdf_set = read_from_file(kfactor_path)
             central_kfactor_filtered = to_list(current_grid, central_kfactor)
             alphas = lhapdf.mkAlphaS(pdf_set)
 

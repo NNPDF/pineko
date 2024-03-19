@@ -134,7 +134,7 @@ def benchmark_kfactor_cli(test_files, tmp_path):
     grid_folder = test_files / "data" / "grids" / "400"
     kfolder = test_files / "data" / "kfactors"
     fake_yaml_path = test_files / "data" / "yamldb" / "ATLAS_TTB_FAKE.yaml"
-    ordr_to_update = "3"
+    order_to_update = "3"
     target_path = tmp_path
     res = runner.invoke(
         command,
@@ -144,7 +144,7 @@ def benchmark_kfactor_cli(test_files, tmp_path):
             str(kfolder),
             str(fake_yaml_path),
             str(target_path),
-            ordr_to_update,
+            order_to_update,
         ],
     )
     assert "The number of bins match the length of the kfactor" in res.output
