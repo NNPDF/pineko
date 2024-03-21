@@ -12,7 +12,7 @@ import rich
 import yaml
 
 from . import configs, parser, theory_card
-from .theory import read_grids_from_nnpdf
+from .utils import read_grids_from_nnpdf
 
 logger = logging.getLogger(__name__)
 

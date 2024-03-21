@@ -18,34 +18,9 @@ import yaml
 from eko.runner.managed import solve
 
 from . import check, configs, evolve, parser, scale_variations, theory_card
+from .utils import read_grids_from_nnpdf
 
 logger = logging.getLogger(__name__)
-
-
-def read_grids_from_nnpdf(dataset_name):
-    """Read the list of fktables given a dataset name.
-
-    If NNPDF is not available, returns None.
-
-    Parameters
-    ----------
-        dataset_name: str
-    """
-    generic_info = configs.configs.get(configs.GENERIC_OPTIONS, {})
-    if not generic_info.get("nnpdf", False):
-        return None
-
-    # Import NNPDF only if we really want it!
-    from nnpdf_data import legacy_to_new_map
-    from validphys.commondataparser import EXT
-    from validphys.loader import Loader
-
-    # We only need the metadata, so this should be enough
-    dataset_name, variant = legacy_to_new_map(dataset_name)
-    cd = Loader().check_commondata(dataset_name, variant=variant)
-    fks = cd.metadata.theory.FK_tables
-    # Return it flat
-    return [f"{i}.{EXT}" for operand in fks for i in operand]
 
 
 def check_scvar_evolve(grid, max_as, max_al, kind: check.Scale):
