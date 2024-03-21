@@ -9,22 +9,63 @@ import argparse
 from typing import List, Tuple
 
 
-def get_prediction(folder: str) -> np.ndarray:
+def get_file(folder: str, data: str, theory: str) -> Tuple[str, List[str]]:
+    """
+    Get a list of paths to PineAPPL grids in the specified folder.
+
+    Parameters
+    ----------
+    folder : str
+        The folder path where PineAPPL grids are located.
+    data : str
+        Name of the commondata set.
+
+    Returns
+    -------
+    pdf_name : str
+        The name of the PDF dataset.
+    gpaths : List[str]
+        List of paths to PineAPPL grid files.
+    """
+    file = glob(folder + f"/{data}_F1.pineappl.lz4")[0]
+    return file
+
+
+def get_prediction(file: str, pdf_name: str, folder: str) -> np.ndarray:
     """
     Get predictions by convoluting a PineAPPL grid with a LHAPDF PDF.
 
     Parameters
     ----------
-    folder: str
-        Path to the kinematics.yaml grid file.
+
+    file : str
+        Path to the PineAPPL grid file.
     pdf_name : str
         The name of the LHAPDF dataset.
+    folder: str
+        Path to the kinematics.yaml grid file.
 
     Returns
     -------
     prediction : np.ndarray
         Computed predictions.
     """
+
+    # Load the PineAPPL grid
+    grid = pineappl.grid.Grid.read(file)
+
+    # Load the LHAPDF
+    pdf = lhapdf.mkPDF(pdf_name)
+
+    # Proton reference number
+    nr = 2212
+
+    # Perform the convolution
+    convolution = grid.convolute_with_one(
+        nr,  # Type of target
+        pdf.xfxQ2,  # The PDF callable pdf.xfxQ2(pid, x, Q2) -> xfx
+        pdf.alphasQ2,  # The alpha_s callable pdf.alpha_s(Q2) -> alpha_s
+    )
 
     with open(folder + "/kinematics.yaml", "r") as file:
         data = yaml.safe_load(file)
@@ -37,6 +78,7 @@ def get_prediction(folder: str) -> np.ndarray:
             * (2 - bin["y"]["mid"])
             / (bin["y"]["mid"] ** 2 + 2 * (1 - bin["y"]["mid"]))
         )
+        prediction[i] = prediction[i] / convolution[i]
 
     return prediction
 
@@ -76,7 +118,7 @@ Author: {author_name}
 Date: {date}
 CodesUsed: https://github.com/NNPDF/yadism
 TheoryInput: {theory_name}
-Warnings: D(y) normalization for {dataset_name}
+Warnings: D(y)/2xF1 normalization for {dataset_name}
 ********************************************************************************
 """
         + strf_data
@@ -89,6 +131,9 @@ Warnings: D(y) normalization for {dataset_name}
 
 # Create an argument parser
 parser = argparse.ArgumentParser()
+parser.add_argument("pdf", help="The name of the PDF dataset of LHAPDF")
+parser.add_argument("gpath", help="The folder name of the F1 pineapple grids")
+parser.add_argument("data", help="Name of the commondata set")
 parser.add_argument("folder", help="The folder name of the commondata set")
 parser.add_argument("--author", help="The name of the author", default="A.J. Hasenack")
 parser.add_argument(
@@ -98,15 +143,19 @@ parser.add_argument("--output", help="The name of the output folder", default="r
 args = parser.parse_args()
 
 # Extract command line arguments
-folder_name = args.folder
+pdf = args.pdf
+gpath = args.gpath
+data = args.data
+folder = args.folder
 author = args.author
 theory = args.theory
 output = args.output
 
 dataset_name = os.path.splitext(
-    os.path.splitext(os.path.basename(os.path.normpath(folder_name)))[0]
+    os.path.splitext(os.path.basename(os.path.normpath(folder)))[0]
 )[0]
 
 # Get predictions and save data
-data = get_prediction(folder_name)
+file = get_file(gpath, data, theory)
+data = get_prediction(file, pdf, folder)
 save_data(data, dataset_name, author, theory, output)
