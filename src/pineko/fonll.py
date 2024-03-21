@@ -231,7 +231,7 @@ def assembly_combined_fk(
         tcard["DAMPPOWERc"] = 0
 
     # Getting the paths to the grids
-    grids_name = read_grids_from_nnpdf(dataset)
+    grids_name = read_grids_from_nnpdf(dataset, configs.configs)
     if grids_name is None:
         grids_name = grids_names(configs.configs["paths"]["ymldb"] / f"{dataset}.yaml")
 

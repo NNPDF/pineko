@@ -118,7 +118,7 @@ class TheoryBuilder:
             mapping basename to path
         """
         # Take fktable information from NNPDF
-        raw_grids = read_grids_from_nnpdf(ds)
+        raw_grids = read_grids_from_nnpdf(ds, configs.configs)
         if raw_grids is not None:
             grids = [self.grids_path() / i for i in raw_grids]
         else:
