@@ -48,7 +48,8 @@ this files needs to be explicitly provided:
   [paths]
   ymldb = "data/yamldb"
 
-This *ymldb* [2]_ defines the mapping from datasets to FK tables.
+These `yaml` files (which should be named `<dataset>.yaml`)
+define a mapping from datasets to FK tables.
 An actual (rather simple) example is the following:
 
 ::
@@ -66,7 +67,7 @@ can be used (for instance ``ratio``).
 Theory Runcards
 ---------------
 
-You need to provide the necessary theory runcards named with their respective theory ID inside the *paths.theory_cards* folder [3]_.
+You need to provide the necessary theory runcards named with their respective theory ID inside the *paths.theory_cards* folder [1]_.
 For more details about theory runcards you can look at https://eko.readthedocs.io/en/latest/code/IO.html under **Theory Runcards**.
 
 Default Operator Card
@@ -137,6 +138,4 @@ There are typically two ways to obtain grids:
 Notes
 -----
 
-.. [2] this is to be replaced by the new CommonData format implemented by NNPDF
-
-.. [3] this is to be replaced by a binding to the NNPDF theory objects
+.. [1] this is to be replaced by a binding to the NNPDF theory objects
