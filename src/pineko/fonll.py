@@ -12,6 +12,7 @@ import rich
 import yaml
 
 from . import configs, parser, theory_card
+from .utils import read_grids_from_nnpdf
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +43,20 @@ class TheoryCardError(Exception):
 
 class InconsistentInputsError(Exception):
     """Raised if the inputs are not consistent with FONLL."""
+
+
+def _json_theory_read(theory_info):
+    """Read the theory info from a pineappl grid.
+
+    Theory information within pineappl grids might not be saved in a consistent
+    json-compatible way. This functions corrects some found problems.
+    """
+    try:
+        ret = json.loads(theory_info)
+    except json.decoder.JSONDecodeError:
+        # Some grids have the theories saved with incompatible formats
+        ret = json.loads(theory_info.replace("'", '"').replace("True", "true"))
+    return ret
 
 
 class FONLLInfo:
@@ -97,7 +112,11 @@ class FONLLInfo:
     @property
     def theorycard_no_fns_pto(self):
         """Return the common theory info between the different FONLL FK tables."""
-        theorycards = [json.loads(self.fks[p].key_values()["theory"]) for p in self.fks]
+        theorycards = []
+        for pinefk in self.fks.values():
+            thinfo = pinefk.key_values()["theory"]
+            theorycards.append(_json_theory_read(thinfo))
+
         # Only these should differ
         for card in theorycards:
             del card["FNS"]
@@ -122,11 +141,12 @@ class FONLLInfo:
 def update_fk_theorycard(combined_fk, input_theorycard_path):
     """Update theorycard entries for the combined FK table.
 
-    Update by reading the yamldb of the original theory.
+    Update by reading the yaml file of the original theory.
     """
     with open(input_theorycard_path, encoding="utf-8") as f:
         final_theorycard = yaml.safe_load(f)
-    theorycard = json.loads(combined_fk.key_values()["theory"])
+
+    theorycard = _json_theory_read(combined_fk.key_values()["theory"])
     theorycard["FNS"] = final_theorycard["FNS"]
     theorycard["PTO"] = final_theorycard["PTO"]
     theorycard["NfFF"] = final_theorycard["NfFF"]
@@ -228,8 +248,12 @@ def assembly_combined_fk(
     else:
         tcard["DAMPPOWERb"] = 0
         tcard["DAMPPOWERc"] = 0
+
     # Getting the paths to the grids
-    grids_name = grids_names(configs.configs["paths"]["ymldb"] / f"{dataset}.yaml")
+    grids_name = read_grids_from_nnpdf(dataset, configs.configs)
+    if grids_name is None:
+        grids_name = grids_names(configs.configs["paths"]["ymldb"] / f"{dataset}.yaml")
+
     for grid in grids_name:
         # Checking if it already exists
         new_fk_path = configs.configs["paths"]["fktables"] / str(theoryid) / grid
