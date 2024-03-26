@@ -18,6 +18,7 @@ import yaml
 from eko.runner.managed import solve
 
 from . import check, configs, evolve, parser, scale_variations, theory_card
+from .utils import read_grids_from_nnpdf
 
 logger = logging.getLogger(__name__)
 
@@ -116,12 +117,18 @@ class TheoryBuilder:
         grids : dict
             mapping basename to path
         """
-        paths = configs.configs["paths"]
-        _info, grids = parser.get_yaml_information(
-            paths["ymldb"] / f"{ds}.yaml", self.grids_path()
-        )
-        # the list is still nested, so flatten
-        grids = [grid for opgrids in grids for grid in opgrids]
+        # Take fktable information from NNPDF
+        raw_grids = read_grids_from_nnpdf(ds, configs.configs)
+        if raw_grids is not None:
+            grids = [self.grids_path() / i for i in raw_grids]
+        else:
+            paths = configs.configs["paths"]
+            _info, raw_grids = parser.get_yaml_information(
+                paths["ymldb"] / f"{ds}.yaml", self.grids_path()
+            )
+            # the list is still nested, so flatten
+            grids = [grid for opgrids in raw_grids for grid in opgrids]
+
         # then turn into a map name -> path
         grids = {grid.stem.rsplit(".", 1)[0]: grid for grid in grids}
         return grids
