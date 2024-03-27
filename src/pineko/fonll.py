@@ -141,7 +141,7 @@ class FONLLInfo:
 def update_fk_theorycard(combined_fk, input_theorycard_path):
     """Update theorycard entries for the combined FK table.
 
-    Update by reading the yaml file of the original theory.
+    Update by reading the theory card of the original theory.
     """
     with open(input_theorycard_path, encoding="utf-8") as f:
         final_theorycard = yaml.safe_load(f)
@@ -152,7 +152,7 @@ def update_fk_theorycard(combined_fk, input_theorycard_path):
     theorycard["NfFF"] = final_theorycard["NfFF"]
     theorycard["ID"] = final_theorycard["ID"]
     # Update the theorycard with the entries set above
-    combined_fk.set_key_value("theory", str(theorycard))
+    combined_fk.set_key_value("theory", json.dumps(theorycard))
 
 
 def produce_dampings(theorycard_constituent_fks, fonll_info, damppowerc, damppowerb):

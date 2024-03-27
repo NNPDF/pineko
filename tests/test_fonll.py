@@ -1,4 +1,8 @@
+import copy
+import json
 import pathlib
+
+from banana.data.theories import default_card
 
 import pineko
 
@@ -50,3 +54,31 @@ def test_FONLLInfo():
         for name, fk in zip(name_list[:4], full_list[:4])
         if fk is not None
     }
+
+
+class FakeGrid:
+    kv: dict = {}
+
+    def key_values(self):
+        return self.kv
+
+    def set_key_value(self, k, v):
+        self.kv[k] = v
+
+
+def test_update_fk_theorycard(tmp_path):
+    # prepare base card
+    p = tmp_path / "blub.yaml"
+    base_tc = copy.deepcopy(default_card)
+    base_tc["PTO"] = 2
+    p.write_text(json.dumps(base_tc))
+    # fake grid
+    fg = FakeGrid()
+    fk_tc = copy.deepcopy(default_card)
+    fk_tc["PTO"] = 1
+    fg.set_key_value("theory", json.dumps(fk_tc))
+    # run the update
+    pineko.fonll.update_fk_theorycard(fg, p)
+    # check it actually worked
+    new_tc = json.loads(fg.key_values()["theory"])
+    assert new_tc["PTO"] == base_tc["PTO"]
