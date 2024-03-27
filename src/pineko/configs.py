@@ -13,7 +13,6 @@ configs = {}
 "Holds loaded configurations"
 
 NEEDED_KEYS = [
-    "ymldb",
     "operator_cards",
     "grids",
     "operator_card_template_name",
@@ -23,6 +22,7 @@ NEEDED_KEYS = [
 ]
 
 NEEDED_FILES = ["operator_card_template_name"]
+GENERIC_OPTIONS = "general"
 
 
 def defaults(base_configs):
@@ -59,8 +59,22 @@ def enhance_paths(configs_):
     configs_ : dict
         configuration
     """
+    required_keys = list(NEEDED_KEYS)
+    # Check that one of nnpdf / ymldb is given
+    generic_options = configs_.get(GENERIC_OPTIONS, {})
+    if generic_options.get("nnpdf", False):
+        # Fail as soon as possible
+        try:
+            import validphys
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError(
+                "Cannot use `nnpdf=True` without a valid installation of NNPDF"
+            )
+    else:
+        required_keys.append("ymldb")
+
     # required keys without default
-    for key in NEEDED_KEYS:
+    for key in required_keys:
         if key not in configs_["paths"]:
             raise ValueError(f"Configuration is missing a 'paths.{key}' key")
         if key in NEEDED_FILES:

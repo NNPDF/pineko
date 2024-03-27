@@ -12,9 +12,11 @@ This is a standard example:
 
 ::
 
+  [general]
+  nnpdf = true
+
   [paths]
   # inputs
-  ymldb = "data/yamldb"
   grids = "data/grids"
   theory_cards = "data/theory_cards"
   operator_card_template_name = "_template.yaml"
@@ -30,10 +32,24 @@ This is a standard example:
 
 All the relevant inputs are described below. The command ``pineko scaffold new`` will generate all necessary folders.
 
-*ymldb*
--------
+nnpdf
+-----
+The key ``nnpdf`` tells ``pineko`` it should use the data files from NNPDF to map datasets to FK Tables.
+If this key is given, a valid installation of ``nnpdf`` needs to be available as well.
+i.e, ``pineko`` should be installed with the ``nnpdf`` extra (``pip install pineko[nnpdf]``).
 
-You need all files of the *ymldb* [2]_ which define the mapping from datasets to FK tables.
+Alternatively, it is possible not to set this key (or set it to false) and instead
+provide a path with ``yaml`` files containing such dataset-FK mapping.
+If a custom database of mappings is to be used, the path to the folder containing
+this files needs to be explicitly provided:
+
+::
+
+  [paths]
+  ymldb = "data/yamldb"
+
+These `yaml` files (which should be named `<dataset>.yaml`)
+define a mapping from datasets to FK tables.
 An actual (rather simple) example is the following:
 
 ::
@@ -51,7 +67,7 @@ can be used (for instance ``ratio``).
 Theory Runcards
 ---------------
 
-You need to provide the necessary theory runcards named with their respective theory ID inside the *paths.theory_cards* folder [3]_.
+You need to provide the necessary theory runcards named with their respective theory ID inside the *paths.theory_cards* folder [1]_.
 For more details about theory runcards you can look at https://eko.readthedocs.io/en/latest/code/IO.html under **Theory Runcards**.
 
 Default Operator Card
@@ -122,6 +138,4 @@ There are typically two ways to obtain grids:
 Notes
 -----
 
-.. [2] this is to be replaced by the new CommonData format implemented by NNPDF
-
-.. [3] this is to be replaced by a binding to the NNPDF theory objects
+.. [1] this is to be replaced by a binding to the NNPDF theory objects
