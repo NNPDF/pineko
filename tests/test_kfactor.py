@@ -27,51 +27,44 @@ def test_compute_scale_factor():
     bin_index = 1
     np.testing.assert_allclose(
         kfactor.compute_scale_factor(
-            0,
             [0, 0, 0, 0],
             [1, 0, 0, 0],
             5.0**2,
             fake_kfactor,
             bin_index,
             myfakealpha,
-            False,
         ),
         (1.0 / const_value) * (fake_kfactor[bin_index] - 1.0),
     )
     np.testing.assert_allclose(
         kfactor.compute_scale_factor(
-            0,
             [0, 0, 0, 0],
             [2, 0, 0, 0],
             5.0**2,
             fake_kfactor,
             bin_index,
             myfakealpha,
-            False,
         ),
         (1.0 / (const_value**2)) * (fake_kfactor[bin_index] - 1.0),
     )
 
 
-def test_filter_k_factors():
+def test_to_list():
     fakegrid = FakeGrid(3)
-    # This is the case in which kfactor lenght matches with number of bins
+    # default: kfactor length matches with number of bins
+    k = [1.0, 1.2, 1.3]
+    np.testing.assert_allclose(kfactor.to_list(fakegrid, k), k)
+    # kfactor length > number of bins and kfactors are all the same
+    # having too much kfactors is fine
     np.testing.assert_allclose(
-        kfactor.filter_k_factors(fakegrid, [1.0, 1.2, 1.3]), [1.0, 1.2, 1.3]
+        kfactor.to_list(fakegrid, [1.1] * 5),
+        [1.1] * 5,
     )
-    # This is the case in which kfactor lenght > number of bins and kfactors are all the same
-    np.testing.assert_allclose(
-        kfactor.filter_k_factors(fakegrid, [1.1, 1.1, 1.1, 1.1, 1.1]),
-        [1.1, 1.1, 1.1, 1.1, 1.1],
-    )
-    # This is the case in which kfactor lenght < number of bins and kfactors are all the same
-    np.testing.assert_allclose(
-        kfactor.filter_k_factors(fakegrid, [1.1, 1.1]), [1.1, 1.1, 1.1]
-    )
-    # This is the case in which kfactor lenght < number of bins and kfactors are not all the same
-    np.testing.assert_allclose(
-        kfactor.filter_k_factors(fakegrid, [1.1, 1.3]), [0.0, 0.0, 0.0]
-    )
+    # kfactor length < number of bins and kfactors are all the same
+    # we know how to extrapolate
+    np.testing.assert_allclose(kfactor.to_list(fakegrid, [1.1] * 2), [1.1] * 3)
+    # kfactor length < number of bins and kfactors are not all the same
+    np.testing.assert_allclose(kfactor.to_list(fakegrid, [1.1, 1.3]), [0.0, 0.0, 0.0])
     with pytest.raises(ValueError):
-        # This is the case in which kfactor lenght > number of bins and kfactors are not all the same
-        kfactor.filter_k_factors(fakegrid, [1.1, 1.2, 1.1, 1.7, 1.1])
+        # kfactor length > number of bins and kfactors are not all the same
+        kfactor.to_list(fakegrid, [1.1, 1.2, 1.1, 1.7, 1.1])
