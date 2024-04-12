@@ -332,6 +332,9 @@ class TheoryBuilder:
         # perturbative order of the prescription.
         if "PTOEKO" in tcard:
             tcard["PTO"] = tcard["PTOEKO"]
+        # Keys still needed by eko below
+        tcard["Qedref"] = tcard["Qref"]
+        tcard["MaxNfAs"] = tcard["MaxNfPdf"]
         # The operator card has been already generated in the correct format
         # The theory card needs to be converted to a format that eko can use
         legacy_class = eko.io.runcards.Legacy(tcard, ocard)
