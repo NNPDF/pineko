@@ -1,6 +1,7 @@
 """Tools related to evolution/eko."""
 
 import copy
+import json
 import logging
 import os
 import pathlib
@@ -269,6 +270,8 @@ def evolve_grid(
     rich.print(f"Optimizing for {assumptions}")
     fktable.optimize(assumptions)
     fktable.set_key_value("eko_version", operators.metadata.version)
+    fktable.set_key_value("eko_theory", json.dumps(operators.theory_card.raw))
+    fktable.set_key_value("eko_operator", json.dumps(operators.operator_card.raw))
     fktable.set_key_value("pineko_version", version.__version__)
     # compare before/after
     comparison = None
