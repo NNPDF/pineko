@@ -3037,7 +3037,7 @@ stats = ["scipy (>=1.7)", "statsmodels (>=0.12)"]
 name = "setuptools"
 version = "69.5.1"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
-optional = true
+optional = false
 python-versions = ">=3.8"
 files = [
     {file = "setuptools-69.5.1-py3-none-any.whl", hash = "sha256:c636ac361bc47580504644275c9ad802c50415c7522212252c033bd15f301f32"},
@@ -3820,4 +3820,4 @@ nnpdf = ["lhapdf-management", "nnpdf"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.13"
-content-hash = "8707e2d3343ac403547414ddbac7c8bbc24bd2a5dec6dcbc74c32fd23c894fec"
+content-hash = "6421d996d90389d39fef7b01f6159b8622480492871aaf1c4ada632421e0b7aa"

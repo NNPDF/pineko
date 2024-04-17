@@ -43,6 +43,7 @@ optional = true
 Sphinx = "^7.0.0"
 sphinx-rtd-theme = "^1.0.0"
 sphinxcontrib-bibtex = "^2.4.1"
+setuptools = "^69.0"
 
 [tool.poetry.group.test]
 optional = true
