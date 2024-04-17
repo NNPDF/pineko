@@ -40,9 +40,10 @@ lhapdf-management = { version = "^0.5", optional = true }
 optional = true
 
 [tool.poetry.group.docs.dependencies]
-Sphinx = "^4.3.2"
+Sphinx = "^7.0.0"
 sphinx-rtd-theme = "^1.0.0"
 sphinxcontrib-bibtex = "^2.4.1"
+setuptools = "^69.0"
 
 [tool.poetry.group.test]
 optional = true
