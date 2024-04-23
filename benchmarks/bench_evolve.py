@@ -95,7 +95,7 @@ def benchmark_dglap(tmp_path, test_files, test_configs):
     new_op = eko.io.runcards.OperatorCard.from_dict(myopcard)
 
     eko_path = pathlib.Path(tmp_path / "test_eko.tar")
-    _ = eko.runner.solve(new_theory, new_op, eko_path)
+    eko.runner.solve(new_theory, new_op, eko_path)
 
 
 def benchmark_evolve_grid(tmp_path, lhapdf_path, test_files, test_pdf):
