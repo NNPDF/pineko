@@ -126,5 +126,5 @@ def benchmark_evolve_grid(tmp_path, lhapdf_path, test_files, test_pdf):
             fk = pineappl.fk_table.FkTable.read(target_path)
             kvs = fk.key_values()
             assert "results_fk" in kvs
-            assert "eko_theory" in kvs
-            assert json.dumps(eko_op.theory_card.raw) == kvs["eko_theory"]
+            assert "eko_theory_card" in kvs
+            assert json.dumps(eko_op.theory_card.raw) == kvs["eko_theory_card"]
