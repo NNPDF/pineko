@@ -174,7 +174,12 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
             opconf["ev_op_iterations"] = 1
         elif tcard["ModEv"] == "EXA":
             opconf["evolution_method"] = "iterate-exact"
-            opconf["ev_op_iterations"] = tcard["IterEv"]
+            if "IterEv" in tcard:
+                opconf["ev_op_iterations"] = tcard["IterEv"]
+            elif "ev_op_iterations" not in default_card["configs"]:
+                raise ValueError(
+                    "EXA used but IterEv not found in the theory card and not ev_op_iterations set in the template"
+                )
 
         # If the information was also in the template _and it is different_, warn
         for key in ["evolution_method", "ev_op_iterations"]:
