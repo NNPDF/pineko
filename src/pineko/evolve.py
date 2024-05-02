@@ -123,8 +123,12 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     xif = 1.0 if sv_method is not None else tcard["XIF"]
     # update scale variation method
     operators_card["configs"]["scvar_method"] = sv_method
-    # update initial scale mu0
+
+    # Make sure that we are using the theory Q0 and fail if the template has a different oen
     operators_card["mu0"] = tcard["Q0"]
+    if default_card.get("mu0") is not None and default_card["mu0"] != tcard["Q0"]:
+        raise ValueError("Template declares a value of Q0 different from theory")
+
     q2_grid = (xif * xif * muf2_grid).tolist()
     masses = np.array([tcard["mc"], tcard["mb"], tcard["mt"]]) ** 2
     thresholds_ratios = np.array([tcard["kcThr"], tcard["kbThr"], tcard["ktThr"]]) ** 2
@@ -161,6 +165,22 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     # fragmentation function grid?
     if "timelike" in kv:
         operators_card["configs"]["timelike"] = kv["timelike"] == "True"
+
+    # Choose the evolution method according to the theory if the key is included
+    if "ModEv" in tcard:
+        opconf = operators_card["configs"]
+        if tcard["ModEv"] == "TRN":
+            opconf["evolution_method"] = "truncated"
+            opconf["ev_op_iterations"] = 1
+        elif tcard["ModEv"] == "EXA":
+            opconf["evolution_method"] = "iterate-exact"
+            opconf["ev_op_iterations"] = tcard["IterEv"]
+
+        # If the information was also in the template _and it is different_, warn
+        for key in ["evolution_method", "ev_op_iterations"]:
+            defval = default_card["configs"].get(key)
+            if defval is not None and defval != opconf[key]:
+                logger.warning(f"Using {key} from theory instead of template")
 
     # Some safety checks
     if (
