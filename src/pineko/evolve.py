@@ -124,7 +124,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     # update scale variation method
     operators_card["configs"]["scvar_method"] = sv_method
 
-    # Make sure that we are using the theory Q0 and fail if the template has a different oen
+    # Make sure that we are using the theory Q0 and fail if the template has a different one
     operators_card["mu0"] = tcard["Q0"]
     if default_card.get("mu0") is not None and default_card["mu0"] != tcard["Q0"]:
         raise ValueError("Template declares a value of Q0 different from theory")
