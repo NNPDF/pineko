@@ -389,7 +389,7 @@ class TheoryBuilder:
         # PTODIS, thus using PTO instead of PTODIS to establish the perturbative
         # order would result in the PTODIS terms that correspond to orders
         # beyond PTO to be neglected
-        if "PTODIS" in tcard and "FONLL" in tcard["FNS"]:
+        if "FONLL" in tcard["FNS"] and tcard.get("PTODIS") is not None:
             tcard["PTO"] = tcard["PTODIS"]
 
         # check if grid contains SV if theory is requesting them (in particular
