@@ -95,3 +95,37 @@ With the command ``pineko compare`` it is possible to compare the predictions as
 
 again eventually specifying the values of *renormalization* and *factorization* scales with the
 appropriate options.
+
+Using pineko with NNPDF
+"""""""""""""""""""""""
+
+It is possible to use ``pineko`` without providing a mapping between data and grids
+(i.e., without a ``yamldb`` database) or theory cards, by using the data declared in the NNPDF
+repository.
+
+In order to do this you need to install ``pineko`` withe ``nnpdf`` extra, which will install
+the latest version from the ``nnpdf`` repository::
+
+  pip install pineko[nnpdf]
+
+In order to enable ``pineko`` to read the data from ``nnpdf`` it is necessary to set up
+the ``general::nnpdf`` key in the configuration file.
+Note that if you do that, both ``theory_cards`` and ``ymldb`` keys become unnecessary,
+like in the example below.
+
+
+.. code-block:: yaml
+
+  [general]
+  nnpdf = true
+
+  [paths]
+  grids = "data/grids"
+  operator_card_template_name = "../_template.yaml"
+  operator_cards = "data/operator_cards"
+  ekos = "data/ekos"
+  fktables = "data/fktables"
+
+  [paths.logs]
+  eko = "logs/eko"
+  fk = "logs/fk"
