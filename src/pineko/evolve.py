@@ -181,11 +181,23 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
                     "EXA used but IterEv not found in the theory card and not ev_op_iterations set in the template"
                 )
 
-        # If the information was also in the template _and it is different_, warn
-        for key in ["evolution_method", "ev_op_iterations"]:
-            defval = default_card["configs"].get(key)
-            if defval is not None and defval != opconf[key]:
-                logger.warning(f"Using {key} from theory instead of template")
+        # If the evolution method is defined in the template and it is different, fail
+        template_method = default_card["configs"].get("evolution_method")
+        if (
+            template_method is not None
+            and template_method != opconf["evolution_method"]
+        ):
+            raise ValueError(
+                f"The template and the theory have different evolution method ({template_method} vs {opconf['key']})"
+            )
+
+        # If the change is on the number of iterations, take the template value but warn the user
+        template_iter = default_card["configs"].get("ev_op_iterations")
+        if template_iter is not None and template_method != opconf["ev_op_iterations"]:
+            opconf["ev_op_iterations"] = template_iter
+            logger.warning(
+                f"The number of iteration in the theory and template is different, using template value ({template_iter})"
+            )
 
     # Some safety checks
     if (
