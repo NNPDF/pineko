@@ -1,3 +1,4 @@
+import json
 import pathlib
 
 import eko
@@ -94,7 +95,7 @@ def benchmark_dglap(tmp_path, test_files, test_configs):
     new_op = eko.io.runcards.OperatorCard.from_dict(myopcard)
 
     eko_path = pathlib.Path(tmp_path / "test_eko.tar")
-    _ = eko.runner.solve(new_theory, new_op, eko_path)
+    eko.runner.solve(new_theory, new_op, eko_path)
 
 
 def benchmark_evolve_grid(tmp_path, lhapdf_path, test_files, test_pdf):
@@ -123,4 +124,7 @@ def benchmark_evolve_grid(tmp_path, lhapdf_path, test_files, test_pdf):
             )
             # check metadata is there - fixes https://github.com/NNPDF/pineko/issues/70
             fk = pineappl.fk_table.FkTable.read(target_path)
-            assert "results_fk" in fk.key_values()
+            kvs = fk.key_values()
+            assert "results_fk" in kvs
+            assert "eko_theory_card" in kvs
+            assert json.dumps(eko_op.theory_card.raw) == kvs["eko_theory_card"]

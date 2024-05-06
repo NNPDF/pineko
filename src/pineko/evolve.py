@@ -1,6 +1,7 @@
 """Tools related to evolution/eko."""
 
 import copy
+import json
 import logging
 import os
 import pathlib
@@ -188,6 +189,7 @@ def evolve_grid(
     xif,
     assumptions="Nf6Ind",
     comparison_pdf=None,
+    meta_data=None,
 ):
     """Convolute grid with EKO from file paths.
 
@@ -211,6 +213,8 @@ def evolve_grid(
         assumptions on the flavor dimension
     comparison_pdf : None or str
         if given, a comparison table (with / without evolution) will be printed
+    meta_data : None or dict
+        if given, additional meta data written to the FK table
     """
     order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al, True)
     evol_info = grid.evolve_info(order_mask)
@@ -269,7 +273,12 @@ def evolve_grid(
     rich.print(f"Optimizing for {assumptions}")
     fktable.optimize(assumptions)
     fktable.set_key_value("eko_version", operators.metadata.version)
+    fktable.set_key_value("eko_theory_card", json.dumps(operators.theory_card.raw))
+    fktable.set_key_value("eko_operator_card", json.dumps(operators.operator_card.raw))
     fktable.set_key_value("pineko_version", version.__version__)
+    if meta_data is not None:
+        for k, v in meta_data.items():
+            fktable.set_key_value(k, v)
     # compare before/after
     comparison = None
     if comparison_pdf is not None:
