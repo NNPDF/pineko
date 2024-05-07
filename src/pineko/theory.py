@@ -330,7 +330,7 @@ class TheoryBuilder:
         # from the PTO needed for the PDF evolution (and so by EKO). Here we
         # ensure that the PTO used in the EKO calculation reflects the real
         # perturbative order of the prescription.
-        if "PTOEKO" in tcard:
+        if tcard.get("PTOEKO") is not None:
             tcard["PTO"] = tcard["PTOEKO"]
         # Keys still needed by eko below
         tcard["Qedref"] = tcard["Qref"]
