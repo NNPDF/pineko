@@ -17,6 +17,7 @@ from ._base import command
 @click.argument("max_al", type=int)
 @click.option("--xir", default=1.0, help="renormalization scale variation")
 @click.option("--xif", default=1.0, help="factorization scale variation")
+@click.option("--min_as", type=int, help="Minimum exponent of as")
 @click.option(
     "--pdf", default=None, help="if given, print comparison table", show_default=True
 )
@@ -26,14 +27,18 @@ from ._base import command
     help="the flavor assumptions to be used",
     show_default=True,
 )
-def subcommand(grid_path, op_path, fktable, max_as, max_al, xir, xif, pdf, assumptions):
+def subcommand(
+    grid_path, op_path, fktable, max_as, max_al, xir, xif, pdf, assumptions, min_as
+):
     """Convolute PineAPPL grid and EKO into an FK table.
 
     GRID_PATH and OP_PATH are the path to the respective elements to convolute, and
     FKTABLE is the path where to dump the output.
 
     MAX_AS and MAX_AL are used to specify the order in QCD and QED
-    couplings (i.e. the maximum power allowed for each correction).
+    couplings (i.e. the maximum power allowed for each correction)
+    e.g., max_as = 1, max_al = 0 would select LO QCD only
+    max_as = 3 instead would select LO, NLO, NNLO QCD
 
     XIR and XIF represent the renormalization and factorization scale in the grid respectively.
 
@@ -49,6 +54,7 @@ def subcommand(grid_path, op_path, fktable, max_as, max_al, xir, xif, pdf, assum
             f"+ {op_path}\n",
             f"= {fktable}\n",
             f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
+            f"min_as: {min_as}" if min_as is not None else "",
         )
         _grid, _fk, comp = evolve.evolve_grid(
             grid,
@@ -60,6 +66,7 @@ def subcommand(grid_path, op_path, fktable, max_as, max_al, xir, xif, pdf, assum
             xif,
             assumptions=assumptions,
             comparison_pdf=pdf,
+            min_as=min_as,
         )
         if comp:
             print(comp.to_string())
