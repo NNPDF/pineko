@@ -38,7 +38,10 @@ def subcommand(
     MAX_AS and MAX_AL are used to specify the order in QCD and QED
     couplings (i.e. the maximum power allowed for each correction)
     e.g., max_as = 1, max_al = 0 would select LO QCD only
-    max_as = 3 instead would select LO, NLO, NNLO QCD
+    max_as = 3 instead would select LO, NLO, NNLO QCD.
+    While, by default, all orders below MAX_AS will be selected, it is also possible
+    to selected only from a certain order. E.g., to get only NNLO & NLO contributions
+    it is possible to set max_as = 3, min_as = 2
 
     XIR and XIF represent the renormalization and factorization scale in the grid respectively.
 
