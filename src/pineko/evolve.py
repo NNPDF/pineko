@@ -190,6 +190,7 @@ def evolve_grid(
     assumptions="Nf6Ind",
     comparison_pdf=None,
     meta_data=None,
+    min_as=None,
 ):
     """Convolute grid with EKO from file paths.
 
@@ -215,8 +216,18 @@ def evolve_grid(
         if given, a comparison table (with / without evolution) will be printed
     meta_data : None or dict
         if given, additional meta data written to the FK table
+    min_as: None or int
+        minimum power of strong coupling
     """
     order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al, True)
+    if min_as is not None and min_as > 1:
+        # If using min_as, we want to ignore only orders below that (e.g., if min_as=2
+        # and max_as=3, we want NNLO and NLO)
+        ignore_orders = pineappl.grid.Order.create_mask(
+            grid.orders(), min_as - 1, max_al, True
+        )
+        order_mask ^= ignore_orders
+
     evol_info = grid.evolve_info(order_mask)
     x_grid = evol_info.x1
     mur2_grid = evol_info.ren1
