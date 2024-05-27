@@ -18,12 +18,15 @@ This is a standard example:
   [paths]
   # inputs
   grids = "data/grids"
-  theory_cards = "data/theory_cards"
   operator_card_template_name = "_template.yaml"
   # outputs
   operator_cards = "data/operator_cards"
   ekos = "data/ekos"
   fktables = "data/fktables"
+
+  # The following two keys are only necessary when nnpdf=false
+  #theory_cards = "data/theory_cards"
+  #ymldb = "data/yamldb"
 
   [paths.logs]
   eko = "logs/eko"
@@ -32,14 +35,22 @@ This is a standard example:
 
 All the relevant inputs are described below. The command ``pineko scaffold new`` will generate all necessary folders.
 
+
+Theory Runcards
+---------------
+
+You need to provide the necessary theory runcards named with their respective theory ID inside the *paths.theory_cards* folder [1]_ unless you are using the ``nnpdf`` key (see below).
+For more details about theory runcards you can look at https://eko.readthedocs.io/en/latest/code/IO.html under **Theory Runcards**.
+
 nnpdf
 -----
-The key ``nnpdf`` tells ``pineko`` it should use the data files from NNPDF to map datasets to FK Tables.
+The key ``nnpdf`` tells ``pineko`` it should use the data files from NNPDF to map datasets to FK Tables
+and to define the theory parameters.
 If this key is given, a valid installation of ``nnpdf`` needs to be available as well.
 i.e, ``pineko`` should be installed with the ``nnpdf`` extra (``pip install pineko[nnpdf]``).
 
 Alternatively, it is possible not to set this key (or set it to false) and instead
-provide a path with ``yaml`` files containing such dataset-FK mapping.
+provide a path with ``yaml`` files containing such dataset-FK mapping or theory cards.
 If a custom database of mappings is to be used, the path to the folder containing
 this files needs to be explicitly provided:
 
@@ -47,6 +58,7 @@ this files needs to be explicitly provided:
 
   [paths]
   ymldb = "data/yamldb"
+  theory_cards = "data/theory_cards"
 
 These `yaml` files (which should be named `<dataset>.yaml`)
 define a mapping from datasets to FK tables.
@@ -64,11 +76,7 @@ In ``operands`` all the necessary FK tables for the ``target_dataset`` are liste
 ``NULL`` which means that the FK tables will just be concatenated but other kinds of operations
 can be used (for instance ``ratio``).
 
-Theory Runcards
----------------
 
-You need to provide the necessary theory runcards named with their respective theory ID inside the *paths.theory_cards* folder [1]_.
-For more details about theory runcards you can look at https://eko.readthedocs.io/en/latest/code/IO.html under **Theory Runcards**.
 
 Default Operator Card
 ---------------------
