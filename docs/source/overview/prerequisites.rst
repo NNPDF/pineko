@@ -40,7 +40,7 @@ Theory Runcards
 ---------------
 
 You need to provide the necessary theory runcards named with their respective theory ID inside the *paths.theory_cards* folder [1]_ unless you are using the ``nnpdf`` key (see below).
-For more details about theory runcards you can look at https://eko.readthedocs.io/en/latest/code/IO.html under **Theory Runcards**.
+For more details about theory runcards you can look at https://docs.nnpdf.science/theory/theoryparamsdefinitions.html
 
 nnpdf
 -----
