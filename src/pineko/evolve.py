@@ -57,7 +57,7 @@ def get_ekos_convolution_type(kv):
     if "convolution_type_1" in kv:
         eko1 = kv["convolution_type_1"]
     # TODO: this case is now deprecated and should be remved from yadism and pinefarm
-    elif "polarized" in kv:
+    elif "polarized" in kv and kv["polarized"]:
         eko1 = "polPDF"
     else:
         eko1 = "PDF"
@@ -190,8 +190,11 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
             "are you sure that's what you want?"
         )
 
-    def dump_card(card_path, operators_card, conv_type):
+    def dump_card(card_path, operators_card, conv_type, suffix=False):
         operators_card["configs"]["polarized"] = conv_type == "polPDF"
+
+        if suffix:
+            card_path = card_path.parent / f"{card_path.stem}_{conv_type_a}.yaml"
         with open(card_path, "w", encoding="UTF-8") as f:
             yaml.safe_dump(operators_card, f)
             f.write(f"# {pineko_version=}")
@@ -201,13 +204,10 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     if conv_type_a == conv_type_b:
         dump_card(card_path, operators_card, conv_type_a)
     else:
-        # dump card 1
-        card_name = f"{card_path.stem}_{conv_type_a}.yaml"
-        dump_card(card_path.parent / card_name, operators_card)
-
-        # dump eko2
-        card_name = f"{card_path.stem}_{conv_type_b}.yaml"
-        dump_card(card_path.parent / card_name, operators_card)
+        # dump card_a
+        dump_card(card_path, operators_card, conv_type_a, suffix=True)
+        # dump card_b
+        dump_card(card_path, operators_card, conv_type_b, suffix=True)
 
     return operators_card["xgrid"], q2_grid
 
