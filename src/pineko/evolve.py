@@ -191,12 +191,13 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
         )
 
     def dump_card(card_path, operators_card, conv_type, suffix=False):
-        operators_card["configs"]["polarized"] = conv_type == "polPDF"
+        op_to_dump = copy.deepcopy(operators_card)
+        op_to_dump["configs"]["polarized"] = conv_type == "polPDF"
 
         if suffix:
             card_path = card_path.parent / f"{card_path.stem}_{conv_type_a}.yaml"
         with open(card_path, "w", encoding="UTF-8") as f:
-            yaml.safe_dump(operators_card, f)
+            yaml.safe_dump(op_to_dump, f)
             f.write(f"# {pineko_version=}")
 
     # For hardonic obs we might need to dump 2 eko cards
