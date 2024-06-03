@@ -180,13 +180,13 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
         )
 
     # For hardonic obs we might need to dump 2 eko cards
+    operators_card["configs"]["polarized"] = eko1 == "polPDF"
     if eko1 == eko2:
         with open(card_path, "w", encoding="UTF-8") as f:
             yaml.safe_dump(operators_card, f)
             f.write(f"# {pineko_version=}")
     else:
         # dump eko1
-        operators_card["configs"]["polarized"] = eko1 == "polPDF"
         card_name = f"{card_path.stem}_eko1.yaml"
         with open(card_path.parent / card_name, "w", encoding="UTF-8") as f:
             yaml.safe_dump(operators_card, f)
@@ -203,12 +203,13 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
 
 def evolve_grid(
     grid,
-    operators,
+    operators_a,
     fktable_path,
     max_as,
     max_al,
     xir,
     xif,
+    operators_b=None,
     assumptions="Nf6Ind",
     comparison_pdf=None,
     meta_data=None,
@@ -220,7 +221,7 @@ def evolve_grid(
     ----------
     grid : pineappl.grid.Grid
         unconvoluted grid
-    operators : eko.EKO
+    operators_a : eko.EKO
         evolution operator
     fktable_path : str
         target path for convoluted grid
@@ -232,6 +233,8 @@ def evolve_grid(
         renormalization scale variation
     xif : float
         factorization scale variation
+    operators_b: eko.EKO
+        additonal evolution operator if different from operators_a
     assumptions : str
         assumptions on the flavor dimension
     comparison_pdf : None or str
@@ -253,22 +256,29 @@ def evolve_grid(
     evol_info = grid.evolve_info(order_mask)
     x_grid = evol_info.x1
     mur2_grid = evol_info.ren1
-    xif = 1.0 if operators.operator_card.configs.scvar_method is not None else xif
-    tcard = operators.theory_card
-    opcard = operators.operator_card
+    xif = 1.0 if operators_a.operator_card.configs.scvar_method is not None else xif
+    tcard = operators_a.theory_card
+    opcard = operators_a.operator_card
     # rotate the targetgrid
     if "integrability_version" in grid.key_values():
         x_grid = np.append(x_grid, 1.0)
-    eko.io.manipulate.xgrid_reshape(
-        operators, targetgrid=eko.interpolation.XGrid(x_grid)
-    )
-    check.check_grid_and_eko_compatible(grid, operators, xif, max_as, max_al)
-    # rotate to evolution (if doable and necessary)
-    if np.allclose(operators.bases.inputpids, br.flavor_basis_pids):
-        eko.io.manipulate.to_evol(operators)
-    # Here we are checking if the EKO contains the rotation matrix (flavor to evol)
-    elif not np.allclose(operators.bases.inputpids, br.rotate_flavor_to_evolution):
-        raise ValueError("The EKO is neither in flavor nor in evolution basis.")
+
+    def xgrid_reshape(operators):
+        eko.io.manipulate.xgrid_reshape(
+            operators, targetgrid=eko.interpolation.XGrid(x_grid)
+        )
+        check.check_grid_and_eko_compatible(grid, operators, xif, max_as, max_al)
+        # rotate to evolution (if doable and necessary)
+        if np.allclose(operators.bases.inputpids, br.flavor_basis_pids):
+            eko.io.manipulate.to_evol(operators)
+        # Here we are checking if the EKO contains the rotation matrix (flavor to evol)
+        elif not np.allclose(operators.bases.inputpids, br.rotate_flavor_to_evolution):
+            raise ValueError("The EKO is neither in flavor nor in evolution basis.")
+
+    xgrid_reshape(operators_a)
+    if operators_b is not None:
+        xgrid_reshape(operators_b)
+
     # PineAPPL wants alpha_s = 4*pi*a_s
     # remember that we already accounted for xif in the opcard generation
     evmod = eko.couplings.couplings_mod_ev(opcard.configs.evolution_method)
@@ -296,18 +306,27 @@ def evolve_grid(
     ]
     # We need to use ekompatibility in order to pass a dictionary to pineappl
     fktable = grid.evolve(
-        ekompatibility.pineappl_layout(operators),
+        ekompatibility.pineappl_layout(operators_a),
         xir * xir * mur2_grid,
         alphas_values,
         "evol",
+        operators_b=ekompatibility.pineappl_layout(operators_b),
         order_mask=order_mask,
         xi=(xir, xif),
     )
     rich.print(f"Optimizing for {assumptions}")
     fktable.optimize(assumptions)
-    fktable.set_key_value("eko_version", operators.metadata.version)
-    fktable.set_key_value("eko_theory_card", json.dumps(operators.theory_card.raw))
-    fktable.set_key_value("eko_operator_card", json.dumps(operators.operator_card.raw))
+    fktable.set_key_value("eko_version", operators_a.metadata.version)
+    fktable.set_key_value("eko_theory_card", json.dumps(operators_a.theory_card.raw))
+
+    fktable.set_key_value(
+        "eko_operator_card", json.dumps(operators_a.operator_card.raw)
+    )
+    if operators_b is not None:
+        fktable.set_key_value(
+            "eko_operator_card_b", json.dumps(operators_b.operator_card.raw)
+        )
+
     fktable.set_key_value("pineko_version", version.__version__)
     if meta_data is not None:
         for k, v in meta_data.items():

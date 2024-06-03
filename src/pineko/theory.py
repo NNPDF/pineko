@@ -398,8 +398,27 @@ class TheoryBuilder:
         grid = pineappl.grid.Grid.read(grid_path)
         # remove zero subgrid
         grid.optimize()
+
+        # Do you need one or multiple ekos?
+        kv = grid.key_values()
+        if "convolution_type_1" in kv:
+            eko1 = kv["convolution_type_1"]
+        # TODO: this case is now deprecated and should be remved from yadism and pinefarm
+        elif "polarized" in kv:
+            eko1 = "polPDF"
+        else:
+            eko1 = "PDF"
+        eko2 = kv.get("convolution_type_2", "PDF")
+
         # setup data
-        eko_filename = self.ekos_path() / f"{name}.tar"
+        if eko1 == eko2:
+            eko_filename = [self.ekos_path() / f"{name}.tar"]
+        else:
+            eko_filename = [
+                self.ekos_path() / f"{name}_eko1.tar",
+                self.ekos_path() / f"{name}_eko2.tar",
+            ]
+
         fk_filename = self.fks_path / f"{name}.{parser.EXT}"
         if fk_filename.exists():
             if not self.overwrite:
@@ -434,16 +453,28 @@ class TheoryBuilder:
             if not np.isclose(xif, 1.0):
                 check_scvar_evolve(grid, max_as, max_al, check.Scale.FACT)
         # loading ekos to produce a tmp copy
-        with eko.EKO.read(eko_filename) as operators:
+        n_ekos = len(eko_filename)
+        with eko.EKO.read(eko_filename[0]) as operators_a:
+
             # Skip the computation of the fktable if the eko is empty
-            if len(operators.mu2grid) == 0 and check.is_num_fonll(tcard["FNS"]):
+            if len(operators_a.mu2grid) == 0 and check.is_num_fonll(tcard["FNS"]):
                 rich.print("[green] Skipping empty eko for nFONLL.")
                 return
-            eko_tmp_path = (
-                operators.paths.root.parent / f"eko-tmp-{name}-{np.random.rand()}.tar"
+
+            eko_tmp_path_a = (
+                operators_a.paths.root.parent / f"eko-tmp-{name}-{np.random.rand()}.tar"
             )
-            operators.deepcopy(eko_tmp_path)
-        with eko.EKO.edit(eko_tmp_path) as operators:
+            operators_a.deepcopy(eko_tmp_path_a)
+
+        if n_ekos > 1:
+            with eko.EKO.read(eko_filename[1]) as operators_b:
+                eko_tmp_path_b = (
+                    operators_a.paths.root.parent
+                    / f"eko-tmp-{name}-{np.random.rand()}.tar"
+                )
+            operators_b.deepcopy(eko_tmp_path_b)
+
+        with eko.EKO.edit(eko_tmp_path_a) as operators_a:
             # Obtain the assumptions hash
             assumptions = theory_card.construct_assumptions(tcard)
             # do it!
@@ -456,7 +487,6 @@ class TheoryBuilder:
                 xif,
             )
             start_time = time.perf_counter()
-
             rich.print(
                 rich.panel.Panel.fit(
                     "Computing ...", style="magenta", box=rich.box.SQUARE
@@ -466,20 +496,40 @@ class TheoryBuilder:
                 f"= {fk_filename}\n",
                 f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
             )
-            _grid, _fk, comparison = evolve.evolve_grid(
-                grid,
-                operators,
-                fk_filename,
-                max_as,
-                max_al,
-                xir=xir,
-                xif=xif,
-                assumptions=assumptions,
-                comparison_pdf=pdf,
-                meta_data={"theory_card": json.dumps(tcard)},
-            )
+
+            if n_ekos == 1:
+                _grid, _fk, comparison = evolve.evolve_grid(
+                    grid,
+                    operators_a,
+                    fk_filename,
+                    max_as,
+                    max_al,
+                    xir=xir,
+                    xif=xif,
+                    assumptions=assumptions,
+                    comparison_pdf=pdf,
+                    meta_data={"theory_card": json.dumps(tcard)},
+                )
+            else:
+                with eko.EKO.edit(eko_tmp_path_b) as operators_b:
+                    _grid, _fk, comparison = evolve.evolve_grid(
+                        grid,
+                        operators_a,
+                        fk_filename,
+                        max_as,
+                        max_al,
+                        xir=xir,
+                        xif=xif,
+                        assumptions=assumptions,
+                        operators_b=operators_b,
+                        comparison_pdf=pdf,
+                        meta_data={"theory_card": json.dumps(tcard)},
+                    )
+                # Remove tmp ekos
+                eko_tmp_path_b.unlink()
+
         # Remove tmp ekos
-        eko_tmp_path.unlink()
+        eko_tmp_path_a.unlink()
 
         logger.info(
             "Finished computation of %s - took %f s",
