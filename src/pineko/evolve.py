@@ -321,12 +321,12 @@ def evolve_grid(
         ekompatibility.pineappl_layout(operators_a),
         xir * xir * mur2_grid,
         alphas_values,
-        "evol",
         operators_b=(
             ekompatibility.pineappl_layout(operators_b)
             if operators_b is not None
             else None
         ),
+        lumi_id_types="evol",
         order_mask=order_mask,
         xi=(xir, xif),
     )
