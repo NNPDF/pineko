@@ -155,8 +155,15 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
 
     # switch on polarization ?
     kv = pineappl_grid.key_values()
-    if "polarized" in kv:
-        operators_card["configs"]["polarized"] = kv["polarized"] == "True"
+    if "convolution_type_1" in kv:
+        eko1 = kv["convolution_type_1"]
+    # TODO: this case is now deprecated and should be remved from yadism and pinefarm
+    elif "polarized" in kv:
+        eko1 = "polPDF"
+    else:
+        eko1 = "PDF"
+
+    eko2 = kv.get("convolution_type_2", "PDF")
 
     # fragmentation function grid?
     if "timelike" in kv:
@@ -172,9 +179,24 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
             "are you sure that's what you want?"
         )
 
-    with open(card_path, "w", encoding="UTF-8") as f:
-        yaml.safe_dump(operators_card, f)
-        f.write(f"# {pineko_version=}")
+    # For hardonic obs we might need to dump 2 eko cards
+    if eko1 == eko2:
+        with open(card_path, "w", encoding="UTF-8") as f:
+            yaml.safe_dump(operators_card, f)
+            f.write(f"# {pineko_version=}")
+    else:
+        # dump eko1
+        operators_card["configs"]["polarized"] = eko1 == "polPDF"
+        card_name = f"{card_path.stem}_eko1.yaml"
+        with open(card_path.parent / card_name, "w", encoding="UTF-8") as f:
+            yaml.safe_dump(operators_card, f)
+            f.write(f"# {pineko_version=}")
+        # dump eko2
+        operators_card["configs"]["polarized"] = eko2 == "polPDF"
+        card_name = f"{card_path.stem}_eko2.yaml"
+        with open(card_path.parent / card_name, "w", encoding="UTF-8") as f:
+            yaml.safe_dump(operators_card, f)
+            f.write(f"# {pineko_version=}")
 
     return operators_card["xgrid"], q2_grid
 
