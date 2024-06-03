@@ -46,6 +46,25 @@ def sv_scheme(tcard):
     return modsv
 
 
+def get_ekos_convolution_type_2(kv):
+    """Temporary finction to retrive the ekos convolution type.
+
+    Parameters
+    ----------
+    kv: dict
+        pineappl grid metadata
+    """
+    if "convolution_type_1" in kv:
+        eko1 = kv["convolution_type_1"]
+    # TODO: this case is now deprecated and should be remved from yadism and pinefarm
+    elif "polarized" in kv:
+        eko1 = "polPDF"
+    else:
+        eko1 = "PDF"
+    eko2 = kv.get("convolution_type_2", "PDF")
+    return eko1, eko2
+
+
 def write_operator_card_from_file(
     pineappl_path: os.PathLike,
     default_card_path: os.PathLike,
@@ -155,15 +174,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
 
     # switch on polarization ?
     kv = pineappl_grid.key_values()
-    if "convolution_type_1" in kv:
-        eko1 = kv["convolution_type_1"]
-    # TODO: this case is now deprecated and should be remved from yadism and pinefarm
-    elif "polarized" in kv:
-        eko1 = "polPDF"
-    else:
-        eko1 = "PDF"
-
-    eko2 = kv.get("convolution_type_2", "PDF")
+    eko1, eko2 = get_ekos_convolution_type_2(kv)
 
     # fragmentation function grid?
     if "timelike" in kv:
