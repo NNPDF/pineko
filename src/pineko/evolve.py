@@ -46,7 +46,7 @@ def sv_scheme(tcard):
     return modsv
 
 
-def get_ekos_convolution_type_2(kv):
+def get_ekos_convolution_type(kv):
     """Temporary finction to retrive the ekos convolution type.
 
     Parameters
@@ -174,7 +174,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
 
     # switch on polarization ?
     kv = pineappl_grid.key_values()
-    eko1, eko2 = get_ekos_convolution_type_2(kv)
+    conv_type_a, conv_type_b = get_ekos_convolution_type(kv)
 
     # fragmentation function grid?
     if "timelike" in kv:
@@ -190,24 +190,24 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
             "are you sure that's what you want?"
         )
 
-    # For hardonic obs we might need to dump 2 eko cards
-    operators_card["configs"]["polarized"] = eko1 == "polPDF"
-    if eko1 == eko2:
+    def dump_card(card_path, operators_card, conv_type):
+        operators_card["configs"]["polarized"] = conv_type == "polPDF"
         with open(card_path, "w", encoding="UTF-8") as f:
             yaml.safe_dump(operators_card, f)
             f.write(f"# {pineko_version=}")
+
+    # For hardonic obs we might need to dump 2 eko cards
+
+    if conv_type_a == conv_type_b:
+        dump_card(card_path, operators_card, conv_type_a)
     else:
         # dump eko1
-        card_name = f"{card_path.stem}_eko1.yaml"
-        with open(card_path.parent / card_name, "w", encoding="UTF-8") as f:
-            yaml.safe_dump(operators_card, f)
-            f.write(f"# {pineko_version=}")
+        card_name = f"{card_path.stem}_{conv_type_a}.yaml"
+        dump_card(card_path.parent / card_name, operators_card)
+
         # dump eko2
-        operators_card["configs"]["polarized"] = eko2 == "polPDF"
-        card_name = f"{card_path.stem}_eko2.yaml"
-        with open(card_path.parent / card_name, "w", encoding="UTF-8") as f:
-            yaml.safe_dump(operators_card, f)
-            f.write(f"# {pineko_version=}")
+        card_name = f"{card_path.stem}_{conv_type_b}.yaml"
+        dump_card(card_path.parent / card_name, operators_card)
 
     return operators_card["xgrid"], q2_grid
 

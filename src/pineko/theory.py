@@ -401,15 +401,15 @@ class TheoryBuilder:
 
         # Do you need one or multiple ekos?
         kv = grid.key_values()
-        eko1, eko2 = evolve.get_ekos_convolution_type_2(kv)
+        conv_type_a, conv_type_b = evolve.get_ekos_convolution_type(kv)
 
         # setup data
-        if eko1 == eko2:
+        if conv_type_a == conv_type_b:
             eko_filename = [self.ekos_path() / f"{name}.tar"]
         else:
             eko_filename = [
-                self.ekos_path() / f"{name}_eko1.tar",
-                self.ekos_path() / f"{name}_eko2.tar",
+                self.ekos_path() / f"{name}_{conv_type_a}.tar",
+                self.ekos_path() / f"{name}_{conv_type_b}.tar",
             ]
 
         fk_filename = self.fks_path / f"{name}.{parser.EXT}"
