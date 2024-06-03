@@ -201,7 +201,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     if conv_type_a == conv_type_b:
         dump_card(card_path, operators_card, conv_type_a)
     else:
-        # dump eko1
+        # dump card 1
         card_name = f"{card_path.stem}_{conv_type_a}.yaml"
         dump_card(card_path.parent / card_name, operators_card)
 
