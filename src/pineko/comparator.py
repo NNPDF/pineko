@@ -36,7 +36,7 @@ def compare(pine, fktable, max_as, max_al, pdf, xir, xif):
     pdgid = int(pdfset.set().get_entry("Particle"))
     order_mask = pineappl.grid.Order.create_mask(pine.orders(), max_as, max_al, True)
     before = np.array(
-        pine.convolute_with_one(
+        pine.convolve_with_one(
             pdgid,
             pdfset.xfxQ2,
             pdfset.alphasQ2,
@@ -44,7 +44,7 @@ def compare(pine, fktable, max_as, max_al, pdf, xir, xif):
             xi=((xir, xif),),
         )
     )
-    after = np.array(fktable.convolute_with_one(pdgid, pdfset.xfxQ2))
+    after = np.array(fktable.convolve_with_one(pdgid, pdfset.xfxQ2))
     df = pd.DataFrame()
     # add bin info
     for d in range(pine.bin_dimensions()):

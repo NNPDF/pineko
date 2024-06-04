@@ -179,7 +179,7 @@ def create_singlegridonly(
     # extract the relevant order to rescale from the grid for each lumi and bin
     grid_orders = [order.as_tuple() for order in grid.orders()]
     order_index = grid_orders.index(order)
-    for lumi_index in range(len(new_grid.lumi())):
+    for lumi_index in range(len(new_grid.channels())):
         for bin_index in range(grid.bins()):
             extracted_subgrid = grid.subgrid(order_index, bin_index, lumi_index)
             scales_array = construct_scales_array(
