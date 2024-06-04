@@ -23,6 +23,8 @@ jobs:
         with:
           virtualenvs-create: false
           installer-parallel: true
+      # Temporary fix to get unreleased version of pineappl
+      - uses: moonrepo/setup-rust@v1
       - name: Install dependencies
         run: poetry install --no-interaction --no-root --with test -E nnpdf
       - name: Install project
