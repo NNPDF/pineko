@@ -246,10 +246,6 @@ class TheoryBuilder:
             opcard_path,
             tcard,
         )
-        if opcard_path.exists():
-            rich.print(
-                f"[green]Success:[/] Wrote card with {len(q2_grid)} Q2 points to {opcard_path}"
-            )
 
     def opcards(self):
         """Write operator cards."""

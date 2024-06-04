@@ -195,10 +195,15 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
         op_to_dump["configs"]["polarized"] = conv_type == "polPDF"
 
         if suffix:
-            card_path = card_path.parent / f"{card_path.stem}_{conv_type_a}.yaml"
+            card_path = card_path.parent / f"{card_path.stem}_{conv_type}.yaml"
         with open(card_path, "w", encoding="UTF-8") as f:
             yaml.safe_dump(op_to_dump, f)
             f.write(f"# {pineko_version=}")
+
+        if card_path.exists():
+            rich.print(
+                f"[green]Success:[/] Wrote card with {len(q2_grid)} Q2 points to {card_path}"
+            )
 
     # For hardonic obs we might need to dump 2 eko cards
 
