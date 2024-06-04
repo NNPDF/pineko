@@ -302,7 +302,7 @@ class TheoryBuilder:
             logger_.setLevel(logging.INFO)
         return True
 
-    def eko(self, name, _grid, tcard):
+    def eko(self, name, grid, tcard):
         """Compute a single eko.
 
         Parameters
@@ -320,37 +320,48 @@ class TheoryBuilder:
             paths["logs"]["eko"], f"{self.theory_id}-{name}.log", ("eko",)
         )
         # setup data
-        ocard = self.load_operator_card(name)
-        # For nFONLL mixed prescriptions (such as FONLL-B) the PTO written on
-        # the tcard is used to produce the grid by yadism and it might be different
-        # from the PTO needed for the PDF evolution (and so by EKO). Here we
-        # ensure that the PTO used in the EKO calculation reflects the real
-        # perturbative order of the prescription.
-        if "PTOEKO" in tcard:
-            tcard["PTO"] = tcard["PTOEKO"]
-        # The operator card has been already generated in the correct format
-        # The theory card needs to be converted to a format that eko can use
-        legacy_class = eko.io.runcards.Legacy(tcard, ocard)
-        new_theory = legacy_class.new_theory
-        new_op = eko.io.runcards.OperatorCard.from_dict(ocard)
-        eko_filename = self.ekos_path() / f"{name}.tar"
-        if eko_filename.exists():
-            if not self.overwrite:
-                rich.print(f"Skipping existing operator {eko_filename}")
-                return
-            eko_filename.unlink()
-        # do it!
-        logger.info("Start computation of %s", name)
-        start_time = time.perf_counter()
-        # Actual computation of the EKO
-        solve(new_theory, new_op, eko_filename)
-        logger.info(
-            "Finished computation of %s - took %f s",
-            name,
-            time.perf_counter() - start_time,
-        )
-        if eko_filename.exists():
-            rich.print(f"[green]Success:[/] Wrote EKO to {eko_filename}")
+        grid_kv = pineappl.grid.Grid.read(grid).key_values()
+        conv_type_a, conv_type_b = evolve.get_ekos_convolution_type(grid_kv)
+        if conv_type_a == conv_type_b:
+            names = [name]
+        else:
+            names = [
+                f"{name}_{conv_type_a}",
+                f"{name}_{conv_type_b}",
+            ]
+
+        for name in names:
+            ocard = self.load_operator_card(name)
+            # For nFONLL mixed prescriptions (such as FONLL-B) the PTO written on
+            # the tcard is used to produce the grid by yadism and it might be different
+            # from the PTO needed for the PDF evolution (and so by EKO). Here we
+            # ensure that the PTO used in the EKO calculation reflects the real
+            # perturbative order of the prescription.
+            if "PTOEKO" in tcard:
+                tcard["PTO"] = tcard["PTOEKO"]
+            # The operator card has been already generated in the correct format
+            # The theory card needs to be converted to a format that eko can use
+            legacy_class = eko.io.runcards.Legacy(tcard, ocard)
+            new_theory = legacy_class.new_theory
+            new_op = eko.io.runcards.OperatorCard.from_dict(ocard)
+            eko_filename = self.ekos_path() / f"{name}.tar"
+            if eko_filename.exists():
+                if not self.overwrite:
+                    rich.print(f"Skipping existing operator {eko_filename}")
+                    return
+                eko_filename.unlink()
+            # do it!
+            logger.info("Start computation of %s", name)
+            start_time = time.perf_counter()
+            # Actual computation of the EKO
+            solve(new_theory, new_op, eko_filename)
+            logger.info(
+                "Finished computation of %s - took %f s",
+                name,
+                time.perf_counter() - start_time,
+            )
+            if eko_filename.exists():
+                rich.print(f"[green]Success:[/] Wrote EKO to {eko_filename}")
 
     def ekos(self):
         """Compute all ekos."""

@@ -55,14 +55,14 @@ def get_ekos_convolution_type(kv):
         pineappl grid metadata
     """
     if "convolution_type_1" in kv:
-        eko1 = kv["convolution_type_1"]
+        conv_type_1 = kv["convolution_type_1"]
     # TODO: this case is now deprecated and should be remved from yadism and pinefarm
     elif "polarized" in kv and kv["polarized"]:
-        eko1 = "polPDF"
+        conv_type_1 = "polPDF"
     else:
-        eko1 = "PDF"
-    eko2 = kv.get("convolution_type_2", "PDF")
-    return eko1, eko2
+        conv_type_1 = "PDF"
+    conv_type_2 = kv.get("convolution_type_2", "PDF")
+    return conv_type_1, conv_type_2
 
 
 def write_operator_card_from_file(
