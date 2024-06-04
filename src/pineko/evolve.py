@@ -47,7 +47,7 @@ def sv_scheme(tcard):
 
 
 def get_ekos_convolution_type(kv):
-    """Temporary finction to retrive the ekos convolution type.
+    """Retrieve the ekos convolution type.
 
     Parameters
     ----------
