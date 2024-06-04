@@ -36,7 +36,7 @@ class FakePine:
     def orders(self):
         return [pineappl.grid.Order(0, 0, 0, 0)]
 
-    def lumi(self):
+    def channels(self):
         return [[(21, 21, 1)]]
 
     def evolve_info(self, _):

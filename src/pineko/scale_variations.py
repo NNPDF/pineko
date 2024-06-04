@@ -100,7 +100,7 @@ def initialize_new_grid(grid, new_order):
     bin_limits = [
         float(bin) for bin in range(grid.bins() + 1)
     ]  # The +1 explanation is that n bins have n+1 bin limits, and range generates numbers from a half-open interval (range(n) generates n numbers).
-    lumi_grid = [pineappl.lumi.LumiEntry(mylum) for mylum in grid.channels()]
+    lumi_grid = [pineappl.lumi.Channel(mylum) for mylum in grid.channels()]
     subgrid_params = pineappl.subgrid.SubgridParams()
     new_order = [pineappl.grid.Order(*new_order)]
     # create new_grid with same lumi and bin_limits of the original grid but with new_order
@@ -205,7 +205,7 @@ def merge_grids(
 def construct_and_dump_order_exists_grid(ori_grid, to_construct_order):
     """Remove the order that has to be substituted from the grid."""
     bin_limits = [float(bin) for bin in range(ori_grid.bins() + 1)]
-    lumi_grid = [pineappl.lumi.LumiEntry(mylum) for mylum in ori_grid.channels()]
+    lumi_grid = [pineappl.lumi.Channel(mylum) for mylum in ori_grid.channels()]
     subgrid_params = pineappl.subgrid.SubgridParams()
     ori_grid_orders = [order.as_tuple() for order in ori_grid.orders()]
     new_orders = [
