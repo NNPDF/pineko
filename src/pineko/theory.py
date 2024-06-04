@@ -428,7 +428,7 @@ class TheoryBuilder:
         # Check if we are computing FONLL-B fktable and eventually change max_as
         if check.is_fonll_mixed(
             tcard["FNS"],
-            grid.lumi(),
+            grid.channels(),
         ):
             max_as += 1
 
@@ -472,7 +472,7 @@ class TheoryBuilder:
                     operators_a.paths.root.parent
                     / f"eko-tmp-{name}-{np.random.rand()}.tar"
                 )
-            operators_b.deepcopy(eko_tmp_path_b)
+                operators_b.deepcopy(eko_tmp_path_b)
 
         with eko.EKO.edit(eko_tmp_path_a) as operators_a:
             # Obtain the assumptions hash
