@@ -58,9 +58,9 @@ def get_ekos_convolution_type(kv):
         conv_type_1 = kv["convolution_type_1"]
     # TODO: this case is now deprecated and should be remved from yadism and pinefarm
     elif "polarized" in kv and kv["polarized"]:
-        conv_type_1 = "polPDF"
+        conv_type_1 = "PolPDF"
     else:
-        conv_type_1 = "PDF"
+        conv_type_1 = "UnpolPDF"
     conv_type_2 = kv.get("convolution_type_2", "PDF")
     return conv_type_1, conv_type_2
 
@@ -192,7 +192,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
 
     def dump_card(card_path, operators_card, conv_type, suffix=False):
         op_to_dump = copy.deepcopy(operators_card)
-        op_to_dump["configs"]["polarized"] = conv_type == "polPDF"
+        op_to_dump["configs"]["polarized"] = conv_type == "PolPDF"
 
         if suffix:
             card_path = card_path.parent / f"{card_path.stem}_{conv_type}.yaml"
@@ -322,6 +322,7 @@ def evolve_grid(
         for mur2 in mur2_grid
     ]
     # We need to use ekompatibility in order to pass a dictionary to pineappl
+
     fktable = grid.evolve(
         ekompatibility.pineappl_layout(operators_a),
         xir * xir * mur2_grid,
