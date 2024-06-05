@@ -61,7 +61,7 @@ def get_ekos_convolution_type(kv):
         conv_type_1 = "PolPDF"
     else:
         conv_type_1 = "UnpolPDF"
-    conv_type_2 = kv.get("convolution_type_2", "PDF")
+    conv_type_2 = kv.get("convolution_type_2", "UnpolPDF")
     return conv_type_1, conv_type_2
 
 
