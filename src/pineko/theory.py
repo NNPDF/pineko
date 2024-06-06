@@ -332,7 +332,7 @@ class TheoryBuilder:
         # perturbative order of the prescription.
         if tcard.get("PTOEKO") is not None:
             tcard["PTO"] = tcard["PTOEKO"]
-        # Keys still needed by eko below
+        # Deprecated keys still needed by eko below. TODO: remove them asap.
         tcard["Qedref"] = tcard["Qref"]
         tcard["MaxNfAs"] = tcard["MaxNfPdf"]
         # The operator card has been already generated in the correct format
