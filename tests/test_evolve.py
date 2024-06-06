@@ -43,7 +43,7 @@ class FakePine:
         return self._evolve_info
 
     def key_values(self):
-        return {}
+        return {"convolution_particle_1": 2212, "convolution_particle_2": 11}
 
 
 def test_write_operator_card_q0(tmp_path):
