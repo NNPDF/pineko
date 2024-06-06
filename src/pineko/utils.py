@@ -3,7 +3,14 @@
 Common tools typically used by several pineko functions.
 """
 
-from .configs import GENERIC_OPTIONS
+from .configs import GENERIC_OPTIONS, THEORY_PATH_KEY
+
+
+def _nnpdf_enabled(configs):
+    """Check whether NNPDF is enabled."""
+    if configs is None:
+        return True
+    return configs.get(GENERIC_OPTIONS, {}).get("nnpdf", False)
 
 
 def read_grids_from_nnpdf(dataset_name, configs=None):
@@ -18,9 +25,8 @@ def read_grids_from_nnpdf(dataset_name, configs=None):
             dictionary of configuration options
             if None it it assumed that the NNPDF version is required
     """
-    if configs is not None:
-        if not configs.get(GENERIC_OPTIONS, {}).get("nnpdf", False):
-            return None
+    if not _nnpdf_enabled(configs):
+        return None
 
     # Import NNPDF only if we really want it!
     from nnpdf_data import legacy_to_new_map
@@ -33,3 +39,23 @@ def read_grids_from_nnpdf(dataset_name, configs=None):
     fks = cd.metadata.theory.FK_tables
     # Return it flat
     return [f"{i}.{EXT}" for operand in fks for i in operand]
+
+
+def load_nnpdf_theory(theory_id, configs):
+    """Load a theory using the NNPDF data utilities.
+
+    If NNPDF is not available, returns None.
+
+    Parameters
+    ----------
+        theory_id: int
+        configs: dict
+            dictionary of configuration options
+    """
+    if not _nnpdf_enabled(configs):
+        return None
+
+    from nnpdf_data.theorydbutils import fetch_theory
+
+    theory_path = configs["paths"][THEORY_PATH_KEY]
+    return fetch_theory(theory_path, theory_id)

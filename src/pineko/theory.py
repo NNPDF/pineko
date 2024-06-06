@@ -330,8 +330,11 @@ class TheoryBuilder:
         # from the PTO needed for the PDF evolution (and so by EKO). Here we
         # ensure that the PTO used in the EKO calculation reflects the real
         # perturbative order of the prescription.
-        if "PTOEKO" in tcard:
+        if tcard.get("PTOEKO") is not None:
             tcard["PTO"] = tcard["PTOEKO"]
+        # Deprecated keys still needed by eko below. TODO: remove them asap.
+        tcard["Qedref"] = tcard["Qref"]
+        tcard["MaxNfAs"] = tcard["MaxNfPdf"]
         # The operator card has been already generated in the correct format
         # The theory card needs to be converted to a format that eko can use
         legacy_class = eko.io.runcards.Legacy(tcard, ocard)
@@ -386,7 +389,7 @@ class TheoryBuilder:
         # PTODIS, thus using PTO instead of PTODIS to establish the perturbative
         # order would result in the PTODIS terms that correspond to orders
         # beyond PTO to be neglected
-        if "PTODIS" in tcard and "FONLL" in tcard["FNS"]:
+        if "FONLL" in tcard["FNS"] and tcard.get("PTODIS") is not None:
             tcard["PTO"] = tcard["PTODIS"]
 
         # check if grid contains SV if theory is requesting them (in particular
