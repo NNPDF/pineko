@@ -99,9 +99,9 @@ appropriate options.
 Using pineko with NNPDF
 """""""""""""""""""""""
 
-It is possible to use ``pineko`` without providing a mapping between data and grids
+It is possible to use ``pineko`` without providing an explicit mapping between data and grids
 (i.e., without a ``yamldb`` database) or theory cards, by using the data declared in the NNPDF
-repository.
+repository (which includes a data-theory mapping).
 
 In order to do this you need to install ``pineko`` withe ``nnpdf`` extra, which will install
 the latest version from the ``nnpdf`` repository::
