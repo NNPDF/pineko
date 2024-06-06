@@ -322,7 +322,7 @@ class TheoryBuilder:
         # setup data
         grid_kv = pineappl.grid.Grid.read(grid).key_values()
         conv_type_a, conv_type_b = evolve.get_ekos_convolution_type(grid_kv)
-        if conv_type_a == conv_type_b:
+        if conv_type_b is None or conv_type_a == conv_type_b:
             names = [name]
         else:
             names = [
@@ -411,7 +411,7 @@ class TheoryBuilder:
         conv_type_a, conv_type_b = evolve.get_ekos_convolution_type(kv)
 
         # setup data
-        if conv_type_a == conv_type_b:
+        if conv_type_b is None or conv_type_a == conv_type_b:
             eko_filename = [self.ekos_path() / f"{name}.tar"]
         else:
             eko_filename = [

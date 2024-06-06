@@ -61,7 +61,18 @@ def get_ekos_convolution_type(kv):
         conv_type_1 = "PolPDF"
     else:
         conv_type_1 = "UnpolPDF"
-    conv_type_2 = kv.get("convolution_type_2", "UnpolPDF")
+
+    # TODO: initial_state_2 is now deprecated, needed for comatibility
+    if "convolution_particle_2" in kv:
+        part_2 = kv["convolution_particle_2"]
+    else:
+        part_2 = kv["initial_state_2"]
+
+    # check for DIS
+    if check.islepton(float(part_2)):
+        conv_type_2 = None
+    else:
+        conv_type_2 = kv.get("convolution_type_2", "UnpolPDF")
     return conv_type_1, conv_type_2
 
 
@@ -207,7 +218,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
 
     # For hardonic obs we might need to dump 2 eko cards
 
-    if conv_type_a == conv_type_b:
+    if conv_type_b is None or conv_type_a == conv_type_b:
         dump_card(card_path, operators_card, conv_type_a)
     else:
         # dump card_a
