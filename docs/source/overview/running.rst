@@ -103,7 +103,7 @@ It is possible to use ``pineko`` without providing an explicit mapping between d
 (i.e., without a ``yamldb`` database) or theory cards, by using the data declared in the NNPDF
 repository (which includes a data-theory mapping).
 
-In order to do this you need to install ``pineko`` withe ``nnpdf`` extra, which will install
+In order to do this you need to install ``pineko`` with the ``nnpdf`` extra, which will install
 the latest version from the ``nnpdf`` repository::
 
   pip install pineko[nnpdf]
