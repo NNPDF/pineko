@@ -304,8 +304,6 @@ def apply_to_dataset(
         datset name
     kfactor_folder : pathlib.Path()
         kfactors folder
-    yamldb_path : pathlib.Path()
-        path to the yaml file describing the dataset
     pto_to_update : int
         perturbative order to update: 1 = LO, 2 = NLO ...
         no matter which power of alpha_s it is.
