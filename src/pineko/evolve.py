@@ -1,6 +1,7 @@
 """Tools related to evolution/eko."""
 
 import copy
+import json
 import logging
 import os
 import pathlib
@@ -122,8 +123,12 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     xif = 1.0 if sv_method is not None else tcard["XIF"]
     # update scale variation method
     operators_card["configs"]["scvar_method"] = sv_method
-    # update initial scale mu0
+
+    # Make sure that we are using the theory Q0 and fail if the template has a different one
     operators_card["mu0"] = tcard["Q0"]
+    if default_card.get("mu0") is not None and default_card["mu0"] != tcard["Q0"]:
+        raise ValueError("Template declares a value of Q0 different from theory")
+
     q2_grid = (xif * xif * muf2_grid).tolist()
     masses = np.array([tcard["mc"], tcard["mb"], tcard["mt"]]) ** 2
     thresholds_ratios = np.array([tcard["kcThr"], tcard["kbThr"], tcard["ktThr"]]) ** 2
@@ -161,6 +166,39 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     if "timelike" in kv:
         operators_card["configs"]["timelike"] = kv["timelike"] == "True"
 
+    # Choose the evolution method according to the theory if the key is included
+    if "ModEv" in tcard:
+        opconf = operators_card["configs"]
+        if tcard["ModEv"] == "TRN":
+            opconf["evolution_method"] = "truncated"
+            opconf["ev_op_iterations"] = 1
+        elif tcard["ModEv"] == "EXA":
+            opconf["evolution_method"] = "iterate-exact"
+            if "IterEv" in tcard:
+                opconf["ev_op_iterations"] = tcard["IterEv"]
+            elif "ev_op_iterations" not in default_card["configs"]:
+                raise ValueError(
+                    "EXA used but IterEv not found in the theory card and not ev_op_iterations set in the template"
+                )
+
+        # If the evolution method is defined in the template and it is different, fail
+        template_method = default_card["configs"].get("evolution_method")
+        if (
+            template_method is not None
+            and template_method != opconf["evolution_method"]
+        ):
+            raise ValueError(
+                f"The template and the theory have different evolution method ({template_method} vs {opconf['key']})"
+            )
+
+        # If the change is on the number of iterations, take the template value but warn the user
+        template_iter = default_card["configs"].get("ev_op_iterations")
+        if template_iter is not None and template_method != opconf["ev_op_iterations"]:
+            opconf["ev_op_iterations"] = template_iter
+            logger.warning(
+                f"The number of iteration in the theory and template is different, using template value ({template_iter})"
+            )
+
     # Some safety checks
     if (
         operators_card["configs"]["evolution_method"] == "truncated"
@@ -188,6 +226,8 @@ def evolve_grid(
     xif,
     assumptions="Nf6Ind",
     comparison_pdf=None,
+    meta_data=None,
+    min_as=None,
 ):
     """Convolute grid with EKO from file paths.
 
@@ -211,8 +251,20 @@ def evolve_grid(
         assumptions on the flavor dimension
     comparison_pdf : None or str
         if given, a comparison table (with / without evolution) will be printed
+    meta_data : None or dict
+        if given, additional meta data written to the FK table
+    min_as: None or int
+        minimum power of strong coupling
     """
     order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al, True)
+    if min_as is not None and min_as > 1:
+        # If using min_as, we want to ignore only orders below that (e.g., if min_as=2
+        # and max_as=3, we want NNLO and NLO)
+        ignore_orders = pineappl.grid.Order.create_mask(
+            grid.orders(), min_as - 1, max_al, True
+        )
+        order_mask ^= ignore_orders
+
     evol_info = grid.evolve_info(order_mask)
     x_grid = evol_info.x1
     mur2_grid = evol_info.ren1
@@ -269,7 +321,12 @@ def evolve_grid(
     rich.print(f"Optimizing for {assumptions}")
     fktable.optimize(assumptions)
     fktable.set_key_value("eko_version", operators.metadata.version)
+    fktable.set_key_value("eko_theory_card", json.dumps(operators.theory_card.raw))
+    fktable.set_key_value("eko_operator_card", json.dumps(operators.operator_card.raw))
     fktable.set_key_value("pineko_version", version.__version__)
+    if meta_data is not None:
+        for k, v in meta_data.items():
+            fktable.set_key_value(k, v)
     # compare before/after
     comparison = None
     if comparison_pdf is not None:

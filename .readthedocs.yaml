@@ -1,7 +1,8 @@
-version: 2
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+# for poetry see https://docs.readthedocs.io/en/stable/build-customization.html#install-dependencies-with-poetry
 
-sphinx:
-  configuration: docs/source/conf.py
+# Required
+version: 2
 
 build:
   os: ubuntu-22.04
@@ -12,13 +13,11 @@ build:
   jobs:
     post_create_environment:
       - pip install poetry
-      - poetry config virtualenvs.create false
     post_install:
-      - poetry install --with docs
+      - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry install --with docs
 
-formats:
-- epub
-- pdf
+sphinx:
+  configuration: docs/source/conf.py
 
 # python:
 #   install:

@@ -78,10 +78,10 @@ rst_prolog = "\n".join(
 )
 
 extlinks = {
-    "yadism": ("https://n3pdf.github.io/yadism/%s", "yadism"),
-    "banana": ("https://n3pdf.github.io/banana/%s", "banana"),
-    "pineappl": ("https://n3pdf.github.io/pineappl/%s", "pineappl"),
-    "eko": ("https://github.com/N3PDF/eko/%s", "eko"),
+    "yadism": ("https://n3pdf.github.io/yadism/%s", "yadism%s"),
+    "banana": ("https://n3pdf.github.io/banana/%s", "banana%s"),
+    "pineappl": ("https://n3pdf.github.io/pineappl/%s", "pineappl%s"),
+    "eko": ("https://github.com/N3PDF/eko/%s", "eko%s"),
 }
 # -- Options for HTML output -------------------------------------------------
 

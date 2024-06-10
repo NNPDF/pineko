@@ -6,6 +6,7 @@ from typing import Any, Dict
 import yaml
 
 from . import configs
+from .utils import load_nnpdf_theory
 
 
 def path(theory_id: int) -> pathlib.Path:
@@ -22,7 +23,7 @@ def path(theory_id: int) -> pathlib.Path:
         theory card path
 
     """
-    return configs.configs["paths"]["theory_cards"] / f"{theory_id}.yaml"
+    return configs.configs["paths"][configs.THEORY_PATH_KEY] / f"{theory_id}.yaml"
 
 
 def load(theory_id: int) -> Dict[str, Any]:
@@ -39,6 +40,10 @@ def load(theory_id: int) -> Dict[str, Any]:
         theory card
 
     """
+    nnpdf_theory = load_nnpdf_theory(theory_id, configs.configs)
+    if nnpdf_theory is not None:
+        return nnpdf_theory
+
     with open(path(theory_id), encoding="utf-8") as f:
         theory_card = yaml.safe_load(f)
     return theory_card
