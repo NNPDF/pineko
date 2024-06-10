@@ -8,7 +8,7 @@ import rich
 import yaml
 from pineappl import import_only_subgrid
 
-from . import scale_variations
+from . import configs, fonll, scale_variations, utils
 from .scale_variations import orders_as_tuple
 
 DEFAULT_PDF_SET = "NNPDF40_nnlo_as_01180"
@@ -136,7 +136,7 @@ def construct_new_order(grid, order, order_to_update, central_kfactor, alphas):
     new_grid = scale_variations.initialize_new_grid(grid, order_to_update)
     original_order_index = grid_orders.index(order)
 
-    for lumi_index in range(len(new_grid.lumi())):
+    for lumi_index in range(len(new_grid.channels())):
         for bin_index in range(grid.bins()):
             subgrid = grid.subgrid(original_order_index, bin_index, lumi_index)
             mu2_ren_grid = [mu2.ren for mu2 in subgrid.mu2_grid()]
@@ -287,9 +287,9 @@ def to_list(grid, central_kfactors):
 
 
 def apply_to_dataset(
-    grids_folder,
+    theoryid,
+    dataset,
     kfactor_folder,
-    yamldb_path,
     pto_to_update,
     target_folder,
     order_exists=False,
@@ -298,8 +298,10 @@ def apply_to_dataset(
 
     Parameters
     ----------
-    grids_folder : pathlib.Path()
-        pineappl grids folder
+    theoryid : int
+        theory ID of the source grid
+    dataset : str
+        datset name
     kfactor_folder : pathlib.Path()
         kfactors folder
     yamldb_path : pathlib.Path()
@@ -315,30 +317,33 @@ def apply_to_dataset(
     import lhapdf  # pylint: disable=import-error,import-outside-toplevel
 
     # Extracting info from yaml file
-    with open(yamldb_path, encoding="utf-8") as f:
-        yamldict = yaml.safe_load(f)
+    grid_list = utils.read_grids_from_nnpdf(dataset, configs.configs)
+    if grid_list is None:
+        grid_list = fonll.grids_names(
+            configs.configs["paths"]["ymldb"] / f"{dataset}.yaml"
+        )
 
-    # loop on operands
-    for grid_list in yamldict["operands"]:
-        # loop on grids
-        for grid in grid_list:
-            # TODO: generalize for other type of kfactors ?
-            kfactor_path = kfactor_folder / f"CF_QCD_{grid}.dat"
-            if "ATLASDY2D8TEV" in grid:
-                kfactor_path = kfactor_folder / f"CF_QCDEWK_{grid}.dat"
+    # loop on grids_name
+    for grid in grid_list:
+        # TODO: generalize for other type of kfactors ?
+        grid_name = grid.split(".")[0]
+        kfactor_path = kfactor_folder / f"CF_QCD_{grid_name}.dat"
+        if "ATLASDY2D8TEV" in grid:
+            kfactor_path = kfactor_folder / f"CF_QCDEWK_{grid_name}.dat"
 
-            grid_name = f"{grid}.pineappl.lz4"
-            current_grid = pineappl.grid.Grid.read(grids_folder / grid_name)
+        current_grid = pineappl.grid.Grid.read(
+            configs.configs["paths"]["grids"] / str(theoryid) / grid
+        )
 
-            central_kfactor, pdf_set = read_from_file(kfactor_path)
-            central_kfactor_filtered = to_list(current_grid, central_kfactor)
-            alphas = lhapdf.mkAlphaS(pdf_set)
+        central_kfactor, pdf_set = read_from_file(kfactor_path)
+        central_kfactor_filtered = to_list(current_grid, central_kfactor)
+        alphas = lhapdf.mkAlphaS(pdf_set)
 
-            apply_to_grid(
-                central_kfactor_filtered,
-                alphas,
-                current_grid,
-                pto_to_update,
-                target_folder / grid_name,
-                order_exists,
-            )
+        apply_to_grid(
+            central_kfactor_filtered,
+            alphas,
+            current_grid,
+            pto_to_update,
+            target_folder / grid,
+            order_exists,
+        )
