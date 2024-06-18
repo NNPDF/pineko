@@ -12,11 +12,12 @@ name = "pineko.toml"
 configs = {}
 "Holds loaded configurations"
 
+THEORY_PATH_KEY = "theory_cards"
 NEEDED_KEYS = [
     "operator_cards",
     "grids",
     "operator_card_template_name",
-    "theory_cards",
+    THEORY_PATH_KEY,
     "fktables",
     "ekos",
 ]
@@ -65,11 +66,17 @@ def enhance_paths(configs_):
     if generic_options.get("nnpdf", False):
         # Fail as soon as possible
         try:
-            import validphys
+            import nnpdf_data
         except ModuleNotFoundError:
             raise ModuleNotFoundError(
                 "Cannot use `nnpdf=True` without a valid installation of NNPDF"
             )
+        # If ``nnpdf_data`` is available, then override also the theory path
+        # UNLESS the debug-option ``nnpdf_theory`` is set explicitly to false!
+        if generic_options.get("nnpdf_theory", True):
+            from nnpdf_data import theory_cards
+
+            configs_["paths"][THEORY_PATH_KEY] = theory_cards
     else:
         required_keys.append("ymldb")
 

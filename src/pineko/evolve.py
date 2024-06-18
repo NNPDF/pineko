@@ -153,8 +153,12 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     xif = 1.0 if sv_method is not None else tcard["XIF"]
     # update scale variation method
     operators_card["configs"]["scvar_method"] = sv_method
-    # update initial scale mu0
+
+    # Make sure that we are using the theory Q0 and fail if the template has a different one
     operators_card["mu0"] = tcard["Q0"]
+    if default_card.get("mu0") is not None and default_card["mu0"] != tcard["Q0"]:
+        raise ValueError("Template declares a value of Q0 different from theory")
+
     q2_grid = (xif * xif * muf2_grid).tolist()
     masses = np.array([tcard["mc"], tcard["mb"], tcard["mt"]]) ** 2
     thresholds_ratios = np.array([tcard["kcThr"], tcard["kbThr"], tcard["ktThr"]]) ** 2
@@ -190,6 +194,39 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     # fragmentation function grid?
     if "timelike" in kv:
         operators_card["configs"]["timelike"] = kv["timelike"] == "True"
+
+    # Choose the evolution method according to the theory if the key is included
+    if "ModEv" in tcard:
+        opconf = operators_card["configs"]
+        if tcard["ModEv"] == "TRN":
+            opconf["evolution_method"] = "truncated"
+            opconf["ev_op_iterations"] = 1
+        elif tcard["ModEv"] == "EXA":
+            opconf["evolution_method"] = "iterate-exact"
+            if "IterEv" in tcard:
+                opconf["ev_op_iterations"] = tcard["IterEv"]
+            elif "ev_op_iterations" not in default_card["configs"]:
+                raise ValueError(
+                    "EXA used but IterEv not found in the theory card and not ev_op_iterations set in the template"
+                )
+
+        # If the evolution method is defined in the template and it is different, fail
+        template_method = default_card["configs"].get("evolution_method")
+        if (
+            template_method is not None
+            and template_method != opconf["evolution_method"]
+        ):
+            raise ValueError(
+                f"The template and the theory have different evolution method ({template_method} vs {opconf['key']})"
+            )
+
+        # If the change is on the number of iterations, take the template value but warn the user
+        template_iter = default_card["configs"].get("ev_op_iterations")
+        if template_iter is not None and template_method != opconf["ev_op_iterations"]:
+            opconf["ev_op_iterations"] = template_iter
+            logger.warning(
+                f"The number of iteration in the theory and template is different, using template value ({template_iter})"
+            )
 
     # Some safety checks
     if (
