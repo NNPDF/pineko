@@ -246,10 +246,6 @@ class TheoryBuilder:
             opcard_path,
             tcard,
         )
-        if opcard_path.exists():
-            rich.print(
-                f"[green]Success:[/] Wrote card with {len(q2_grid)} Q2 points to {opcard_path}"
-            )
 
     def opcards(self):
         """Write operator cards."""
@@ -306,7 +302,7 @@ class TheoryBuilder:
             logger_.setLevel(logging.INFO)
         return True
 
-    def eko(self, name, _grid, tcard):
+    def eko(self, name, grid, tcard):
         """Compute a single eko.
 
         Parameters
@@ -324,40 +320,51 @@ class TheoryBuilder:
             paths["logs"]["eko"], f"{self.theory_id}-{name}.log", ("eko",)
         )
         # setup data
-        ocard = self.load_operator_card(name)
-        # For nFONLL mixed prescriptions (such as FONLL-B) the PTO written on
-        # the tcard is used to produce the grid by yadism and it might be different
-        # from the PTO needed for the PDF evolution (and so by EKO). Here we
-        # ensure that the PTO used in the EKO calculation reflects the real
-        # perturbative order of the prescription.
-        if tcard.get("PTOEKO") is not None:
-            tcard["PTO"] = tcard["PTOEKO"]
-        # Deprecated keys still needed by eko below. TODO: remove them asap.
-        tcard["Qedref"] = tcard["Qref"]
-        tcard["MaxNfAs"] = tcard["MaxNfPdf"]
-        # The operator card has been already generated in the correct format
-        # The theory card needs to be converted to a format that eko can use
-        legacy_class = eko.io.runcards.Legacy(tcard, ocard)
-        new_theory = legacy_class.new_theory
-        new_op = eko.io.runcards.OperatorCard.from_dict(ocard)
-        eko_filename = self.ekos_path() / f"{name}.tar"
-        if eko_filename.exists():
-            if not self.overwrite:
-                rich.print(f"Skipping existing operator {eko_filename}")
-                return
-            eko_filename.unlink()
-        # do it!
-        logger.info("Start computation of %s", name)
-        start_time = time.perf_counter()
-        # Actual computation of the EKO
-        solve(new_theory, new_op, eko_filename)
-        logger.info(
-            "Finished computation of %s - took %f s",
-            name,
-            time.perf_counter() - start_time,
-        )
-        if eko_filename.exists():
-            rich.print(f"[green]Success:[/] Wrote EKO to {eko_filename}")
+        grid_kv = pineappl.grid.Grid.read(grid).key_values()
+        conv_type_a, conv_type_b = evolve.get_ekos_convolution_type(grid_kv)
+        if conv_type_b is None or conv_type_a == conv_type_b:
+            names = [name]
+        else:
+            names = [
+                f"{name}_{conv_type_a}",
+                f"{name}_{conv_type_b}",
+            ]
+
+        for name in names:
+            ocard = self.load_operator_card(name)
+            # For nFONLL mixed prescriptions (such as FONLL-B) the PTO written on
+            # the tcard is used to produce the grid by yadism and it might be different
+            # from the PTO needed for the PDF evolution (and so by EKO). Here we
+            # ensure that the PTO used in the EKO calculation reflects the real
+            # perturbative order of the prescription.
+            if tcard.get("PTOEKO") is not None:
+                tcard["PTO"] = tcard["PTOEKO"]
+            # Deprecated keys still needed by eko below. TODO: remove them asap.
+            tcard["Qedref"] = tcard["Qref"]
+            tcard["MaxNfAs"] = tcard["MaxNfPdf"]
+            # The operator card has been already generated in the correct format
+            # The theory card needs to be converted to a format that eko can use
+            legacy_class = eko.io.runcards.Legacy(tcard, ocard)
+            new_theory = legacy_class.new_theory
+            new_op = eko.io.runcards.OperatorCard.from_dict(ocard)
+            eko_filename = self.ekos_path() / f"{name}.tar"
+            if eko_filename.exists():
+                if not self.overwrite:
+                    rich.print(f"Skipping existing operator {eko_filename}")
+                    return
+                eko_filename.unlink()
+            # do it!
+            logger.info("Start computation of %s", name)
+            start_time = time.perf_counter()
+            # Actual computation of the EKO
+            solve(new_theory, new_op, eko_filename)
+            logger.info(
+                "Finished computation of %s - took %f s",
+                name,
+                time.perf_counter() - start_time,
+            )
+            if eko_filename.exists():
+                rich.print(f"[green]Success:[/] Wrote EKO to {eko_filename}")
 
     def ekos(self):
         """Compute all ekos."""
@@ -401,8 +408,20 @@ class TheoryBuilder:
         grid = pineappl.grid.Grid.read(grid_path)
         # remove zero subgrid
         grid.optimize()
+
+        # Do you need one or multiple ekos?
+        kv = grid.key_values()
+        conv_type_a, conv_type_b = evolve.get_ekos_convolution_type(kv)
+
         # setup data
-        eko_filename = self.ekos_path() / f"{name}.tar"
+        if conv_type_b is None or conv_type_a == conv_type_b:
+            eko_filename = [self.ekos_path() / f"{name}.tar"]
+        else:
+            eko_filename = [
+                self.ekos_path() / f"{name}_{conv_type_a}.tar",
+                self.ekos_path() / f"{name}_{conv_type_b}.tar",
+            ]
+
         fk_filename = self.fks_path / f"{name}.{parser.EXT}"
         if fk_filename.exists():
             if not self.overwrite:
@@ -412,7 +431,7 @@ class TheoryBuilder:
         # Check if we are computing FONLL-B fktable and eventually change max_as
         if check.is_fonll_mixed(
             tcard["FNS"],
-            grid.lumi(),
+            grid.channels(),
         ):
             max_as += 1
 
@@ -437,16 +456,28 @@ class TheoryBuilder:
             if not np.isclose(xif, 1.0):
                 check_scvar_evolve(grid, max_as, max_al, check.Scale.FACT)
         # loading ekos to produce a tmp copy
-        with eko.EKO.read(eko_filename) as operators:
+        n_ekos = len(eko_filename)
+        with eko.EKO.read(eko_filename[0]) as operators_a:
+
             # Skip the computation of the fktable if the eko is empty
-            if len(operators.mu2grid) == 0 and check.is_num_fonll(tcard["FNS"]):
+            if len(operators_a.mu2grid) == 0 and check.is_num_fonll(tcard["FNS"]):
                 rich.print("[green] Skipping empty eko for nFONLL.")
                 return
-            eko_tmp_path = (
-                operators.paths.root.parent / f"eko-tmp-{name}-{np.random.rand()}.tar"
+
+            eko_tmp_path_a = (
+                operators_a.paths.root.parent / f"eko-tmp-{name}-{np.random.rand()}.tar"
             )
-            operators.deepcopy(eko_tmp_path)
-        with eko.EKO.edit(eko_tmp_path) as operators:
+            operators_a.deepcopy(eko_tmp_path_a)
+
+        if n_ekos > 1:
+            with eko.EKO.read(eko_filename[1]) as operators_b:
+                eko_tmp_path_b = (
+                    operators_a.paths.root.parent
+                    / f"eko-tmp-{name}-{np.random.rand()}.tar"
+                )
+                operators_b.deepcopy(eko_tmp_path_b)
+
+        with eko.EKO.edit(eko_tmp_path_a) as operators_a:
             # Obtain the assumptions hash
             assumptions = theory_card.construct_assumptions(tcard)
             # do it!
@@ -459,7 +490,6 @@ class TheoryBuilder:
                 xif,
             )
             start_time = time.perf_counter()
-
             rich.print(
                 rich.panel.Panel.fit(
                     "Computing ...", style="magenta", box=rich.box.SQUARE
@@ -469,20 +499,40 @@ class TheoryBuilder:
                 f"= {fk_filename}\n",
                 f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
             )
-            _grid, _fk, comparison = evolve.evolve_grid(
-                grid,
-                operators,
-                fk_filename,
-                max_as,
-                max_al,
-                xir=xir,
-                xif=xif,
-                assumptions=assumptions,
-                comparison_pdf=pdf,
-                meta_data={"theory_card": json.dumps(tcard)},
-            )
+
+            if n_ekos == 1:
+                _grid, _fk, comparison = evolve.evolve_grid(
+                    grid,
+                    operators_a,
+                    fk_filename,
+                    max_as,
+                    max_al,
+                    xir=xir,
+                    xif=xif,
+                    assumptions=assumptions,
+                    comparison_pdf=pdf,
+                    meta_data={"theory_card": json.dumps(tcard)},
+                )
+            else:
+                with eko.EKO.edit(eko_tmp_path_b) as operators_b:
+                    _grid, _fk, comparison = evolve.evolve_grid(
+                        grid,
+                        operators_a,
+                        fk_filename,
+                        max_as,
+                        max_al,
+                        xir=xir,
+                        xif=xif,
+                        assumptions=assumptions,
+                        operators_b=operators_b,
+                        comparison_pdf=pdf,
+                        meta_data={"theory_card": json.dumps(tcard)},
+                    )
+                # Remove tmp ekos
+                eko_tmp_path_b.unlink()
+
         # Remove tmp ekos
-        eko_tmp_path.unlink()
+        eko_tmp_path_a.unlink()
 
         logger.info(
             "Finished computation of %s - took %f s",
