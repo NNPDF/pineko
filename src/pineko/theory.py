@@ -24,17 +24,17 @@ from .utils import read_grids_from_nnpdf
 logger = logging.getLogger(__name__)
 
 
-def get_eko_names(grid, name):
+def get_eko_names(grid_path, name):
     """Find eko names.
 
     Parameters
     ----------
+    grid_path : pathlib.Path
+        path to grid
     name : str
         grid name, i.e. it's true stem
-    grid : pathlib.Path
-        path to grid
     """
-    grid_kv = pineappl.grid.Grid.read(grid).key_values()
+    grid_kv = pineappl.grid.Grid.read(grid_path).key_values()
     conv_type_a, conv_type_b = evolve.get_ekos_convolution_type(grid_kv)
     names = []
     if conv_type_b is None or conv_type_a == conv_type_b:
@@ -427,7 +427,7 @@ class TheoryBuilder:
         grid.optimize()
 
         # Do you need one or multiple ekos?
-        names = get_eko_names(grid, name)
+        names = get_eko_names(grid_path, name)
         eko_filename = [self.ekos_path() / f"{ekoname}.tar" for ekoname in names]
         fk_filename = self.fks_path / f"{name}.{parser.EXT}"
         if fk_filename.exists():
