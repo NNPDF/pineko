@@ -427,18 +427,8 @@ class TheoryBuilder:
         grid.optimize()
 
         # Do you need one or multiple ekos?
-        kv = grid.key_values()
-        conv_type_a, conv_type_b = evolve.get_ekos_convolution_type(kv)
-
-        # setup data
-        if conv_type_b is None or conv_type_a == conv_type_b:
-            eko_filename = [self.ekos_path() / f"{name}.tar"]
-        else:
-            eko_filename = [
-                self.ekos_path() / f"{name}_{conv_type_a}.tar",
-                self.ekos_path() / f"{name}_{conv_type_b}.tar",
-            ]
-
+        names = get_eko_names(grid, name)
+        eko_filename = [self.ekos_path() / f"{ekoname}.tar" for ekoname in names]
         fk_filename = self.fks_path / f"{name}.{parser.EXT}"
         if fk_filename.exists():
             if not self.overwrite:
