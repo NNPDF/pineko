@@ -24,6 +24,29 @@ from .utils import read_grids_from_nnpdf
 logger = logging.getLogger(__name__)
 
 
+def get_eko_names(grid, name):
+    """Find eko names.
+
+    Parameters
+    ----------
+    name : str
+        grid name, i.e. it's true stem
+    grid : pathlib.Path
+        path to grid
+    """
+    grid_kv = pineappl.grid.Grid.read(grid).key_values()
+    conv_type_a, conv_type_b = evolve.get_ekos_convolution_type(grid_kv)
+    names = []
+    if conv_type_b is None or conv_type_a == conv_type_b:
+        names = [name]
+    else:
+        names = [
+            f"{name}_{conv_type_a}",
+            f"{name}_{conv_type_b}",
+        ]
+    return names
+
+
 def check_scvar_evolve(grid, max_as, max_al, kind: check.Scale):
     """Check scale variations and central orders consistency."""
     available, max_as_effective = check.contains_sv(grid, max_as, max_al, kind)
@@ -169,7 +192,7 @@ class TheoryBuilder:
         other.mkdir(exist_ok=True)
         self.iterate(self.inherit_grid, other=other)
 
-    def inherit_eko(self, name, _grid, other):
+    def inherit_eko(self, name, grid, other):
         """Inherit a EKO to a new theory.
 
         Parameters
@@ -181,17 +204,19 @@ class TheoryBuilder:
         other : pathlib.Path
             new folder
         """
-        eko_path = self.ekos_path() / f"{name}.tar"
-        new = other / f"{name}.tar"
-        if new.exists():
-            if not self.overwrite:
-                rich.print(f"Skipping existing eko {new}")
-                return
-            new.unlink()
-        # link
-        new.symlink_to(eko_path)
-        if new.exists():
-            rich.print(f"[green]Success:[/] Created link at {new}")
+        names = get_eko_names(grid, name)
+        for name in names:
+            eko_path = self.ekos_path() / f"{name}.tar"
+            new = other / f"{name}.tar"
+            if new.exists():
+                if not self.overwrite:
+                    rich.print(f"Skipping existing eko {new}")
+                    return
+                new.unlink()
+            # link
+            new.symlink_to(eko_path)
+            if new.exists():
+                rich.print(f"[green]Success:[/] Created link at {new}")
 
     def inherit_ekos(self, target_theory_id):
         """Inherit ekos to a new theory.
@@ -320,15 +345,7 @@ class TheoryBuilder:
             paths["logs"]["eko"], f"{self.theory_id}-{name}.log", ("eko",)
         )
         # setup data
-        grid_kv = pineappl.grid.Grid.read(grid).key_values()
-        conv_type_a, conv_type_b = evolve.get_ekos_convolution_type(grid_kv)
-        if conv_type_b is None or conv_type_a == conv_type_b:
-            names = [name]
-        else:
-            names = [
-                f"{name}_{conv_type_a}",
-                f"{name}_{conv_type_b}",
-            ]
+        names = get_eko_names(grid, name)
 
         for name in names:
             ocard = self.load_operator_card(name)
