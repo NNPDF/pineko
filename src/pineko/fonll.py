@@ -262,7 +262,7 @@ def assembly_combined_fk(
                 rich.print(
                     f"[green]Success:[/] skipping existing FK Table {new_fk_path}"
                 )
-                return
+                continue
         produce_combined_fk(
             *(
                 cfgpath(str(name), grid)
