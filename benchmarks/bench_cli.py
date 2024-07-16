@@ -86,7 +86,7 @@ def benchmark_compare_cli(lhapdf_path, test_files, test_pdf):
     assert "yll left" in result.output
 
 
-def benchmark_convolute_cli(test_files, tmp_path):
+def benchmark_convolve_cli(test_files, tmp_path):
     grid_path = pathlib.Path(
         test_files / "data/grids/400/HERA_NC_225GEV_EP_SIGMARED.pineappl.lz4"
     )
@@ -95,7 +95,7 @@ def benchmark_convolute_cli(test_files, tmp_path):
     runner = CliRunner()
     result = runner.invoke(
         command,
-        ["convolute", str(grid_path), str(eko_path), str(fk_path), "2", "0"],
+        ["convolve", str(grid_path), str(eko_path), str(fk_path), "2", "0"],
     )
     assert "Optimizing for Nf6Ind" in result.output
 

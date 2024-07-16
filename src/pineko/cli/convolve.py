@@ -9,7 +9,7 @@ from .. import evolve
 from ._base import command
 
 
-@command.command("convolute")
+@command.command("convolve")
 @click.argument("grid_path", type=click.Path(exists=True))
 @click.argument("op_path", type=click.Path(exists=True))
 @click.argument("fktable", type=click.Path())
@@ -32,7 +32,7 @@ def subcommand(
 ):
     """Convolute PineAPPL grid and EKO into an FK table.
 
-    GRID_PATH and OP_PATH are the path to the respective elements to convolute, and
+    GRID_PATH and OP_PATH are the path to the respective elements to convolve, and
     FKTABLE is the path where to dump the output.
 
     MAX_AS and MAX_AL are used to specify the order in QCD and QED

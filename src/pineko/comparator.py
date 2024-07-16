@@ -13,7 +13,7 @@ def compare(pine, fktable, max_as, max_al, pdf, xir, xif):
     pine : pineappl.grid.Grid
         uncovoluted grid
     fktable : pineappl.fktable.FkTable
-        convoluted grid
+        convolved grid
     max_as : int
         maximum power of strong coupling
     max_al : int
