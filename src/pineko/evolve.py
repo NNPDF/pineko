@@ -370,20 +370,21 @@ def evolve_grid(
         for mur2 in mur2_grid
     ]
     # We need to use ekompatibility in order to pass a dictionary to pineappl
-
-    fktable = grid.evolve(
-        ekompatibility.pineappl_layout(operators_a),
-        xir * xir * mur2_grid,
-        alphas_values,
-        operators_b=(
-            ekompatibility.pineappl_layout(operators_b)
-            if operators_b is not None
-            else None
-        ),
-        lumi_id_types="evol",
-        order_mask=order_mask,
-        xi=(xir, xif),
-    )
+    if operators_b is not None:
+        fktable = grid.evolve_with_slice_iter2(
+            ekompatibility.pineappl_layout(operators_a),
+            ekompatibility.pineappl_layout(operators_b),
+            alphas_table=alphas_values,
+            xi=(xir, xif),
+            order_mask=order_mask,
+        )
+    else:
+        fktable = grid.evolve_with_slice_iter(
+            ekompatibility.pineappl_layout(operators_a),
+            alphas_table=alphas_values,
+            xi=(xir, xif),
+            order_mask=order_mask,
+        )
     rich.print(f"Optimizing for {assumptions}")
     fktable.optimize(assumptions)
     fktable.set_key_value("eko_version", operators_a.metadata.version)
