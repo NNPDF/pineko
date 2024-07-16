@@ -1,12 +1,11 @@
 """Compatibility layer for EKO migration."""
 
-from typing import Any, Dict
-
 from eko import EKO, basis_rotation
+from pineappl.grid import PyOperatorSliceInfo, PyPidBasis
 
 
-def pineappl_layout(operator: EKO) -> Dict[str, Any]:
-    """Extract information required by :func:`pineappl.grid.Grid.convolute_eko`.
+def pineappl_layout(operator: EKO) -> list:
+    """Extract information required by :func:`pineappl.grid.Grid.convolve_eko`.
 
     Parameters
     ----------
@@ -19,18 +18,16 @@ def pineappl_layout(operator: EKO) -> Dict[str, Any]:
         a minimal object, with all and only the information consumed by PineAPPL
 
     """
-    oldgrid = {}
-    oldgrid["Q2grid"] = {}
-    for q2, op in operator.items():
-        oldop = dict(operators=op.operator)
-        oldgrid["Q2grid"][q2[0]] = oldop
-
-    oldgrid["q2_ref"] = operator.mu20
-    oldgrid["targetpids"] = operator.bases.targetpids
-    oldgrid["targetgrid"] = operator.bases.targetgrid.raw
-    # The EKO contains the rotation matrix but we pass the list of
-    # evol basis pids to pineappl.
-    oldgrid["inputpids"] = basis_rotation.evol_basis_pids
-    oldgrid["inputgrid"] = operator.bases.inputgrid.raw
-
-    return oldgrid
+    eko_iterator = []
+    for (q2, _), op in operator.items():
+        info = PyOperatorSliceInfo(
+            fac0=operator.mu20,
+            x0=operator.bases.inputgrid.raw,
+            pids0=basis_rotation.evol_basis_pids,
+            fac1=q2,
+            x1=operator.bases.targetgrid.raw,
+            pids1=operator.bases.targetpids,
+            pid_basis=PyPidBasis.Pdg,
+        )
+        eko_iterator.append((info, op.operator))
+    return eko_iterator

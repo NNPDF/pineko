@@ -18,6 +18,7 @@ import yaml
 from eko.io.types import ScaleVariationsMethod
 from eko.matchings import Atlas, nf_default
 from eko.quantities import heavy_quarks
+from pineappl.fk_table import PyFkAssumptions
 
 from . import check, comparator, ekompatibility, version
 
@@ -285,11 +286,11 @@ def evolve_grid(
     Parameters
     ----------
     grid : pineappl.grid.Grid
-        unconvoluted grid
+        unconvolved grid
     operators_a : eko.EKO
         evolution operator
     fktable_path : str
-        target path for convoluted grid
+        target path for convolved grid
     max_as : int
         maximum power of strong coupling
     max_al : int
@@ -372,21 +373,22 @@ def evolve_grid(
     # We need to use ekompatibility in order to pass a dictionary to pineappl
     if operators_b is not None:
         fktable = grid.evolve_with_slice_iter2(
-            ekompatibility.pineappl_layout(operators_a),
-            ekompatibility.pineappl_layout(operators_b),
+            iter(ekompatibility.pineappl_layout(operators_a)),
+            iter(ekompatibility.pineappl_layout(operators_b)),
             alphas_table=alphas_values,
             xi=(xir, xif),
             order_mask=order_mask,
         )
     else:
         fktable = grid.evolve_with_slice_iter(
-            ekompatibility.pineappl_layout(operators_a),
-            alphas_table=alphas_values,
+            iter(ekompatibility.pineappl_layout(operators_a)),
+            ren1=mur2_grid,
+            alphas=alphas_values,
             xi=(xir, xif),
             order_mask=order_mask,
         )
     rich.print(f"Optimizing for {assumptions}")
-    fktable.optimize(assumptions)
+    fktable.optimize(PyFkAssumptions(assumptions))
     fktable.set_key_value("eko_version", operators_a.metadata.version)
     fktable.set_key_value("eko_theory_card", json.dumps(operators_a.theory_card.raw))
 
