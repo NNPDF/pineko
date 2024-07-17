@@ -15,12 +15,14 @@ import rich
 import rich.box
 import rich.panel
 import yaml
+from eko import basis_rotation
 from eko.io.types import ScaleVariationsMethod
 from eko.matchings import Atlas, nf_default
 from eko.quantities import heavy_quarks
 from pineappl.fk_table import PyFkAssumptions
+from pineappl.grid import PyOperatorSliceInfo, PyPidBasis
 
-from . import check, comparator, ekompatibility, version
+from . import check, comparator, version
 
 logger = logging.getLogger(__name__)
 
@@ -370,18 +372,31 @@ def evolve_grid(
         )
         for mur2 in mur2_grid
     ]
-    # We need to use ekompatibility in order to pass a dictionary to pineappl
+
+    def prepare(operator, items):
+        (q2, _), op = items
+        info = PyOperatorSliceInfo(
+            fac0=operator.mu20,
+            x0=operator.bases.inputgrid.raw,
+            pids0=basis_rotation.evol_basis_pids,
+            fac1=q2,
+            x1=operator.bases.targetgrid.raw,
+            pids1=operator.bases.targetpids,
+            pid_basis=PyPidBasis.Pdg,
+        )
+        return (info, op.operator)
+
     if operators_b is not None:
         fktable = grid.evolve_with_slice_iter2(
-            iter(ekompatibility.pineappl_layout(operators_a)),
-            iter(ekompatibility.pineappl_layout(operators_b)),
+            map(lambda it: prepare(operators_a, it), operators_a.items()),
+            map(lambda it: prepare(operators_b, it), operators_b.items()),
             alphas_table=alphas_values,
             xi=(xir, xif),
             order_mask=order_mask,
         )
     else:
         fktable = grid.evolve_with_slice_iter(
-            iter(ekompatibility.pineappl_layout(operators_a)),
+            map(lambda it: prepare(operators_a, it), operators_a.items()),
             ren1=mur2_grid,
             alphas=alphas_values,
             xi=(xir, xif),
