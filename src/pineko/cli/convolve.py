@@ -71,5 +71,5 @@ def subcommand(
             comparison_pdf=pdf,
             min_as=min_as,
         )
-        if comp:
+        if comp is not None:
             print(comp.to_string())
