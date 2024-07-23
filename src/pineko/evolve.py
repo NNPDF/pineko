@@ -382,7 +382,7 @@ def evolve_grid(
             fac1=q2,
             x1=operator.bases.targetgrid.raw,
             pids1=operator.bases.targetpids,
-            pid_basis=PyPidBasis.Pdg,
+            pid_basis=PyPidBasis.Evol,
         )
         return (info, op.operator)
 
