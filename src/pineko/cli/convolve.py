@@ -11,15 +11,21 @@ from ._base import command
 
 @command.command("convolve")
 @click.argument("grid_path", type=click.Path(exists=True))
-@click.argument("op_path", type=click.Path(exists=True))
 @click.argument("fktable", type=click.Path())
 @click.argument("max_as", type=int)
 @click.argument("max_al", type=int)
+@click.argument("op_paths", type=click.Path(exists=True), nargs=-1)
 @click.option("--xir", default=1.0, help="renormalization scale variation")
 @click.option("--xif", default=1.0, help="factorization scale variation")
 @click.option("--min_as", type=int, help="Minimum exponent of as")
 @click.option(
-    "--pdf", default=None, help="if given, print comparison table", show_default=True
+    "--pdf1",
+    default=None,
+    help="PDF for the first convolution. If given, print comparison table",
+    show_default=True,
+)
+@click.option(
+    "--pdf2", default=None, help="PDF for the second convolution.", show_default=True
 )
 @click.option(
     "--assumptions",
@@ -28,11 +34,22 @@ from ._base import command
     show_default=True,
 )
 def subcommand(
-    grid_path, op_path, fktable, max_as, max_al, xir, xif, pdf, assumptions, min_as
+    grid_path,
+    fktable,
+    max_as,
+    max_al,
+    op_paths,
+    xir,
+    xif,
+    pdf1,
+    pdf2,
+    assumptions,
+    min_as,
 ):
     """Convolute PineAPPL grid and EKO into an FK table.
 
-    GRID_PATH and OP_PATH are the path to the respective elements to convolve, and
+    GRID_PATH and OP_PATH are the path to the respective elements to convolve.
+    Note that multiple operators are allowed.
     FKTABLE is the path where to dump the output.
 
     MAX_AS and MAX_AL are used to specify the order in QCD and QED
@@ -50,26 +67,46 @@ def subcommand(
     PDF is an optional PDF set compatible with the EKO to compare grid and FK table.
     """
     grid = pineappl.grid.Grid.read(grid_path)
-    with eko.EKO.edit(op_path) as operators:
+    n_ekos = len(op_paths)
+    with eko.EKO.edit(op_paths[0]) as operators_a:
         rich.print(
             rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
             f"   {grid_path}\n",
-            f"+ {op_path}\n",
+            f"+ {op_paths}\n",
             f"= {fktable}\n",
             f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
             f"min_as: {min_as}" if min_as is not None else "",
         )
-        _grid, _fk, comp = evolve.evolve_grid(
-            grid,
-            operators,
-            fktable,
-            max_as,
-            max_al,
-            xir,
-            xif,
-            assumptions=assumptions,
-            comparison_pdf=pdf,
-            min_as=min_as,
-        )
+        if n_ekos == 1:
+            _grid, _fk, comp = evolve.evolve_grid(
+                grid,
+                operators_a,
+                fktable,
+                max_as,
+                max_al,
+                xir,
+                xif,
+                assumptions=assumptions,
+                comparison_pdf1=pdf1,
+                comparison_pdf2=pdf2,
+                min_as=min_as,
+            )
+        else:
+            with eko.EKO.edit(op_paths[1]) as operators_b:
+                _grid, _fk, comp = evolve.evolve_grid(
+                    grid,
+                    operators_a,
+                    fktable,
+                    max_as,
+                    max_al,
+                    xir,
+                    xif,
+                    operators_b=operators_b,
+                    assumptions=assumptions,
+                    comparison_pdf1=pdf1,
+                    comparison_pdf2=pdf2,
+                    min_as=min_as,
+                )
+
         if comp is not None:
             print(comp.to_string())

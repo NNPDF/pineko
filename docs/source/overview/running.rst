@@ -50,7 +50,7 @@ Then you can convolve the |EKO| with the grids by running::
 
 Note that you can also convolve a single grid with a single eko (obtaining a single FK table) by running::
 
-  pineko convolve GRID OPCARD FKTABLE MAX_AS MAX_AL
+  pineko convolve GRID FKTABLE MAX_AS MAX_AL OP_PATH_1 OP_PATH_2
 
 If necessary it is possible to specify the values of the *renormalization* and *factorization* scale variations with
 the options ``--xir`` and ``--xif``.
@@ -91,7 +91,7 @@ Comparing grids and FK tables
 With the command ``pineko compare`` it is possible to compare the predictions as provided by the grid
 (convolved with a |PDF|) with the predictions as provided by the |FK| table. This is done like
 
-  pineko compare GRID FKTABLE MAX_AS MAX_AL PDF
+  pineko compare GRID FKTABLE MAX_AS MAX_AL PDF_1 PDF_2
 
 again eventually specifying the values of *renormalization* and *factorization* scales with the
 appropriate options.

@@ -5,7 +5,7 @@ import pandas as pd
 import pineappl
 
 
-def compare(pine, fktable, max_as, max_al, pdf, xir, xif):
+def compare(pine, fktable, max_as, max_al, pdf1, xir, xif, pdf2=None):
     """Build comparison table.
 
     Parameters
@@ -18,12 +18,14 @@ def compare(pine, fktable, max_as, max_al, pdf, xir, xif):
         maximum power of strong coupling
     max_al : int
         maximum power of electro-weak coupling
-    pdf : str
+    pdf1 : str
         PDF set name
     xir : float
         renormalization scale variation
     xif : float
         factorization scale variation
+    pdf2: str or None
+        PDF set for the second convolution, if different from the first
 
     Returns
     -------
@@ -32,19 +34,53 @@ def compare(pine, fktable, max_as, max_al, pdf, xir, xif):
     """
     import lhapdf  # pylint: disable=import-error,import-outside-toplevel
 
-    pdfset = lhapdf.mkPDF(pdf, 0)
-    pdgid = int(pdfset.set().get_entry("Particle"))
+    pdfset1 = lhapdf.mkPDF(pdf1, 0)
+    pdgid1 = int(pdfset1.set().get_entry("Particle"))
+
+    if pdf2 is not None:
+        pdfset2 = lhapdf.mkPDF(pdf1, 0)
+        pdgid2 = int(pdfset2.set().get_entry("Particle"))
+    else:
+        pdfset2 = pdfset1
+        pdgid2 = pdgid1
+
+    try:
+        parton1 = pine.key_values()["convolution_particle_1"]
+        parton2 = pine.key_values()["convolution_particle_2"]
+    except KeyError:
+        parton1 = pine.key_values()["initial_state_1"]
+        parton2 = pine.key_values()["initial_state_2"]
+    hadronic = parton1 == parton2
+
     order_mask = pineappl.grid.Order.create_mask(pine.orders(), max_as, max_al, True)
-    before = np.array(
-        pine.convolve_with_one(
-            pdgid,
-            pdfset.xfxQ2,
-            pdfset.alphasQ2,
-            order_mask=order_mask,
-            xi=((xir, xif),),
+    if hadronic:
+        before = np.array(
+            pine.convolve_with_two(
+                pdgid1,
+                pdfset1.xfxQ2,
+                pdfset1.alphasQ2,
+                pdgid2,
+                pdfset2.xfxQ2,
+                pdfset2.alphasQ2,
+                order_mask=order_mask,
+                xi=((xir, xif),),
+            )
         )
-    )
-    after = np.array(fktable.convolve_with_one(pdgid, pdfset.xfxQ2))
+        after = np.array(
+            fktable.convolve_with_one(pdgid1, pdfset1.xfxQ2, pdgid2, pdfset2.xfxQ2)
+        )
+    else:
+        before = np.array(
+            pine.convolve_with_one(
+                pdgid1,
+                pdfset1.xfxQ2,
+                pdfset1.alphasQ2,
+                order_mask=order_mask,
+                xi=((xir, xif),),
+            )
+        )
+        after = np.array(fktable.convolve_with_one(pdgid1, pdfset1.xfxQ2))
+
     df = pd.DataFrame()
     # add bin info
     for d in range(pine.bin_dimensions()):
