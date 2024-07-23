@@ -95,7 +95,7 @@ def benchmark_convolve_cli(test_files, tmp_path):
     runner = CliRunner()
     result = runner.invoke(
         command,
-        ["convolve", str(grid_path), str(eko_path), str(fk_path), "2", "0"],
+        ["convolve", str(grid_path), str(fk_path), "2", "0", str(eko_path)],
     )
     assert "Optimizing for Nf6Ind" in result.output
 

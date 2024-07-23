@@ -56,18 +56,17 @@ def compare(pine, fktable, max_as, max_al, pdf1, xir, xif, pdf2=None):
     if hadronic:
         before = np.array(
             pine.convolve_with_two(
-                pdgid1,
-                pdfset1.xfxQ2,
-                pdfset1.alphasQ2,
-                pdgid2,
-                pdfset2.xfxQ2,
-                pdfset2.alphasQ2,
+                pdg_id1=pdgid1,
+                xfx1=pdfset1.xfxQ2,
+                pdg_id2=pdgid2,
+                xfx2=pdfset2.xfxQ2,
+                alphas=pdfset1.alphasQ2,
                 order_mask=order_mask,
                 xi=((xir, xif),),
             )
         )
         after = np.array(
-            fktable.convolve_with_one(pdgid1, pdfset1.xfxQ2, pdgid2, pdfset2.xfxQ2)
+            fktable.convolve_with_two(pdgid1, pdfset1.xfxQ2, pdgid2, pdfset2.xfxQ2)
         )
     else:
         before = np.array(
