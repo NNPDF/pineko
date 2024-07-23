@@ -429,8 +429,8 @@ def evolve_grid(
             grid, fktable, max_as, max_al, comparison_pdf1, xir, xif, comparison_pdf2
         )
         fktable.set_key_value("results_fk", comparison.to_string())
-        fktable.set_key_value("results_fk_pdfset1", comparison_pdf1)
-        fktable.set_key_value("results_fk_pdfset2", comparison_pdf2)
+        fktable.set_key_value("results_fk_pdfset1", str(comparison_pdf1))
+        fktable.set_key_value("results_fk_pdfset2", str(comparison_pdf2))
     # write
     fktable.write_lz4(str(fktable_path))
     return grid, fktable, comparison

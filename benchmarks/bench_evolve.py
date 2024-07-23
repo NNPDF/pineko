@@ -120,7 +120,7 @@ def benchmark_evolve_grid(tmp_path, lhapdf_path, test_files, test_pdf):
                 1.0,
                 1.0,
                 assumptions=assumptions,
-                comparison_pdf="NNPDF40_nnlo_as_01180",
+                comparison_pdf1="NNPDF40_nnlo_as_01180",
             )
             # check metadata is there - fixes https://github.com/NNPDF/pineko/issues/70
             fk = pineappl.fk_table.FkTable.read(target_path)

@@ -389,7 +389,7 @@ class TheoryBuilder:
         self.ekos_path().mkdir(exist_ok=True)
         self.iterate(self.eko, tcard=tcard)
 
-    def fk(self, name, grid_path, tcard, pdf):
+    def fk(self, name, grid_path, tcard, pdf_a, pdf_b):
         """Compute a single FK table.
 
         Parameters
@@ -400,13 +400,15 @@ class TheoryBuilder:
             path to grid
         tcard : dict
             theory card
-        pdf : str
+        pdf_a : str
+            comparison PDF
+        pdf_b : str
             comparison PDF
         """
         # activate logging
         paths = configs.configs["paths"]
         do_log = self.activate_logging(
-            paths["logs"]["fk"], f"{self.theory_id}-{name}-{pdf}.log"
+            paths["logs"]["fk"], f"{self.theory_id}-{name}-{pdf_a}-{pdf_b}.log"
         )
 
         # Relevant for FONLL-B and FONLL-D: For FFN0 terms, PTO is lower than
@@ -517,7 +519,7 @@ class TheoryBuilder:
                     xir=xir,
                     xif=xif,
                     assumptions=assumptions,
-                    comparison_pdf=pdf,
+                    comparison_pdf1=pdf_a,
                     meta_data={"theory_card": json.dumps(tcard)},
                 )
             else:
@@ -532,7 +534,8 @@ class TheoryBuilder:
                         xif=xif,
                         assumptions=assumptions,
                         operators_b=operators_b,
-                        comparison_pdf=pdf,
+                        comparison_pdf1=pdf_a,
+                        comparison_pdf2=pdf_b,
                         meta_data={"theory_card": json.dumps(tcard)},
                     )
                 # Remove tmp ekos
@@ -547,21 +550,25 @@ class TheoryBuilder:
             time.perf_counter() - start_time,
         )
         if do_log and comparison is not None:
-            logger.info("Comparison with %s:\n %s", pdf, comparison.to_string())
+            logger.info(
+                "Comparison with %s %s:\n %s", pdf_a, pdf_b, comparison.to_string()
+            )
         if fk_filename.exists():
             rich.print(f"[green]Success:[/] Wrote FK table to {fk_filename}")
 
-    def fks(self, pdf):
+    def fks(self, pdf_a, pdf_b):
         """Compute all FK tables.
 
         Parameters
         ----------
-        pdf : str
+        pdf_a : str
             comparison PDF
+        pdf_b : str
+            second comparison PDF if needed
         """
         tcard = theory_card.load(self.theory_id)
         self.fks_path.mkdir(exist_ok=True)
-        self.iterate(self.fk, tcard=tcard, pdf=pdf)
+        self.iterate(self.fk, tcard=tcard, pdf_a=pdf_a, pdf_b=pdf_b)
 
     def construct_ren_sv_grids(self, flavors):
         """Construct renormalization scale variations terms for all the grids in a dataset."""
