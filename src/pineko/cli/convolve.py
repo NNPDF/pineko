@@ -10,8 +10,8 @@ from ._base import command
 
 
 @command.command("convolve")
-@click.argument("grid_path", type=click.Path(exists=True))
 @click.argument("fktable", type=click.Path())
+@click.argument("grid_path", type=click.Path(exists=True))
 @click.argument("max_as", type=int)
 @click.argument("max_al", type=int)
 @click.argument("op_paths", type=click.Path(exists=True), nargs=-1)
@@ -34,8 +34,8 @@ from ._base import command
     show_default=True,
 )
 def subcommand(
-    grid_path,
     fktable,
+    grid_path,
     max_as,
     max_al,
     op_paths,
@@ -72,7 +72,8 @@ def subcommand(
         rich.print(
             rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
             f"   {grid_path}\n",
-            f"+ {op_paths}\n",
+            f"+ {op_paths[0]}\n",
+            f"+ {op_paths[1]}\n" if n_ekos > 1 else "",
             f"= {fktable}\n",
             f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
             f"min_as: {min_as}" if min_as is not None else "",

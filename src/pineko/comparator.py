@@ -35,15 +35,12 @@ def compare(pine, fktable, max_as, max_al, pdf1, xir, xif, pdf2=None):
     import lhapdf  # pylint: disable=import-error,import-outside-toplevel
 
     pdfset1 = lhapdf.mkPDF(pdf1, 0)
-    pdgid1 = int(pdfset1.set().get_entry("Particle"))
-
     if pdf2 is not None:
         pdfset2 = lhapdf.mkPDF(pdf1, 0)
-        pdgid2 = int(pdfset2.set().get_entry("Particle"))
     else:
         pdfset2 = pdfset1
-        pdgid2 = pdgid1
 
+    # TODO: This should probably changed in the future to use the Grid::convolutions
     try:
         parton1 = pine.key_values()["convolution_particle_1"]
         parton2 = pine.key_values()["convolution_particle_2"]
@@ -56,9 +53,9 @@ def compare(pine, fktable, max_as, max_al, pdf1, xir, xif, pdf2=None):
     if hadronic:
         before = np.array(
             pine.convolve_with_two(
-                pdg_id1=pdgid1,
+                pdg_id1=parton1,
                 xfx1=pdfset1.xfxQ2,
-                pdg_id2=pdgid2,
+                pdg_id2=parton2,
                 xfx2=pdfset2.xfxQ2,
                 alphas=pdfset1.alphasQ2,
                 order_mask=order_mask,
@@ -66,19 +63,19 @@ def compare(pine, fktable, max_as, max_al, pdf1, xir, xif, pdf2=None):
             )
         )
         after = np.array(
-            fktable.convolve_with_two(pdgid1, pdfset1.xfxQ2, pdgid2, pdfset2.xfxQ2)
+            fktable.convolve_with_two(parton1, pdfset1.xfxQ2, parton2, pdfset2.xfxQ2)
         )
     else:
         before = np.array(
             pine.convolve_with_one(
-                pdgid1,
+                parton1,
                 pdfset1.xfxQ2,
                 pdfset1.alphasQ2,
                 order_mask=order_mask,
                 xi=((xir, xif),),
             )
         )
-        after = np.array(fktable.convolve_with_one(pdgid1, pdfset1.xfxQ2))
+        after = np.array(fktable.convolve_with_one(parton1, pdfset1.xfxQ2))
 
     df = pd.DataFrame()
     # add bin info

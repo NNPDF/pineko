@@ -57,15 +57,16 @@ def get_ekos_convolution_type(kv):
     kv: dict
         pineappl grid metadata
     """
+    # TODO: This should probably changed in the future to use the Grid::convolutions
     if "convolution_type_1" in kv:
         conv_type_1 = kv["convolution_type_1"]
-    # TODO: this case is now deprecated and should be remved from yadism and pinefarm
+    # TODO: polarized is now deprecated, needed for compatibility
     elif "polarized" in kv and kv["polarized"]:
         conv_type_1 = "PolPDF"
     else:
         conv_type_1 = "UnpolPDF"
 
-    # TODO: initial_state_2 is now deprecated, needed for comatibility
+    # TODO: initial_state_2 is now deprecated, needed for compatibility
     if "convolution_particle_2" in kv:
         part_2 = kv["convolution_particle_2"]
     else:
@@ -413,7 +414,7 @@ def evolve_grid(
     fktable.set_key_value("eko_operator_card", json.dumps(operators1.operator_card.raw))
     if operators2 is not None:
         fktable.set_key_value(
-            "eko_operator_card_b", json.dumps(operators2.operator_card.raw)
+            "eko_operator_card_2", json.dumps(operators2.operator_card.raw)
         )
 
     fktable.set_key_value("pineko_version", version.__version__)

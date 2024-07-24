@@ -81,7 +81,7 @@ def benchmark_compare_cli(lhapdf_path, test_files, test_pdf):
     with lhapdf_path(test_pdf):
         result = runner.invoke(
             command,
-            ["compare", str(grid_path), str(fk_path), "2", "0", "NNPDF40_nlo_as_01180"],
+            ["compare", str(fk_path), str(grid_path), "2", "0", "NNPDF40_nlo_as_01180"],
         )
     assert "yll left" in result.output
 
@@ -95,7 +95,7 @@ def benchmark_convolve_cli(test_files, tmp_path):
     runner = CliRunner()
     result = runner.invoke(
         command,
-        ["convolve", str(grid_path), str(fk_path), "2", "0", str(eko_path)],
+        ["convolve", str(fk_path), str(grid_path), "2", "0", str(eko_path)],
     )
     assert "Optimizing for Nf6Ind" in result.output
 
