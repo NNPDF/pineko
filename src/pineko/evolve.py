@@ -83,12 +83,16 @@ def get_grid_convolution_type(kv):
 def check_convolution_types(grid, operators1, operators2):
     """Check that grid and eko convolution types are sorted correctly."""
     grid_conv_1, grid_conv_2 = get_grid_convolution_type(grid.key_values())
-    grid_conv_1 = grid_conv_1 == "PolPDF"
-    grid_conv_2 = grid_conv_2 == "PolPDF"
-    eko_conv_1 = operators1.operator_card.configs.polarized
-    eko_conv_2 = operators2.operator_card.configs.polarized
-    if grid_conv_1 != eko_conv_1 or grid_conv_2 != eko_conv_2:
-        raise ValueError("Grid and Eko convolution types are not matching.")
+    conv_to_eko = {"UnpolPDF": (False, False), "PolPDF": (True, False)}
+
+    def check(op, pine_conv):
+        is_pol, is_tl = conv_to_eko[pine_conv]
+        cfg = op.operator_card.configs
+        if cfg.polarized != is_pol or cfg.time_like != is_tl:
+            raise ValueError("Grid and Eko convolution types are not matching.")
+
+    check(operators1, grid_conv_1)
+    check(operators2, grid_conv_2)
 
 
 def write_operator_card_from_file(
