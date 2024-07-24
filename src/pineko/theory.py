@@ -35,7 +35,7 @@ def get_eko_names(grid_path, name):
         grid name, i.e. it's true stem
     """
     grid_kv = pineappl.grid.Grid.read(grid_path).key_values()
-    conv_type_1, conv_type_2 = evolve.get_ekos_convolution_type(grid_kv)
+    conv_type_1, conv_type_2 = evolve.get_grid_convolution_type(grid_kv)
     names = []
     if conv_type_2 is None or conv_type_1 == conv_type_2:
         names = [name]

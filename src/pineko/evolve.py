@@ -49,7 +49,7 @@ def sv_scheme(tcard):
     return modsv
 
 
-def get_ekos_convolution_type(kv):
+def get_grid_convolution_type(kv):
     """Retrieve the ekos convolution type.
 
     Parameters
@@ -78,6 +78,17 @@ def get_ekos_convolution_type(kv):
     else:
         conv_type_2 = kv.get("convolution_type_2", "UnpolPDF")
     return conv_type_1, conv_type_2
+
+
+def check_convolution_types(grid, operators1, operators2):
+    """Check that grid and eko convolution types are sorted correctly."""
+    grid_conv_1, grid_conv_2 = get_grid_convolution_type(grid.key_values())
+    grid_conv_1 = grid_conv_1 == "PolPDF"
+    grid_conv_2 = grid_conv_2 == "PolPDF"
+    eko_conv_1 = operators1.operator_card.configs.polarized
+    eko_conv_2 = operators2.operator_card.configs.polarized
+    if grid_conv_1 != eko_conv_1 or grid_conv_2 != eko_conv_2:
+        raise ValueError("Grid and Eko convolution types are not matching.")
 
 
 def write_operator_card_from_file(
@@ -193,7 +204,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
 
     # switch on polarization ?
     kv = pineappl_grid.key_values()
-    conv_type_1, conv_type_2 = get_ekos_convolution_type(kv)
+    conv_type_1, conv_type_2 = get_grid_convolution_type(kv)
 
     # fragmentation function grid?
     if "timelike" in kv:
@@ -391,6 +402,8 @@ def evolve_grid(
         return (info, op.operator)
 
     if operators2 is not None:
+        # check convolutions order
+        check_convolution_types(grid, operators1, operators2)
         fktable = grid.evolve_with_slice_iter2(
             map(lambda it: prepare(operators1, it), operators1.items()),
             map(lambda it: prepare(operators2, it), operators2.items()),
