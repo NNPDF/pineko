@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 import pineappl
+import rich
 
 
 def compare(pine, fktable, max_as, max_al, pdf1, xir, xif, pdf2=None):
@@ -44,6 +45,25 @@ def compare(pine, fktable, max_as, max_al, pdf1, xir, xif, pdf2=None):
     try:
         parton1 = int(pine.key_values()["convolution_particle_1"])
         parton2 = int(pine.key_values()["convolution_particle_2"])
+
+        if (
+            fktable.key_values()["convolution_type_1"]
+            != pine.key_values()["convolution_type_1"]
+            or fktable.key_values()["convolution_type_2"]
+            != pine.key_values()["convolution_type_2"]
+        ):
+            raise ValueError(
+                "Grids and FkTables do not have the same convolution types"
+            )
+
+        # log some useful info to check if PDFs are swapped
+        rich.print(
+            f"[yellow]Convolution type 1: {fktable.key_values()['convolution_type_1']}, PDF 1: {pdf1}"
+        )
+        rich.print(
+            f"[yellow]Convolution type 2: {fktable.key_values()['convolution_type_2']}, PDF 2: {pdf2}"
+        )
+
     except KeyError:
         parton1 = int(pine.key_values()["initial_state_1"])
         parton2 = int(pine.key_values()["initial_state_2"])
