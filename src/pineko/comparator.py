@@ -42,11 +42,11 @@ def compare(pine, fktable, max_as, max_al, pdf1, xir, xif, pdf2=None):
 
     # TODO: This should probably changed in the future to use the Grid::convolutions
     try:
-        parton1 = pine.key_values()["convolution_particle_1"]
-        parton2 = pine.key_values()["convolution_particle_2"]
+        parton1 = int(pine.key_values()["convolution_particle_1"])
+        parton2 = int(pine.key_values()["convolution_particle_2"])
     except KeyError:
-        parton1 = pine.key_values()["initial_state_1"]
-        parton2 = pine.key_values()["initial_state_2"]
+        parton1 = int(pine.key_values()["initial_state_1"])
+        parton2 = int(pine.key_values()["initial_state_2"])
     hadronic = parton1 == parton2
 
     order_mask = pineappl.grid.Order.create_mask(pine.orders(), max_as, max_al, True)
