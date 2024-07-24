@@ -35,14 +35,14 @@ def get_eko_names(grid_path, name):
         grid name, i.e. it's true stem
     """
     grid_kv = pineappl.grid.Grid.read(grid_path).key_values()
-    conv_type_a, conv_type_b = evolve.get_ekos_convolution_type(grid_kv)
+    conv_type_1, conv_type_2 = evolve.get_ekos_convolution_type(grid_kv)
     names = []
-    if conv_type_b is None or conv_type_a == conv_type_b:
+    if conv_type_2 is None or conv_type_1 == conv_type_2:
         names = [name]
     else:
         names = [
-            f"{name}_{conv_type_a}",
-            f"{name}_{conv_type_b}",
+            f"{name}_{conv_type_1}",
+            f"{name}_{conv_type_2}",
         ]
     return names
 
@@ -389,7 +389,7 @@ class TheoryBuilder:
         self.ekos_path().mkdir(exist_ok=True)
         self.iterate(self.eko, tcard=tcard)
 
-    def fk(self, name, grid_path, tcard, pdf_a, pdf_b):
+    def fk(self, name, grid_path, tcard, pdf1, pdf2):
         """Compute a single FK table.
 
         Parameters
@@ -400,15 +400,15 @@ class TheoryBuilder:
             path to grid
         tcard : dict
             theory card
-        pdf_a : str
+        pdf1 : str
             comparison PDF
-        pdf_b : str
+        pdf2 : str
             comparison PDF
         """
         # activate logging
         paths = configs.configs["paths"]
         do_log = self.activate_logging(
-            paths["logs"]["fk"], f"{self.theory_id}-{name}-{pdf_a}-{pdf_b}.log"
+            paths["logs"]["fk"], f"{self.theory_id}-{name}-{pdf1}-{pdf2}.log"
         )
 
         # Relevant for FONLL-B and FONLL-D: For FFN0 terms, PTO is lower than
@@ -466,27 +466,27 @@ class TheoryBuilder:
                 check_scvar_evolve(grid, max_as, max_al, check.Scale.FACT)
         # loading ekos to produce a tmp copy
         n_ekos = len(eko_filename)
-        with eko.EKO.read(eko_filename[0]) as operators_a:
+        with eko.EKO.read(eko_filename[0]) as operators1:
 
             # Skip the computation of the fktable if the eko is empty
-            if len(operators_a.mu2grid) == 0 and check.is_num_fonll(tcard["FNS"]):
+            if len(operators1.mu2grid) == 0 and check.is_num_fonll(tcard["FNS"]):
                 rich.print("[green] Skipping empty eko for nFONLL.")
                 return
 
             eko_tmp_path_a = (
-                operators_a.paths.root.parent / f"eko-tmp-{name}-{np.random.rand()}.tar"
+                operators1.paths.root.parent / f"eko-tmp-{name}-{np.random.rand()}.tar"
             )
-            operators_a.deepcopy(eko_tmp_path_a)
+            operators1.deepcopy(eko_tmp_path_a)
 
         if n_ekos > 1:
-            with eko.EKO.read(eko_filename[1]) as operators_b:
+            with eko.EKO.read(eko_filename[1]) as operators2:
                 eko_tmp_path_b = (
-                    operators_a.paths.root.parent
+                    operators1.paths.root.parent
                     / f"eko-tmp-{name}-{np.random.rand()}.tar"
                 )
-                operators_b.deepcopy(eko_tmp_path_b)
+                operators2.deepcopy(eko_tmp_path_b)
 
-        with eko.EKO.edit(eko_tmp_path_a) as operators_a:
+        with eko.EKO.edit(eko_tmp_path_a) as operators1:
             # Obtain the assumptions hash
             assumptions = theory_card.construct_assumptions(tcard)
             # do it!
@@ -512,30 +512,30 @@ class TheoryBuilder:
             if n_ekos == 1:
                 _grid, _fk, comparison = evolve.evolve_grid(
                     grid,
-                    operators_a,
+                    operators1,
                     fk_filename,
                     max_as,
                     max_al,
                     xir=xir,
                     xif=xif,
                     assumptions=assumptions,
-                    comparison_pdf1=pdf_a,
+                    comparison_pdf1=pdf1,
                     meta_data={"theory_card": json.dumps(tcard)},
                 )
             else:
-                with eko.EKO.edit(eko_tmp_path_b) as operators_b:
+                with eko.EKO.edit(eko_tmp_path_b) as operators2:
                     _grid, _fk, comparison = evolve.evolve_grid(
                         grid,
-                        operators_a,
+                        operators1,
                         fk_filename,
                         max_as,
                         max_al,
                         xir=xir,
                         xif=xif,
                         assumptions=assumptions,
-                        operators_b=operators_b,
-                        comparison_pdf1=pdf_a,
-                        comparison_pdf2=pdf_b,
+                        operators2=operators2,
+                        comparison_pdf1=pdf1,
+                        comparison_pdf2=pdf2,
                         meta_data={"theory_card": json.dumps(tcard)},
                     )
                 # Remove tmp ekos
@@ -551,24 +551,24 @@ class TheoryBuilder:
         )
         if do_log and comparison is not None:
             logger.info(
-                "Comparison with %s %s:\n %s", pdf_a, pdf_b, comparison.to_string()
+                "Comparison with %s %s:\n %s", pdf1, pdf2, comparison.to_string()
             )
         if fk_filename.exists():
             rich.print(f"[green]Success:[/] Wrote FK table to {fk_filename}")
 
-    def fks(self, pdf_a, pdf_b):
+    def fks(self, pdf1, pdf2):
         """Compute all FK tables.
 
         Parameters
         ----------
-        pdf_a : str
+        pdf1 : str
             comparison PDF
-        pdf_b : str
+        pdf2 : str
             second comparison PDF if needed
         """
         tcard = theory_card.load(self.theory_id)
         self.fks_path.mkdir(exist_ok=True)
-        self.iterate(self.fk, tcard=tcard, pdf_a=pdf_a, pdf_b=pdf_b)
+        self.iterate(self.fk, tcard=tcard, pdf1=pdf1, pdf2=pdf2)
 
     def construct_ren_sv_grids(self, flavors):
         """Construct renormalization scale variations terms for all the grids in a dataset."""

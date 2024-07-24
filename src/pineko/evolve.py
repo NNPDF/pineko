@@ -192,7 +192,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
 
     # switch on polarization ?
     kv = pineappl_grid.key_values()
-    conv_type_a, conv_type_b = get_ekos_convolution_type(kv)
+    conv_type_1, conv_type_2 = get_ekos_convolution_type(kv)
 
     # fragmentation function grid?
     if "timelike" in kv:
@@ -258,26 +258,26 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
 
     # For hardonic obs we might need to dump 2 eko cards
 
-    if conv_type_b is None or conv_type_a == conv_type_b:
-        dump_card(card_path, operators_card, conv_type_a)
+    if conv_type_2 is None or conv_type_1 == conv_type_2:
+        dump_card(card_path, operators_card, conv_type_1)
     else:
         # dump card_a
-        dump_card(card_path, operators_card, conv_type_a, suffix=True)
+        dump_card(card_path, operators_card, conv_type_1, suffix=True)
         # dump card_b
-        dump_card(card_path, operators_card, conv_type_b, suffix=True)
+        dump_card(card_path, operators_card, conv_type_2, suffix=True)
 
     return operators_card["xgrid"], q2_grid
 
 
 def evolve_grid(
     grid,
-    operators_a,
+    operators1,
     fktable_path,
     max_as,
     max_al,
     xir,
     xif,
-    operators_b=None,
+    operators2=None,
     assumptions="Nf6Ind",
     comparison_pdf1=None,
     comparison_pdf2=None,
@@ -290,7 +290,7 @@ def evolve_grid(
     ----------
     grid : pineappl.grid.Grid
         unconvolved grid
-    operators_a : eko.EKO
+    operators1 : eko.EKO
         evolution operator
     fktable_path : str
         target path for convolved grid
@@ -302,8 +302,8 @@ def evolve_grid(
         renormalization scale variation
     xif : float
         factorization scale variation
-    operators_b: eko.EKO
-        additonal evolution operator if different from operators_a
+    operators2: eko.EKO
+        additonal evolution operator if different from operators1
     assumptions : str
         assumptions on the flavor dimension
     comparison_pdf1 : None or str
@@ -327,9 +327,9 @@ def evolve_grid(
     evol_info = grid.evolve_info(order_mask)
     x_grid = evol_info.x1
     mur2_grid = evol_info.ren1
-    xif = 1.0 if operators_a.operator_card.configs.scvar_method is not None else xif
-    tcard = operators_a.theory_card
-    opcard = operators_a.operator_card
+    xif = 1.0 if operators1.operator_card.configs.scvar_method is not None else xif
+    tcard = operators1.theory_card
+    opcard = operators1.operator_card
     # rotate the targetgrid
     if "integrability_version" in grid.key_values():
         x_grid = np.append(x_grid, 1.0)
@@ -346,9 +346,9 @@ def evolve_grid(
         elif not np.allclose(operators.bases.inputpids, br.rotate_flavor_to_evolution):
             raise ValueError("The EKO is neither in flavor nor in evolution basis.")
 
-    xgrid_reshape(operators_a)
-    if operators_b is not None:
-        xgrid_reshape(operators_b)
+    xgrid_reshape(operators1)
+    if operators2 is not None:
+        xgrid_reshape(operators2)
 
     # PineAPPL wants alpha_s = 4*pi*a_s
     # remember that we already accounted for xif in the opcard generation
@@ -389,17 +389,17 @@ def evolve_grid(
         )
         return (info, op.operator)
 
-    if operators_b is not None:
+    if operators2 is not None:
         fktable = grid.evolve_with_slice_iter2(
-            map(lambda it: prepare(operators_a, it), operators_a.items()),
-            map(lambda it: prepare(operators_b, it), operators_b.items()),
+            map(lambda it: prepare(operators1, it), operators1.items()),
+            map(lambda it: prepare(operators2, it), operators2.items()),
             alphas_table=alphas_values,
             xi=(xir, xif),
             order_mask=order_mask,
         )
     else:
         fktable = grid.evolve_with_slice_iter(
-            map(lambda it: prepare(operators_a, it), operators_a.items()),
+            map(lambda it: prepare(operators1, it), operators1.items()),
             ren1=mur2_grid,
             alphas=alphas_values,
             xi=(xir, xif),
@@ -407,15 +407,13 @@ def evolve_grid(
         )
     rich.print(f"Optimizing for {assumptions}")
     fktable.optimize(PyFkAssumptions(assumptions))
-    fktable.set_key_value("eko_version", operators_a.metadata.version)
-    fktable.set_key_value("eko_theory_card", json.dumps(operators_a.theory_card.raw))
+    fktable.set_key_value("eko_version", operators1.metadata.version)
+    fktable.set_key_value("eko_theory_card", json.dumps(operators1.theory_card.raw))
 
-    fktable.set_key_value(
-        "eko_operator_card", json.dumps(operators_a.operator_card.raw)
-    )
-    if operators_b is not None:
+    fktable.set_key_value("eko_operator_card", json.dumps(operators1.operator_card.raw))
+    if operators2 is not None:
         fktable.set_key_value(
-            "eko_operator_card_b", json.dumps(operators_b.operator_card.raw)
+            "eko_operator_card_b", json.dumps(operators2.operator_card.raw)
         )
 
     fktable.set_key_value("pineko_version", version.__version__)

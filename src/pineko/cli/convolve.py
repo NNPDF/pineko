@@ -68,7 +68,7 @@ def subcommand(
     """
     grid = pineappl.grid.Grid.read(grid_path)
     n_ekos = len(op_paths)
-    with eko.EKO.edit(op_paths[0]) as operators_a:
+    with eko.EKO.edit(op_paths[0]) as operators1:
         rich.print(
             rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
             f"   {grid_path}\n",
@@ -80,7 +80,7 @@ def subcommand(
         if n_ekos == 1:
             _grid, _fk, comp = evolve.evolve_grid(
                 grid,
-                operators_a,
+                operators1,
                 fktable,
                 max_as,
                 max_al,
@@ -92,16 +92,16 @@ def subcommand(
                 min_as=min_as,
             )
         else:
-            with eko.EKO.edit(op_paths[1]) as operators_b:
+            with eko.EKO.edit(op_paths[1]) as operators2:
                 _grid, _fk, comp = evolve.evolve_grid(
                     grid,
-                    operators_a,
+                    operators1,
                     fktable,
                     max_as,
                     max_al,
                     xir,
                     xif,
-                    operators_b=operators_b,
+                    operators2=operators2,
                     assumptions=assumptions,
                     comparison_pdf1=pdf1,
                     comparison_pdf2=pdf2,
