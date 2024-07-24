@@ -37,7 +37,7 @@ def compare(pine, fktable, max_as, max_al, pdf1, xir, xif, pdf2=None):
 
     pdfset1 = lhapdf.mkPDF(pdf1, 0)
     if pdf2 is not None:
-        pdfset2 = lhapdf.mkPDF(pdf1, 0)
+        pdfset2 = lhapdf.mkPDF(pdf2, 0)
     else:
         pdfset2 = pdfset1
 
