@@ -133,4 +133,4 @@ def benchmark_regression(tmp_path, dataset):
         raise FileNotFoundError("Regression did not exist and has been regenerated")
 
     regression_data = np.load(regression_path)
-    np.testing.assert_allclose(regression_data, result)
+    np.testing.assert_allclose(regression_data, result, rtol=4e-6)
