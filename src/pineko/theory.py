@@ -33,10 +33,10 @@ def get_eko_names(grid_path, name):
         path to grid
     name : str
         grid name, i.e. it's true stem
-        
+
         Returns
         -----------
-        list[str] : 
+        list[str] :
              list containing the names of the ekos
     """
     grid_kv = pineappl.grid.Grid.read(grid_path).key_values()
