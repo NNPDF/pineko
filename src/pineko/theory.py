@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_eko_names(grid_path, name):
-    """Find eko names.
+    """Get the names of the ekos depending on the types of convolution present in the grid.
 
     Parameters
     ----------
