@@ -36,14 +36,14 @@ class FakePine:
     def orders(self):
         return [pineappl.grid.Order(0, 0, 0, 0)]
 
-    def lumi(self):
+    def channels(self):
         return [[(21, 21, 1)]]
 
     def evolve_info(self, _):
         return self._evolve_info
 
     def key_values(self):
-        return {}
+        return {"convolution_particle_1": 2212, "convolution_particle_2": 11}
 
 
 def test_write_operator_card_q0(tmp_path):

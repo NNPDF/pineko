@@ -40,7 +40,7 @@ def benchmark_compute_ren_sv_grid(test_files, tmp_path, test_pdf, lhapdf_path):
     plusrensv_grid = pineappl.grid.Grid.read(plusrensv_grid_path)
     sv_list = [(0.5, 1.0), (2.0, 1.0)]  # Only ren sv have to be tested
     bin_number = to_test_grid.bins()
-    to_test_res = to_test_grid.convolute_with_one(
+    to_test_res = to_test_grid.convolve_with_one(
         2212,
         pdf.xfxQ2,
         pdf.alphasQ2,
@@ -49,7 +49,7 @@ def benchmark_compute_ren_sv_grid(test_files, tmp_path, test_pdf, lhapdf_path):
         np.array([], dtype=bool),
         sv_list,
     ).reshape(bin_number, len(sv_list))
-    plusrensv_res = plusrensv_grid.convolute_with_one(
+    plusrensv_res = plusrensv_grid.convolve_with_one(
         2212,
         pdf.xfxQ2,
         pdf.alphasQ2,

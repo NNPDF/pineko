@@ -28,7 +28,7 @@ def benchmark_kfactor_inclusion(test_files, tmp_path, test_pdf, lhapdf_path):
     order_mask_nnloQCD = pineappl.grid.Order.create_mask(
         pluskfactor_grid.orders(), 3, 0, True
     )
-    to_test_res_nlo = pluskfactor_grid.convolute_with_one(
+    to_test_res_nlo = pluskfactor_grid.convolve_with_one(
         2212,
         pdf.xfxQ2,
         pdf.alphasQ2,
@@ -37,7 +37,7 @@ def benchmark_kfactor_inclusion(test_files, tmp_path, test_pdf, lhapdf_path):
         np.array([], dtype=bool),
         sv_list,
     ).reshape(bin_number, len(sv_list))
-    to_test_res_nnlo = pluskfactor_grid.convolute_with_one(
+    to_test_res_nnlo = pluskfactor_grid.convolve_with_one(
         2212,
         pdf.xfxQ2,
         pdf.alphasQ2,

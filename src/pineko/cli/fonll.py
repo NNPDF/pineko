@@ -122,9 +122,12 @@ def ekos(theoryid, datasets, overwrite):
 @fonll_.command()
 @click.argument("theoryID", type=click.INT)
 @click.argument("datasets", type=click.STRING, nargs=-1)
-@click.option("--pdf", "-p", default=None, help="PDF set used for comparison")
+@click.option("--pdf1", "-p", default=None, help="PDF set used for comparison")
+@click.option(
+    "--pdf2", default=None, help="Second PDF set used for comparison, if needed"
+)
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
-def fks(theoryid, datasets, pdf, overwrite):
+def fks(theoryid, datasets, pdf1, pdf2, overwrite):
     """Command to generate numerical FONLL FK tables.
 
     1. Produce the 7 FK tables needed for numerical FONLL.
@@ -138,7 +141,7 @@ def fks(theoryid, datasets, pdf, overwrite):
             silent=False,
             clear_logs=True,
             overwrite=overwrite,
-        ).fks(pdf)
+        ).fks(pdf1, pdf2)
 
     # combine
     for dataset in datasets:
