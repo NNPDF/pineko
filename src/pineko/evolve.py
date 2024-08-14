@@ -350,16 +350,18 @@ def evolve_grid(
     if "integrability_version" in grid.key_values():
         x_grid = np.append(x_grid, 1.0)
 
-    def xgrid_reshape(operators):
+    def xgrid_reshape(full_operator):
         eko.io.manipulate.xgrid_reshape(
-            operators, targetgrid=eko.interpolation.XGrid(x_grid)
+            full_operator, targetgrid=eko.interpolation.XGrid(x_grid)
         )
-        check.check_grid_and_eko_compatible(grid, operators, xif, max_as, max_al)
+        check.check_grid_and_eko_compatible(grid, full_operator, xif, max_as, max_al)
         # rotate to evolution (if doable and necessary)
-        if np.allclose(operators.bases.inputpids, br.flavor_basis_pids):
-            eko.io.manipulate.to_evol(operators)
+        if np.allclose(full_operator.bases.inputpids, br.flavor_basis_pids):
+            eko.io.manipulate.to_evol(full_operator)
         # Here we are checking if the EKO contains the rotation matrix (flavor to evol)
-        elif not np.allclose(operators.bases.inputpids, br.rotate_flavor_to_evolution):
+        elif not np.allclose(
+            full_operator.bases.inputpids, br.rotate_flavor_to_evolution
+        ):
             raise ValueError("The EKO is neither in flavor nor in evolution basis.")
 
     xgrid_reshape(operators1)
