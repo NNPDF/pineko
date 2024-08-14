@@ -514,35 +514,27 @@ class TheoryBuilder:
                 f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
             )
 
-            if n_ekos == 1:
-                _grid, _fk, comparison = evolve.evolve_grid(
-                    grid,
-                    operators1,
-                    fk_filename,
-                    max_as,
-                    max_al,
-                    xir=xir,
-                    xif=xif,
-                    assumptions=assumptions,
-                    comparison_pdf1=pdf1,
-                    meta_data={"theory_card": json.dumps(tcard)},
-                )
+            if n_ekos == 2:
+                operators2 = eko.EKO.edit(eko_tmp_path_b)
             else:
-                with eko.EKO.edit(eko_tmp_path_b) as operators2:
-                    _grid, _fk, comparison = evolve.evolve_grid(
-                        grid,
-                        operators1,
-                        fk_filename,
-                        max_as,
-                        max_al,
-                        xir=xir,
-                        xif=xif,
-                        assumptions=assumptions,
-                        operators2=operators2,
-                        comparison_pdf1=pdf1,
-                        comparison_pdf2=pdf2,
-                        meta_data={"theory_card": json.dumps(tcard)},
-                    )
+                operators2 = None
+
+            _grid, _fk, comparison = evolve.evolve_grid(
+                grid,
+                operators1,
+                fk_filename,
+                max_as,
+                max_al,
+                xir=xir,
+                xif=xif,
+                assumptions=assumptions,
+                operators2=operators2,
+                comparison_pdf1=pdf1,
+                comparison_pdf2=pdf2,
+                meta_data={"theory_card": json.dumps(tcard)},
+            )
+
+            if n_ekos == 2:
                 # Remove tmp ekos
                 eko_tmp_path_b.unlink()
 

@@ -78,36 +78,28 @@ def subcommand(
             f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}",
             f"min_as: {min_as}" if min_as is not None else "",
         )
-        if n_ekos == 1:
-            _grid, _fk, comp = evolve.evolve_grid(
-                grid,
-                operators1,
-                fktable,
-                max_as,
-                max_al,
-                xir,
-                xif,
-                assumptions=assumptions,
-                comparison_pdf1=pdf1,
-                comparison_pdf2=pdf2,
-                min_as=min_as,
-            )
+        if n_ekos == 2:
+            operators2 = eko.EKO.edit(op_paths[1])
         else:
-            with eko.EKO.edit(op_paths[1]) as operators2:
-                _grid, _fk, comp = evolve.evolve_grid(
-                    grid,
-                    operators1,
-                    fktable,
-                    max_as,
-                    max_al,
-                    xir,
-                    xif,
-                    operators2=operators2,
-                    assumptions=assumptions,
-                    comparison_pdf1=pdf1,
-                    comparison_pdf2=pdf2,
-                    min_as=min_as,
-                )
+            operators2 = None
+
+        _grid, _fk, comp = evolve.evolve_grid(
+            grid,
+            operators1,
+            fktable,
+            max_as,
+            max_al,
+            xir,
+            xif,
+            operators2=operators2,
+            assumptions=assumptions,
+            comparison_pdf1=pdf1,
+            comparison_pdf2=pdf2,
+            min_as=min_as,
+        )
+
+        if n_ekos == 2:
+            operators2.close()
 
         if comp is not None:
             print(comp.to_string())
