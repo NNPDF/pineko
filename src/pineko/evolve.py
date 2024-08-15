@@ -61,7 +61,7 @@ def get_grid_convolution_type(kv):
     if "convolution_type_1" in kv:
         conv_type_1 = kv["convolution_type_1"]
     # TODO: polarized is now deprecated, needed for compatibility
-    elif "polarized" in kv and kv["polarized"]:
+    elif "polarized" in kv and kv["polarized"] == "True":
         conv_type_1 = "PolPDF"
     else:
         conv_type_1 = "UnpolPDF"
