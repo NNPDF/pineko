@@ -13,7 +13,7 @@ from ._base import command
 @click.argument("grid_path", type=click.Path(exists=True))
 @click.argument("max_as", type=int)
 @click.argument("max_al", type=int)
-@click.argument("pdfs", type=click.STRING, nargs=-1)
+@click.argument("pdfs", type=click.STRING, nargs=2)
 @click.option("--xir", default=1.0, help="renormalization scale variation")
 @click.option("--xif", default=1.0, help="factorization scale variation")
 def subcommand(fktable_path, grid_path, max_as, max_al, pdfs, xir, xif):
