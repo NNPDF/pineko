@@ -284,7 +284,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
             "are you sure that's what you want?"
         )
 
-    # For hardonic obs we might need to dump 2 eko cards
+    # For hadronic obs we might need to dump 2 eko cards
     if conv_type_2 is None or conv_type_1 == conv_type_2:
         dump_card(card_path, operators_card, conv_type_1)
     else:
