@@ -52,9 +52,7 @@ def compare(pine, fktable, max_as, max_al, pdf1, xir, xif, pdf2=None):
             or fktable.key_values()["convolution_type_2"]
             != pine.key_values()["convolution_type_2"]
         ):
-            raise ValueError(
-                "Grids and FkTables do not have the same convolution types"
-            )
+            raise TypeError("Grids and FkTables do not have the same convolution types")
 
         # log some useful info to check if PDFs are swapped
         rich.print(

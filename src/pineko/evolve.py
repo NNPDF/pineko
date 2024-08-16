@@ -66,7 +66,8 @@ def get_grid_convolution_type(kv):
     else:
         conv_type_1 = "UnpolPDF"
 
-    # TODO: initial_state_2 is now deprecated, needed for compatibility
+    # TODO: initial_state_1 and initial_state_2 are now deprecated,
+    # needed for compatibility. initial_state_1 is always a proton: 2212
     if "convolution_particle_2" in kv:
         part_2 = kv["convolution_particle_2"]
     else:
@@ -85,14 +86,11 @@ def check_convolution_types(grid, operators1, operators2):
     grid_conv_1, grid_conv_2 = get_grid_convolution_type(grid.key_values())
     conv_to_eko = {"UnpolPDF": (False, False), "PolPDF": (True, False)}
 
-    def check(op, pine_conv):
+    for op, pine_conv in [(operators1, grid_conv_1), (operators2, grid_conv_2)]:
         is_pol, is_tl = conv_to_eko[pine_conv]
         cfg = op.operator_card.configs
         if cfg.polarized != is_pol or cfg.time_like != is_tl:
             raise ValueError("Grid and Eko convolution types are not matching.")
-
-    check(operators1, grid_conv_1)
-    check(operators2, grid_conv_2)
 
 
 def write_operator_card_from_file(
@@ -130,6 +128,36 @@ def write_operator_card_from_file(
         pathlib.Path(default_card_path).read_text(encoding="utf-8")
     )
     return write_operator_card(pineappl_grid, default_card, card_path, tcard)
+
+
+def dump_card(card_path, operators_card, conv_type, suffix=False):
+    """Set polarization and dump operator cards.
+
+    Parameters
+    ----------
+    card_path : str or os.PathLike
+        target path
+    operators_card : dict
+        operators card to dump
+    conv_type : str
+        convolution type
+    suffix : bool, None
+        if True use the convolution type as operator card suffix
+    """
+    op_to_dump = copy.deepcopy(operators_card)
+    op_to_dump["configs"]["polarized"] = conv_type == "PolPDF"
+
+    if suffix:
+        card_path = card_path.parent / f"{card_path.stem}_{conv_type}.yaml"
+    with open(card_path, "w", encoding="UTF-8") as f:
+        yaml.safe_dump(op_to_dump, f)
+        pineko_version = metadata.version("pineko")
+        f.write(f"# {pineko_version=}")
+
+    if card_path.exists():
+        rich.print(
+            f"[green]Success:[/] Wrote card with {len(operators_card['mugrid'])} Q2 points to {card_path}"
+        )
 
 
 def write_operator_card(pineappl_grid, default_card, card_path, tcard):
@@ -204,7 +232,6 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     # Add the version of eko and pineko to the operator card
     # using importlib.metadata.version to get the correct tag in editable mode
     operators_card["eko_version"] = metadata.version("eko")
-    pineko_version = metadata.version("pineko")
 
     # switch on polarization ?
     kv = pineappl_grid.key_values()
@@ -257,23 +284,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
             "are you sure that's what you want?"
         )
 
-    def dump_card(card_path, operators_card, conv_type, suffix=False):
-        op_to_dump = copy.deepcopy(operators_card)
-        op_to_dump["configs"]["polarized"] = conv_type == "PolPDF"
-
-        if suffix:
-            card_path = card_path.parent / f"{card_path.stem}_{conv_type}.yaml"
-        with open(card_path, "w", encoding="UTF-8") as f:
-            yaml.safe_dump(op_to_dump, f)
-            f.write(f"# {pineko_version=}")
-
-        if card_path.exists():
-            rich.print(
-                f"[green]Success:[/] Wrote card with {len(q2_grid)} Q2 points to {card_path}"
-            )
-
     # For hardonic obs we might need to dump 2 eko cards
-
     if conv_type_2 is None or conv_type_1 == conv_type_2:
         dump_card(card_path, operators_card, conv_type_1)
     else:
