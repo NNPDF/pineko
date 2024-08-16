@@ -1,0 +1,25 @@
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#about-the-dependabotyml-file
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    # Set path to where pyproject.toml is located
+    directory: "/"
+    # This will hunt everyone every Monday
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "Europe/Berlin"
+    target-branch: "main"
+    labels:
+      - "pineappl"
+      - "eko"
+      - "dependencies"
+    groups:
+      core-dependencies:
+        applies-to: version-updates
+        patterns:
+          - "pineappl"
+          - "eko"
+    pull-request-branch-name:
+      separator: "-"
