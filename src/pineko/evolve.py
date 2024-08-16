@@ -73,7 +73,7 @@ def get_grid_convolution_type(kv):
         part_2 = kv["initial_state_2"]
 
     # check for DIS
-    if check.islepton(float(part_2)):
+    if check.islepton(int(part_2)):
         conv_type_2 = None
     else:
         conv_type_2 = kv.get("convolution_type_2", "UnpolPDF")
