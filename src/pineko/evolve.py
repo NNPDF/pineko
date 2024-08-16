@@ -67,7 +67,7 @@ def get_grid_convolution_type(kv):
         conv_type_1 = "UnpolPDF"
 
     # TODO: initial_state_1 and initial_state_2 are now deprecated,
-    # needed for compatibility. initial_state_1 is always a proton: 2212
+    # needed for compatibility.
     if "convolution_particle_2" in kv:
         part_2 = kv["convolution_particle_2"]
     else:
@@ -362,6 +362,7 @@ def evolve_grid(
         x_grid = np.append(x_grid, 1.0)
 
     def xgrid_reshape(full_operator):
+        """Reinterpolate operators on output and/or input grids."""
         eko.io.manipulate.xgrid_reshape(
             full_operator, targetgrid=eko.interpolation.XGrid(x_grid)
         )
@@ -405,25 +406,26 @@ def evolve_grid(
         for mur2 in mur2_grid
     ]
 
-    def prepare(operator, items):
-        (q2, _), op = items
-        info = PyOperatorSliceInfo(
-            fac0=operator.mu20,
-            x0=operator.bases.inputgrid.raw,
-            pids0=basis_rotation.evol_basis_pids,
-            fac1=q2,
-            x1=operator.bases.targetgrid.raw,
-            pids1=operator.bases.targetpids,
-            pid_basis=PyPidBasis.Evol,
-        )
-        return (info, op.operator)
+    def prepare(operator):
+        """Match the raw operator with its relevant metadata."""
+        for (q2, _), op in operator.items():
+            info = PyOperatorSliceInfo(
+                fac0=operator.mu20,
+                x0=operator.bases.inputgrid.raw,
+                pids0=basis_rotation.evol_basis_pids,
+                fac1=q2,
+                x1=operator.bases.targetgrid.raw,
+                pids1=operator.bases.targetpids,
+                pid_basis=PyPidBasis.Evol,
+            )
+            yield (info, op.operator)
 
     if operators2 is not None:
         # check convolutions order
         check_convolution_types(grid, operators1, operators2)
         fktable = grid.evolve_with_slice_iter2(
-            map(lambda it: prepare(operators1, it), operators1.items()),
-            map(lambda it: prepare(operators2, it), operators2.items()),
+            prepare(operators1),
+            prepare(operators2),
             ren1=mur2_grid,
             alphas=alphas_values,
             xi=(xir, xif),
@@ -431,7 +433,7 @@ def evolve_grid(
         )
     else:
         fktable = grid.evolve_with_slice_iter(
-            map(lambda it: prepare(operators1, it), operators1.items()),
+            prepare(operators1),
             ren1=mur2_grid,
             alphas=alphas_values,
             xi=(xir, xif),
