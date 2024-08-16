@@ -34,7 +34,7 @@ def subcommand(fktable_path, grid_path, max_as, max_al, pdfs, xir, xif):
 
     if len(pdfs) > 2:
         raise ValueError(
-            "Pineko supports the concolution with maximum 2 different PDF sets."
+            "Pineko supports the convolution with maximum 2 different PDF sets."
         )
     pdf1 = pdfs[0]
     pdf2 = pdfs[1] if len(pdfs) == 2 else None
