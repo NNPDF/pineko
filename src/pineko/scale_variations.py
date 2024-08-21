@@ -100,7 +100,7 @@ def initialize_new_grid(grid, new_order):
     bin_limits = [
         float(bin) for bin in range(grid.bins() + 1)
     ]  # The +1 explanation is that n bins have n+1 bin limits, and range generates numbers from a half-open interval (range(n) generates n numbers).
-    lumi_grid = [pineappl.lumi.LumiEntry(mylum) for mylum in grid.lumi()]
+    lumi_grid = [pineappl.lumi.LumiEntry(mylum) for mylum in grid.channels()]
     subgrid_params = pineappl.subgrid.SubgridParams()
     new_order = [pineappl.grid.Order(*new_order)]
     # create new_grid with same lumi and bin_limits of the original grid but with new_order
@@ -116,7 +116,7 @@ def create_svonly(grid, order, new_order, scalefactor):
     # extract the relevant order to rescale from the grid for each lumi and bin
     grid_orders = [order.as_tuple() for order in grid.orders()]
     order_index = grid_orders.index(order)
-    for lumi_index in range(len(new_grid.lumi())):
+    for lumi_index in range(len(new_grid.channels())):
         for bin_index in range(grid.bins()):
             extracted_subgrid = grid.subgrid(order_index, bin_index, lumi_index)
             extracted_subgrid.scale(scalefactor)
@@ -205,7 +205,7 @@ def merge_grids(
 def construct_and_dump_order_exists_grid(ori_grid, to_construct_order):
     """Remove the order that has to be substituted from the grid."""
     bin_limits = [float(bin) for bin in range(ori_grid.bins() + 1)]
-    lumi_grid = [pineappl.lumi.LumiEntry(mylum) for mylum in ori_grid.lumi()]
+    lumi_grid = [pineappl.lumi.LumiEntry(mylum) for mylum in ori_grid.channels()]
     subgrid_params = pineappl.subgrid.SubgridParams()
     ori_grid_orders = [order.as_tuple() for order in ori_grid.orders()]
     new_orders = [
@@ -240,7 +240,8 @@ def construct_and_dump_order_exists_grid(ori_grid, to_construct_order):
     norma = ori_grid.bin_normalizations()
     remap_obj = pineappl.bin.BinRemapper(norma, limits)
     new_grid.set_remapper(remap_obj)
-    new_grid.set_key_value("initial_state_2", ori_grid.key_values()["initial_state_2"])
+    for k, v in ori_grid.key_values().items():
+        new_grid.set_key_value(k, v)
     return new_grid
 
 

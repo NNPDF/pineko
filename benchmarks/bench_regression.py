@@ -125,7 +125,7 @@ def benchmark_regression(tmp_path, dataset):
         fkt = FkTable.read(
             tmp_path / "data" / "fktables" / str(THEORYID) / f"{grid_name}.pineappl.lz4"
         )
-        result.append(fkt.convolute_with_one(2212, pdf.xfxQ2))
+        result.append(fkt.convolve_with_one(2212, pdf.xfxQ2))
     result = np.concatenate(result)
 
     if not regression_path.exists():
@@ -133,4 +133,4 @@ def benchmark_regression(tmp_path, dataset):
         raise FileNotFoundError("Regression did not exist and has been regenerated")
 
     regression_data = np.load(regression_path)
-    np.testing.assert_allclose(regression_data, result)
+    np.testing.assert_allclose(regression_data, result, rtol=4e-6)

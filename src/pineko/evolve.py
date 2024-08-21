@@ -15,11 +15,14 @@ import rich
 import rich.box
 import rich.panel
 import yaml
+from eko import basis_rotation
 from eko.io.types import ScaleVariationsMethod
 from eko.matchings import Atlas, nf_default
 from eko.quantities import heavy_quarks
+from pineappl.fk_table import PyFkAssumptions
+from pineappl.grid import PyOperatorSliceInfo, PyPidBasis
 
-from . import check, comparator, ekompatibility, version
+from . import check, comparator, version
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +47,50 @@ def sv_scheme(tcard):
     if modsv not in modsv_list:
         return None
     return modsv
+
+
+def get_grid_convolution_type(kv):
+    """Retrieve the ekos convolution type.
+
+    Parameters
+    ----------
+    kv: dict
+        pineappl grid metadata
+    """
+    # TODO: This should probably changed in the future to use the Grid::convolutions
+    if "convolution_type_1" in kv:
+        conv_type_1 = kv["convolution_type_1"]
+    # TODO: polarized is now deprecated, needed for compatibility
+    elif "polarized" in kv and kv["polarized"] == "True":
+        conv_type_1 = "PolPDF"
+    else:
+        conv_type_1 = "UnpolPDF"
+
+    # TODO: initial_state_1 and initial_state_2 are now deprecated,
+    # needed for compatibility.
+    if "convolution_particle_2" in kv:
+        part_2 = kv["convolution_particle_2"]
+    else:
+        part_2 = kv["initial_state_2"]
+
+    # check for DIS
+    if check.islepton(int(part_2)):
+        conv_type_2 = None
+    else:
+        conv_type_2 = kv.get("convolution_type_2", "UnpolPDF")
+    return conv_type_1, conv_type_2
+
+
+def check_convolution_types(grid, operators1, operators2):
+    """Check that grid and eko convolution types are sorted correctly."""
+    grid_conv_1, grid_conv_2 = get_grid_convolution_type(grid.key_values())
+    conv_to_eko = {"UnpolPDF": (False, False), "PolPDF": (True, False)}
+
+    for op, pine_conv in [(operators1, grid_conv_1), (operators2, grid_conv_2)]:
+        is_pol, is_tl = conv_to_eko[pine_conv]
+        cfg = op.operator_card.configs
+        if cfg.polarized != is_pol or cfg.time_like != is_tl:
+            raise ValueError("Grid and Eko convolution types are not matching.")
 
 
 def write_operator_card_from_file(
@@ -83,6 +130,36 @@ def write_operator_card_from_file(
     return write_operator_card(pineappl_grid, default_card, card_path, tcard)
 
 
+def dump_card(card_path, operators_card, conv_type, suffix=False):
+    """Set polarization and dump operator cards.
+
+    Parameters
+    ----------
+    card_path : str or os.PathLike
+        target path
+    operators_card : dict
+        operators card to dump
+    conv_type : str
+        convolution type
+    suffix : bool, None
+        if True use the convolution type as operator card suffix
+    """
+    op_to_dump = copy.deepcopy(operators_card)
+    op_to_dump["configs"]["polarized"] = conv_type == "PolPDF"
+
+    if suffix:
+        card_path = card_path.parent / f"{card_path.stem}_{conv_type}.yaml"
+    with open(card_path, "w", encoding="UTF-8") as f:
+        yaml.safe_dump(op_to_dump, f)
+        pineko_version = metadata.version("pineko")
+        f.write(f"# {pineko_version=}")
+
+    if card_path.exists():
+        rich.print(
+            f"[green]Success:[/] Wrote card with {len(operators_card['mugrid'])} Q2 points to {card_path}"
+        )
+
+
 def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     """Generate operator card for this grid.
 
@@ -108,7 +185,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     """
     # Add a +1 to the orders for the difference in convention between nnpdf and pineappl
     # NB: This would not happen for nFONLL
-    is_fns = int(check.is_fonll_mixed(tcard["FNS"], pineappl_grid.lumi()))
+    is_fns = int(check.is_fonll_mixed(tcard["FNS"], pineappl_grid.channels()))
     max_as = 1 + tcard["PTO"] + is_fns
     max_al = 1 + tcard["QED"]
     # ... in order to create a mask ...
@@ -155,12 +232,10 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     # Add the version of eko and pineko to the operator card
     # using importlib.metadata.version to get the correct tag in editable mode
     operators_card["eko_version"] = metadata.version("eko")
-    pineko_version = metadata.version("pineko")
 
     # switch on polarization ?
     kv = pineappl_grid.key_values()
-    if "polarized" in kv:
-        operators_card["configs"]["polarized"] = kv["polarized"] == "True"
+    conv_type_1, conv_type_2 = get_grid_convolution_type(kv)
 
     # fragmentation function grid?
     if "timelike" in kv:
@@ -209,23 +284,30 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
             "are you sure that's what you want?"
         )
 
-    with open(card_path, "w", encoding="UTF-8") as f:
-        yaml.safe_dump(operators_card, f)
-        f.write(f"# {pineko_version=}")
+    # For hadronic obs we might need to dump 2 eko cards
+    if conv_type_2 is None or conv_type_1 == conv_type_2:
+        dump_card(card_path, operators_card, conv_type_1)
+    else:
+        # dump card_a
+        dump_card(card_path, operators_card, conv_type_1, suffix=True)
+        # dump card_b
+        dump_card(card_path, operators_card, conv_type_2, suffix=True)
 
     return operators_card["xgrid"], q2_grid
 
 
 def evolve_grid(
     grid,
-    operators,
+    operators1,
     fktable_path,
     max_as,
     max_al,
     xir,
     xif,
+    operators2=None,
     assumptions="Nf6Ind",
-    comparison_pdf=None,
+    comparison_pdf1=None,
+    comparison_pdf2=None,
     meta_data=None,
     min_as=None,
 ):
@@ -234,11 +316,11 @@ def evolve_grid(
     Parameters
     ----------
     grid : pineappl.grid.Grid
-        unconvoluted grid
-    operators : eko.EKO
+        unconvolved grid
+    operators1 : eko.EKO
         evolution operator
     fktable_path : str
-        target path for convoluted grid
+        target path for convolved grid
     max_as : int
         maximum power of strong coupling
     max_al : int
@@ -247,10 +329,14 @@ def evolve_grid(
         renormalization scale variation
     xif : float
         factorization scale variation
+    operators2: eko.EKO
+        additonal evolution operator if different from operators1
     assumptions : str
         assumptions on the flavor dimension
-    comparison_pdf : None or str
+    comparison_pdf1 : None or str
         if given, a comparison table (with / without evolution) will be printed
+    comparison_pdf2 : None or str
+        PDF set for the second convolution if different from the first one
     meta_data : None or dict
         if given, additional meta data written to the FK table
     min_as: None or int
@@ -268,22 +354,32 @@ def evolve_grid(
     evol_info = grid.evolve_info(order_mask)
     x_grid = evol_info.x1
     mur2_grid = evol_info.ren1
-    xif = 1.0 if operators.operator_card.configs.scvar_method is not None else xif
-    tcard = operators.theory_card
-    opcard = operators.operator_card
+    xif = 1.0 if operators1.operator_card.configs.scvar_method is not None else xif
+    tcard = operators1.theory_card
+    opcard = operators1.operator_card
     # rotate the targetgrid
     if "integrability_version" in grid.key_values():
         x_grid = np.append(x_grid, 1.0)
-    eko.io.manipulate.xgrid_reshape(
-        operators, targetgrid=eko.interpolation.XGrid(x_grid)
-    )
-    check.check_grid_and_eko_compatible(grid, operators, xif, max_as, max_al)
-    # rotate to evolution (if doable and necessary)
-    if np.allclose(operators.bases.inputpids, br.flavor_basis_pids):
-        eko.io.manipulate.to_evol(operators)
-    # Here we are checking if the EKO contains the rotation matrix (flavor to evol)
-    elif not np.allclose(operators.bases.inputpids, br.rotate_flavor_to_evolution):
-        raise ValueError("The EKO is neither in flavor nor in evolution basis.")
+
+    def xgrid_reshape(full_operator):
+        """Reinterpolate operators on output and/or input grids."""
+        eko.io.manipulate.xgrid_reshape(
+            full_operator, targetgrid=eko.interpolation.XGrid(x_grid)
+        )
+        check.check_grid_and_eko_compatible(grid, full_operator, xif, max_as, max_al)
+        # rotate to evolution (if doable and necessary)
+        if np.allclose(full_operator.bases.inputpids, br.flavor_basis_pids):
+            eko.io.manipulate.to_evol(full_operator)
+        # Here we are checking if the EKO contains the rotation matrix (flavor to evol)
+        elif not np.allclose(
+            full_operator.bases.inputpids, br.rotate_flavor_to_evolution
+        ):
+            raise ValueError("The EKO is neither in flavor nor in evolution basis.")
+
+    xgrid_reshape(operators1)
+    if operators2 is not None:
+        xgrid_reshape(operators2)
+
     # PineAPPL wants alpha_s = 4*pi*a_s
     # remember that we already accounted for xif in the opcard generation
     evmod = eko.couplings.couplings_mod_ev(opcard.configs.evolution_method)
@@ -309,32 +405,64 @@ def evolve_grid(
         )
         for mur2 in mur2_grid
     ]
-    # We need to use ekompatibility in order to pass a dictionary to pineappl
-    fktable = grid.evolve(
-        ekompatibility.pineappl_layout(operators),
-        xir * xir * mur2_grid,
-        alphas_values,
-        "evol",
-        order_mask=order_mask,
-        xi=(xir, xif),
-    )
+
+    def prepare(operator):
+        """Match the raw operator with its relevant metadata."""
+        for (q2, _), op in operator.items():
+            info = PyOperatorSliceInfo(
+                fac0=operator.mu20,
+                x0=operator.bases.inputgrid.raw,
+                pids0=basis_rotation.evol_basis_pids,
+                fac1=q2,
+                x1=operator.bases.targetgrid.raw,
+                pids1=operator.bases.targetpids,
+                pid_basis=PyPidBasis.Evol,
+            )
+            yield (info, op.operator)
+
+    if operators2 is not None:
+        # check convolutions order
+        check_convolution_types(grid, operators1, operators2)
+        fktable = grid.evolve_with_slice_iter2(
+            prepare(operators1),
+            prepare(operators2),
+            ren1=mur2_grid,
+            alphas=alphas_values,
+            xi=(xir, xif),
+            order_mask=order_mask,
+        )
+    else:
+        fktable = grid.evolve_with_slice_iter(
+            prepare(operators1),
+            ren1=mur2_grid,
+            alphas=alphas_values,
+            xi=(xir, xif),
+            order_mask=order_mask,
+        )
     rich.print(f"Optimizing for {assumptions}")
-    fktable.optimize(assumptions)
-    fktable.set_key_value("eko_version", operators.metadata.version)
-    fktable.set_key_value("eko_theory_card", json.dumps(operators.theory_card.raw))
-    fktable.set_key_value("eko_operator_card", json.dumps(operators.operator_card.raw))
+    fktable.optimize(PyFkAssumptions(assumptions))
+    fktable.set_key_value("eko_version", operators1.metadata.version)
+    fktable.set_key_value("eko_theory_card", json.dumps(operators1.theory_card.raw))
+
+    fktable.set_key_value("eko_operator_card", json.dumps(operators1.operator_card.raw))
+    if operators2 is not None:
+        fktable.set_key_value(
+            "eko_operator_card_2", json.dumps(operators2.operator_card.raw)
+        )
+
     fktable.set_key_value("pineko_version", version.__version__)
     if meta_data is not None:
         for k, v in meta_data.items():
             fktable.set_key_value(k, v)
     # compare before/after
     comparison = None
-    if comparison_pdf is not None:
+    if comparison_pdf1 is not None:
         comparison = comparator.compare(
-            grid, fktable, max_as, max_al, comparison_pdf, xir, xif
+            grid, fktable, max_as, max_al, comparison_pdf1, xir, xif, comparison_pdf2
         )
         fktable.set_key_value("results_fk", comparison.to_string())
-        fktable.set_key_value("results_fk_pdfset", comparison_pdf)
+        fktable.set_key_value("results_fk_pdfset1", str(comparison_pdf1))
+        fktable.set_key_value("results_fk_pdfset2", str(comparison_pdf2))
     # write
     fktable.write_lz4(str(fktable_path))
     return grid, fktable, comparison
