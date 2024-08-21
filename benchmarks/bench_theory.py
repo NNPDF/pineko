@@ -58,8 +58,13 @@ def benchmark_inherit_grids(test_files):
 
 
 def benchmark_inherit_eko(tmp_path):
-    from_eko = theory_obj.ekos_path()
-    theory_obj.inherit_eko("TestEko", from_eko, tmp_path)
+    for grid in theory_obj.grids_path().iterdir():
+        name = grid.stem.split(".")[0]
+        # here NUTEV eko is not present
+        if (theory_obj.ekos_path() / f"{name}.tar").exists():
+            theory_obj.inherit_eko(name, grid, tmp_path)
+            assert tmp_path.is_dir()
+            assert (tmp_path / f"{name}.tar").exists()
 
 
 def benchmark_inherit_ekos(test_files):
@@ -166,9 +171,9 @@ def benchmark_fk(test_files, test_configs):
     )
     theory_obj_hera.opcard(grid_name, pathlib.Path(test_files / grid_path), tcard)
 
-    theory_obj_hera.fk(grid_name, grid_path, tcard, pdf=None)
+    theory_obj_hera.fk(grid_name, grid_path, tcard, pdf1=None, pdf2=None)
     # test overwrite function
-    theory_obj_hera.fk(grid_name, grid_path, tcard, pdf=None)
+    theory_obj_hera.fk(grid_name, grid_path, tcard, pdf1=None, pdf2=None)
     log_path = pathlib.Path(test_files / "logs/fk/400-HERA_NC_225GEV_EP_SIGMARED.log")
     if os.path.exists(log_path):
         os.remove(log_path)

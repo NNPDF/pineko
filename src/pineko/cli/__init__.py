@@ -3,7 +3,7 @@
 from . import (
     check,
     compare,
-    convolute,
+    convolve,
     fonll,
     gen_sv,
     kfactor,

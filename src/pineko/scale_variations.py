@@ -121,7 +121,7 @@ def create_svonly(grid, order, new_order, scalefactor):
     # extract the relevant order to rescale from the grid for each lumi and bin
     grid_orders = orders_as_tuple(grid)
     order_index = grid_orders.index(order)
-    for lumi_index in range(len(new_grid.lumi())):
+    for lumi_index in range(len(new_grid.channels())):
         for bin_index in range(grid.bins()):
             extracted_subgrid = grid.subgrid(order_index, bin_index, lumi_index)
             extracted_subgrid.scale(scalefactor)
