@@ -2,17 +2,20 @@ import lhapdf
 import numpy as np
 import pineappl
 
-from pineko import kfactor
+from pineko import configs, kfactor
 
 
 def benchmark_kfactor_inclusion(test_files, tmp_path, test_pdf, lhapdf_path):
-    fake_yaml_path = test_files / "data" / "yamldb" / "ATLAS_TTB_FAKE.yaml"
+
+    base_configs = configs.load(test_files / "pineko.toml")
+    configs.configs = configs.defaults(base_configs)
+
     pto_to_update = 3  # here we want to update NNLO
     pdf_name = "NNPDF40_nnlo_as_01180"
     kfactor.apply_to_dataset(
-        test_files / "data" / "grids" / "400",
+        400,
+        "ATLAS_TTB_FAKE",
         test_files / "data" / "kfactors",
-        fake_yaml_path,
         pto_to_update,
         tmp_path,
     )
