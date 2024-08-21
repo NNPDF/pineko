@@ -131,18 +131,21 @@ def benchmark_gen_sv_cli(test_files, tmp_path):
 
 def benchmark_kfactor_cli(test_files, tmp_path):
     runner = CliRunner()
-    grid_folder = test_files / "data" / "grids" / "400"
+    conf_file = test_files / "pineko.toml"
+    theory_id = 400
+    dataset = "ATLAS_TTB_FAKE"
     kfolder = test_files / "data" / "kfactors"
-    fake_yaml_path = test_files / "data" / "yamldb" / "ATLAS_TTB_FAKE.yaml"
     order_to_update = "3"
     target_path = tmp_path
     res = runner.invoke(
         command,
         [
             "kfactor",
-            str(grid_folder),
+            "-c",
+            str(conf_file),
+            str(theory_id),
+            str(dataset),
             str(kfolder),
-            str(fake_yaml_path),
             str(target_path),
             order_to_update,
         ],
