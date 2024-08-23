@@ -245,10 +245,6 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     kv = pineappl_grid.key_values()
     conv_type_1, conv_type_2 = get_grid_convolution_type(kv)
 
-    # fragmentation function grid?
-    if "timelike" in kv:
-        operators_card["configs"]["timelike"] = kv["timelike"] == "True"
-
     # Choose the evolution method according to the theory if the key is included
     if "ModEv" in tcard:
         opconf = operators_card["configs"]
