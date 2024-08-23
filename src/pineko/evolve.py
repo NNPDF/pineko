@@ -77,6 +77,8 @@ def get_grid_convolution_type(kv):
     if check.islepton(int(part_2)):
         conv_type_2 = None
     else:
+        # new hadronic polarized and timelike grids contain convolution_type_2
+        # but old unpolarized do not
         conv_type_2 = kv.get("convolution_type_2", "UnpolPDF")
     return conv_type_1, conv_type_2
 
@@ -84,7 +86,12 @@ def get_grid_convolution_type(kv):
 def check_convolution_types(grid, operators1, operators2):
     """Check that grid and eko convolution types are sorted correctly."""
     grid_conv_1, grid_conv_2 = get_grid_convolution_type(grid.key_values())
-    conv_to_eko = {"UnpolPDF": (False, False), "PolPDF": (True, False)}
+    conv_to_eko = {
+        "UnpolPDF": (False, False),
+        "PolPDF": (True, False),
+        "UnpolFF": (False, True),
+        "PolFF": (True, True),
+    }
 
     for op, pine_conv in [(operators1, grid_conv_1), (operators2, grid_conv_2)]:
         is_pol, is_tl = conv_to_eko[pine_conv]
@@ -146,6 +153,7 @@ def dump_card(card_path, operators_card, conv_type, suffix=False):
     """
     op_to_dump = copy.deepcopy(operators_card)
     op_to_dump["configs"]["polarized"] = conv_type == "PolPDF"
+    op_to_dump["configs"]["time_like"] = "FF" in conv_type
 
     if suffix:
         card_path = card_path.parent / f"{card_path.stem}_{conv_type}.yaml"
