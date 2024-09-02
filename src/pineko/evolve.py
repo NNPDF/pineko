@@ -197,7 +197,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     muf2_grid = evol_info.fac1
     operators_card = copy.deepcopy(default_card)
     sv_method = sv_scheme(tcard)
-    xif = 1.0 if sv_method is not None else tcard["XIF"]
+    xif = 1.0 if sv_method is None else tcard["XIF"]
     # update scale variation method
     operators_card["configs"]["scvar_method"] = sv_method
 
