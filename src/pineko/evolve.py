@@ -354,7 +354,7 @@ def evolve_grid(
     evol_info = grid.evolve_info(order_mask)
     x_grid = evol_info.x1
     mur2_grid = evol_info.ren1
-    xif = 1.0 if operators1.operator_card.configs.scvar_method is not None else xif
+    xif = 1.0 if operators1.operator_card.configs.scvar_method is None else xif
     tcard = operators1.theory_card
     opcard = operators1.operator_card
     # rotate the targetgrid
