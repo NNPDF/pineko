@@ -426,7 +426,7 @@ def evolve_grid(
         fktable = grid.evolve_with_slice_iter2(
             prepare(operators1),
             prepare(operators2),
-            ren1=mur2_grid,
+            ren1=xir*xir*mur2_grid,
             alphas=alphas_values,
             xi=(xir, xif),
             order_mask=order_mask,
@@ -434,7 +434,7 @@ def evolve_grid(
     else:
         fktable = grid.evolve_with_slice_iter(
             prepare(operators1),
-            ren1=mur2_grid,
+            ren1=xir*xir*mur2_grid,
             alphas=alphas_values,
             xi=(xir, xif),
             order_mask=order_mask,
