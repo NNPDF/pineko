@@ -197,7 +197,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     muf2_grid = evol_info.fac1
     operators_card = copy.deepcopy(default_card)
     sv_method = sv_scheme(tcard)
-    xif = 1.0 if sv_method is None else tcard["XIF"]
+    xif = 1.0 if sv_method is not None else tcard["XIF"]
     # update scale variation method
     operators_card["configs"]["scvar_method"] = sv_method
 
@@ -354,7 +354,7 @@ def evolve_grid(
     evol_info = grid.evolve_info(order_mask)
     x_grid = evol_info.x1
     mur2_grid = evol_info.ren1
-    xif = 1.0 if operators1.operator_card.configs.scvar_method is None else xif
+    xif = 1.0 if operators1.operator_card.configs.scvar_method is not None else xif
     tcard = operators1.theory_card
     opcard = operators1.operator_card
     # rotate the targetgrid
@@ -419,14 +419,14 @@ def evolve_grid(
                 pid_basis=PyPidBasis.Evol,
             )
             yield (info, op.operator)
-
+    ren_grid2 = xir*xir*mur2_grid
     if operators2 is not None:
         # check convolutions order
         check_convolution_types(grid, operators1, operators2)
         fktable = grid.evolve_with_slice_iter2(
             prepare(operators1),
             prepare(operators2),
-            ren1=xir*xir*mur2_grid,
+            ren1=ren_grid2,
             alphas=alphas_values,
             xi=(xir, xif),
             order_mask=order_mask,
@@ -434,7 +434,7 @@ def evolve_grid(
     else:
         fktable = grid.evolve_with_slice_iter(
             prepare(operators1),
-            ren1=xir*xir*mur2_grid,
+            ren1=ren_grid2,
             alphas=alphas_values,
             xi=(xir, xif),
             order_mask=order_mask,
