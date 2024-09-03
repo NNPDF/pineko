@@ -397,13 +397,14 @@ def evolve_grid(
     )
     # To compute the alphas values we are first reverting the factorization scale shift
     # and then obtaining the renormalization scale using xir.
+    ren_grid2 = xir * xir * mur2_grid
     alphas_values = [
         4.0
         * np.pi
         * sc.a_s(
-            xir * xir * mur2,
+            mur2,
         )
-        for mur2 in mur2_grid
+        for mur2 in ren_grid2
     ]
 
     def prepare(operator):
@@ -426,7 +427,7 @@ def evolve_grid(
         fktable = grid.evolve_with_slice_iter2(
             prepare(operators1),
             prepare(operators2),
-            ren1=mur2_grid,
+            ren1=ren_grid2,
             alphas=alphas_values,
             xi=(xir, xif),
             order_mask=order_mask,
@@ -434,7 +435,7 @@ def evolve_grid(
     else:
         fktable = grid.evolve_with_slice_iter(
             prepare(operators1),
-            ren1=mur2_grid,
+            ren1=ren_grid2,
             alphas=alphas_values,
             xi=(xir, xif),
             order_mask=order_mask,
