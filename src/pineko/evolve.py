@@ -397,13 +397,14 @@ def evolve_grid(
     )
     # To compute the alphas values we are first reverting the factorization scale shift
     # and then obtaining the renormalization scale using xir.
+    ren_grid2 = xir * xir * mur2_grid
     alphas_values = [
         4.0
         * np.pi
         * sc.a_s(
-            xir * xir * mur2,
+            mur2,
         )
-        for mur2 in mur2_grid
+        for mur2 in ren_grid2
     ]
 
     def prepare(operator):
@@ -419,7 +420,7 @@ def evolve_grid(
                 pid_basis=PyPidBasis.Evol,
             )
             yield (info, op.operator)
-    ren_grid2 = xir*xir*mur2_grid
+
     if operators2 is not None:
         # check convolutions order
         check_convolution_types(grid, operators1, operators2)
