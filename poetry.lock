@@ -1263,7 +1263,7 @@ files = [
 name = "lhapdf-management"
 version = "0.5"
 description = "python-only lhapdf management"
-optional = true
+optional = false
 python-versions = ">=3.6"
 files = [
     {file = "lhapdf_management-0.5-py3-none-any.whl", hash = "sha256:95ac57a3ede76ef633a56474f85b79f4902c5eed7935275956b7709bec8c8604"},
@@ -3821,4 +3821,4 @@ nnpdf = ["lhapdf-management", "nnpdf"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.13"
-content-hash = "206491e6d5024c7f88239991ba1a5d6508b447e83108e181c8ffb0a7ca14dc50"
+content-hash = "21046412268fdc8fcde8a69588d22afc27292006bb3e211c83e9a759e4bde07b"
