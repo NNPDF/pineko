@@ -8,7 +8,5 @@ on:
 jobs:
   publish:
     uses: NNPDF/workflows/.github/workflows/python-poetry-pypi.yml@v2
-    with:
-      poetry-extras: "-E nnpdf" # pass your extras here
     secrets:
       PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}

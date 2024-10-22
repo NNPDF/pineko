@@ -2,7 +2,12 @@ import pytest
 
 from pineko import utils
 
+try:
+    import nnpdf_data
+except ImportError:
+    nnpdf_data = None
 
+@pytest.mark.skipif(nnpdf_data is None, reason="nnpdf extras are not installed in the pypi package creation workflow")
 @pytest.mark.parametrize(
     "dsname", ["HERA_NC_318GEV_EAVG_CHARM-SIGMARED", "ATLAS_DY_7TEV_46FB_CC"]
 )
