@@ -16,6 +16,8 @@ import rich.box
 import rich.panel
 import yaml
 from eko import basis_rotation
+from eko.interpolation import XGrid
+from eko.io import manipulate
 from eko.io.types import ScaleVariationsMethod
 from eko.matchings import Atlas, nf_default
 from eko.quantities import heavy_quarks
@@ -201,10 +203,12 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     # update scale variation method
     operators_card["configs"]["scvar_method"] = sv_method
 
-    # Make sure that we are using the theory Q0 and fail if the template has a different one
-    operators_card["mu0"] = tcard["Q0"]
-    if default_card.get("mu0") is not None and default_card["mu0"] != tcard["Q0"]:
-        raise ValueError("Template declares a value of Q0 different from theory")
+    operators_card["init"] = (tcard["Q0"], tcard["nf0"])
+    if default_card.get("init") is not None and default_card["init"] != [
+        tcard["Q0"],
+        tcard["nf0"],
+    ]:
+        raise ValueError("Template declares a value of Q0, nf0 different from theory")
 
     q2_grid = (xif * xif * muf2_grid).tolist()
     masses = np.array([tcard["mc"], tcard["mb"], tcard["mt"]]) ** 2
@@ -361,32 +365,15 @@ def evolve_grid(
     if "integrability_version" in grid.key_values():
         x_grid = np.append(x_grid, 1.0)
 
-    def xgrid_reshape(full_operator):
-        """Reinterpolate operators on output and/or input grids."""
-        eko.io.manipulate.xgrid_reshape(
-            full_operator, targetgrid=eko.interpolation.XGrid(x_grid)
-        )
-        check.check_grid_and_eko_compatible(grid, full_operator, xif, max_as, max_al)
-        # rotate to evolution (if doable and necessary)
-        if np.allclose(full_operator.bases.inputpids, br.flavor_basis_pids):
-            eko.io.manipulate.to_evol(full_operator)
-        # Here we are checking if the EKO contains the rotation matrix (flavor to evol)
-        elif not np.allclose(
-            full_operator.bases.inputpids, br.rotate_flavor_to_evolution
-        ):
-            raise ValueError("The EKO is neither in flavor nor in evolution basis.")
-
-    xgrid_reshape(operators1)
+    check.check_grid_and_eko_compatible(grid, operators1, xif, max_as, max_al)
     if operators2 is not None:
-        xgrid_reshape(operators2)
+        check.check_grid_and_eko_compatible(grid, operators2, xif, max_as, max_al)
 
     # PineAPPL wants alpha_s = 4*pi*a_s
     # remember that we already accounted for xif in the opcard generation
     evmod = eko.couplings.couplings_mod_ev(opcard.configs.evolution_method)
     # Couplings ask for the square of the masses
     thresholds_ratios = np.power(tcard.heavy.matching_ratios, 2.0)
-    for q in range(tcard.couplings.max_num_flavs + 1, 6 + 1):
-        thresholds_ratios[q - 4] = np.inf
     sc = eko.couplings.Couplings(
         tcard.couplings,
         tcard.order,
@@ -398,25 +385,31 @@ def evolve_grid(
     # To compute the alphas values we are first reverting the factorization scale shift
     # and then obtaining the renormalization scale using xir.
     ren_grid2 = xir * xir * mur2_grid
+    nfgrid = [x[1] for x in operators1.operator_card.mugrid]
     alphas_values = [
-        4.0
-        * np.pi
-        * sc.a_s(
-            mur2,
-        )
-        for mur2 in ren_grid2
+        4.0 * np.pi * sc.a_s(mur2, nf_to=nf) for mur2, nf in zip(ren_grid2, nfgrid)
     ]
+
+    def xgrid_reshape(operator, operator_xgrid):
+        """Reinterpolate operators on output."""
+        manipulate.xgrid_reshape(
+            operator,
+            operator_xgrid,
+            opcard.configs.interpolation_polynomial_degree,
+            targetgrid=XGrid(x_grid),
+        )
 
     def prepare(operator):
         """Match the raw operator with its relevant metadata."""
         for (q2, _), op in operator.items():
+            xgrid_reshape(op, operator.xgrid)
             info = PyOperatorSliceInfo(
                 fac0=operator.mu20,
-                x0=operator.bases.inputgrid.raw,
+                x0=operator.xgrid.tolist(),
                 pids0=basis_rotation.evol_basis_pids,
                 fac1=q2,
-                x1=operator.bases.targetgrid.raw,
-                pids1=operator.bases.targetpids,
+                x1=operator.xgrid.tolist(),
+                pids1=basis_rotation.evol_basis_pids,
                 pid_basis=PyPidBasis.Evol,
             )
             yield (info, op.operator)
