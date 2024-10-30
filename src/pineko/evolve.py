@@ -365,6 +365,7 @@ def evolve_grid(
     if "integrability_version" in grid.key_values():
         x_grid = np.append(x_grid, 1.0)
 
+    # TODO: do we still want to check here or only later ?
     check.check_grid_and_eko_compatible(grid, operators1, xif, max_as, max_al)
     if operators2 is not None:
         check.check_grid_and_eko_compatible(grid, operators2, xif, max_as, max_al)
@@ -391,8 +392,8 @@ def evolve_grid(
     ]
 
     def xgrid_reshape(operator, operator_xgrid):
-        """Reinterpolate operators on output."""
-        manipulate.xgrid_reshape(
+        """Reinterpolate the operator on output."""
+        return manipulate.xgrid_reshape(
             operator,
             operator_xgrid,
             opcard.configs.interpolation_polynomial_degree,
@@ -402,13 +403,13 @@ def evolve_grid(
     def prepare(operator):
         """Match the raw operator with its relevant metadata."""
         for (q2, _), op in operator.items():
-            xgrid_reshape(op, operator.xgrid)
+            op = xgrid_reshape(op, operator.xgrid)
             info = PyOperatorSliceInfo(
                 fac0=operator.mu20,
                 x0=operator.xgrid.tolist(),
                 pids0=basis_rotation.evol_basis_pids,
                 fac1=q2,
-                x1=operator.xgrid.tolist(),
+                x1=x_grid.tolist(),
                 pids1=basis_rotation.evol_basis_pids,
                 pid_basis=PyPidBasis.Evol,
             )
