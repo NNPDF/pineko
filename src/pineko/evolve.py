@@ -357,13 +357,13 @@ def evolve_grid(
 
     evol_info = grid.evolve_info(order_mask)
     x_grid = evol_info.x1
+    if "integrability_version" in grid.key_values():
+        x_grid = np.append(x_grid, 1.0)
+
     mur2_grid = evol_info.ren1
     xif = 1.0 if operators1.operator_card.configs.scvar_method is not None else xif
     tcard = operators1.theory_card
     opcard = operators1.operator_card
-    # rotate the targetgrid
-    if "integrability_version" in grid.key_values():
-        x_grid = np.append(x_grid, 1.0)
 
     # TODO: do we still want to check here or only later ?
     check.check_grid_and_eko_compatible(grid, operators1, xif, max_as, max_al)
@@ -410,7 +410,7 @@ def evolve_grid(
                 pids0=basis_rotation.evol_basis_pids,
                 fac1=q2,
                 x1=x_grid.tolist(),
-                pids1=basis_rotation.evol_basis_pids,
+                pids1=basis_rotation.flavor_basis_pids,
                 pid_basis=PyPidBasis.Evol,
             )
             yield (info, op.operator)
