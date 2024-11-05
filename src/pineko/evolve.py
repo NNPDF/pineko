@@ -407,11 +407,11 @@ def evolve_grid(
             info = PyOperatorSliceInfo(
                 fac0=operator.mu20,
                 x0=operator.xgrid.tolist(),
-                pids0=basis_rotation.evol_basis_pids,
+                pids0=basis_rotation.flavor_basis_pids,
                 fac1=q2,
                 x1=x_grid.tolist(),
                 pids1=basis_rotation.flavor_basis_pids,
-                pid_basis=PyPidBasis.Evol,
+                pid_basis=PyPidBasis.Pdg,
             )
             yield (info, op.operator)
 
