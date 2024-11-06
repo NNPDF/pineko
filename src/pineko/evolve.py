@@ -365,11 +365,6 @@ def evolve_grid(
     tcard = operators1.theory_card
     opcard = operators1.operator_card
 
-    # TODO: do we still want to check here or only later ?
-    check.check_grid_and_eko_compatible(grid, operators1, xif, max_as, max_al)
-    if operators2 is not None:
-        check.check_grid_and_eko_compatible(grid, operators2, xif, max_as, max_al)
-
     # PineAPPL wants alpha_s = 4*pi*a_s
     # remember that we already accounted for xif in the opcard generation
     evmod = eko.couplings.couplings_mod_ev(opcard.configs.evolution_method)
@@ -404,6 +399,8 @@ def evolve_grid(
         """Match the raw operator with its relevant metadata."""
         for (q2, _), op in operator.items():
             op = xgrid_reshape(op, operator.xgrid)
+            # TODO: this check here could be dropped ?
+            check.check_grid_and_eko_compatible(grid, x_grid, q2, xif, max_as, max_al)
             info = PyOperatorSliceInfo(
                 fac0=operator.mu20,
                 x0=operator.xgrid.tolist(),

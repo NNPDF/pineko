@@ -76,15 +76,19 @@ def in1d(a, b, rtol=1e-05, atol=1e-08):
     )
 
 
-def check_grid_and_eko_compatible(pineappl_grid, operators, xif, max_as, max_al):
-    """Check whether the EKO operators and the PineAPPL grid are compatible.
+def check_grid_and_eko_compatible(
+    pineappl_grid, eko_xgrid, eko_mu2, xif, max_as, max_al
+):
+    """Check whether the EKO operator and the PineAPPL grid are compatible.
 
     Parameters
     ----------
     pineappl_grid : pineappl.grid.Grid
         grid
-    operators : eko.EKO
-        operators
+    eko_xgrid : list
+        eko interpolation xgrid
+    eko_mu2: float
+        eko mu2 scale
     xif : float
         factorization scale variation
     max_as: int
@@ -95,7 +99,7 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif, max_as, max_al)
     Raises
     ------
     ValueError
-        If the operators and the grid are not compatible.
+        If the operator and the grid are not compatible.
     """
     order_mask = pineappl.grid.Order.create_mask(
         pineappl_grid.orders(), max_as, max_al, True
@@ -104,14 +108,12 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif, max_as, max_al)
     x_grid = evol_info.x1
     muf2_grid = evol_info.fac1
     # Q2 grid
-    if not np.all(
-        in1d(np.unique(list(operators.mu2grid)), xif * xif * np.array(muf2_grid))
-    ):
+    if not np.all(in1d(np.array([eko_mu2]), xif * xif * np.array(muf2_grid))):
         raise ValueError(
             "Q2 grid in pineappl grid and eko operator are NOT compatible!"
         )
     # x-grid
-    if not np.all(in1d(np.unique(operators.xgrid.tolist()), np.array(x_grid))):
+    if not np.all(in1d(np.unique(eko_xgrid), np.array(x_grid))):
         raise ValueError("x grid in pineappl grid and eko operator are NOT compatible!")
 
 
