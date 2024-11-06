@@ -189,7 +189,6 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     """
     # Add a +1 to the orders for the difference in convention between nnpdf and pineappl
     # NB: This would not happen for nFONLL
-    pineappl_grid
     is_fns = int(check.is_fonll_mixed(tcard["FNS"], pineappl_grid.channels()))
     max_as = 1 + tcard["PTO"] + is_fns
     max_al = 1 + tcard["QED"]
