@@ -37,6 +37,7 @@ def sub_compatibility(grid_path, operator_path, xif, max_as, max_al):
 
     """
     pineappl_grid = pineappl.grid.Grid.read(grid_path)
+    pineappl_grid.optimize()
     with eko.EKO.read(operator_path) as operators:
         for (q2, _), _ in operators.items():
             try:

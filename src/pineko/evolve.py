@@ -126,9 +126,11 @@ def write_operator_card_from_file(
     if not pathlib.Path(pineappl_path).exists():
         raise FileNotFoundError(pineappl_path)
     pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
+    pineappl_grid.optimize()
     default_card = yaml.safe_load(
         pathlib.Path(default_card_path).read_text(encoding="utf-8")
     )
+
     return write_operator_card(pineappl_grid, default_card, card_path, tcard)
 
 
@@ -187,6 +189,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     """
     # Add a +1 to the orders for the difference in convention between nnpdf and pineappl
     # NB: This would not happen for nFONLL
+    pineappl_grid
     is_fns = int(check.is_fonll_mixed(tcard["FNS"], pineappl_grid.channels()))
     max_as = 1 + tcard["PTO"] + is_fns
     max_al = 1 + tcard["QED"]
@@ -399,7 +402,6 @@ def evolve_grid(
         """Match the raw operator with its relevant metadata."""
         for (q2, _), op in operator.items():
             op = xgrid_reshape(op, operator.xgrid)
-            # TODO: this check here could be dropped ?
             check.check_grid_and_eko_compatible(grid, x_grid, q2, xif, max_as, max_al)
             info = PyOperatorSliceInfo(
                 fac0=operator.mu20,
