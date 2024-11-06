@@ -388,28 +388,27 @@ def evolve_grid(
         4.0 * np.pi * sc.a_s(mur2, nf_to=nf) for mur2, nf in zip(ren_grid2, nfgrid)
     ]
 
-    def xgrid_reshape(operator, operator_xgrid):
-        """Reinterpolate the operator on output."""
-        return manipulate.xgrid_reshape(
-            operator,
-            operator_xgrid,
-            opcard.configs.interpolation_polynomial_degree,
-            targetgrid=XGrid(x_grid),
-        )
-
     def prepare(operator):
         """Match the raw operator with its relevant metadata."""
         for (q2, _), op in operator.items():
-            op = xgrid_reshape(op, operator.xgrid)
+            # reshape the x-grid output
+            op = manipulate.xgrid_reshape(
+                op,
+                operator.xgrid,
+                opcard.configs.interpolation_polynomial_degree,
+                targetgrid=XGrid(x_grid),
+            )
+            # rotate the input to evolution basis
+            op = manipulate.to_evol(op, source=True)
             check.check_grid_and_eko_compatible(grid, x_grid, q2, xif, max_as, max_al)
             info = PyOperatorSliceInfo(
                 fac0=operator.mu20,
                 x0=operator.xgrid.tolist(),
-                pids0=basis_rotation.flavor_basis_pids,
+                pids0=basis_rotation.evol_basis_pids,
                 fac1=q2,
                 x1=x_grid.tolist(),
                 pids1=basis_rotation.flavor_basis_pids,
-                pid_basis=PyPidBasis.Pdg,
+                pid_basis=PyPidBasis.Evol,
             )
             yield (info, op.operator)
 
