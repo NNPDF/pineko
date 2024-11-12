@@ -19,7 +19,8 @@ from ._base import command
 @click.option(
     "--threshold", default=5.0, help="threshold in permille to accept Grid -> FK"
 )
-def subcommand(fktable_path, grid_path, max_as, max_al, pdfs, xir, xif, threshold):
+@click.option("--xia", default=1.0, help="fragmentation scale variation")
+def subcommand(fktable_path, grid_path, max_as, max_al, pdfs, xir, xif, threshold, xia):
     """Compare process level PineAPPL grid and derived FK Table.
 
     The comparison between the grid stored at PINEAPPL_PATH, and the FK table
@@ -35,15 +36,12 @@ def subcommand(fktable_path, grid_path, max_as, max_al, pdfs, xir, xif, threshol
     pine = pineappl.grid.Grid.read(grid_path)
     fk = pineappl.fk_table.FkTable.read(fktable_path)
 
-    if len(pdfs) > 2:
-        raise ValueError(
-            "Pineko supports the convolution with maximum 2 different PDF sets."
-        )
-    pdf1 = pdfs[0]
-    pdf2 = pdfs[1] if len(pdfs) == 2 else None
+    if len(pine.convolutions) != len(pdfs) and len(pdfs) != 1:
+        raise ValueError("The number of PDFs is inconsistent with the Grid!")
+
+    # Define the variations of scales as tuple
+    scales = (xir, xif, xia)
+
     # Note that we need to cast to string before printing to avoid ellipsis ...
-    rich.print(
-        comparator.compare(
-            pine, fk, max_as, max_al, pdf1, xir, xif, threshold, pdf2
-        ).to_string()
-    )
+    comparisons = comparator.compare(pine, fk, max_as, max_al, pdfs, scales, threshold)
+    rich.print(comparisons.to_string())
