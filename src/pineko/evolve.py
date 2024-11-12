@@ -10,7 +10,6 @@ from importlib import metadata
 import eko
 import eko.basis_rotation as br
 import numpy as np
-import pineappl
 import rich
 import rich.box
 import rich.panel
@@ -19,8 +18,11 @@ from eko import basis_rotation
 from eko.io.types import ScaleVariationsMethod
 from eko.matchings import Atlas, nf_default
 from eko.quantities import heavy_quarks
-from pineappl.fk_table import PyFkAssumptions
-from pineappl.grid import PyOperatorSliceInfo, PyPidBasis
+from pineappl.boc import Order
+from pineappl.evolution import OperatorSliceInfo
+from pineappl.fk_table import FkAssumptions
+from pineappl.grid import Grid
+from pineappl.pids import PidBasis
 
 from . import check, comparator, version
 
@@ -47,50 +49,6 @@ def sv_scheme(tcard):
     if modsv not in modsv_list:
         return None
     return modsv
-
-
-def get_grid_convolution_type(kv):
-    """Retrieve the ekos convolution type.
-
-    Parameters
-    ----------
-    kv: dict
-        pineappl grid metadata
-    """
-    # TODO: This should probably changed in the future to use the Grid::convolutions
-    if "convolution_type_1" in kv:
-        conv_type_1 = kv["convolution_type_1"]
-    # TODO: polarized is now deprecated, needed for compatibility
-    elif "polarized" in kv and kv["polarized"] == "True":
-        conv_type_1 = "PolPDF"
-    else:
-        conv_type_1 = "UnpolPDF"
-
-    # TODO: initial_state_1 and initial_state_2 are now deprecated,
-    # needed for compatibility.
-    if "convolution_particle_2" in kv:
-        part_2 = kv["convolution_particle_2"]
-    else:
-        part_2 = kv["initial_state_2"]
-
-    # check for DIS
-    if check.islepton(int(part_2)):
-        conv_type_2 = None
-    else:
-        conv_type_2 = kv.get("convolution_type_2", "UnpolPDF")
-    return conv_type_1, conv_type_2
-
-
-def check_convolution_types(grid, operators1, operators2):
-    """Check that grid and eko convolution types are sorted correctly."""
-    grid_conv_1, grid_conv_2 = get_grid_convolution_type(grid.key_values())
-    conv_to_eko = {"UnpolPDF": (False, False), "PolPDF": (True, False)}
-
-    for op, pine_conv in [(operators1, grid_conv_1), (operators2, grid_conv_2)]:
-        is_pol, is_tl = conv_to_eko[pine_conv]
-        cfg = op.operator_card.configs
-        if cfg.polarized != is_pol or cfg.time_like != is_tl:
-            raise ValueError("Grid and Eko convolution types are not matching.")
 
 
 def write_operator_card_from_file(
@@ -123,14 +81,14 @@ def write_operator_card_from_file(
     # raise in python rather then rust
     if not pathlib.Path(pineappl_path).exists():
         raise FileNotFoundError(pineappl_path)
-    pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
+    pineappl_grid = Grid.read(pineappl_path)
     default_card = yaml.safe_load(
         pathlib.Path(default_card_path).read_text(encoding="utf-8")
     )
     return write_operator_card(pineappl_grid, default_card, card_path, tcard)
 
 
-def dump_card(card_path, operators_card, conv_type, suffix=False):
+def dump_card(card_path, operators_card, conv_type):
     """Set polarization and dump operator cards.
 
     Parameters
@@ -139,16 +97,22 @@ def dump_card(card_path, operators_card, conv_type, suffix=False):
         target path
     operators_card : dict
         operators card to dump
-    conv_type : str
-        convolution type
-    suffix : bool, None
-        if True use the convolution type as operator card suffix
+    conv_type : pineappl.convolutions.Conv
+        the type of convolution
     """
     op_to_dump = copy.deepcopy(operators_card)
-    op_to_dump["configs"]["polarized"] = conv_type == "PolPDF"
+    polarized = conv_type.conv_type.polarized
+    time_like = conv_type.conv_type.time_like
+    op_to_dump["configs"]["polarized"] = polarized
+    op_to_dump["configs"]["timelike"] = time_like
 
-    if suffix:
-        card_path = card_path.parent / f"{card_path.stem}_{conv_type}.yaml"
+    suffix = ""
+    if polarized:
+        suffix += "_polarized"
+    if time_like:
+        suffix += "_time_like"
+
+    card_path = card_path.parent / f"{card_path.stem}{suffix}.yaml"
     with open(card_path, "w", encoding="UTF-8") as f:
         yaml.safe_dump(op_to_dump, f)
         pineko_version = metadata.version("pineko")
@@ -189,9 +153,7 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     max_as = 1 + tcard["PTO"] + is_fns
     max_al = 1 + tcard["QED"]
     # ... in order to create a mask ...
-    order_mask = pineappl.grid.Order.create_mask(
-        pineappl_grid.orders(), max_as, max_al, True
-    )
+    order_mask = Order.create_mask(pineappl_grid.orders(), max_as, max_al, True)
     # ... to get the x and muF grids for the eko
     evol_info = pineappl_grid.evolve_info(order_mask)
     muf2_grid = evol_info.fac1
@@ -232,14 +194,6 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     # Add the version of eko and pineko to the operator card
     # using importlib.metadata.version to get the correct tag in editable mode
     operators_card["eko_version"] = metadata.version("eko")
-
-    # switch on polarization ?
-    kv = pineappl_grid.key_values()
-    conv_type_1, conv_type_2 = get_grid_convolution_type(kv)
-
-    # fragmentation function grid?
-    if "timelike" in kv:
-        operators_card["configs"]["timelike"] = kv["timelike"] == "True"
 
     # Choose the evolution method according to the theory if the key is included
     if "ModEv" in tcard:
@@ -284,30 +238,27 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
             "are you sure that's what you want?"
         )
 
-    # For hadronic obs we might need to dump 2 eko cards
-    if conv_type_2 is None or conv_type_1 == conv_type_2:
-        dump_card(card_path, operators_card, conv_type_1)
-    else:
-        # dump card_a
-        dump_card(card_path, operators_card, conv_type_1, suffix=True)
-        # dump card_b
-        dump_card(card_path, operators_card, conv_type_2, suffix=True)
+    # Get the types of convolutions required for this Grid
+    convolutions = pineappl_grid.convolutions
+
+    # TODO: Find a clever way to recombine the same convolutions
+    for conv in convolutions:
+        dump_card(card_path, operators_card, conv)
 
     return operators_card["xgrid"], q2_grid
 
 
 def evolve_grid(
     grid,
-    operators1,
+    operators,
     fktable_path,
     max_as,
     max_al,
     xir,
     xif,
-    operators2=None,
+    xia,
     assumptions="Nf6Ind",
-    comparison_pdf1=None,
-    comparison_pdf2=None,
+    comparison_pdfs=list[str] | None,
     meta_data=None,
     min_as=None,
 ):
@@ -317,8 +268,8 @@ def evolve_grid(
     ----------
     grid : pineappl.grid.Grid
         unconvolved grid
-    operators1 : eko.EKO
-        evolution operator
+    operators : list(eko.EKO)
+        list of evolution operators
     fktable_path : str
         target path for convolved grid
     max_as : int
@@ -329,34 +280,31 @@ def evolve_grid(
         renormalization scale variation
     xif : float
         factorization scale variation
-    operators2: eko.EKO
-        additonal evolution operator if different from operators1
+    xia : float
+        fragmentation scale variation
     assumptions : str
         assumptions on the flavor dimension
-    comparison_pdf1 : None or str
+    comparison_pdf1 : list(str) or None
         if given, a comparison table (with / without evolution) will be printed
-    comparison_pdf2 : None or str
-        PDF set for the second convolution if different from the first one
     meta_data : None or dict
         if given, additional meta data written to the FK table
     min_as: None or int
         minimum power of strong coupling
     """
-    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al, True)
+    order_mask = Order.create_mask(grid.orders(), max_as, max_al, True)
     if min_as is not None and min_as > 1:
         # If using min_as, we want to ignore only orders below that (e.g., if min_as=2
         # and max_as=3, we want NNLO and NLO)
-        ignore_orders = pineappl.grid.Order.create_mask(
-            grid.orders(), min_as - 1, max_al, True
-        )
+        ignore_orders = Order.create_mask(grid.orders(), min_as - 1, max_al, True)
         order_mask ^= ignore_orders
 
     evol_info = grid.evolve_info(order_mask)
     x_grid = evol_info.x1
     mur2_grid = evol_info.ren1
-    xif = 1.0 if operators1.operator_card.configs.scvar_method is not None else xif
-    tcard = operators1.theory_card
-    opcard = operators1.operator_card
+    # TODO: Find a better way to do this
+    xif = 1.0 if operators[0].operator_card.configs.scvar_method is not None else xif
+    tcard = operators[0].theory_card
+    opcard = operators[0].operator_card
     # rotate the targetgrid
     if "integrability_version" in grid.key_values():
         x_grid = np.append(x_grid, 1.0)
@@ -376,9 +324,8 @@ def evolve_grid(
         ):
             raise ValueError("The EKO is neither in flavor nor in evolution basis.")
 
-    xgrid_reshape(operators1)
-    if operators2 is not None:
-        xgrid_reshape(operators2)
+    for operator in operators:
+        xgrid_reshape(operator)
 
     # PineAPPL wants alpha_s = 4*pi*a_s
     # remember that we already accounted for xif in the opcard generation
@@ -407,63 +354,63 @@ def evolve_grid(
         for mur2 in ren_grid2
     ]
 
-    def prepare(operator):
+    def prepare(operator, conv_type):
         """Match the raw operator with its relevant metadata."""
+        # TODO: This is the most important part to check. In any case, this would better
+        # bet an iterator even if it doesn't provide improvements
+        sub_slices = []
         for (q2, _), op in operator.items():
-            info = PyOperatorSliceInfo(
+            info = OperatorSliceInfo(
                 fac0=operator.mu20,
-                x0=operator.bases.inputgrid.raw,
-                pids0=basis_rotation.evol_basis_pids,
                 fac1=q2,
+                x0=operator.bases.inputgrid.raw,
                 x1=operator.bases.targetgrid.raw,
+                pids0=basis_rotation.evol_basis_pids,
                 pids1=operator.bases.targetpids,
-                pid_basis=PyPidBasis.Evol,
+                pid_basis=PidBasis.Evol,
+                conv_type=conv_type,
             )
-            yield (info, op.operator)
+            sub_slices.append((info, op.operator))
+        return sub_slices
 
-    if operators2 is not None:
-        # check convolutions order
-        check_convolution_types(grid, operators1, operators2)
-        fktable = grid.evolve_with_slice_iter2(
-            prepare(operators1),
-            prepare(operators2),
-            ren1=ren_grid2,
-            alphas=alphas_values,
-            xi=(xir, xif),
-            order_mask=order_mask,
-        )
-    else:
-        fktable = grid.evolve_with_slice_iter(
-            prepare(operators1),
-            ren1=ren_grid2,
-            alphas=alphas_values,
-            xi=(xir, xif),
-            order_mask=order_mask,
-        )
+    # TODO: Check compatibility between EKOs and CONVs and recombine similar convolutions
+    slices = [prepare(o, c.conv_type) for o, c in zip(operators, grid.convolutions)]
+
+    # Perform the arbitrary many evolutions
+    fktable = grid.evolve(
+        slices=slices,
+        order_mask=order_mask,
+        xi=(xir, xif, xia),
+        ren1=ren_grid2,
+        alphas=alphas_values,
+    )
+
     rich.print(f"Optimizing for {assumptions}")
-    fktable.optimize(PyFkAssumptions(assumptions))
-    fktable.set_key_value("eko_version", operators1.metadata.version)
-    fktable.set_key_value("eko_theory_card", json.dumps(operators1.theory_card.raw))
+    fktable.optimize(FkAssumptions(assumptions))
+    fktable.set_key_value("eko_version", operators[0].metadata.version)
+    fktable.set_key_value("eko_theory_card", json.dumps(operators[0].theory_card.raw))
 
-    fktable.set_key_value("eko_operator_card", json.dumps(operators1.operator_card.raw))
-    if operators2 is not None:
+    for idx, operator in enumerate(operators):
+        suffix = "" if idx == 0 else f"_{idx}"
         fktable.set_key_value(
-            "eko_operator_card_2", json.dumps(operators2.operator_card.raw)
+            f"eko_operator_card{suffix}", json.dumps(operator.operator_card.raw)
         )
 
     fktable.set_key_value("pineko_version", version.__version__)
     if meta_data is not None:
         for k, v in meta_data.items():
             fktable.set_key_value(k, v)
+
     # compare before/after
     comparison = None
-    if comparison_pdf1 is not None:
+    if comparison_pdfs is not None:
+        scales = (xir, xif, xia)
         comparison = comparator.compare(
-            grid, fktable, max_as, max_al, comparison_pdf1, xir, xif, comparison_pdf2
+            grid, fktable, max_as, max_al, comparison_pdfs, scales
         )
         fktable.set_key_value("results_fk", comparison.to_string())
-        fktable.set_key_value("results_fk_pdfset1", str(comparison_pdf1))
-        fktable.set_key_value("results_fk_pdfset2", str(comparison_pdf2))
+        for idx, pdf in enumerate(comparison_pdfs):
+            fktable.set_key_value(f"results_fk_pdfset{idx}", str(pdf))
     # write
     fktable.write_lz4(str(fktable_path))
     return grid, fktable, comparison
