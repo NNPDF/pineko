@@ -72,9 +72,10 @@ class _FakePDF:
 
 def _trim_template(template_card, take_points=10):
     """Trim the template card so that the number of x-values to compute is much smaller"""
-    card_info = OperatorCard.from_dict(
-        safe_load(template_card.read_text(encoding="utf-8"))
-    )
+    raw_card = safe_load(template_card.read_text(encoding="utf-8"))
+    raw_card["init"] = (raw_card["mu0"], 4)
+    del raw_card["mu0"]
+    card_info = OperatorCard.from_dict(raw_card)
     original_x = card_info.xgrid
     size = len(original_x.raw)
     skip = int(size / take_points)
