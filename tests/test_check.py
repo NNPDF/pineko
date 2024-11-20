@@ -1,5 +1,5 @@
 import numpy as np
-from pineappl.pineappl import PyOrder
+import pineappl
 
 import pineko.check
 
@@ -57,13 +57,13 @@ class Fake_grid:
         self.orderlist = order_list
 
     def orders(self):
-        return self.orderlist
+        return [order._raw for order in self.orderlist]
 
 
 class Order:
     def __init__(self, order_tup):
         self.orders = order_tup
-        self._raw = PyOrder(order_tup[0], order_tup[1], order_tup[2], order_tup[3])
+        self._raw = pineappl.boc.Order(*order_tup)
 
     def as_tuple(self):
         return self.orders
@@ -72,9 +72,9 @@ class Order:
 def test_contains_fact():
     max_as = 2
     max_al = 1
-    first_order = Order((0, 0, 0, 0))
-    second_order = Order((1, 0, 0, 0))
-    third_order = Order((1, 0, 0, 1))
+    first_order = Order((0, 0, 0, 0, 0))
+    second_order = Order((1, 0, 0, 0, 0))
+    third_order = Order((1, 0, 0, 1, 0))
     order_list = [first_order, second_order, third_order]
     mygrid = Fake_grid(order_list)
     checkres, max_as_effective = pineko.check.contains_sv(
@@ -113,9 +113,9 @@ def test_contains_fact():
 def test_contains_ren():
     max_as = 3
     max_al = 0
-    first_order = Order((0, 0, 0, 0))
-    second_order = Order((1, 0, 0, 0))
-    third_order = Order((2, 0, 1, 0))
+    first_order = Order((0, 0, 0, 0, 0))
+    second_order = Order((1, 0, 0, 0, 0))
+    third_order = Order((2, 0, 1, 0, 0))
     order_list = [first_order, second_order, third_order]
     mygrid = Fake_grid(order_list)
     checkres, max_as_effective = pineko.check.contains_sv(
@@ -130,7 +130,7 @@ def test_contains_ren():
     )
     assert checkres is pineko.check.AvailableAtMax.BOTH
     assert max_as_effective == max_as - 1
-    order_list.append(Order((2, 0, 0, 0)))
+    order_list.append(Order((2, 0, 0, 0, 0)))
     mygrid_noren = Fake_grid(order_list)
     checkres, max_as_effective = pineko.check.contains_sv(
         mygrid_noren, max_as, max_al, pineko.check.Scale.REN
