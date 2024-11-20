@@ -6,7 +6,7 @@ import numpy as np
 import pineappl
 import rich
 import yaml
-from pineappl import import_only_subgrid
+from pineappl.import_subgrid import ImportSubgridV1
 
 from . import configs, fonll, scale_variations, utils
 from .scale_variations import orders_as_tuple
@@ -95,8 +95,9 @@ def scale_subgrid(subgrid, scales_array):
     x2grid = subgrid.x2_grid()
     mu2_grid = [tuple([mu2.ren, mu2.fac]) for mu2 in subgrid.mu2_grid()]
     # assemble
-    scaled_subgrid = import_only_subgrid.ImportOnlySubgridV2(
-        scaled_array, mu2_grid, x1grid, x2grid
+    scaled_subgrid = ImportSubgridV1(
+        array=scaled_array,
+        node_values=[mu2_grid, x1grid, x2grid],
     )
     return scaled_subgrid
 
