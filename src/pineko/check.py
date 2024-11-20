@@ -19,8 +19,9 @@ class ScaleValue:
 class Scale(Enum):
     """Auxiliary class to list the possible scale variations."""
 
-    REN = ScaleValue("renormalization scale variations", -2)
-    FACT = ScaleValue("factorization scale variations", -1)
+    REN = ScaleValue("renormalization scale variations", -3)
+    FACT = ScaleValue("factorization scale variations", -2)
+    FRAG = ScaleValue("fragmentation scale variation", -1)
 
 
 class AvailableAtMax(Enum):
@@ -169,7 +170,7 @@ def orders(grid, max_as, max_al) -> list:
 
     """
     order_array = np.array([order.as_tuple() for order in grid.orders()])
-    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al, True)
+    order_mask = pineappl.boc.Order.create_mask(grid.orders(), max_as, max_al, True)
     order_list = order_array[order_mask]
     return order_list
 
