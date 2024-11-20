@@ -105,7 +105,7 @@ def initialize_new_grid(grid, new_order):
     bin_limits = [
         float(bin) for bin in range(grid.bins() + 1)
     ]  # The +1 explanation is that n bins have n+1 bin limits, and range generates numbers from a half-open interval (range(n) generates n numbers).
-    lumi_grid = [pineappl.lumi.LumiEntry(mylum) for mylum in grid.channels()]
+    lumi_grid = [pineappl.boc.Channel(mylum) for mylum in grid.channels()]
     subgrid_params = pineappl.subgrid.SubgridParams()
     new_order = [pineappl.grid.Order(*new_order)]
     # create new_grid with same lumi and bin_limits of the original grid but with new_order
@@ -179,7 +179,7 @@ def construct_and_dump_order_exists_grid(ori_grid, to_construct_order):
     """
     # TODO: can we make this function simpler ??
     bin_limits = [float(bin) for bin in range(ori_grid.bins() + 1)]
-    lumi_grid = [pineappl.lumi.LumiEntry(mylum) for mylum in ori_grid.channels()]
+    lumi_grid = [pineappl.boc.Channel(mylum) for mylum in ori_grid.channels()]
     subgrid_params = pineappl.subgrid.SubgridParams()
     ori_grid_orders = orders_as_tuple(ori_grid)
     new_orders = [

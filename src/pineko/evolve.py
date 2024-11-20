@@ -10,6 +10,7 @@ from importlib import metadata
 import eko
 import eko.basis_rotation as br
 import numpy as np
+import pineappl
 import rich
 import rich.box
 import rich.panel
@@ -18,12 +19,6 @@ from eko import basis_rotation
 from eko.io.types import ScaleVariationsMethod
 from eko.matchings import Atlas, nf_default
 from eko.quantities import heavy_quarks
-from pineappl.boc import Order
-from pineappl.convolutions import Conv
-from pineappl.evolution import OperatorSliceInfo
-from pineappl.fk_table import FkAssumptions
-from pineappl.grid import Grid
-from pineappl.pids import PidBasis
 
 from . import check, comparator, version
 
@@ -52,7 +47,7 @@ def sv_scheme(tcard):
     return modsv
 
 
-def get_convolution_suffix(convolution: Conv) -> str:
+def get_convolution_suffix(convolution: pineappl.convolutions.Conv) -> str:
     """Get the correct suffix for a given convolution.
 
     Accounts for all possible combinations of (PDF, FF)⊗(Unpolarized, Polarized).
@@ -107,14 +102,18 @@ def write_operator_card_from_file(
     # raise in python rather then rust
     if not pathlib.Path(pineappl_path).exists():
         raise FileNotFoundError(pineappl_path)
-    pineappl_grid = Grid.read(pineappl_path)
+    pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
     default_card = yaml.safe_load(
         pathlib.Path(default_card_path).read_text(encoding="utf-8")
     )
     return write_operator_card(pineappl_grid, default_card, card_path, tcard)
 
 
-def dump_card(card_path: str | os.PathLike, operators_card: dict, convolution: Conv):
+def dump_card(
+    card_path: str | os.PathLike,
+    operators_card: dict,
+    convolution: pineappl.convolutions.Conv,
+) -> None:
     """Set polarization and dump operator cards.
 
     Parameters
@@ -145,7 +144,12 @@ def dump_card(card_path: str | os.PathLike, operators_card: dict, convolution: C
         )
 
 
-def write_operator_card(pineappl_grid, default_card, card_path, tcard):
+def write_operator_card(
+    pineappl_grid: pineappl.grid.Grid,
+    default_card: dict,
+    card_path: str | os.PathLike,
+    tcard: dict,
+):
     """Generate operator card for this grid.
 
     Parameters
@@ -174,7 +178,9 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     max_as = 1 + tcard["PTO"] + is_fns
     max_al = 1 + tcard["QED"]
     # ... in order to create a mask ...
-    order_mask = Order.create_mask(pineappl_grid.orders(), max_as, max_al, True)
+    order_mask = pineappl.boc.Order.create_mask(
+        pineappl_grid.orders(), max_as, max_al, True
+    )
     # ... to get the x and muF grids for the eko
     evol_info = pineappl_grid.evolve_info(order_mask)
     muf2_grid = evol_info.fac1
@@ -270,14 +276,14 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
 
 
 def evolve_grid(
-    grid,
-    operators,
-    fktable_path,
-    max_as,
-    max_al,
-    xir,
-    xif,
-    xia,
+    grid: pineappl.grid.Grid,
+    operators: list,
+    fktable_path: str,
+    max_as: int,
+    max_al: int,
+    xir: int,
+    xif: int,
+    xia: int,
     assumptions="Nf6Ind",
     comparison_pdfs=list[str] | None,
     meta_data=None,
@@ -312,11 +318,13 @@ def evolve_grid(
     min_as: None or int
         minimum power of strong coupling
     """
-    order_mask = Order.create_mask(grid.orders(), max_as, max_al, True)
+    order_mask = pineappl.boc.Order.create_mask(grid.orders(), max_as, max_al, True)
     if min_as is not None and min_as > 1:
         # If using min_as, we want to ignore only orders below that (e.g., if min_as=2
         # and max_as=3, we want NNLO and NLO)
-        ignore_orders = Order.create_mask(grid.orders(), min_as - 1, max_al, True)
+        ignore_orders = pineappl.boc.Order.create_mask(
+            grid.orders(), min_as - 1, max_al, True
+        )
         order_mask ^= ignore_orders
 
     evol_info = grid.evolve_info(order_mask)
@@ -381,14 +389,14 @@ def evolve_grid(
         # bet an iterator even if it doesn't provide improvements
         sub_slices = []
         for (q2, _), op in operator.items():
-            info = OperatorSliceInfo(
+            info = pineappl.evolution.OperatorSliceInfo(
                 fac0=operator.mu20,
                 fac1=q2,
                 x0=operator.bases.inputgrid.raw,
                 x1=operator.bases.targetgrid.raw,
                 pids0=basis_rotation.evol_basis_pids,
                 pids1=operator.bases.targetpids,
-                pid_basis=PidBasis.Evol,
+                pid_basis=pineappl.pids.PidBasis.Evol,
                 conv_type=conv_type,
             )
             sub_slices.append((info, op.operator))
@@ -407,7 +415,7 @@ def evolve_grid(
     )
 
     rich.print(f"Optimizing for {assumptions}")
-    fktable.optimize(FkAssumptions(assumptions))
+    fktable.optimize(pineappl.fk_table.FkAssumptions(assumptions))
     fktable.set_key_value("eko_version", operators[0].metadata.version)
     fktable.set_key_value("eko_theory_card", json.dumps(operators[0].theory_card.raw))
 
