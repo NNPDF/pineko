@@ -67,9 +67,12 @@ def inherit_ekos(source_theory_id, target_theory_id, datasets, overwrite):
 @theory_.command()
 @click.argument("theory_id", type=click.INT)
 @click.argument("datasets", type=click.STRING, nargs=-1)
-@click.option("--pdf1", "-p", default=None, help="PDF set used for comparison")
 @click.option(
-    "--pdf2", default=None, help="Second PDF set used for comparison, if needed"
+    "--pdfs",
+    "-p",
+    default=None,
+    type=click.STRING,
+    help="List of PDF sets to be used for comparison; single string where sets are separated by commas",
 )
 @click.option("--silent", is_flag=True, help="Suppress logs with comparison")
 @click.option(
@@ -79,11 +82,11 @@ def inherit_ekos(source_theory_id, target_theory_id, datasets, overwrite):
     help="Erease previos logs (instead of appending)",
 )
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
-def fks(theory_id, datasets, pdf1, pdf2, silent, clear_logs, overwrite):
+def fks(theory_id, datasets, pdfs, silent, clear_logs, overwrite):
     """Compute FK tables in all datasets."""
     theory.TheoryBuilder(
         theory_id, datasets, silent=silent, clear_logs=clear_logs, overwrite=overwrite
-    ).fks(pdf1, pdf2)
+    ).fks(pdfs)
 
 
 @theory_.command()
