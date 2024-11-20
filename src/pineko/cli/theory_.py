@@ -1,6 +1,6 @@
 """'theory' mode of CLI."""
 
-import click
+import rich_click as click
 
 from .. import theory
 from ._base import command, config_option, load_config

@@ -19,6 +19,7 @@ from eko.io.types import ScaleVariationsMethod
 from eko.matchings import Atlas, nf_default
 from eko.quantities import heavy_quarks
 from pineappl.boc import Order
+from pineappl.convolutions import Conv
 from pineappl.evolution import OperatorSliceInfo
 from pineappl.fk_table import FkAssumptions
 from pineappl.grid import Grid
@@ -51,11 +52,36 @@ def sv_scheme(tcard):
     return modsv
 
 
+def get_convolution_suffix(convolution: Conv) -> str:
+    """Get the correct suffix for a given convolution.
+
+    Accounts for all possible combinations of (PDF, FF)⊗(Unpolarized, Polarized).
+    If the convolution is PDF⊗Unpolarized (which is the default in NNPDF), then
+    the suffix is an empty string (for legacy purposes).
+
+    Parameters
+    ----------
+    convolution: pineappl.convolutions.Conv
+        a PineAPPL object containing the information on the convolution
+
+    Returns
+    -------
+    suffix: str
+        string containing the correct suffix
+    """
+    suffix = ""
+    if convolution.conv_type.polarized:
+        suffix += "_polarized"
+    if convolution.conv_type.time_like:
+        suffix += "_time_like"
+    return suffix
+
+
 def write_operator_card_from_file(
     pineappl_path: os.PathLike,
     default_card_path: os.PathLike,
     card_path: os.PathLike,
-    tcard,
+    tcard: dict,
 ):
     """Generate operator card for a grid.
 
@@ -88,7 +114,7 @@ def write_operator_card_from_file(
     return write_operator_card(pineappl_grid, default_card, card_path, tcard)
 
 
-def dump_card(card_path, operators_card, conv_type):
+def dump_card(card_path: str | os.PathLike, operators_card: dict, convolution: Conv):
     """Set polarization and dump operator cards.
 
     Parameters
@@ -97,21 +123,16 @@ def dump_card(card_path, operators_card, conv_type):
         target path
     operators_card : dict
         operators card to dump
-    conv_type : pineappl.convolutions.Conv
+    convolution : pineappl.convolutions.Conv
         the type of convolution
     """
     op_to_dump = copy.deepcopy(operators_card)
-    polarized = conv_type.conv_type.polarized
-    time_like = conv_type.conv_type.time_like
+    polarized = convolution.conv_type.polarized
+    time_like = convolution.conv_type.time_like
     op_to_dump["configs"]["polarized"] = polarized
     op_to_dump["configs"]["timelike"] = time_like
 
-    suffix = ""
-    if polarized:
-        suffix += "_polarized"
-    if time_like:
-        suffix += "_time_like"
-
+    suffix = get_convolution_suffix(convolution)
     card_path = card_path.parent / f"{card_path.stem}{suffix}.yaml"
     with open(card_path, "w", encoding="UTF-8") as f:
         yaml.safe_dump(op_to_dump, f)

@@ -1,7 +1,7 @@
 """CLI entry point to FONLL."""
 
-import click
 import rich
+import rich_click as click
 
 from .. import fonll, theory, theory_card
 from ..fonll import TheoryCardError

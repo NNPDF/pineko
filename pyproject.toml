@@ -37,6 +37,7 @@ click = "^8.0.4"
 tomli = "^2.0.1"
 nnpdf-data = { version = ">=0.0.3", optional = true}
 lhapdf-management = { version = "^0.5", optional = true }
+rich-click = "^1.8.4"
 
 [tool.poetry.group.docs]
 optional = true
