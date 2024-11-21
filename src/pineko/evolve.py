@@ -6,6 +6,7 @@ import logging
 import os
 import pathlib
 from importlib import metadata
+from typing import Union
 
 import eko
 import eko.basis_rotation as br
@@ -110,7 +111,7 @@ def write_operator_card_from_file(
 
 
 def dump_card(
-    card_path: str | os.PathLike,
+    card_path: Union[str, os.PathLike],
     operators_card: dict,
     convolution: pineappl.convolutions.Conv,
 ) -> None:
@@ -147,7 +148,7 @@ def dump_card(
 def write_operator_card(
     pineappl_grid: pineappl.grid.Grid,
     default_card: dict,
-    card_path: str | os.PathLike,
+    card_path: Union[str, os.PathLike],
     tcard: dict,
 ):
     """Generate operator card for this grid.
@@ -285,7 +286,7 @@ def evolve_grid(
     xif: int,
     xia: int,
     assumptions="Nf6Ind",
-    comparison_pdfs=list[str] | None,
+    comparison_pdfs=Union[list[str], None],
     meta_data=None,
     min_as=None,
 ):
