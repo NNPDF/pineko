@@ -86,33 +86,38 @@ def ren_sv_coeffs(m, max_as, logpart, which_part, nf):
 
 
 def requirements(m: int, max_as: int, al: int) -> Dict[OrderTuple, List[OrderTuple]]:
-    """Compute a dictionary with all the necessary orders to compute to have the full renormalization scale variation.
+    """Return a dictionary with the orders required to have the muR scale variation.
 
-    `m` is the first non-zero perturbative order of the grid, and `al` is the QED order of the "QCD" leading order.
-
+    `m` is the first non-zero perturbative order of the grid, and `al` is the QED order
+    of the "QCD" leading order.
     """
     return {
-        (m + max_as, al, delt + 1, 0): [
-            (m + de, al, 0, 0) for de in range(max_as - delt)
+        (m + max_as, al, delt + 1, 0, 0): [
+            (m + de, al, 0, 0, 0) for de in range(max_as - delt)
         ]
         for delt in range(max_as)
     }
 
 
 def initialize_new_grid(grid, new_order):
-    """Initialize a new grid only containing one order and with the same setting of an original grid."""
-    # Retrieve parameters to create new grid
-    bin_limits = [
-        float(bin) for bin in range(grid.bins() + 1)
-    ]  # The +1 explanation is that n bins have n+1 bin limits, and range generates numbers from a half-open interval (range(n) generates n numbers).
-    lumi_grid = [pineappl.boc.Channel(mylum) for mylum in grid.channels()]
-    subgrid_params = pineappl.subgrid.SubgridParams()
-    new_order = [pineappl.grid.Order(*new_order)]
-    # create new_grid with same lumi and bin_limits of the original grid but with new_order
-    new_grid = pineappl.grid.Grid.create(
-        lumi_grid, new_order, bin_limits, subgrid_params
+    """Initialize a new grid similar to the original with the `oder` modified."""
+    # Retrieve parameters to create new grid. The +1 explanation is that n bins
+    # have n+1 bin limits, and range generates numbers from a half-open interval
+    # (range(n) generates n numbers).
+    bin_limits = [float(bin) for bin in range(grid.bins() + 1)]
+    channels = [pineappl.boc.Channel(mychannel) for mychannel in grid.channels()]
+    new_order = [pineappl.boc.Order(*new_order)]
+    # create a new grid that is similar to `grid` but with `new_order`
+    return pineappl.grid.Grid(
+        pid_basis=grid.pid_basis,
+        channels=channels,
+        orders=new_order,
+        bin_limits=bin_limits,
+        convolutions=grid.convolutions,
+        interpolations=grid.interpolations,
+        kinematics=grid.kinematics,
+        scale_funcs=grid.scales,
     )
-    return new_grid
 
 
 def create_svonly(grid, order, new_order, scalefactor):
