@@ -104,7 +104,8 @@ def is_already_in_no_logs(to_check, list_orders):
     """Check if the requested order is already in the grid."""
     for order in list_orders:
         if (
-            order[-2] == 0
+            order[-3] == 0
+            and order[-2] == 0
             and order[-1] == 0
             and (order[0] == to_check[0])
             and (order[1] == to_check[1])
@@ -206,7 +207,7 @@ def apply_to_grid(
 
     # the actual alpha_s order to update
     order_to_update = pto_to_update + min_as - 1
-    order_to_update = (order_to_update, min_al, 0, 0)
+    order_to_update = (order_to_update, min_al, 0, 0, 0)
 
     # check if the order is already there
     is_in = is_already_in_no_logs(order_to_update, grid_orders_filtered)
@@ -221,7 +222,7 @@ def apply_to_grid(
 
     # loop on all the order to update
     max_as = grid_orders_filtered[-1][0]
-    orders_list = [(de, min_al, 0, 0) for de in range(min_as, max_as + 1)]
+    orders_list = [(de, min_al, 0, 0, 0) for de in range(min_as, max_as + 1)]
     # create an empty grid and add the rescaled order
     new_order_grid = None
     for i, as_order in enumerate(orders_list):
