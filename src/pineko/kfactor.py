@@ -72,9 +72,12 @@ def compute_scale_factor(
     return k_term * alpha_term
 
 
-def scale_subgrid(subgrid, scales_array):
+def scale_subgrid(subgrid, scales_array, subgrid_node_values, empty_subgrid=False):
     """Rescales the array contained in the subgrid using scales_array."""
-    original_array = subgrid.to_array3()
+    # NOTE: This is to get around PineAPPL returning errors for Empty Subgrid
+    subgrid_shape = subgrid.shape if not empty_subgrid else (0, 0, 0)
+    original_array = subgrid.to_array(subgrid_shape)
+
     if len(original_array) != len(scales_array):
         raise ValueError("The original and the scales arrays have different shapes.")
     # construct subgrid
@@ -89,9 +92,9 @@ def scale_subgrid(subgrid, scales_array):
     else:
         scaled_array = np.array(scaled_array, dtype=float)
     # get coordinates
-    x1grid = subgrid.x1_grid()
-    x2grid = subgrid.x2_grid()
-    mu2_grid = [tuple([mu2.ren, mu2.fac]) for mu2 in subgrid.mu2_grid()]
+    x1grid = subgrid_node_values[1]
+    x2grid = subgrid_node_values[2]
+    mu2_grid = subgrid_node_values[0]
     # assemble
     scaled_subgrid = pineappl.import_subgrid.ImportSubgridV1(
         array=scaled_array,
@@ -139,7 +142,16 @@ def construct_new_order(grid, order, order_to_update, central_kfactor, alphas):
     for lumi_index in range(len(new_grid.channels())):
         for bin_index in range(grid.bins()):
             subgrid = grid.subgrid(original_order_index, bin_index, lumi_index)
-            mu2_ren_grid = [mu2.ren for mu2 in subgrid.mu2_grid()]
+            # NOTE: `subgrid_node_values` are ordered as `[q2, x1, x2, ...]`
+            subgrid_node_values = subgrid.node_values
+            if len(subgrid_node_values) == 0:
+                # Needed in order to access `x1grid` and `x2grid` later
+                subgrid_node_values = [[], [], []]
+                empty_subgrid = True
+            else:
+                subgrid_node_values = subgrid_node_values
+                empty_subgrid = False
+            mu2_ren_grid = subgrid_node_values[0]
             scales_array = [
                 compute_scale_factor(
                     order,
@@ -151,18 +163,19 @@ def construct_new_order(grid, order, order_to_update, central_kfactor, alphas):
                 )
                 for mu2 in mu2_ren_grid
             ]
-            scaled_subgrid = scale_subgrid(subgrid, scales_array)
-            # Set this subgrid inside the new grid
-            new_grid.set_subgrid(0, bin_index, lumi_index, scaled_subgrid)
-    # Fixing bin_limits and normalizations
-    bin_dimension = grid.raw.bin_dimensions()
-    limits = []
-    for num_bin in range(grid.raw.bins()):
-        for dim in range(bin_dimension):
-            limits.append(
-                (grid.raw.bin_left(dim)[num_bin], grid.raw.bin_right(dim)[num_bin])
+            scaled_subgrid = scale_subgrid(
+                subgrid, scales_array, subgrid_node_values, empty_subgrid
             )
-    norma = grid.raw.bin_normalizations()
+            # Set this subgrid inside the new grid
+            new_grid.set_subgrid(0, bin_index, lumi_index, scaled_subgrid.into())
+
+    # Fixing bin_limits and normalizations
+    bin_dimension = grid.bin_dimensions()
+    limits = []
+    for num_bin in range(grid.bins()):
+        for dim in range(bin_dimension):
+            limits.append((grid.bin_left(dim)[num_bin], grid.bin_right(dim)[num_bin]))
+    norma = grid.bin_normalizations()
     remap_obj = pineappl.bin.BinRemapper(norma, limits)
     new_grid.set_remapper(remap_obj)
     return new_grid
@@ -198,7 +211,7 @@ def apply_to_grid(
 
     # remove not necessary orders
     # NOTE: eventual QED kfactors are not supported
-    order_mask = pineappl.grid.Order.create_mask(grid.orders(), pto_to_update, 0, True)
+    order_mask = pineappl.boc.Order.create_mask(grid.orders(), pto_to_update, 0, True)
     grid_orders_filtered = list(np.array(grid_orders)[order_mask])
     grid_orders_filtered.sort(key=scale_variations.qcd)
     min_as = grid_orders_filtered[0][0]
