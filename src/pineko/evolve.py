@@ -213,7 +213,7 @@ def write_operator_card(
         operators_card["mugrid"] = [
             (float(np.sqrt(q2)), nf_default(q2, atlas)) for q2 in q2_grid
         ]
-    if "integrability_version" in pineappl_grid.key_values():
+    if "integrability_version" in pineappl_grid.key_values:
         x_grid = evol_info.x1
         x_grid = np.append(x_grid, 1.0)
         operators_card["configs"]["interpolation_polynomial_degree"] = 1
