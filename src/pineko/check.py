@@ -38,13 +38,6 @@ class AvailableAtMax(Enum):
     SCVAR = auto()
 
 
-def islepton(el):
-    """Return True if el is a lepton PID, otherwise return False."""
-    if 10 < abs(el) < 17:
-        return True
-    return False
-
-
 def in1d(a, b, rtol=1e-05, atol=1e-08):
     """Improved version of np.in1d.
 
@@ -118,26 +111,25 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif, max_as, max_al)
         raise ValueError("x grid in pineappl grid and eko operator are NOT compatible!")
 
 
-def is_dis(lumi):
+def is_dis(channels):
     """Check if the fktable we are computing is a DIS fktable.
 
     Parameters
     ----------
-    lumi : list(list(tuple))
-           luminosity info
+    channels : list(list(tuple(list, float)))
+        object containing the information on the channels. From PineAPPL v1,
+        the tuple contains two elements. The first is a list containing the
+        PIDs of the partons. The length of the list coincides with the number
+        of partons involved, ie for DIS there is only one element, and for a
+        hadron production in pp collision there are three elements. The 2nd
+        element is the weight/multiplicative factor as usual.
 
     Returns
     -------
     bool
         true if the fktable is a DIS fktable
     """
-    for entry in lumi:
-        for el in entry:
-            if (not islepton(el[0])) and (not islepton(el[1])):
-                # If neither of the incoming particles is a lepton we are sure
-                # it is not DIS
-                return False
-    return True
+    return True if len(channels[0][0][0]) == 0 else False
 
 
 def is_fonll_mixed(fns, lumi):
