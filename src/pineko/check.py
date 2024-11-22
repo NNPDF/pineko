@@ -98,7 +98,7 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif, max_as, max_al)
     ValueError
         If the operators and the grid are not compatible.
     """
-    order_mask = pineappl.grid.Order.create_mask(
+    order_mask = pineappl.boc.Order.create_mask(
         pineappl_grid.orders(), max_as, max_al, True
     )
     evol_info = pineappl_grid.evolve_info(order_mask)
