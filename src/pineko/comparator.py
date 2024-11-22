@@ -59,12 +59,15 @@ def compare(pine, fktable, max_as, max_al, pdfs, scales, threshold=5.0):
             )
 
     # TODO: Add checks that verify the compatibility with the PDFs
-
+    order_mask = pineappl.boc.Order.create_mask(
+        orders=pine.orders(), max_as=max_as, max_al=max_al, logs=True
+    )
     # Perform the convolutions of the Grids and FK tables (This is now much simpler!)
     pine_predictions = pine.convolve(
         pdg_convs=pine.convolutions,
         xfxs=[pdf.xfxQ2 for pdf in pdfsets],
-        alphas=pdfsets[0].alphasQ,  # TODO: Choose which PDF should be used
+        alphas=pdfsets[0].alphasQ2,  # TODO: Choose which PDF should be used
+        order_mask=order_mask,
         xi=[scales],  # TODO: Exposes as a list
     )
     fktable_predictions = fktable.convolve(
