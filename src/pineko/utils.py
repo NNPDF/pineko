@@ -29,14 +29,17 @@ def read_grids_from_nnpdf(dataset_name, configs=None):
         return None
 
     # Import NNPDF only if we really want it!
-    from nnpdf_data import legacy_to_new_map
-    from validphys.commondataparser import EXT
-    from validphys.loader import Loader
+    from nnpdf_data import legacy_to_new_map, path_commondata
+    from nnpdf_data.commondataparser import EXT, parse_new_metadata
 
     # We only need the metadata, so this should be enough
+    # pass it through the legacy_to_new in case this is an old name
     dataset_name, variant = legacy_to_new_map(dataset_name)
-    cd = Loader().check_commondata(dataset_name, variant=variant)
-    fks = cd.metadata.theory.FK_tables
+
+    setname, observable = dataset_name.rsplit("_", 1)
+    metadata_file = path_commondata / setname / "metadata.yaml"
+    metadata = parse_new_metadata(metadata_file, observable, variant=variant)
+    fks = metadata.theory.FK_tables
     # Return it flat
     return [f"{i}.{EXT}" for operand in fks for i in operand]
 
