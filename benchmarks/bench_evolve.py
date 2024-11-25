@@ -113,7 +113,7 @@ def benchmark_evolve_grid(tmp_path, lhapdf_path, test_files, test_pdf):
         with lhapdf_path(test_pdf):
             pineko.evolve.evolve_grid(
                 grid=pinegrid,
-                operators=eko_op,
+                operators=[eko_op],
                 fktable_path=target_path,
                 max_as=max_as,
                 max_al=max_al,
