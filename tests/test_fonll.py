@@ -59,6 +59,7 @@ def test_FONLLInfo():
 class FakeGrid:
     kv: dict = {}
 
+    @property
     def key_values(self):
         return self.kv
 
@@ -80,5 +81,5 @@ def test_update_fk_theorycard(tmp_path):
     # run the update
     pineko.fonll.update_fk_theorycard(fg, p)
     # check it actually worked
-    new_tc = json.loads(fg.key_values()["theory"])
+    new_tc = json.loads(fg.key_values["theory"])
     assert new_tc["PTO"] == base_tc["PTO"]

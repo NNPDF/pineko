@@ -221,7 +221,7 @@ def construct_and_dump_order_exists_grid(ori_grid, to_construct_order):
     new_grid.set_remapper(remap_obj)
 
     # propagate metadata
-    for k, v in ori_grid.key_values().items():
+    for k, v in ori_grid.key_values.items():
         new_grid.set_key_value(k, v)
 
     return new_grid

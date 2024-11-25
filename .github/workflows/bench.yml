@@ -18,13 +18,17 @@ jobs:
         with:
           # tags needed for dynamic versioning
           fetch-depth: 0
+      - name: Install Rust Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Install Maturin
+        run: pip install maturin
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
         with:
           virtualenvs-create: false
           installer-parallel: true
-      # Temporary fix to get unreleased version of pineappl
-      - uses: moonrepo/setup-rust@v1
       - name: Install dependencies
         run: poetry install --no-interaction --no-root --with test -E nnpdf
       - name: Install project
