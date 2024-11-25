@@ -408,7 +408,7 @@ class TheoryBuilder:
         """
         # activate logging
         paths = configs.configs["paths"]
-        comb_pdf_logs = "-".join(pdfs)
+        comb_pdf_logs = "-".join(pdfs) if pdfs is not None else "nopdf"
         do_log = self.activate_logging(
             paths["logs"]["fk"], f"{self.theory_id}-{name}-{comb_pdf_logs}.log"
         )

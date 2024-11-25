@@ -130,7 +130,7 @@ def dump_card(
     polarized = convolution.conv_type.polarized
     time_like = convolution.conv_type.time_like
     op_to_dump["configs"]["polarized"] = polarized
-    op_to_dump["configs"]["timelike"] = time_like
+    op_to_dump["configs"]["time_like"] = time_like
 
     suffix = get_convolution_suffix(convolution)
     card_path = card_path.parent / f"{card_path.stem}{suffix}.yaml"
@@ -336,7 +336,7 @@ def evolve_grid(
     tcard = operators[0].theory_card
     opcard = operators[0].operator_card
     # rotate the targetgrid
-    if "integrability_version" in grid.key_values():
+    if "integrability_version" in grid.key_values:
         x_grid = np.append(x_grid, 1.0)
 
     def xgrid_reshape(full_operator):

@@ -114,7 +114,7 @@ class FONLLInfo:
         """Return the common theory info between the different FONLL FK tables."""
         theorycards = []
         for pinefk in self.fks.values():
-            thinfo = pinefk.key_values()["theory"]
+            thinfo = pinefk.key_values["theory"]
             theorycards.append(_json_theory_read(thinfo))
 
         # Only these should differ
@@ -146,7 +146,7 @@ def update_fk_theorycard(combined_fk, input_theorycard_path):
     with open(input_theorycard_path, encoding="utf-8") as f:
         final_theorycard = yaml.safe_load(f)
 
-    theorycard = _json_theory_read(combined_fk.key_values()["theory"])
+    theorycard = _json_theory_read(combined_fk.key_values["theory"])
     theorycard["FNS"] = final_theorycard["FNS"]
     theorycard["PTO"] = final_theorycard["PTO"]
     theorycard["NfFF"] = final_theorycard["NfFF"]
