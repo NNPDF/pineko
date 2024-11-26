@@ -137,6 +137,7 @@ def fks(theoryid, datasets, pdfs, overwrite):
     2. Combine the FKtables into a single one.
     """
     # create the 7 FK tables
+    pdfs = pdfs.split(",") if pdfs is not None else pdfs
     for th_suffix in range(0, 7):
         theory.TheoryBuilder(  # [too-many-function-args]
             f"{theoryid}0{th_suffix}",

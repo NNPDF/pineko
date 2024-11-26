@@ -88,6 +88,7 @@ def subcommand(
             f"min_as: {min_as}" if min_as is not None else "",
         )
 
+        pdfs = pdfs.split(",") if pdfs is not None else pdfs
         _grid, _fk, comp = evolve.evolve_grid(
             grid,
             operators,
@@ -98,7 +99,7 @@ def subcommand(
             xif,
             xia,
             assumptions=assumptions,
-            comparison_pdfs=pdfs.split(","),
+            comparison_pdfs=pdfs,
             min_as=min_as,
         )
 
