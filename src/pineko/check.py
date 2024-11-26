@@ -129,7 +129,7 @@ def is_dis(channels):
     bool
         true if the fktable is a DIS fktable
     """
-    return True if len(channels[0][0][0]) == 0 else False
+    return True if len(channels[0][0][0]) == 1 else False
 
 
 def is_fonll_mixed(fns, lumi):
