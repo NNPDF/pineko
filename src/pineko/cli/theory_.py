@@ -84,6 +84,7 @@ def inherit_ekos(source_theory_id, target_theory_id, datasets, overwrite):
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
 def fks(theory_id, datasets, pdfs, silent, clear_logs, overwrite):
     """Compute FK tables in all datasets."""
+    pdfs = pdfs.split(",") if pdfs is not None else pdfs
     theory.TheoryBuilder(
         theory_id, datasets, silent=silent, clear_logs=clear_logs, overwrite=overwrite
     ).fks(pdfs)
