@@ -6,7 +6,7 @@ import logging
 import os
 import pathlib
 from importlib import metadata
-from typing import Union
+from typing import Optional, Union
 
 import eko
 import eko.basis_rotation as br
@@ -286,7 +286,7 @@ def evolve_grid(
     xif: float,
     xia: float,
     assumptions="Nf6Ind",
-    comparison_pdfs=Union[list[str], None],
+    comparison_pdfs: Optional[list[str]] = None,
     meta_data=None,
     min_as=None,
 ):

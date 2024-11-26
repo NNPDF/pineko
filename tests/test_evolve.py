@@ -42,7 +42,7 @@ class FakePine:
         return [pineappl.convolutions.Conv(conv_type=conv_type, pid=2212)]
 
     def channels(self):
-        return [[(21, 21, 1)]]
+        return [[([21, 21], 1)]]
 
     def evolve_info(self, _):
         return self._evolve_info
