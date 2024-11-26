@@ -32,8 +32,8 @@ def read_grids_from_nnpdf(dataset_name, configs=None):
     from nnpdf_data import legacy_to_new_map, path_commondata
     from nnpdf_data.commondataparser import EXT, parse_new_metadata
 
-    # We only need the metadata, so this should be enough
-    # pass it through the legacy_to_new in case this is an old name
+    # We only need the metadata, so this should be enough.
+    # Pass it through the legacy_to_new in case this is an old name.
     dataset_name, variant = legacy_to_new_map(dataset_name)
 
     setname, observable = dataset_name.rsplit("_", 1)
