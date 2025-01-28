@@ -3,7 +3,6 @@
 import numpy as np
 import pandas as pd
 import pineappl
-import rich
 
 
 def compare(pine, fktable, max_as, max_al, pdfs, scales):
