@@ -485,7 +485,7 @@ class TheoryBuilder:
         if n_ekos > 1:
             extra_eko_tmp_path = []
             for eko_idx in range(1, n_ekos):
-                with eko.EKO.read(eko_filename[1]) as extra_operators:
+                with eko.EKO.read(eko_filename[eko_idx]) as extra_operators:
                     eko_tmp_path_extra = (
                         first_operator.paths.root.parent
                         / f"eko-tmp-{name}-{np.random.rand()}.tar"
@@ -519,7 +519,7 @@ class TheoryBuilder:
 
             operators = [first_operator]
             if n_ekos > 1:
-                for eko_idx in range(1, n_ekos):
+                for eko_idx in range(len(extra_eko_tmp_path)):
                     operators.append(eko.EKO.edit(extra_eko_tmp_path[eko_idx]))
 
             _grid, _fk, comparison = evolve.evolve_grid(
