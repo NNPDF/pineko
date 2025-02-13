@@ -48,7 +48,7 @@ class FakePine:
         return self._evolve_info
 
     @property
-    def key_values(self):
+    def metadata(self):
         return {"convolution_particle_1": 2212, "convolution_particle_2": 11}
 
 
