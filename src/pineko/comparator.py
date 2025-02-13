@@ -46,15 +46,17 @@ def compare(pine, fktable, max_as, max_al, pdfs, scales, threshold=5.0):
     ), "FK table and Grid have different (number of) convolutions"
 
     for gconv, fconv in zip(pine.convolutions, fktable.convolutions):
-        if gconv.conv_type.polarized != fconv.conv_type.polarized:
+        if gconv.convolution_types.polarized != fconv.convolution_types.polarized:
             raise ValueError(
                 "The Grid and FK table do not have the same type of Polarization:"
-                f"grid={gconv.conv_type.polarized} vs. fk={fconv.conv_type.polarized}"
+                f"grid={gconv.convolution_types.polarized}"
+                f" vs. fk={fconv.convolution_types.polarized}"
             )
-        if gconv.conv_type.time_like != fconv.conv_type.time_like:
+        if gconv.convolution_types.time_like != fconv.convolution_types.time_like:
             raise ValueError(
                 "The Grid and FK table do not have the same type of Interval:"
-                f"grid={gconv.conv_type.time_like} vs. fk={fconv.conv_type.time_like}"
+                f"grid={gconv.convolution_types.time_like}"
+                f" vs. fk={fconv.convolution_types.time_like}"
             )
 
     # TODO: Add checks that verify the compatibility with the PDFs
@@ -78,9 +80,10 @@ def compare(pine, fktable, max_as, max_al, pdfs, scales, threshold=5.0):
 
     df = pd.DataFrame()
     # add bin info
+    bin_specs = np.array(pine.bin_limits())
     for d in range(pine.bin_dimensions()):
-        df[f"O{d+1} left"] = pine.bin_left(d)
-        df[f"O{d+1} right"] = pine.bin_right(d)
+        df[f"O{d+1} left"] = bin_specs[:, d, 0]
+        df[f"O{d+1} right"] = bin_specs[:, d, 1]
     # add data
     df["PineAPPL"] = before
     df["FkTable"] = after

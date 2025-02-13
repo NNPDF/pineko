@@ -125,7 +125,7 @@ def benchmark_evolve_grid(tmp_path, lhapdf_path, test_files, test_pdf):
             )
             # check metadata is there - fixes https://github.com/NNPDF/pineko/issues/70
             fk = pineappl.fk_table.FkTable.read(target_path)
-            kvs = fk.key_values
+            kvs = fk.metadata
             assert "results_fk" in kvs
             assert "eko_theory_card" in kvs
             assert json.dumps(eko_op.theory_card.raw) == kvs["eko_theory_card"]

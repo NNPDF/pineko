@@ -213,7 +213,7 @@ def write_operator_card(
         operators_card["mugrid"] = [
             (float(np.sqrt(q2)), nf_default(q2, atlas)) for q2 in q2_grid
         ]
-    if "integrability_version" in pineappl_grid.key_values:
+    if "integrability_version" in pineappl_grid.metadata:
         x_grid = evol_info.x1
         x_grid = np.append(x_grid, 1.0)
         operators_card["configs"]["interpolation_polynomial_degree"] = 1
@@ -336,7 +336,7 @@ def evolve_grid(
     tcard = operators[0].theory_card
     opcard = operators[0].operator_card
     # rotate the targetgrid
-    if "integrability_version" in grid.key_values:
+    if "integrability_version" in grid.metadata:
         x_grid = np.append(x_grid, 1.0)
 
     def xgrid_reshape(full_operator):
@@ -419,19 +419,19 @@ def evolve_grid(
 
     rich.print(f"Optimizing for {assumptions}")
     fktable.optimize(pineappl.fk_table.FkAssumptions(assumptions))
-    fktable.set_key_value("eko_version", operators[0].metadata.version)
-    fktable.set_key_value("eko_theory_card", json.dumps(operators[0].theory_card.raw))
+    fktable.set_metadata("eko_version", operators[0].metadata.version)
+    fktable.set_metadata("eko_theory_card", json.dumps(operators[0].theory_card.raw))
 
     for idx, operator in enumerate(operators):
         suffix = "" if idx == 0 else f"_{idx}"
-        fktable.set_key_value(
+        fktable.set_metadata(
             f"eko_operator_card{suffix}", json.dumps(operator.operator_card.raw)
         )
 
-    fktable.set_key_value("pineko_version", version.__version__)
+    fktable.set_metadata("pineko_version", version.__version__)
     if meta_data is not None:
         for k, v in meta_data.items():
-            fktable.set_key_value(k, v)
+            fktable.set_metadata(k, v)
 
     # compare before/after
     comparison = None
@@ -440,9 +440,9 @@ def evolve_grid(
         comparison = comparator.compare(
             grid, fktable, max_as, max_al, comparison_pdfs, scales
         )
-        fktable.set_key_value("results_fk", comparison.to_string())
+        fktable.set_metadata("results_fk", comparison.to_string())
         for idx, pdf in enumerate(comparison_pdfs):
-            fktable.set_key_value(f"results_fk_pdfset{idx}", str(pdf))
+            fktable.set_metadata(f"results_fk_pdfset{idx}", str(pdf))
     # write
     fktable.write_lz4(str(fktable_path))
     return grid, fktable, comparison
