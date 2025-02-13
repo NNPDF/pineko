@@ -107,12 +107,18 @@ def initialize_new_grid(grid, new_order):
     bin_limits = [float(bin) for bin in range(grid.bins() + 1)]
     channels = [pineappl.boc.Channel(mychannel) for mychannel in grid.channels()]
     new_order = [pineappl.boc.Order(*new_order)]
+
+    # Construct the bin object
+    bin_limits = pineappl.boc.BinsWithFillLimits.from_fill_limits(
+        fill_limits=bin_limits
+    )
+
     # create a new grid that is similar to `grid` but with `new_order`
     return pineappl.grid.Grid(
         pid_basis=grid.pid_basis,
         channels=channels,
         orders=new_order,
-        bin_limits=bin_limits,
+        bins=bin_limits,
         convolutions=grid.convolutions,
         interpolations=grid.interpolations,
         kinematics=grid.kinematics,
@@ -135,12 +141,20 @@ def create_svonly(grid, order, new_order, scalefactor):
     # Fixing bin_limits and normalizations
     bin_dimension = grid.bin_dimensions()
     limits = []
+    bin_specs = np.array(grid.bin_limits())
     for num_bin in range(grid.bins()):
         for dim in range(bin_dimension):
-            limits.append((grid.bin_left(dim)[num_bin], grid.bin_right(dim)[num_bin]))
+            bin_left = bin_specs[:, dim, 0][num_bin]
+            bin_right = bin_specs[:, dim, 1][num_bin]
+            limits.append([(bin_left, bin_right)])
     norma = grid.bin_normalizations()
-    remap_obj = pineappl.bin.BinRemapper(norma, limits)
-    new_grid.set_remapper(remap_obj)
+
+    # Remap bins
+    bin_configs = pineappl.boc.BinsWithFillLimits.from_limits_and_normalizations(
+        limits=limits,
+        normalizations=norma,
+    )
+    new_grid.set_bwfl(bin_configs)
     return new_grid
 
 
