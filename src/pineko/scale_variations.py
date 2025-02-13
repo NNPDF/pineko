@@ -148,8 +148,6 @@ def create_svonly(grid, order, new_order, scalefactor):
             bin_right = bin_specs[:, dim, 1][num_bin]
             limits.append([(bin_left, bin_right)])
     norma = grid.bin_normalizations()
-
-    # Remap bins
     bin_configs = pineappl.boc.BinsWithFillLimits.from_limits_and_normalizations(
         limits=limits,
         normalizations=norma,

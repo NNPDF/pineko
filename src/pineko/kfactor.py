@@ -96,7 +96,7 @@ def scale_subgrid(subgrid, scales_array, subgrid_node_values, empty_subgrid=Fals
     x2grid = subgrid_node_values[2]
     mu2_grid = subgrid_node_values[0]
     # assemble
-    scaled_subgrid = pineappl.import_subgrid.ImportSubgridV1(
+    scaled_subgrid = pineappl.subgrid.ImportSubgridV1(
         array=scaled_array,
         node_values=[mu2_grid, x1grid, x2grid],
     )
@@ -171,13 +171,19 @@ def construct_new_order(grid, order, order_to_update, central_kfactor, alphas):
 
     # Fixing bin_limits and normalizations
     bin_dimension = grid.bin_dimensions()
+    bin_specs = np.array(grid.bin_limits())
     limits = []
     for num_bin in range(grid.bins()):
         for dim in range(bin_dimension):
-            limits.append((grid.bin_left(dim)[num_bin], grid.bin_right(dim)[num_bin]))
+            bin_left = bin_specs[:, dim, 0][num_bin]
+            bin_right = bin_specs[:, dim, 1][num_bin]
+            limits.append([(bin_left, bin_right)])
     norma = grid.bin_normalizations()
-    remap_obj = pineappl.bin.BinRemapper(norma, limits)
-    new_grid.set_remapper(remap_obj)
+    bin_configs = pineappl.boc.BinsWithFillLimits.from_limits_and_normalizations(
+        limits=limits,
+        normalizations=norma,
+    )
+    new_grid.set_bwfl(bin_configs)
     return new_grid
 
 
