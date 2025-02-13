@@ -66,9 +66,9 @@ def get_convolution_suffix(convolution: pineappl.convolutions.Conv) -> str:
         string containing the correct suffix
     """
     suffix = ""
-    if convolution.conv_type.polarized:
+    if convolution.convolution_types.polarized:
         suffix += "_polarized"
-    if convolution.conv_type.time_like:
+    if convolution.convolution_types.time_like:
         suffix += "_time_like"
     return suffix
 
@@ -127,8 +127,8 @@ def dump_card(
         the type of convolution
     """
     op_to_dump = copy.deepcopy(operators_card)
-    polarized = convolution.conv_type.polarized
-    time_like = convolution.conv_type.time_like
+    polarized = convolution.convolution_types.polarized
+    time_like = convolution.convolution_types.time_like
     op_to_dump["configs"]["polarized"] = polarized
     op_to_dump["configs"]["time_like"] = time_like
 
@@ -384,7 +384,7 @@ def evolve_grid(
         for mur2 in ren_grid2
     ]
 
-    def prepare(operator, conv_type):
+    def prepare(operator, convolution_types):
         """Match the raw operator with its relevant metadata."""
         # TODO: This is the most important part to check. In any case, this would better
         # bet an iterator even if it doesn't provide improvements
@@ -398,13 +398,15 @@ def evolve_grid(
                 pids0=basis_rotation.evol_basis_pids,
                 pids1=operator.bases.targetpids,
                 pid_basis=pineappl.pids.PidBasis.Evol,
-                conv_type=conv_type,
+                convolution_types=convolution_types,
             )
             sub_slices.append((info, op.operator))
         return sub_slices
 
     # TODO: Check compatibility between EKOs and CONVs and recombine similar convolutions
-    slices = [prepare(o, c.conv_type) for o, c in zip(operators, grid.convolutions)]
+    slices = [
+        prepare(o, c.convolution_types) for o, c in zip(operators, grid.convolutions)
+    ]
 
     # Perform the arbitrary many evolutions
     fktable = grid.evolve(

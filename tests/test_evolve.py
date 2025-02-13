@@ -39,7 +39,7 @@ class FakePine:
     @property
     def convolutions(self):
         conv_type = pineappl.convolutions.ConvType(polarized=False, time_like=False)
-        return [pineappl.convolutions.Conv(conv_type=conv_type, pid=2212)]
+        return [pineappl.convolutions.Conv(convolution_types=conv_type, pid=2212)]
 
     def channels(self):
         return [[([21, 21], 1)]]
