@@ -28,7 +28,7 @@ packages = [{ include = "pineko", from = "src" }]
 [tool.poetry.dependencies]
 python = ">=3.9,<3.13"
 eko = "^0.14.2"
-pineappl = { path = "/home/tanjona/Documents/WORK/NNPDF/pineappl/pineappl_py", develop = true } # TODO: replace with release
+pineappl = "1.0.0a2"
 PyYAML = "^6.0"
 numpy = "^1.21.0"
 pandas = "^2.1"
