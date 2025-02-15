@@ -229,8 +229,11 @@ def construct_and_dump_order_exists_grid(ori_grid, to_construct_order):
                 )
             )
     norma = ori_grid.bin_normalizations()
-    remap_obj = pineappl.bin.BinRemapper(norma, limits)
-    new_grid.set_remapper(remap_obj)
+    bin_configs = pineappl.boc.BinsWithFillLimits.from_limits_and_normalizations(
+        limits=limits,
+        normalizations=norma,
+    )
+    new_grid.set_bwfl(bin_configs)
 
     # propagate metadata
     for k, v in ori_grid.key_values.items():
