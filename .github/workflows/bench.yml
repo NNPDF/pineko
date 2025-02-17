@@ -18,12 +18,6 @@ jobs:
         with:
           # tags needed for dynamic versioning
           fetch-depth: 0
-      - name: Install Rust Toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - name: Install Maturin
-        run: pip install maturin
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
         with:
