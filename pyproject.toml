@@ -35,7 +35,7 @@ pandas = "^2.1"
 rich = "^12.5.1"
 click = "^8.0.4"
 tomli = "^2.0.1"
-nnpdf-data = { version = "*", optional = true}
+nnpdf-data = { version = ">=0.0.3", optional = true}
 
 [tool.poetry.group.docs]
 optional = true

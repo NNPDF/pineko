@@ -2717,4 +2717,4 @@ nnpdf = ["nnpdf-data"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.13"
-content-hash = "f2993360a53c3e750055dab848703d6915dc2ece42a24d0e6b43885bed9963e6"
+content-hash = "ed38f32b8a314865b33cb54ac0f82d978a440ae9b3dc240edf0da8d65b2782c8"
