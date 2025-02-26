@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-THEORY_ID=40000000
+THEORY_ID=40008005
 PDF_NAME="NNPDF40_nnlo_as_01180"
 
 LIST_DIS_DATASETS=("HERA_CC_318GEV_EP-SIGMARED")
@@ -26,18 +26,6 @@ dis_predictions() {
       --FFNS5zeromass $(($NFONLL_ID+5)) \
       --FFNS5massive $(($NFONLL_ID+6))
   done
-
-  # Compare the DIS FK tables with the Grids
-  grids=(./theory_productions/data/grids/"$NFONLL_ID"/*.pineappl.lz4)
-  for gridpath in "${grids[@]}"; do
-    gridname=$(basename "$gridpath")
-    for idx in {0..6}; do
-      NFONLL_IDX=$((NFONLL_ID+idx))
-      pineko compare ./theory_productions/data/fktables/"$NFONLL_IDX"/"$gridname" \
-        ./theory_productions/data/grids/"$NFONLL_IDX"/"$gridname" 2 0 \
-        $PDF_NAME --threshold 2000 # TODO: Check what is happening here
-    done
-  done
 }
 
 hadronic_predictions() {
@@ -55,8 +43,8 @@ hadronic_predictions() {
   for gridpath in "${grids[@]}"; do
     gridname=$(basename "$gridpath")
     pineko compare ./theory_productions/data/fktables/"$THEORYID"/"$gridname" \
-      ./theory_productions/data/grids/"$THEORYID"/"$gridname" 2 0 \
-      $PDF_NAME --threshold 2
+      ./theory_productions/data/grids/"$THEORYID"/"$gridname" 3 0 \
+      $PDF_NAME --threshold 1
   done
 }
 
@@ -73,10 +61,10 @@ compare_predictions() {
     value=$(printf "%.16f" "$pred_value") # Make sure it is in float representation
     # https://www.shell-tips.com/bash/math-arithmetic-calculation/#gsc.tab=0
     abs_diff=$(echo "scale=10; if ($value< 0) -($value) else $value" | bc)
-    check_diff=$(echo "$abs_diff > 0.005" | bc) # Set threshold to 5 permille
+    check_diff=$(echo "$abs_diff > 0.001" | bc) # Set threshold to 1 permille
 
     if [[ $check_diff -eq 1 ]]; then
-      echo "Bin $bin: ($REFERED_FK) and ($CURRENT_FK) differ more than 5 permille."
+      echo "Bin $bin: ($REFERED_FK) and ($CURRENT_FK) differ more than 1 permille."
       exit 1
     fi
   done
@@ -88,7 +76,7 @@ compare_fks_with_reference() {
   for fktable_path in "${fktables[@]}"; do
     fkname=$(basename "$fktable_path")
     fkref="./theory_productions/data/fktables/$THEORYID/$fkname"
-    fkcur="./theory_productions/data/fktables/$THEORYID/$fkname" # TODO
+    fkcur="./theory_productions/reference_fks/$THEORYID/$fkname"
     compare_predictions "$fkref" "$fkcur"
   done
 }
