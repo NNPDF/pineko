@@ -312,7 +312,7 @@ def evolve_grid(
         fragmentation scale variation
     assumptions : str
         assumptions on the flavor dimension
-    comparison_pdf1 : list(str) or None
+    comparison_pdfs : list(str) or None
         if given, a comparison table (with / without evolution) will be printed
     meta_data : None or dict
         if given, additional meta data written to the FK table

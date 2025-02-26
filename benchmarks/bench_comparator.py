@@ -13,6 +13,5 @@ def benchmark_compare(lhapdf_path, test_files, test_pdf):
     xi = (1.0, 1.0, 1.0)
     with lhapdf_path(test_pdf):
         comp_table = pineko.comparator.compare(grid, fk, 2, 0, pdfs, xi)
-    # TODO: Check if there is NOW a slight difference in PineAPPL convolve
     errors = comp_table["permille_error"].values
     assert np.all(errors < 5.0)

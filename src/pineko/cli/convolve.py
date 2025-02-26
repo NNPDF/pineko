@@ -73,7 +73,7 @@ def subcommand(
     with eko.EKO.edit(op_paths[0]) as first_operator:
         operators = [first_operator]
         path_operators = f"[+] {op_paths[0]}\n"
-        # If there are more than ONE operators, then account for all of them.
+        # If there are more than ONE operator, then account for all of them.
         if len(operators) > 1:
             for op_idx in range(1, n_ekos):
                 operators.append(eko.EKO.edit(op_paths[op_idx]))

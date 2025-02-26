@@ -122,7 +122,7 @@ def is_dis(channels):
         PIDs of the partons. The length of the list coincides with the number
         of partons involved, ie for DIS there is only one element, and for a
         hadron production in pp collision there are three elements. The 2nd
-        element is the weight/multiplicative factor as usual.
+        element is the weight/multiplicative factor.
 
     Returns
     -------
