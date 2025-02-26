@@ -236,8 +236,8 @@ def construct_and_dump_order_exists_grid(ori_grid, to_construct_order):
     new_grid.set_bwfl(bin_configs)
 
     # propagate metadata
-    for k, v in ori_grid.key_values.items():
-        new_grid.set_key_value(k, v)
+    for k, v in ori_grid.metadata.items():
+        new_grid.set_metadata(k, v)
 
     return new_grid
 
