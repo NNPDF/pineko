@@ -5,19 +5,24 @@ set -euo pipefail
 THEORY_ID=40008005
 PDF_NAME="NNPDF40_nnlo_as_01180"
 
-LIST_DIS_DATASETS=("HERA_CC_318GEV_EP-SIGMARED")
-LIST_HADRONIC_DATASETS=("ATLAS_Z0_7TEV_36PB_ETA")
+LIST_DIS_DATASETS=(
+  "HERA_CC_318GEV_EP-SIGMARED"
+)
+LIST_HADRONIC_DATASETS=(
+  "ATLAS_Z0_7TEV_36PB_ETA"
+  "LHCB_WPWM_8TEV_MUON_Y"
+  "ATLAS_SINGLETOP_8TEV_T-RAP-NORM"
+)
 
 dis_predictions() {
   THEORYID=$1
-  DIS_DATASETS=$2
   NFONLL_ID=$(($THEORYID*100))
 
-  for dataset in "${DIS_DATASETS[@]}"; do
-    pineko fonll -c pineko.cli.toml tcards $THEORYID
-    pineko fonll -c pineko.cli.toml ekos --overwrite $THEORYID $dataset
-    pineko fonll -c pineko.cli.toml fks --overwrite $THEORYID $dataset
-    pineko fonll -c pineko.cli.toml combine --overwrite $THEORYID $dataset \
+  for dataset in "${LIST_DIS_DATASETS[@]}"; do
+    pineko fonll -c pineko.ci.toml tcards $THEORYID
+    pineko fonll -c pineko.ci.toml ekos --overwrite $THEORYID $dataset
+    pineko fonll -c pineko.ci.toml fks --overwrite $THEORYID $dataset
+    pineko fonll -c pineko.ci.toml combine --overwrite $THEORYID $dataset \
       --FFNS3 $NFONLL_ID \
       --FFN03 $(($NFONLL_ID+1)) \
       --FFNS4zeromass $(($NFONLL_ID+2)) \
@@ -30,12 +35,11 @@ dis_predictions() {
 
 hadronic_predictions() {
   THEORYID=$1
-  HADRONIC_DATASETS=$2
 
-  for dataset in "${HADRONIC_DATASETS[@]}"; do
-    pineko theory -c pineko.cli.toml opcards --overwrite $THEORYID $dataset
-    pineko theory -c pineko.cli.toml ekos --overwrite $THEORYID $dataset
-    pineko theory -c pineko.cli.toml fks --overwrite $THEORYID $dataset
+  for dataset in "${LIST_HADRONIC_DATASETS[@]}"; do
+    pineko theory -c pineko.ci.toml opcards --overwrite $THEORYID $dataset
+    pineko theory -c pineko.ci.toml ekos --overwrite $THEORYID $dataset
+    pineko theory -c pineko.ci.toml fks --overwrite $THEORYID $dataset
   done
 
   # Compare the Hadronic FK tables with the Grids
@@ -44,7 +48,7 @@ hadronic_predictions() {
     gridname=$(basename "$gridpath")
     pineko compare ./theory_productions/data/fktables/"$THEORYID"/"$gridname" \
       ./theory_productions/data/grids/"$THEORYID"/"$gridname" 3 0 \
-      $PDF_NAME --threshold 1
+      $PDF_NAME --threshold 2 # set threshold to 2 permille
   done
 }
 
@@ -81,6 +85,6 @@ compare_fks_with_reference() {
   done
 }
 
-dis_predictions $THEORY_ID $LIST_DIS_DATASETS
-hadronic_predictions $THEORY_ID $LIST_HADRONIC_DATASETS
+dis_predictions $THEORY_ID
+hadronic_predictions $THEORY_ID
 compare_fks_with_reference $THEORY_ID

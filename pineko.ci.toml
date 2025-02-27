@@ -4,7 +4,7 @@ nnpdf=true
 [paths]
 # inputs
 grids = "./theory_productions/data/grids"
-operator_card_template_name = "_template.cli.toml"
+operator_card_template_name = "_template.ci.yaml"
 # outputs
 operator_cards = "./theory_productions/operator_cards"
 ekos = "./theory_productions/data/ekos"
