@@ -267,7 +267,6 @@ def write_operator_card(
     # Get the types of convolutions required for this Grid
     convolutions = pineappl_grid.convolutions
 
-    # TODO: Find a clever way to recombine the same convolutions
     for conv in convolutions:
         dump_card(card_path, operators_card, conv)
 
