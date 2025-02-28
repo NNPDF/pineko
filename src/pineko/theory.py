@@ -24,7 +24,7 @@ from .utils import read_grids_from_nnpdf
 logger = logging.getLogger(__name__)
 
 
-def get_eko_names(grid_path, name):
+def get_eko_names(grid_path, name, filter=True):
     """Get the names of the ekos depending on the types of convolutions.
 
     Parameters
@@ -33,6 +33,8 @@ def get_eko_names(grid_path, name):
         path to grid
     name : str
         grid name, i.e. it's true stem
+    filter: bool
+        if True removes the duplicates in the list
 
     Returns
     -------
@@ -45,8 +47,11 @@ def get_eko_names(grid_path, name):
     for convolution in convolutions:
         suffix = evolve.get_convolution_suffix(convolution)
         names.append(f"{name}{suffix}")
-    # For legacy Unpolarized pp we only return ONE single name
-    eko_names = [names[0]] if len(set(names)) == 1 else names
+    if filter:
+        eko_names = list(set(names))
+    else:
+        # If the types of convolutions are the same, then always return one element
+        eko_names = [names[0]] if len(set(names)) == 1 else names
     return eko_names
 
 
@@ -432,7 +437,7 @@ class TheoryBuilder:
         grid.optimize()
 
         # Do you need one or multiple ekos?
-        names = get_eko_names(grid_path, name)
+        names = get_eko_names(grid_path, name, filter=False)
         eko_filename = [self.ekos_path() / f"{ekoname}.tar" for ekoname in names]
         fk_filename = self.fks_path / f"{name}.{parser.EXT}"
         if fk_filename.exists():

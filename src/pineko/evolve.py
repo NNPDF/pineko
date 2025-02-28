@@ -127,10 +127,8 @@ def dump_card(
         the type of convolution
     """
     op_to_dump = copy.deepcopy(operators_card)
-    polarized = convolution.convolution_types.polarized
-    time_like = convolution.convolution_types.time_like
-    op_to_dump["configs"]["polarized"] = polarized
-    op_to_dump["configs"]["time_like"] = time_like
+    op_to_dump["configs"]["polarized"] = convolution.convolution_types.polarized
+    op_to_dump["configs"]["time_like"] = convolution.convolution_types.time_like
 
     suffix = get_convolution_suffix(convolution)
     card_path = card_path.parent / f"{card_path.stem}{suffix}.yaml"
