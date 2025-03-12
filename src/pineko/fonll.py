@@ -5,9 +5,9 @@ import dataclasses
 import json
 import logging
 import tempfile
-import numpy as np
 from pathlib import Path
 
+import numpy as np
 import pineappl
 import rich
 import yaml

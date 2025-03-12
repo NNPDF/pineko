@@ -458,9 +458,7 @@ class TheoryBuilder:
         # check if the grid is empty
         if check.is_num_fonll(tcard["FNS"]):
             if (
-                pineappl.boc.Order.create_mask(
-                    grid.orders(), max_as, max_al, True
-                ).size
+                pineappl.boc.Order.create_mask(grid.orders(), max_as, max_al, True).size
                 == 0
             ):
                 rich.print("[green] Skipping empty grid.")
