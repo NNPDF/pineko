@@ -5,6 +5,7 @@ import dataclasses
 import json
 import logging
 import tempfile
+import numpy as np
 from pathlib import Path
 
 import pineappl
@@ -135,7 +136,8 @@ class FONLLInfo:
     @property
     def Q2grid(self):
         """The Q2grid of the (DIS) FK tables."""
-        return self.fks[list(self.fks)[0]].bin_left(0)
+        bin_specs = np.array(self.fks[list(self.fks)[0]].bin_limits())
+        return bin_specs[:, 0, 0]
 
 
 def update_fk_theorycard(combined_fk, input_theorycard_path):
@@ -188,7 +190,7 @@ def combine(fk_dict, dampings=None):
                     if fk in fks:
                         fk_dict[fk].scale_by_bin(dampings[mass])
             fk_dict[fk].write_lz4(tmpfile_path)
-            combined_fk.merge_from_file(tmpfile_path)
+            combined_fk.merge(pineappl.grid.Grid.read(tmpfile_path))
     return combined_fk
 
 
