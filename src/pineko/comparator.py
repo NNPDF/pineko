@@ -90,6 +90,7 @@ def compare(pine, fktable, max_as, max_al, pdfs, scales, threshold=5.0):
     df["permille_error"] = (after / before - 1.0) * 1000.0
 
     if (df["permille_error"].abs() >= threshold).any():
+        print(df)
         raise GridtoFKError(
             f"The difference between the Grid and FK is above {threshold} permille."
         )

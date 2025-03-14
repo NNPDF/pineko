@@ -384,7 +384,7 @@ def evolve_grid(
     def prepare(operator, convolution_types):
         """Match the raw operator with its relevant metadata."""
         # TODO: This is the most important part to check. In any case, this would better
-        # bet an iterator even if it doesn't provide improvements
+        # be a generator even if it doesn't provide improvements
         sub_slices = []
         for (q2, _), op in operator.items():
             info = pineappl.evolution.OperatorSliceInfo(

@@ -522,8 +522,8 @@ class TheoryBuilder:
 
             operators = [first_operator]
             if n_ekos > 1:
-                for eko_idx in range(len(extra_eko_tmp_path)):
-                    operators.append(eko.EKO.edit(extra_eko_tmp_path[eko_idx]))
+                for extra_ekos in extra_eko_tmp_path:
+                    operators.append(eko.EKO.edit(extra_ekos))
 
             _grid, _fk, comparison = evolve.evolve_grid(
                 grid,
