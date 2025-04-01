@@ -67,6 +67,7 @@ def subcommand(
     PDF is an optional PDF set compatible with the EKO to compare grid and FK table.
     """
     grid = pineappl.grid.Grid.read(grid_path)
+    grid.optimize()
     n_ekos = len(op_paths)
     with eko.EKO.edit(op_paths[0]) as operators1:
         rich.print(
