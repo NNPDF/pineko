@@ -173,7 +173,7 @@ def write_operator_card(
     """
     # Add a +1 to the orders for the difference in convention between nnpdf and pineappl
     # NB: This would not happen for nFONLL
-    is_fns = int(check.is_fonll_mixed(tcard["FNS"], pineappl_grid.channels()))
+    is_fns = int(check.is_fonll_mixed(tcard["FNS"], pineappl_grid.convolutions))
     max_as = 1 + tcard["PTO"] + is_fns
     max_al = 1 + tcard["QED"]
     # ... in order to create a mask ...

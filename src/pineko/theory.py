@@ -448,7 +448,7 @@ class TheoryBuilder:
         # Check if we are computing FONLL-B fktable and eventually change max_as
         if check.is_fonll_mixed(
             tcard["FNS"],
-            grid.channels(),
+            grid.convolutions,
         ):
             max_as += 1
 

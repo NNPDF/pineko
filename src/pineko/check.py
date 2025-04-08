@@ -111,43 +111,38 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif, max_as, max_al)
         raise ValueError("x grid in pineappl grid and eko operator are NOT compatible!")
 
 
-def is_dis(channels):
+def is_dis(convolutions):
     """Check if the fktable we are computing is a DIS fktable.
 
     Parameters
     ----------
-    channels : list(list(tuple(list, float)))
-        object containing the information on the channels. From PineAPPL v1,
-        the tuple contains two elements. The first is a list containing the
-        PIDs of the partons. The length of the list coincides with the number
-        of partons involved, ie for DIS there is only one element, and for a
-        hadron production in pp collision there are three elements. The 2nd
-        element is the weight/multiplicative factor.
+    convolutions: pineappl.grid.convolutions
+           an object containing the information on the convolution
 
     Returns
     -------
     bool
         true if the fktable is a DIS fktable
     """
-    return True if len(channels[0][0][0]) == 1 else False
+    return True if len(convolutions) == 1 else False
 
 
-def is_fonll_mixed(fns, lumi):
+def is_fonll_mixed(fns, convolutions):
     """Check if the fktable we are computing is FONLL-B, FONLL-D or, in general, a mixed FONLL fktable.
 
     Parameters
     ----------
     fns : str
           flavor number scheme (from the theory card)
-    lumi : list(list(tuple))
-           luminosity info
+    convolutions: pineappl.grid.convolutions
+           an object containing the information on the convolution
 
     Returns
     -------
     bool
         true if the fktable is a mixed FONLL DIS fktable
     """
-    return is_dis(lumi) and fns in ["FONLL-B", "FONLL-D"]
+    return is_dis(convolutions) and fns in ["FONLL-B", "FONLL-D"]
 
 
 def is_num_fonll(fns):
