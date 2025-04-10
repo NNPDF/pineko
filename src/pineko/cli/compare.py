@@ -16,11 +16,11 @@ from ._base import command
 @click.argument("pdfs", type=click.STRING, nargs=-1)
 @click.option("--xir", default=1.0, help="renormalization scale variation")
 @click.option("--xif", default=1.0, help="factorization scale variation")
+@click.option("--xia", default=1.0, help="fragmentation scale variation")
 @click.option(
     "--threshold", default=5.0, help="threshold in permille to accept Grid -> FK"
 )
-@click.option("--xia", default=1.0, help="fragmentation scale variation")
-def subcommand(fktable_path, grid_path, max_as, max_al, pdfs, xir, xif, threshold, xia):
+def subcommand(fktable_path, grid_path, max_as, max_al, pdfs, xir, xif, xia, threshold):
     """Compare process level PineAPPL grid and derived FK Table.
 
     The comparison between the grid stored at PINEAPPL_PATH, and the FK table
@@ -31,7 +31,8 @@ def subcommand(fktable_path, grid_path, max_as, max_al, pdfs, xir, xif, threshol
     The comparison involves the orders in QCD and QED up to the maximum power
     of the coupling corresponding respectively to MAX_AS and MAX_AL.
 
-    XIR and XIF represent the renormalization and factorization scale in the grid respectively.
+    XIR, XIF, and XIA represent the renormalization, factorization, and fragmentation
+    scale in the grid, respectively.
     """
     pine = pineappl.grid.Grid.read(grid_path)
     fk = pineappl.fk_table.FkTable.read(fktable_path)
