@@ -124,7 +124,8 @@ def is_dis(convolutions):
     bool
         true if the fktable is a DIS fktable
     """
-    return True if len(convolutions) == 1 else False
+    time_like = convolutions[0].convolution_types.time_like
+    return True if len(convolutions) == 1 and not time_like else False
 
 
 def is_fonll_mixed(fns, convolutions):

@@ -14,19 +14,35 @@ def test_in1d():
 
 
 def test_is_dis():
-    dis_fake_lumi = ["UnpolPDF"]
-    nondis_fake_lumi = ["UnpolPDF", "UnpolPDF"]
-    assert pineko.check.is_dis(dis_fake_lumi) is True
-    assert pineko.check.is_dis(nondis_fake_lumi) is False
+    initial_conv_type = pineappl.convolutions.ConvType(polarized=True, time_like=False)
+    final_conv_type = pineappl.convolutions.ConvType(polarized=False, time_like=True)
+    dis_convolution = [pineappl.convolutions.Conv(initial_conv_type, 2212)]
+    timelike_convolution = [pineappl.convolutions.Conv(final_conv_type, 211)]
+    hadronic_convolution = [
+        pineappl.convolutions.Conv(initial_conv_type, 2212),
+        pineappl.convolutions.Conv(initial_conv_type, 2212),
+    ]
+    assert pineko.check.is_dis(dis_convolution) is True
+    assert pineko.check.is_dis(timelike_convolution) is False
+    assert pineko.check.is_dis(hadronic_convolution) is False
 
 
 def test_is_fonll_mixed():
+    unpol_conv_type = pineappl.convolutions.ConvType(polarized=False, time_like=False)
+    pol_conv_type = pineappl.convolutions.ConvType(polarized=True, time_like=False)
+    final_conv_type = pineappl.convolutions.ConvType(polarized=False, time_like=True)
+
     fns = "FONLL-B"
-    convolutions_first = ["UnpolPDF"]
-    convolutions_second = ["PolPDF"]
+    convolutions_first = [pineappl.convolutions.Conv(unpol_conv_type, 2212)]
+    convolutions_second = [pineappl.convolutions.Conv(pol_conv_type, 2212)]
+    convolutions_third = [pineappl.convolutions.Conv(final_conv_type, 211)]
     assert pineko.check.is_fonll_mixed(fns, convolutions_first) is True
     assert pineko.check.is_fonll_mixed(fns, convolutions_second) is True
-    convolutions_crazy = ["UnpolPDF", "UnpolFF"]
+    assert pineko.check.is_fonll_mixed(fns, convolutions_third) is False
+    convolutions_crazy = [
+        pineappl.convolutions.Conv(unpol_conv_type, 2212),
+        pineappl.convolutions.Conv(pol_conv_type, 2212),
+    ]
     assert pineko.check.is_fonll_mixed(fns, convolutions_crazy) is False
     fns = "FONLL-C"
     assert pineko.check.is_fonll_mixed(fns, convolutions_first) is False
