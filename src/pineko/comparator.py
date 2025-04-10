@@ -9,7 +9,7 @@ class GridtoFKError(Exception):
     """Raised when the difference between the Grid and FK table is above some threshold."""
 
 
-def compare(pine, fktable, max_as, max_al, pdfs, scales, threshold=5.0):
+def compare(pine, fktable, max_as, max_al, pdfs, scales, threshold=5.0, q2_min=1.0):
     """Build comparison table.
 
     Parameters
@@ -30,6 +30,8 @@ def compare(pine, fktable, max_as, max_al, pdfs, scales, threshold=5.0):
     threshold: float
         check if the difference between the Grid and FK table is above the
         threshold then raise an error
+    q2_min: float
+        the minimum value of Q2 to check the predictions
 
     Returns
     -------
@@ -90,7 +92,7 @@ def compare(pine, fktable, max_as, max_al, pdfs, scales, threshold=5.0):
     df["permille_error"] = (after / before - 1.0) * 1000.0
 
     # Remove Q2 points that are below 1 GeV2
-    check_df = df[df["O2 left"] >= 1] if "O2 left" in df.columns else df
+    check_df = df[df["O2 left"] >= q2_min] if "O2 left" in df.columns else df
     if (check_df["permille_error"].abs() >= threshold).any():
         print(check_df)
         raise GridtoFKError(

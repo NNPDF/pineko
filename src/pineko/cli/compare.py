@@ -20,7 +20,12 @@ from ._base import command
 @click.option(
     "--threshold", default=5.0, help="threshold in permille to accept Grid -> FK"
 )
-def subcommand(fktable_path, grid_path, max_as, max_al, pdfs, xir, xif, xia, threshold):
+@click.option(
+    "--q2_min", default=1.0, help="minimum value of Q2 to check the predictions"
+)
+def subcommand(
+    fktable_path, grid_path, max_as, max_al, pdfs, xir, xif, xia, threshold, q2_min
+):
     """Compare process level PineAPPL grid and derived FK Table.
 
     The comparison between the grid stored at PINEAPPL_PATH, and the FK table
@@ -44,5 +49,7 @@ def subcommand(fktable_path, grid_path, max_as, max_al, pdfs, xir, xif, xia, thr
     scales = (xir, xif, xia)
 
     # Note that we need to cast to string before printing to avoid ellipsis ...
-    comparisons = comparator.compare(pine, fk, max_as, max_al, pdfs, scales, threshold)
+    comparisons = comparator.compare(
+        pine, fk, max_as, max_al, pdfs, scales, threshold, q2_min
+    )
     rich.print(comparisons.to_string())
