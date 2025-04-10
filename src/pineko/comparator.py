@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 import pineappl
 
+from .check import is_dis
+
 
 class GridtoFKError(Exception):
     """Raised when the difference between the Grid and FK table is above some threshold."""
@@ -71,7 +73,7 @@ def compare(pine, fktable, max_as, max_al, pdfs, scales, threshold=5.0, q2_min=1
         xfxs=[pdf.xfxQ2 for pdf in pdfsets],
         alphas=pdfsets[0].alphasQ2,  # TODO: Choose which PDF should be used
         order_mask=order_mask,
-        xi=[scales],  # TODO: Exposes as a list
+        xi=[scales],
     )
     fktable_predictions = fktable.convolve(
         pdg_convs=fktable.convolutions,
@@ -91,8 +93,12 @@ def compare(pine, fktable, max_as, max_al, pdfs, scales, threshold=5.0, q2_min=1
     df["FkTable"] = after
     df["permille_error"] = (after / before - 1.0) * 1000.0
 
-    # Remove Q2 points that are below 1 GeV2
-    check_df = df[df["O2 left"] >= q2_min] if "O2 left" in df.columns else df
+    # For some DIS girds, remove Q2 points that are below 1 GeV2
+    check_df = (
+        df[df["O2 left"] >= q2_min]
+        if "O2 left" in df.columns and is_dis(pine.convolutions)
+        else df
+    )
     if (check_df["permille_error"].abs() >= threshold).any():
         print(check_df)
         raise GridtoFKError(
