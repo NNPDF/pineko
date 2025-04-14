@@ -18,13 +18,29 @@ from ._base import command
 @click.option("--xif", default=1.0, help="factorization scale variation")
 @click.option("--xia", default=1.0, help="fragmentation scale variation")
 @click.option(
+    "--as_pdf_idx",
+    type=int,
+    default=0,
+    help="Index (starting from 0) of the PDF to be used to compute `alpha_s(Q^2)`",
+)
+@click.option(
     "--threshold", default=5.0, help="threshold in permille to accept Grid -> FK"
 )
 @click.option(
     "--q2_min", default=1.0, help="minimum value of Q2 to check the predictions"
 )
 def subcommand(
-    fktable_path, grid_path, max_as, max_al, pdfs, xir, xif, xia, threshold, q2_min
+    fktable_path,
+    grid_path,
+    max_as,
+    max_al,
+    pdfs,
+    xir,
+    xif,
+    xia,
+    as_pdf_idx,
+    threshold,
+    q2_min,
 ):
     """Compare process level PineAPPL grid and derived FK Table.
 
@@ -50,6 +66,6 @@ def subcommand(
 
     # Note that we need to cast to string before printing to avoid ellipsis ...
     comparisons = comparator.compare(
-        pine, fk, max_as, max_al, pdfs, scales, threshold, q2_min
+        pine, fk, max_as, max_al, pdfs, scales, as_pdf_idx, threshold, q2_min
     )
     rich.print(comparisons.to_string())

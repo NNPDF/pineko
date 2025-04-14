@@ -11,7 +11,9 @@ class GridtoFKError(Exception):
     """Raised when the difference between the Grid and FK table is above some threshold."""
 
 
-def compare(pine, fktable, max_as, max_al, pdfs, scales, threshold=5.0, q2_min=1.0):
+def compare(
+    pine, fktable, max_as, max_al, pdfs, scales, as_pdf_idx=0, threshold=5.0, q2_min=1.0
+):
     """Build comparison table.
 
     Parameters
@@ -29,6 +31,9 @@ def compare(pine, fktable, max_as, max_al, pdfs, scales, threshold=5.0, q2_min=1
     scales: tuple
         contains the values the renormalization, factorization, and fragmentation scale
         variations
+    as_pdf_idx: int
+        the index representing the PDF to be used to compute `alpha_s(Q^2)`, the index
+        (starting from 0) refers to the position in which the PDF is given in the list
     threshold: float
         check if the difference between the Grid and FK table is above the
         threshold then raise an error
@@ -71,7 +76,7 @@ def compare(pine, fktable, max_as, max_al, pdfs, scales, threshold=5.0, q2_min=1
     pine_predictions = pine.convolve(
         pdg_convs=pine.convolutions,
         xfxs=[pdf.xfxQ2 for pdf in pdfsets],
-        alphas=pdfsets[0].alphasQ2,  # TODO: Choose which PDF should be used
+        alphas=pdfsets[as_pdf_idx].alphasQ2,
         order_mask=order_mask,
         xi=[scales],
     )
