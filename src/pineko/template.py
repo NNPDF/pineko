@@ -56,7 +56,7 @@ INTERPOLATION_XGRID = XGrid(
     1]
     )
 
-# Define some default parameters
+# Define default constants
 
 CONSTANTS = {
     "configs": {
