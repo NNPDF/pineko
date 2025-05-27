@@ -1,14 +1,7 @@
 import numpy as np
-from pineappl.pineappl import PyOrder
+import pineappl
 
 import pineko.check
-
-
-def test_islepton():
-    el = 21
-    assert pineko.check.islepton(el) == False
-    el = -13
-    assert pineko.check.islepton(el) == True
 
 
 def test_in1d():
@@ -21,28 +14,44 @@ def test_in1d():
 
 
 def test_is_dis():
-    dis_fake_lumi = [[(1, -13, 1.0), (11, 2, 2.0)]]
-    nondis_fake_lumi = [[(1, 2, 1.5), (2, 1, 3.0)]]
-    assert pineko.check.is_dis(dis_fake_lumi) is True
-    assert pineko.check.is_dis(nondis_fake_lumi) is False
+    initial_conv_type = pineappl.convolutions.ConvType(polarized=True, time_like=False)
+    final_conv_type = pineappl.convolutions.ConvType(polarized=False, time_like=True)
+    dis_convolution = [pineappl.convolutions.Conv(initial_conv_type, 2212)]
+    timelike_convolution = [pineappl.convolutions.Conv(final_conv_type, 211)]
+    hadronic_convolution = [
+        pineappl.convolutions.Conv(initial_conv_type, 2212),
+        pineappl.convolutions.Conv(initial_conv_type, 2212),
+    ]
+    assert pineko.check.is_dis(dis_convolution) is True
+    assert pineko.check.is_dis(timelike_convolution) is False
+    assert pineko.check.is_dis(hadronic_convolution) is False
 
 
 def test_is_fonll_mixed():
+    unpol_conv_type = pineappl.convolutions.ConvType(polarized=False, time_like=False)
+    pol_conv_type = pineappl.convolutions.ConvType(polarized=True, time_like=False)
+    final_conv_type = pineappl.convolutions.ConvType(polarized=False, time_like=True)
+
     fns = "FONLL-B"
-    lumi_first = [[(-12, 1, 2.0), (-13, 1, 5.0)]]
-    lumi_second = [[(1, 11, 1.0), (3, 11, 5.0)]]
-    assert pineko.check.is_fonll_mixed(fns, lumi_first) is True
-    assert pineko.check.is_fonll_mixed(fns, lumi_second) is True
-    lumi_crazy = [[(1, 1, 4.0), (2, 11, 3.0)]]
-    assert pineko.check.is_fonll_mixed(fns, lumi_crazy) is False
+    convolutions_first = [pineappl.convolutions.Conv(unpol_conv_type, 2212)]
+    convolutions_second = [pineappl.convolutions.Conv(pol_conv_type, 2212)]
+    convolutions_third = [pineappl.convolutions.Conv(final_conv_type, 211)]
+    assert pineko.check.is_fonll_mixed(fns, convolutions_first) is True
+    assert pineko.check.is_fonll_mixed(fns, convolutions_second) is True
+    assert pineko.check.is_fonll_mixed(fns, convolutions_third) is False
+    convolutions_crazy = [
+        pineappl.convolutions.Conv(unpol_conv_type, 2212),
+        pineappl.convolutions.Conv(pol_conv_type, 2212),
+    ]
+    assert pineko.check.is_fonll_mixed(fns, convolutions_crazy) is False
     fns = "FONLL-C"
-    assert pineko.check.is_fonll_mixed(fns, lumi_first) is False
-    assert pineko.check.is_fonll_mixed(fns, lumi_second) is False
-    assert pineko.check.is_fonll_mixed(fns, lumi_crazy) is False
+    assert pineko.check.is_fonll_mixed(fns, convolutions_first) is False
+    assert pineko.check.is_fonll_mixed(fns, convolutions_second) is False
+    assert pineko.check.is_fonll_mixed(fns, convolutions_crazy) is False
     fns = "FONLL-D"
-    assert pineko.check.is_fonll_mixed(fns, lumi_first) is True
-    assert pineko.check.is_fonll_mixed(fns, lumi_second) is True
-    assert pineko.check.is_fonll_mixed(fns, lumi_crazy) is False
+    assert pineko.check.is_fonll_mixed(fns, convolutions_first) is True
+    assert pineko.check.is_fonll_mixed(fns, convolutions_second) is True
+    assert pineko.check.is_fonll_mixed(fns, convolutions_crazy) is False
 
 
 def test_is_num_fonll():
@@ -57,13 +66,13 @@ class Fake_grid:
         self.orderlist = order_list
 
     def orders(self):
-        return self.orderlist
+        return [order._raw for order in self.orderlist]
 
 
 class Order:
     def __init__(self, order_tup):
         self.orders = order_tup
-        self._raw = PyOrder(order_tup[0], order_tup[1], order_tup[2], order_tup[3])
+        self._raw = pineappl.boc.Order(*order_tup)
 
     def as_tuple(self):
         return self.orders
@@ -72,9 +81,9 @@ class Order:
 def test_contains_fact():
     max_as = 2
     max_al = 1
-    first_order = Order((0, 0, 0, 0))
-    second_order = Order((1, 0, 0, 0))
-    third_order = Order((1, 0, 0, 1))
+    first_order = Order((0, 0, 0, 0, 0))
+    second_order = Order((1, 0, 0, 0, 0))
+    third_order = Order((1, 0, 0, 1, 0))
     order_list = [first_order, second_order, third_order]
     mygrid = Fake_grid(order_list)
     checkres, max_as_effective = pineko.check.contains_sv(
@@ -113,9 +122,9 @@ def test_contains_fact():
 def test_contains_ren():
     max_as = 3
     max_al = 0
-    first_order = Order((0, 0, 0, 0))
-    second_order = Order((1, 0, 0, 0))
-    third_order = Order((2, 0, 1, 0))
+    first_order = Order((0, 0, 0, 0, 0))
+    second_order = Order((1, 0, 0, 0, 0))
+    third_order = Order((2, 0, 1, 0, 0))
     order_list = [first_order, second_order, third_order]
     mygrid = Fake_grid(order_list)
     checkres, max_as_effective = pineko.check.contains_sv(
@@ -130,7 +139,7 @@ def test_contains_ren():
     )
     assert checkres is pineko.check.AvailableAtMax.BOTH
     assert max_as_effective == max_as - 1
-    order_list.append(Order((2, 0, 0, 0)))
+    order_list.append(Order((2, 0, 0, 0, 0)))
     mygrid_noren = Fake_grid(order_list)
     checkres, max_as_effective = pineko.check.contains_sv(
         mygrid_noren, max_as, max_al, pineko.check.Scale.REN
