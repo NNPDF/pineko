@@ -336,6 +336,9 @@ def evolve_grid(
     if "integrability_version" in grid.metadata:
         x_grid = np.append(x_grid, 1.0)
 
+    fk_basis = pineappl.pids.PidBasis.Evol
+    fk_br = basis_rotation.evol_basis_pids
+
     def xgrid_reshape(full_operator):
         """Reinterpolate operators on output and/or input grids."""
         eko.io.manipulate.xgrid_reshape(
@@ -344,7 +347,9 @@ def evolve_grid(
         check.check_grid_and_eko_compatible(grid, full_operator, xif, max_as, max_al)
         # rotate to evolution (if doable and necessary)
         if np.allclose(full_operator.bases.inputpids, br.flavor_basis_pids):
-            eko.io.manipulate.to_evol(full_operator)
+            fk_basis = pineappl.pids.PidBasis.Pdg
+            fk_br = basis_rotation.flavor_basis_pids
+            # eko.io.manipulate.to_evol(full_operator)
         # Here we are checking if the EKO contains the rotation matrix (flavor to evol)
         elif not np.allclose(
             full_operator.bases.inputpids, br.rotate_flavor_to_evolution
@@ -392,9 +397,9 @@ def evolve_grid(
                 fac1=q2,
                 x0=operator.bases.inputgrid.raw,
                 x1=operator.bases.targetgrid.raw,
-                pids0=basis_rotation.evol_basis_pids,
+                pids0=fk_br,
                 pids1=operator.bases.targetpids,
-                pid_basis=pineappl.pids.PidBasis.Evol,
+                pid_basis=fk_basis,
                 convolution_types=convolution_types,
             )
             sub_slices.append((info, op.operator))
@@ -440,6 +445,10 @@ def evolve_grid(
         fktable.set_metadata("results_fk", comparison.to_string())
         for idx, pdf in enumerate(comparison_pdfs):
             fktable.set_metadata(f"results_fk_pdfset{idx}", str(pdf))
+
+    if fk_basis == pineappl.pids.PidBasis.Pdg:
+        rich.print("Rotate FK Table from Flavor to Evolution basis!")
+        fktable = fktable.rotate_pid_basis(pineappl.pids.PidBasis.Evol)
     # write
     fktable.write_lz4(str(fktable_path))
     return grid, fktable, comparison
