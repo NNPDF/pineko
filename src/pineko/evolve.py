@@ -9,7 +9,6 @@ from importlib import metadata
 from typing import Optional, Union
 
 import eko
-import eko.basis_rotation as br
 import numpy as np
 import pineappl
 import rich
@@ -343,11 +342,11 @@ def evolve_grid(
         )
         check.check_grid_and_eko_compatible(grid, full_operator, xif, max_as, max_al)
         # rotate to evolution (if doable and necessary)
-        if np.allclose(full_operator.bases.inputpids, br.flavor_basis_pids):
+        if np.allclose(full_operator.bases.inputpids, basis_rotation.flavor_basis_pids):
             eko.io.manipulate.to_evol(full_operator)
         # Here we are checking if the EKO contains the rotation matrix (flavor to evol)
         elif not np.allclose(
-            full_operator.bases.inputpids, br.rotate_flavor_to_evolution
+            full_operator.bases.inputpids, basis_rotation.rotate_flavor_to_evolution
         ):
             raise ValueError("The EKO is neither in flavor nor in evolution basis.")
 
