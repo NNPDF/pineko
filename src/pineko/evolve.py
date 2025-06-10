@@ -396,8 +396,7 @@ def evolve_grid(
                 pid_basis=pineappl.pids.PidBasis.Evol,
                 convolution_types=convolution_types,
             )
-            sub_slices.append((info, op.operator))
-        return sub_slices
+            yield (info, op.operator)
 
     # TODO: Check compatibility between EKOs and CONVs and recombine similar convolutions
     slices = [
