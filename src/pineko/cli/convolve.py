@@ -77,7 +77,7 @@ def subcommand(
         if len(operators) > 1:
             for op_idx in range(1, n_ekos):
                 operators.append(eko.EKO.edit(op_paths[op_idx]))
-                path_operators += f"[+] {op_paths[1]}\n"
+                path_operators += f"[+] {op_paths[op_idx]}\n"
 
         rich.print(
             rich.panel.Panel.fit("Computing ...", style="magenta", box=rich.box.SQUARE),
