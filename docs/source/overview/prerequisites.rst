@@ -94,7 +94,7 @@ An example is the following::
     polarized: False
     time_like: False
     n_integration_cores: 1
-  init: 
+  init:
     - 1.65
     - 4
   mugrid:
