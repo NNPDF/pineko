@@ -332,7 +332,7 @@ def evolve_grid(
 
     evol_info = grid.evolve_info(order_mask)
     x_grid = evol_info.x1
-    if "integrability_version" in grid.key_values():
+    if "integrability_version" in grid.metadata:
         x_grid = np.append(x_grid, 1.0)
 
     mur2_grid = evol_info.ren1
