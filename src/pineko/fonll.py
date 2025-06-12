@@ -7,6 +7,7 @@ import logging
 import tempfile
 from pathlib import Path
 
+import numpy as np
 import pineappl
 import rich
 import yaml
@@ -114,7 +115,7 @@ class FONLLInfo:
         """Return the common theory info between the different FONLL FK tables."""
         theorycards = []
         for pinefk in self.fks.values():
-            thinfo = pinefk.key_values()["theory"]
+            thinfo = pinefk.metadata["theory"]
             theorycards.append(_json_theory_read(thinfo))
 
         # Only these should differ
@@ -135,7 +136,8 @@ class FONLLInfo:
     @property
     def Q2grid(self):
         """The Q2grid of the (DIS) FK tables."""
-        return self.fks[list(self.fks)[0]].bin_left(0)
+        bin_specs = np.array(self.fks[list(self.fks)[0]].bin_limits())
+        return bin_specs[:, 0, 0]
 
 
 def update_fk_theorycard(combined_fk, input_theorycard_path):
@@ -146,13 +148,13 @@ def update_fk_theorycard(combined_fk, input_theorycard_path):
     with open(input_theorycard_path, encoding="utf-8") as f:
         final_theorycard = yaml.safe_load(f)
 
-    theorycard = _json_theory_read(combined_fk.key_values()["theory"])
+    theorycard = _json_theory_read(combined_fk.metadata["theory"])
     theorycard["FNS"] = final_theorycard["FNS"]
     theorycard["PTO"] = final_theorycard["PTO"]
     theorycard["NfFF"] = final_theorycard["NfFF"]
     theorycard["ID"] = final_theorycard["ID"]
     # Update the theorycard with the entries set above
-    combined_fk.set_key_value("theory", json.dumps(theorycard))
+    combined_fk.set_metadata("theory", json.dumps(theorycard))
 
 
 def produce_dampings(theorycard_constituent_fks, fonll_info, damppowerc, damppowerb):
@@ -188,7 +190,7 @@ def combine(fk_dict, dampings=None):
                     if fk in fks:
                         fk_dict[fk].scale_by_bin(dampings[mass])
             fk_dict[fk].write_lz4(tmpfile_path)
-            combined_fk.merge_from_file(tmpfile_path)
+            combined_fk.merge(pineappl.grid.Grid.read(tmpfile_path))
     return combined_fk
 
 
