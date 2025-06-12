@@ -1,7 +1,6 @@
 import pathlib
 import shutil
 
-import lhapdf
 from click.testing import CliRunner
 
 from pineko.cli._base import command
@@ -19,7 +18,7 @@ def benchmark_check_cli(test_files):
     result = runner.invoke(
         command, ["check", "compatibility", str(grid_path), str(eko_path)]
     )
-    assert "Success: grids are compatible" in result.output
+    assert "Success: grids and eko are compatible" in result.output
     wrong_result = runner.invoke(
         command, ["check", "compatibility", str(wrong_grid_path), str(eko_path)]
     )

@@ -2,7 +2,6 @@ import json
 import pathlib
 
 import eko
-import eko.io.legacy
 import numpy as np
 import pineappl
 import pytest
@@ -92,6 +91,7 @@ def benchmark_dglap(tmp_path, test_files, test_configs):
     myopcard["mugrid"] = [target]
     legacy_class = eko.io.runcards.Legacy(tcard, myopcard)
     new_theory = legacy_class.new_theory
+    del myopcard["mu0"]  # TODO: Why must this be needed
     new_op = eko.io.runcards.OperatorCard.from_dict(myopcard)
 
     eko_path = pathlib.Path(tmp_path / "test_eko.tar")
