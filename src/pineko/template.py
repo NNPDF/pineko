@@ -1,9 +1,9 @@
 """Default settings and interpolation xgrid (previously in _template.yaml)."""
-
+import yaml
 from eko.interpolation import XGrid
 
 # Define the interpolation x-grid as previously defined as 'xgrid' in _template.yaml
-INTERPOLATION_XGRID = XGrid(
+xgrid = (
     [1.9999999999999954e-07,
     3.034304765867952e-07,
     4.6035014748963906e-07,
@@ -56,32 +56,36 @@ INTERPOLATION_XGRID = XGrid(
     1]
     )
 
-# Define default constants
+mugrid = [(4.6,4),(5.1,5),(5.6,5)]
 
 CONSTANTS = {
     "configs": {
         "ev_op_iterations": 1,
         "ev_op_max_order": (10,1),
-        "evolution_method": iterate-exact,
-        "interpolation_is_log": true,
+        "evolution_method": "iterate-exact",
+        "interpolation_is_log": True,
         "interpolation_polynomial_degree": 4,
-        "inversion_method": expanded,
+        "inversion_method": "expanded",
         "n_integration_cores": 1,
-        "polarized": false,
-        "scvar_method": null,
-        "time_like": false
+        "polarized": False,
+        "scvar_method": "null",
+        "time_like": False
     },
     "debug": {
-        "skip_non_singlet": false,
-        "skip_singlet": false
+        "skip_non_singlet": False,
+        "skip_singlet": False
     },
-    "eko_version": 0.14.2,
+    "eko_version": "0.14.2",
     "mu0": 0,
 }
 
 
+operator_card = {}
+operator_card["mugrid"] = mugrid
 
-
+card_path = "./test.yaml"
+with open(card_path, "w", encoding="UTF-8") as f:
+        yaml.safe_dump(operator_card, f)
 
 
 

@@ -22,7 +22,7 @@ from eko.quantities import heavy_quarks
 from pineappl.fk_table import PyFkAssumptions
 from pineappl.grid import PyOperatorSliceInfo, PyPidBasis
 
-from . import check, comparator, version
+from . import check, comparator, version, template
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +95,6 @@ def check_convolution_types(grid, operators1, operators2):
 
 def write_operator_card_from_file(
     pineappl_path: os.PathLike,
-    default_card_path: os.PathLike,
     card_path: os.PathLike,
     tcard,
 ):
@@ -105,8 +104,6 @@ def write_operator_card_from_file(
     ----------
     pineappl_path : str or os.PathLike
         path to grid to evolve
-    default_card : str or os.PathLike
-        base operator card
     card_path : str or os.PathLike
         target path
     tcard: dict
@@ -124,10 +121,7 @@ def write_operator_card_from_file(
     if not pathlib.Path(pineappl_path).exists():
         raise FileNotFoundError(pineappl_path)
     pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
-    default_card = yaml.safe_load(
-        pathlib.Path(default_card_path).read_text(encoding="utf-8")
-    )
-    return write_operator_card(pineappl_grid, default_card, card_path, tcard)
+    return write_operator_card(pineappl_grid, card_path, tcard)
 
 
 def dump_card(card_path, operators_card, conv_type, suffix=False):
@@ -160,15 +154,13 @@ def dump_card(card_path, operators_card, conv_type, suffix=False):
         )
 
 
-def write_operator_card(pineappl_grid, default_card, card_path, tcard):
+def write_operator_card(pineappl_grid, card_path, tcard):
     """Generate operator card for this grid.
 
     Parameters
     ----------
     pineappl_grid : pineappl.grid.Grid
         grid to evolve
-    default_card : dict
-        base operator card
     card_path : str or os.PathLike
         target path
     tcard: dict
@@ -195,16 +187,17 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
     # ... to get the x and muF grids for the eko
     evol_info = pineappl_grid.evolve_info(order_mask)
     muf2_grid = evol_info.fac1
-    operators_card = copy.deepcopy(default_card)
+    operators_card = {}
+    operators_card["configs"] = {}
     sv_method = sv_scheme(tcard)
     xif = 1.0 if sv_method is not None else tcard["XIF"]
     # update scale variation method
-    operators_card["configs"]["scvar_method"] = sv_method
+    operators_card["configs"]["scvar_method"] = sv_scheme(tcard)
 
     # Make sure that we are using the theory Q0 and fail if the template has a different one
     operators_card["mu0"] = tcard["Q0"]
-    if default_card.get("mu0") is not None and default_card["mu0"] != tcard["Q0"]:
-        raise ValueError("Template declares a value of Q0 different from theory")
+#    if template.CONSTANTS["mu0"] is not None and template.CONSTANTS["mu0"] != tcard["Q0"]:
+#        raise ValueError("Q0 from theory differs from standard Q0")
 
     q2_grid = (xif * xif * muf2_grid).tolist()
     masses = np.array([tcard["mc"], tcard["mb"], tcard["mt"]]) ** 2
@@ -228,6 +221,8 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
         x_grid = np.append(x_grid, 1.0)
         operators_card["configs"]["interpolation_polynomial_degree"] = 1
         operators_card["xgrid"] = x_grid.tolist()
+    else:
+        operators_card["xgrid"] = template.xgrid
 
     # Add the version of eko and pineko to the operator card
     # using importlib.metadata.version to get the correct tag in editable mode
@@ -257,17 +252,17 @@ def write_operator_card(pineappl_grid, default_card, card_path, tcard):
                 )
 
         # If the evolution method is defined in the template and it is different, fail
-        template_method = default_card["configs"].get("evolution_method")
+        template_method = template.CONSTANTS["configs"]["evolution_method"]
         if (
             template_method is not None
             and template_method != opconf["evolution_method"]
         ):
             raise ValueError(
-                f"The template and the theory have different evolution method ({template_method} vs {opconf['key']})"
+                f"Your theory has a different evolution method than the default({template_method} vs {opconf['key']})"
             )
 
         # If the change is on the number of iterations, take the template value but warn the user
-        template_iter = default_card["configs"].get("ev_op_iterations")
+        template_iter = template.CONSTANTS["configs"]["ev_op_iterations"]
         if template_iter is not None and template_method != opconf["ev_op_iterations"]:
             opconf["ev_op_iterations"] = template_iter
             logger.warning(
