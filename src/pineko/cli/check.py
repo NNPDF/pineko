@@ -45,9 +45,11 @@ def sub_compatibility(grid_path, operator_path, xif, max_as, max_al):
                 check.check_grid_and_eko_compatible(
                     pineappl_grid, operators.xgrid.tolist(), q2, xif, max_as, max_al
                 )
+                rich.print(
+                    f"[green]Success:[/] grids and eko are compatible for Q2={q2}."
+                )
             except ValueError as e:
                 rich.print("[red]Error:[/]", e)
-    rich.print("[green]Success:[/] grids and eko are compatible.")
 
 
 @dataclass
