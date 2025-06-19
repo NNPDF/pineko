@@ -336,7 +336,6 @@ def evolve_grid(
         x_grid = np.append(x_grid, 1.0)
 
     mur2_grid = evol_info.ren1
-    # TODO: Find a better way to do this
     xif = 1.0 if operators[0].operator_card.configs.scvar_method is not None else xif
     tcard = operators[0].theory_card
     opcard = operators[0].operator_card
@@ -357,7 +356,8 @@ def evolve_grid(
     # To compute the alphas values we are first reverting the factorization scale shift
     # and then obtaining the renormalization scale using xir.
     ren_grid2 = xir * xir * mur2_grid
-    # TODO: double-check that getting `nf` from the first Operator is always correct
+    # NOTE: Currently, getting `nfgrid` from the first Operator is correct but this
+    # might need to be addressed in the future
     nfgrid = [x[1] for x in operators[0].operator_card.mugrid]
     alphas_values = [
         4.0 * np.pi * sc.a_s(mur2, nf_to=nf) for mur2, nf in zip(ren_grid2, nfgrid)
@@ -365,8 +365,6 @@ def evolve_grid(
 
     def prepare(operator, convolution_types):
         """Match the raw operator with its relevant metadata."""
-        # TODO: This is the most important part to check. In any case, this would better
-        # be a generator even if it doesn't provide improvements
         for (q2, _), op in operator.items():
             # reshape the x-grid output
             op = manipulate.xgrid_reshape(
@@ -390,7 +388,8 @@ def evolve_grid(
             )
             yield (info, op.operator)
 
-    # TODO: Check compatibility between EKOs and CONVs and recombine similar convolutions
+    # NOTE: PineAPPL knows which EKO should be used for a given convolution type because of
+    # the information passed in the `OperatorSliceInfo`, so a strict ordering is not mandatory
     slices = [
         prepare(o, c.convolution_types) for o, c in zip(operators, grid.convolutions)
     ]
