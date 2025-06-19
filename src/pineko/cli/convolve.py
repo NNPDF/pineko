@@ -1,5 +1,7 @@
 """CLI entry point to convolution."""
 
+import pathlib
+
 import eko
 import pineappl
 import rich
@@ -71,7 +73,7 @@ def subcommand(
     grid = pineappl.grid.Grid.read(grid_path)
     grid.optimize()
     n_ekos = len(op_paths)
-    with eko.EKO.edit(op_paths[0]) as first_operator:
+    with eko.EKO.edit(pathlib.Path(op_paths[0])) as first_operator:
         operators = [first_operator]
         path_operators = f"[+] {op_paths[0]}\n"
         # If there are more than ONE operator, then account for all of them.
