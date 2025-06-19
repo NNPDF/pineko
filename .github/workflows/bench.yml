@@ -42,7 +42,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: data_files
-          key: data_files-v2
+          key: data_files-v4
       - name: Download data files
         if: steps.cache-data_files.outputs.cache-hit != 'true'
         run: |

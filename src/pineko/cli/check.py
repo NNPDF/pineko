@@ -1,5 +1,6 @@
 """CLI entry point to check compatibility."""
 
+import pathlib
 from dataclasses import dataclass
 from enum import Enum
 
@@ -37,14 +38,18 @@ def sub_compatibility(grid_path, operator_path, xif, max_as, max_al):
 
     """
     pineappl_grid = pineappl.grid.Grid.read(grid_path)
-    with eko.EKO.read(operator_path) as operators:
-        try:
-            check.check_grid_and_eko_compatible(
-                pineappl_grid, operators, xif, max_as, max_al
-            )
-            rich.print("[green]Success:[/] grids are compatible")
-        except ValueError as e:
-            rich.print("[red]Error:[/]", e)
+    pineappl_grid.optimize()
+    with eko.EKO.read(pathlib.Path(operator_path)) as operators:
+        for (q2, _), _ in operators.items():
+            try:
+                check.check_grid_and_eko_compatible(
+                    pineappl_grid, operators.xgrid.tolist(), q2, xif, max_as, max_al
+                )
+                rich.print(
+                    f"[green]Success:[/] grids and eko are compatible for Q2={q2}."
+                )
+            except ValueError as e:
+                rich.print("[red]Error:[/]", e)
 
 
 @dataclass

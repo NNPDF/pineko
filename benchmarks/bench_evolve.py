@@ -2,7 +2,6 @@ import json
 import pathlib
 
 import eko
-import eko.io.legacy
 import numpy as np
 import pineappl
 import pytest
