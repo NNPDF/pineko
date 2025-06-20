@@ -19,8 +19,9 @@ class ScaleValue:
 class Scale(Enum):
     """Auxiliary class to list the possible scale variations."""
 
-    REN = ScaleValue("renormalization scale variations", -2)
-    FACT = ScaleValue("factorization scale variations", -1)
+    REN = ScaleValue("renormalization scale variations", -3)
+    FACT = ScaleValue("factorization scale variations", -2)
+    FRAG = ScaleValue("fragmentation scale variation", -1)
 
 
 class AvailableAtMax(Enum):
@@ -35,13 +36,6 @@ class AvailableAtMax(Enum):
     BOTH = auto()
     CENTRAL = auto()
     SCVAR = auto()
-
-
-def islepton(el):
-    """Return True if el is a lepton PID, otherwise return False."""
-    if 10 < abs(el) < 17:
-        return True
-    return False
 
 
 def in1d(a, b, rtol=1e-05, atol=1e-08):
@@ -76,15 +70,19 @@ def in1d(a, b, rtol=1e-05, atol=1e-08):
     )
 
 
-def check_grid_and_eko_compatible(pineappl_grid, operators, xif, max_as, max_al):
-    """Check whether the EKO operators and the PineAPPL grid are compatible.
+def check_grid_and_eko_compatible(
+    pineappl_grid, eko_xgrid, eko_mu2, xif, max_as, max_al
+):
+    """Check whether the EKO operator and the PineAPPL grid are compatible.
 
     Parameters
     ----------
     pineappl_grid : pineappl.grid.Grid
         grid
-    operators : eko.EKO
-        operators
+    eko_xgrid : list
+        eko interpolation xgrid
+    eko_mu2: float
+        eko mu2 scale
     xif : float
         factorization scale variation
     max_as: int
@@ -95,66 +93,57 @@ def check_grid_and_eko_compatible(pineappl_grid, operators, xif, max_as, max_al)
     Raises
     ------
     ValueError
-        If the operators and the grid are not compatible.
+        If the operator and the grid are not compatible.
     """
-    order_mask = pineappl.grid.Order.create_mask(
+    order_mask = pineappl.boc.Order.create_mask(
         pineappl_grid.orders(), max_as, max_al, True
     )
     evol_info = pineappl_grid.evolve_info(order_mask)
     x_grid = evol_info.x1
     muf2_grid = evol_info.fac1
     # Q2 grid
-    if not np.all(
-        in1d(np.unique(list(operators.mu2grid)), xif * xif * np.array(muf2_grid))
-    ):
+    if not np.all(in1d(np.array([eko_mu2]), xif * xif * np.array(muf2_grid))):
         raise ValueError(
             "Q2 grid in pineappl grid and eko operator are NOT compatible!"
         )
     # x-grid
-    if not np.all(
-        in1d(np.unique(operators.bases.targetgrid.tolist()), np.array(x_grid))
-    ):
+    if not np.all(in1d(np.unique(eko_xgrid), np.array(x_grid))):
         raise ValueError("x grid in pineappl grid and eko operator are NOT compatible!")
 
 
-def is_dis(lumi):
+def is_dis(convolutions):
     """Check if the fktable we are computing is a DIS fktable.
 
     Parameters
     ----------
-    lumi : list(list(tuple))
-           luminosity info
+    convolutions: pineappl.grid.convolutions
+           an object containing the information on the convolution
 
     Returns
     -------
     bool
         true if the fktable is a DIS fktable
     """
-    for entry in lumi:
-        for el in entry:
-            if (not islepton(el[0])) and (not islepton(el[1])):
-                # If neither of the incoming particles is a lepton we are sure
-                # it is not DIS
-                return False
-    return True
+    time_like = convolutions[0].convolution_types.time_like
+    return True if len(convolutions) == 1 and not time_like else False
 
 
-def is_fonll_mixed(fns, lumi):
+def is_fonll_mixed(fns, convolutions):
     """Check if the fktable we are computing is FONLL-B, FONLL-D or, in general, a mixed FONLL fktable.
 
     Parameters
     ----------
     fns : str
           flavor number scheme (from the theory card)
-    lumi : list(list(tuple))
-           luminosity info
+    convolutions: pineappl.grid.convolutions
+           an object containing the information on the convolution
 
     Returns
     -------
     bool
         true if the fktable is a mixed FONLL DIS fktable
     """
-    return is_dis(lumi) and fns in ["FONLL-B", "FONLL-D"]
+    return is_dis(convolutions) and fns in ["FONLL-B", "FONLL-D"]
 
 
 def is_num_fonll(fns):
@@ -169,7 +158,7 @@ def orders(grid, max_as, max_al) -> list:
 
     """
     order_array = np.array([order.as_tuple() for order in grid.orders()])
-    order_mask = pineappl.grid.Order.create_mask(grid.orders(), max_as, max_al, True)
+    order_mask = pineappl.boc.Order.create_mask(grid.orders(), max_as, max_al, True)
     order_list = order_array[order_mask]
     return order_list
 

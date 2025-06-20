@@ -72,9 +72,10 @@ class _FakePDF:
 
 def _trim_template(template_card, take_points=10):
     """Trim the template card so that the number of x-values to compute is much smaller"""
-    card_info = OperatorCard.from_dict(
-        safe_load(template_card.read_text(encoding="utf-8"))
-    )
+    raw_card = safe_load(template_card.read_text(encoding="utf-8"))
+    raw_card["init"] = (raw_card["mu0"], 4)
+    del raw_card["mu0"]
+    card_info = OperatorCard.from_dict(raw_card)
     original_x = card_info.xgrid
     size = len(original_x.raw)
     skip = int(size / take_points)
@@ -125,7 +126,7 @@ def benchmark_regression(tmp_path, dataset):
         fkt = FkTable.read(
             tmp_path / "data" / "fktables" / str(THEORYID) / f"{grid_name}.pineappl.lz4"
         )
-        result.append(fkt.convolve_with_one(2212, pdf.xfxQ2))
+        result.append(fkt.convolve(pdg_convs=fkt.convolutions, xfxs=[pdf.xfxQ2]))
     result = np.concatenate(result)
 
     if not regression_path.exists():

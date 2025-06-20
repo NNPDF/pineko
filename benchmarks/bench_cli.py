@@ -1,7 +1,6 @@
 import pathlib
 import shutil
 
-import lhapdf
 from click.testing import CliRunner
 
 from pineko.cli._base import command
@@ -19,7 +18,7 @@ def benchmark_check_cli(test_files):
     result = runner.invoke(
         command, ["check", "compatibility", str(grid_path), str(eko_path)]
     )
-    assert "Success: grids are compatible" in result.output
+    assert "Success: grids and eko are compatible" in result.output
     wrong_result = runner.invoke(
         command, ["check", "compatibility", str(wrong_grid_path), str(eko_path)]
     )
@@ -83,7 +82,8 @@ def benchmark_compare_cli(lhapdf_path, test_files, test_pdf):
             command,
             ["compare", str(fk_path), str(grid_path), "2", "0", "NNPDF40_nlo_as_01180"],
         )
-    assert "yll left" in result.output
+    assert "left" in result.output
+    assert "right" in result.output
 
 
 def benchmark_convolve_cli(test_files, tmp_path):
