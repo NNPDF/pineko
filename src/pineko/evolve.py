@@ -373,17 +373,15 @@ def evolve_grid(
                 opcard.configs.interpolation_polynomial_degree,
                 targetgrid=XGrid(x_grid),
             )
-            # rotate the input to evolution basis
-            op = manipulate.to_evol(op, source=True)
             check.check_grid_and_eko_compatible(grid, x_grid, q2, xif, max_as, max_al)
             info = pineappl.evolution.OperatorSliceInfo(
                 fac0=operator.mu20,
                 fac1=q2,
                 x0=operator.xgrid.tolist(),
                 x1=x_grid.tolist(),
-                pids0=basis_rotation.evol_basis_pids,
+                pids0=basis_rotation.flavor_basis_pids,
                 pids1=basis_rotation.flavor_basis_pids,
-                pid_basis=pineappl.pids.PidBasis.Evol,
+                pid_basis=pineappl.pids.PidBasis.Pdg,
                 convolution_types=convolution_types,
             )
             yield (info, op.operator)
@@ -395,7 +393,7 @@ def evolve_grid(
     ]
 
     # Perform the arbitrary many evolutions
-    fktable = grid.evolve(
+    fktable_fl = grid.evolve(
         slices=slices,
         order_mask=order_mask,
         xi=(xir, xif, xia),
@@ -404,31 +402,32 @@ def evolve_grid(
     )
 
     rich.print(f"Optimizing for {assumptions}")
-    fktable.optimize(pineappl.fk_table.FkAssumptions(assumptions))
-    fktable.set_metadata("eko_version", operators[0].metadata.version)
-    fktable.set_metadata("eko_theory_card", json.dumps(operators[0].theory_card.raw))
+    fktable_fl.optimize(pineappl.fk_table.FkAssumptions(assumptions))
+    fktable_fl.set_metadata("eko_version", operators[0].metadata.version)
+    fktable_fl.set_metadata("eko_theory_card", json.dumps(operators[0].theory_card.raw))
 
     for idx, operator in enumerate(operators):
         suffix = "" if idx == 0 else f"_{idx}"
-        fktable.set_metadata(
+        fktable_fl.set_metadata(
             f"eko_operator_card{suffix}", json.dumps(operator.operator_card.raw)
         )
 
-    fktable.set_metadata("pineko_version", version.__version__)
+    fktable_fl.set_metadata("pineko_version", version.__version__)
     if meta_data is not None:
         for k, v in meta_data.items():
-            fktable.set_metadata(k, v)
+            fktable_fl.set_metadata(k, v)
 
     # compare before/after
     comparison = None
     if comparison_pdfs is not None:
         scales = (xir, xif, xia)
         comparison = comparator.compare(
-            grid, fktable, max_as, max_al, comparison_pdfs, scales
+            grid, fktable_fl, max_as, max_al, comparison_pdfs, scales
         )
-        fktable.set_metadata("results_fk", comparison.to_string())
+        fktable_fl.set_metadata("results_fk", comparison.to_string())
         for idx, pdf in enumerate(comparison_pdfs):
-            fktable.set_metadata(f"results_fk_pdfset{idx}", str(pdf))
+            fktable_fl.set_metadata(f"results_fk_pdfset{idx}", str(pdf))
     # write
-    fktable.write_lz4(str(fktable_path))
-    return grid, fktable, comparison
+    fktable_evol = fktable_fl.rotate_pid_basis(pineappl.pids.PidBasis.Evol)
+    fktable_evol.write_lz4(str(fktable_path))
+    return grid, fktable_evol, comparison
