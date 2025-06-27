@@ -393,41 +393,41 @@ def evolve_grid(
     ]
 
     # Perform the arbitrary many evolutions
-    fktable_fl = grid.evolve(
+    fktable = grid.evolve(
         slices=slices,
         order_mask=order_mask,
         xi=(xir, xif, xia),
         ren1=ren_grid2,
         alphas=alphas_values,
     )
+    fktable.rotate_pid_basis(pineappl.pids.PidBasis.Evol)
 
     rich.print(f"Optimizing for {assumptions}")
-    fktable_fl.optimize(pineappl.fk_table.FkAssumptions(assumptions))
-    fktable_fl.set_metadata("eko_version", operators[0].metadata.version)
-    fktable_fl.set_metadata("eko_theory_card", json.dumps(operators[0].theory_card.raw))
+    fktable.optimize(pineappl.fk_table.FkAssumptions(assumptions))
+    fktable.set_metadata("eko_version", operators[0].metadata.version)
+    fktable.set_metadata("eko_theory_card", json.dumps(operators[0].theory_card.raw))
 
     for idx, operator in enumerate(operators):
         suffix = "" if idx == 0 else f"_{idx}"
-        fktable_fl.set_metadata(
+        fktable.set_metadata(
             f"eko_operator_card{suffix}", json.dumps(operator.operator_card.raw)
         )
 
-    fktable_fl.set_metadata("pineko_version", version.__version__)
+    fktable.set_metadata("pineko_version", version.__version__)
     if meta_data is not None:
         for k, v in meta_data.items():
-            fktable_fl.set_metadata(k, v)
+            fktable.set_metadata(k, v)
 
     # compare before/after
     comparison = None
     if comparison_pdfs is not None:
         scales = (xir, xif, xia)
         comparison = comparator.compare(
-            grid, fktable_fl, max_as, max_al, comparison_pdfs, scales
+            grid, fktable, max_as, max_al, comparison_pdfs, scales
         )
-        fktable_fl.set_metadata("results_fk", comparison.to_string())
+        fktable.set_metadata("results_fk", comparison.to_string())
         for idx, pdf in enumerate(comparison_pdfs):
-            fktable_fl.set_metadata(f"results_fk_pdfset{idx}", str(pdf))
+            fktable.set_metadata(f"results_fk_pdfset{idx}", str(pdf))
     # write
-    fktable_evol = fktable_fl.rotate_pid_basis(pineappl.pids.PidBasis.Evol)
-    fktable_evol.write_lz4(str(fktable_path))
-    return grid, fktable_evol, comparison
+    fktable.write_lz4(str(fktable_path))
+    return grid, fktable, comparison
