@@ -71,7 +71,6 @@ def subcommand(
     The PDFs are passed as strings with the names separated by commas.
     """
     grid = pineappl.grid.Grid.read(grid_path)
-    grid.optimize()
     n_ekos = len(op_paths)
     with eko.EKO.edit(pathlib.Path(op_paths[0])) as first_operator:
         operators = [first_operator]

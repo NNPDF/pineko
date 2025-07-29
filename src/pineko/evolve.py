@@ -105,7 +105,6 @@ def write_operator_card_from_file(
     if not pathlib.Path(pineappl_path).exists():
         raise FileNotFoundError(pineappl_path)
     pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
-    pineappl_grid.optimize()
     default_card = yaml.safe_load(
         pathlib.Path(default_card_path).read_text(encoding="utf-8")
     )
