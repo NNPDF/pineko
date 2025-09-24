@@ -127,6 +127,10 @@ class FONLLInfo:
             del card["ID"]
             del card["FONLLParts"]
             del card["Comments"]
+            if "XIA" in card:
+                del card["XIA"]
+            else:
+                None
         if len(theorycards) > 1 and not all(
             [theorycards[0] == card for card in theorycards[1:]]
         ):
