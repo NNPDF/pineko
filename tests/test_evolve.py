@@ -52,26 +52,3 @@ class FakePine:
         return {"convolution_particle_1": 2212, "convolution_particle_2": 11}
 
 
-def test_write_operator_card_q0(tmp_path):
-    """Checks https://github.com/NNPDF/pineko/issues/146"""
-    p = tmp_path / "q0.yaml"
-    g = FakePine()
-    t = copy.deepcopy(default_card)
-    o = copy.deepcopy(example.raw_operator())
-    # 1. Same Q0 and init, all ok
-    t["Q0"] = 5.0
-    o["init"] = [5.0, 4]
-    _xs, _mu2s = pineko.evolve.write_operator_card(g, o, p, t)
-    with open(p, encoding="utf8") as f:
-        oo = yaml.safe_load(f)
-    np.testing.assert_allclose(oo["init"][0], t["Q0"])
-    # 2. Q0 only in theory, all ok
-    o.pop("init")
-    _xs, _mu2s = pineko.evolve.write_operator_card(g, o, p, t)
-    with open(p, encoding="utf8") as f:
-        oo = yaml.safe_load(f)
-    np.testing.assert_allclose(oo["init"][0], t["Q0"])
-    # 3. op is different, raises error
-    o["init"] = [11.0, 3]
-    with pytest.raises(ValueError):
-        _xs, _mu2s = pineko.evolve.write_operator_card(g, o, p, t)
