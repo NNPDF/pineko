@@ -241,7 +241,7 @@ class TheoryBuilder:
         target_theory_id : int
             target theory id
         careful : bool (default: False)
-            check that grid and eko are compatible before forcing the inheritanc
+            check that grid and eko are compatible before forcing the inheritance
         """
         other = self.ekos_path(target_theory_id)
         other.mkdir(exist_ok=True)
