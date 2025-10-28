@@ -79,16 +79,18 @@ def tcards(theoryid):
 def ekos(theoryid, datasets, overwrite):
     """Command to generate numerical FONLL ekos.
 
-    1. Create the 3 operator cards for the different flavor patches.
+    1. Create all the operator cards for the different flavor patches.
     2. Run the 3 ekos for the different flavor patches.
     3. Inherit the ekos.
     """
-    for nf_id in ["00", "04", "05"]:
-        # create opcards
+    # Create all the operator cards as they are required for careful testing
+    for nf_id in range(7):
         theory.TheoryBuilder(
-            f"{theoryid}{nf_id}", datasets, overwrite=overwrite
+            f"{theoryid}0{nf_id}", datasets, overwrite=overwrite
         ).opcards()
 
+    # Most of the time only these 3 patches are necessary
+    for nf_id in ["00", "04", "05"]:
         # run the ekos
         theory.TheoryBuilder(
             f"{theoryid}{nf_id}",
@@ -98,25 +100,29 @@ def ekos(theoryid, datasets, overwrite):
             overwrite=overwrite,
         ).ekos()
 
-    # now inherit ekos
-    # nf=3
-    rich.print(f"[green] Inherit nf=3 ekos from theory {theoryid}00")
-    theory.TheoryBuilder(f"{theoryid}00", datasets, overwrite=overwrite).inherit_ekos(
-        f"{theoryid}01"
-    )
-    # nf=4
-    rich.print(f"[green] Inherit nf=4 ekos from theory {theoryid}04")
-    theory.TheoryBuilder(f"{theoryid}04", datasets, overwrite=overwrite).inherit_ekos(
-        f"{theoryid}02"
-    )
-    theory.TheoryBuilder(f"{theoryid}04", datasets, overwrite=overwrite).inherit_ekos(
-        f"{theoryid}03"
-    )
-    # nf=5
-    rich.print(f"[green] Inherit nf=5 ekos from theory {theoryid}05")
-    theory.TheoryBuilder(f"{theoryid}05", datasets, overwrite=overwrite).inherit_ekos(
-        f"{theoryid}06"
-    )
+    # Now _attempt_ to inherit the ekos
+    # _if_ a discrepancy is found between the eko and the grid, recompute
+
+    inheritance_map = {"00": ["01"], "04": ["02", "03"], "05": ["06"]}
+    for i, (source, targets) in enumerate(inheritance_map.items()):
+        source_tid = f"{theoryid}{source}"
+        rich.print(f"[green] Inherit nf={3+i} ekos from theory {source_tid}")
+        source_theory = theory.TheoryBuilder(source_tid, datasets, overwrite=overwrite)
+        for target in targets:
+            target_tid = f"{theoryid}{target}"
+            try:
+                source_theory.inherit_ekos(target_tid, careful=True)
+            except AssertionError as e:
+                rich.print(
+                    f"[red] Could not inherit from theory {source_tid} to {target_tid}, computing the EKO"
+                )
+                theory.TheoryBuilder(
+                    target_tid,
+                    datasets,
+                    silent=False,
+                    clear_logs=True,
+                    overwrite=overwrite,
+                ).ekos()
 
 
 @fonll_.command()
