@@ -120,17 +120,29 @@ class FONLLInfo:
 
         # Only these should differ
         for card in theorycards:
-            del card["FNS"]
-            del card["PTO"]
-            card.pop("PTODIS", None)
-            del card["NfFF"]
-            del card["ID"]
-            del card["FONLLParts"]
-            del card["Comments"]
-        if len(theorycards) > 1 and not all(
-            [theorycards[0] == card for card in theorycards[1:]]
-        ):
-            raise ValueError("Theory cards are not compatible")
+            dont_check = [
+                "FNS",
+                "PTO",
+                "ID",
+                "PTODIS",
+                "NfFF",
+                "FONLLParts",
+                "Comments",
+                "XIA",
+            ]
+
+            differ = []
+            for key in theorycards[0].keys():
+                if key in dont_check:
+                    continue
+                if card[key] != theorycards[0][key]:
+                    differ.append(key)
+                del theorycards[0][key]
+
+            if len(differ) > 0:
+                raise ValueError(
+                    f"The following keys differ between different FONLL theory cards: {differ}"
+                )
         return theorycards[0]
 
     @property
