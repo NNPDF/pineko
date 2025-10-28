@@ -199,7 +199,7 @@ class TheoryBuilder:
         other.mkdir(exist_ok=True)
         self.iterate(self.inherit_grid, other=other)
 
-    def inherit_eko(self, name, grid, other):
+    def inherit_eko(self, name, grid, other, careful=False):
         """Inherit a EKO to a new theory.
 
         Parameters
@@ -210,9 +210,17 @@ class TheoryBuilder:
             path to grid
         other : pathlib.Path
             new folder
+        careful : bool (default: False)
+            check that grid and eko are compatible before forcing the inheritance
         """
         names = get_eko_names(grid, name)
         for name in names:
+            if careful:
+                # Check the operator card of the parent
+                parent_card = self.load_operator_card(name)
+                child_card = self.__class__(other.name, []).load_operator_card(name)
+                assert parent_card == child_card
+
             eko_path = self.ekos_path() / f"{name}.tar"
             new = other / f"{name}.tar"
             if new.exists():
@@ -225,17 +233,19 @@ class TheoryBuilder:
             if new.exists():
                 rich.print(f"[green]Success:[/] Created link at {new}")
 
-    def inherit_ekos(self, target_theory_id):
+    def inherit_ekos(self, target_theory_id, careful=False):
         """Inherit ekos to a new theory.
 
         Parameters
         ----------
         target_theory_id : int
             target theory id
+        careful : bool (default: False)
+            check that grid and eko are compatible before forcing the inheritance
         """
         other = self.ekos_path(target_theory_id)
         other.mkdir(exist_ok=True)
-        self.iterate(self.inherit_eko, other=other)
+        self.iterate(self.inherit_eko, other=other, careful=careful)
 
     def iterate(self, f, **kwargs):
         """Iterate grids in datasets.
