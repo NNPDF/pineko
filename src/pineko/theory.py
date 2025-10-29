@@ -39,7 +39,8 @@ def _check_for_scale_variations(tcard, grid_path):
     max_al = 0  # We don't do SV for alpha
     max_as = 1 + int(tcard["PTO"])
     # In FONLL-B we might need to change max_as
-    max_as += int(check.is_fonll_mixed(tcard["FNS"], grid.convolutions))
+    if check.is_fonll_mixed(tcard["FNS"], grid.convolutions):
+        max_as += 1
     if not np.isclose(xir, 1.0):
         check_scvar_evolve(grid, max_as, max_al, check.Scale.REN)
     if not np.isclose(xif, 1.0) and evolve.sv_scheme(tcard) is None:
