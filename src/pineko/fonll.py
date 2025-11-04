@@ -137,7 +137,6 @@ class FONLLInfo:
                     continue
                 if card[key] != theorycards[0][key]:
                     differ.append(key)
-                del theorycards[0][key]
 
             if len(differ) > 0:
                 raise ValueError(
