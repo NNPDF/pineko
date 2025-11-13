@@ -74,9 +74,12 @@ def enhance_paths(configs_):
         # If ``nnpdf_data`` is available, then override also the theory path
         # UNLESS the debug-option ``nnpdf_theory`` is set explicitly to false!
         if generic_options.get("nnpdf_theory", True):
-            from nnpdf_data import theory_cards
+            try:
+                from nnpdf_data import THEORY_CARDS_PATH
+            except ImportError:
+                from nnpdf_data import theory_cards as THEORY_CARDS_PATH
 
-            configs_["paths"][THEORY_PATH_KEY] = theory_cards
+            configs_["paths"][THEORY_PATH_KEY] = THEORY_CARDS_PATH
     else:
         required_keys.append("ymldb")
 
