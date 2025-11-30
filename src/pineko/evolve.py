@@ -287,9 +287,9 @@ def evolve_grid(
     xir: float,
     xif: float,
     xia: float,
+    theory_meta: dict,
     assumptions="Nf6Ind",
     comparison_pdfs: Optional[list[str]] = None,
-    meta_data=None,
     min_as=None,
 ):
     """Convolute grid with EKO from file paths.
@@ -312,12 +312,12 @@ def evolve_grid(
         factorization scale variation
     xia : float
         fragmentation scale variation
+    tcard: dict
+        card containing the theory parameters
     assumptions : str
         assumptions on the flavor dimension
     comparison_pdfs : list(str) or None
         if given, a comparison table (with / without evolution) will be printed
-    meta_data : None or dict
-        if given, additional meta data written to the FK table
     min_as: None or int
         minimum power of strong coupling
     """
@@ -335,6 +335,7 @@ def evolve_grid(
     if "integrability_version" in grid.metadata:
         x_grid = np.append(x_grid, 1.0)
 
+    muf2_grid = evol_info.fac1
     mur2_grid = evol_info.ren1
     xif = 1.0 if operators[0].operator_card.configs.scvar_method is not None else xif
     tcard = operators[0].theory_card
@@ -358,7 +359,31 @@ def evolve_grid(
     ren_grid2 = xir * xir * mur2_grid
     # NOTE: Currently, getting `nfgrid` from the first Operator is correct but this
     # might need to be addressed in the future
-    nfgrid = [x[1] for x in operators[0].operator_card.mugrid]
+    # TODO: Find a suitable way to avoid the following duplication. This should ideally
+    # be part of the operator card.
+    if not np.array_equal(muf2_grid, mur2_grid):
+        if check.is_num_fonll(theory_meta["FNS"]):
+            nfgrid = [int(theory_meta["NfFF"]) for _ in mur2_grid]
+        else:
+            q2mur_grid = (xir * xir * mur2_grid).tolist()
+            masses = (
+                np.array([theory_meta["mc"], theory_meta["mb"], theory_meta["mt"]]) ** 2
+            )
+            thresholds_ratios = (
+                np.array(
+                    [theory_meta["kcThr"], theory_meta["kbThr"], theory_meta["ktThr"]]
+                )
+                ** 2
+            )
+            for q in range(theory_meta["MaxNfPdf"] + 1, 6 + 1):
+                thresholds_ratios[q - 4] = np.inf
+            atlas = Atlas(
+                matching_scales=heavy_quarks.MatchingScales(masses * thresholds_ratios),
+                origin=(theory_meta["Q0"] ** 2, theory_meta["nf0"]),
+            )
+            nfgrid = [nf_default(q2, atlas) for q2 in q2mur_grid]
+    else:
+        nfgrid = [x[1] for x in operators[0].operator_card.mugrid]
     alphas_values = [
         4.0 * np.pi * sc.a_s(mur2, nf_to=nf) for mur2, nf in zip(ren_grid2, nfgrid)
     ]
@@ -415,9 +440,7 @@ def evolve_grid(
         )
 
     fktable.set_metadata("pineko_version", version.__version__)
-    if meta_data is not None:
-        for k, v in meta_data.items():
-            fktable.set_metadata(k, v)
+    fktable.set_metadata("theory_card", json.dumps(theory_meta))
 
     # compare before/after
     comparison = None
