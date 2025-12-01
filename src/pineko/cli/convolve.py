@@ -101,6 +101,7 @@ def subcommand(
             xir,
             xif,
             xia,
+            theory_meta={},  # TODO: fix or remove CLI completely
             assumptions=assumptions,
             comparison_pdfs=pdfs,
             min_as=min_as,
