@@ -48,7 +48,7 @@ def sv_scheme(tcard):
     return modsv
 
 
-def construct_atals(tcard):
+def construct_atlas(tcard):
     """Construct the atlas for heavy quarks matching.
 
     Parameters
@@ -223,7 +223,7 @@ def write_operator_card(
         nf = tcard["NfFF"]
         operators_card["mugrid"] = [(float(np.sqrt(q2)), int(nf)) for q2 in q2_grid]
     else:
-        atlas = construct_atals(tcard)
+        atlas = construct_atlas(tcard)
         operators_card["mugrid"] = [
             (float(np.sqrt(q2)), nf_default(q2, atlas)) for q2 in q2_grid
         ]
@@ -377,7 +377,7 @@ def evolve_grid(
             nfgrid = [int(theory_meta["NfFF"]) for _ in mur2_grid]
         else:
             q2mur_grid = (xir * xir * mur2_grid).tolist()
-            atlas = construct_atals(theory_meta)
+            atlas = construct_atlas(theory_meta)
             nfgrid = [nf_default(q2, atlas) for q2 in q2mur_grid]
     else:
         nfgrid = [x[1] for x in operators[0].operator_card.mugrid]
