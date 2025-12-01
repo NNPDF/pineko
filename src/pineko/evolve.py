@@ -34,7 +34,6 @@ def sv_scheme(tcard):
     ----------
     tcard : dict
         theory card
-
     """
     modsv_list = {a.value for a in ScaleVariationsMethod}
     xif = tcard["XIF"]
@@ -47,6 +46,25 @@ def sv_scheme(tcard):
     if modsv not in modsv_list:
         return None
     return modsv
+
+
+def construct_atals(tcard):
+    """Construct the atlas for heavy quarks matching.
+
+    Parameters
+    ----------
+    tcard : dict
+        theory card
+    """
+    masses = np.array([tcard["mc"], tcard["mb"], tcard["mt"]]) ** 2
+    thresholds_ratios = np.array([tcard["kcThr"], tcard["kbThr"], tcard["ktThr"]]) ** 2
+    for q in range(tcard["MaxNfPdf"] + 1, 6 + 1):
+        thresholds_ratios[q - 4] = np.inf
+    atlas = Atlas(
+        matching_scales=heavy_quarks.MatchingScales(masses * thresholds_ratios),
+        origin=(tcard["Q0"] ** 2, tcard["nf0"]),
+    )
+    return atlas
 
 
 def get_convolution_suffix(convolution: pineappl.convolutions.Conv) -> str:
@@ -200,19 +218,12 @@ def write_operator_card(
         raise ValueError("Template declares a value of Q0, nf0 different from theory")
 
     q2_grid = (xif * xif * muf2_grid).tolist()
-    masses = np.array([tcard["mc"], tcard["mb"], tcard["mt"]]) ** 2
-    thresholds_ratios = np.array([tcard["kcThr"], tcard["kbThr"], tcard["ktThr"]]) ** 2
-    for q in range(tcard["MaxNfPdf"] + 1, 6 + 1):
-        thresholds_ratios[q - 4] = np.inf
-    atlas = Atlas(
-        matching_scales=heavy_quarks.MatchingScales(masses * thresholds_ratios),
-        origin=(tcard["Q0"] ** 2, tcard["nf0"]),
-    )
     # If we are producing nFONLL FKs we need to look to NfFF...
     if check.is_num_fonll(tcard["FNS"]):
         nf = tcard["NfFF"]
         operators_card["mugrid"] = [(float(np.sqrt(q2)), int(nf)) for q2 in q2_grid]
     else:
+        atlas = construct_atals(tcard)
         operators_card["mugrid"] = [
             (float(np.sqrt(q2)), nf_default(q2, atlas)) for q2 in q2_grid
         ]
@@ -366,21 +377,7 @@ def evolve_grid(
             nfgrid = [int(theory_meta["NfFF"]) for _ in mur2_grid]
         else:
             q2mur_grid = (xir * xir * mur2_grid).tolist()
-            masses = (
-                np.array([theory_meta["mc"], theory_meta["mb"], theory_meta["mt"]]) ** 2
-            )
-            thresholds_ratios = (
-                np.array(
-                    [theory_meta["kcThr"], theory_meta["kbThr"], theory_meta["ktThr"]]
-                )
-                ** 2
-            )
-            for q in range(theory_meta["MaxNfPdf"] + 1, 6 + 1):
-                thresholds_ratios[q - 4] = np.inf
-            atlas = Atlas(
-                matching_scales=heavy_quarks.MatchingScales(masses * thresholds_ratios),
-                origin=(theory_meta["Q0"] ** 2, theory_meta["nf0"]),
-            )
+            atlas = construct_atals(theory_meta)
             nfgrid = [nf_default(q2, atlas) for q2 in q2mur_grid]
     else:
         nfgrid = [x[1] for x in operators[0].operator_card.mugrid]
