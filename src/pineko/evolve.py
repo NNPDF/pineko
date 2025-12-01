@@ -368,19 +368,12 @@ def evolve_grid(
     # To compute the alphas values we are first reverting the factorization scale shift
     # and then obtaining the renormalization scale using xir.
     ren_grid2 = xir * xir * mur2_grid
-    # NOTE: Currently, getting `nfgrid` from the first Operator is correct but this
-    # might need to be addressed in the future
-    # TODO: Find a suitable way to avoid the following duplication. This should ideally
-    # be part of the operator card.
-    if not np.array_equal(muf2_grid, mur2_grid):
-        if check.is_num_fonll(theory_meta["FNS"]):
-            nfgrid = [int(theory_meta["NfFF"]) for _ in mur2_grid]
-        else:
-            q2mur_grid = (xir * xir * mur2_grid).tolist()
-            atlas = construct_atlas(theory_meta)
-            nfgrid = [nf_default(q2, atlas) for q2 in q2mur_grid]
+    if check.is_num_fonll(theory_meta["FNS"]):
+        nfgrid = [int(theory_meta["NfFF"]) for _ in mur2_grid]
     else:
-        nfgrid = [x[1] for x in operators[0].operator_card.mugrid]
+        q2mur_grid = (xir * xir * mur2_grid).tolist()
+        atlas = construct_atlas(theory_meta)
+        nfgrid = [nf_default(q2, atlas) for q2 in q2mur_grid]
     alphas_values = [
         4.0 * np.pi * sc.a_s(mur2, nf_to=nf) for mur2, nf in zip(ren_grid2, nfgrid)
     ]

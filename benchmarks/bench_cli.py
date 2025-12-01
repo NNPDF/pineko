@@ -87,15 +87,26 @@ def benchmark_compare_cli(lhapdf_path, test_files, test_pdf):
 
 
 def benchmark_convolve_cli(test_files, tmp_path):
+    theoryid = 400
     grid_path = pathlib.Path(
-        test_files / "data/grids/400/HERA_NC_225GEV_EP_SIGMARED.pineappl.lz4"
+        test_files / f"data/grids/{theoryid}/HERA_NC_225GEV_EP_SIGMARED.pineappl.lz4"
     )
-    eko_path = pathlib.Path(test_files / "data/ekos/400/HERA_NC_225GEV_EP_SIGMARED.tar")
+    eko_path = pathlib.Path(
+        test_files / f"data/ekos/{theoryid}/HERA_NC_225GEV_EP_SIGMARED.tar"
+    )
     fk_path = tmp_path / "testfk.pineappl.lz4"
     runner = CliRunner()
     result = runner.invoke(
         command,
-        ["convolve", str(fk_path), str(grid_path), "2", "0", str(eko_path)],
+        [
+            "convolve",
+            str(fk_path),
+            str(grid_path),
+            str(theoryid),
+            "2",
+            "0",
+            str(eko_path),
+        ],
     )
     assert "Optimizing for Nf6Ind" in result.output
 
