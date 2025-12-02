@@ -98,9 +98,11 @@ def benchmark_dglap(tmp_path, test_files, test_configs):
 
 
 def benchmark_evolve_grid(tmp_path, lhapdf_path, test_files, test_pdf):
-    pine_path = test_files / "data/grids/400/HERA_NC_225GEV_EP_SIGMARED.pineappl.lz4"
+    tid = 400
+    tcard = pineko.theory_card.load(tid)
+    pine_path = test_files / f"data/grids/{tid}/HERA_NC_225GEV_EP_SIGMARED.pineappl.lz4"
     pinegrid = pineappl.grid.Grid.read(pine_path)
-    eko_path = test_files / "data/ekos/400/HERA_NC_225GEV_EP_SIGMARED.tar"
+    eko_path = test_files / f"data/ekos/{tid}/HERA_NC_225GEV_EP_SIGMARED.tar"
     target_path = pathlib.Path(tmp_path / "test_fktable.pineappl.lz4")
     max_as = 3
     max_al = 0
@@ -119,6 +121,7 @@ def benchmark_evolve_grid(tmp_path, lhapdf_path, test_files, test_pdf):
                 xir=1.0,
                 xif=1.0,
                 xia=1.0,
+                theory_meta=tcard,
                 assumptions=assumptions,
                 comparison_pdfs=["NNPDF40_nnlo_as_01180"],
             )
