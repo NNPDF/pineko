@@ -86,7 +86,7 @@ def benchmark_compare_cli(lhapdf_path, test_files, test_pdf):
     assert "right" in result.output
 
 
-def benchmark_convolve_cli(test_files, tmp_path):
+def benchmark_convolve_cli(test_files, tmp_path, test_configs):
     theoryid = 400
     grid_path = pathlib.Path(
         test_files / f"data/grids/{theoryid}/HERA_NC_225GEV_EP_SIGMARED.pineappl.lz4"
