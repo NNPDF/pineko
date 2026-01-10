@@ -373,17 +373,15 @@ def evolve_grid(
                 opcard.configs.interpolation_polynomial_degree,
                 targetgrid=XGrid(x_grid),
             )
-            # rotate the input to evolution basis
-            op = manipulate.to_evol(op, source=True)
             check.check_grid_and_eko_compatible(grid, x_grid, q2, xif, max_as, max_al)
             info = pineappl.evolution.OperatorSliceInfo(
                 fac0=operator.mu20,
                 fac1=q2,
                 x0=operator.xgrid.tolist(),
                 x1=x_grid.tolist(),
-                pids0=basis_rotation.evol_basis_pids,
+                pids0=basis_rotation.flavor_basis_pids,
                 pids1=basis_rotation.flavor_basis_pids,
-                pid_basis=pineappl.pids.PidBasis.Evol,
+                pid_basis=pineappl.pids.PidBasis.Pdg,
                 convolution_types=convolution_types,
             )
             yield (info, op.operator)
@@ -402,6 +400,7 @@ def evolve_grid(
         ren1=ren_grid2,
         alphas=alphas_values,
     )
+    fktable.rotate_pid_basis(pineappl.pids.PidBasis.Evol)
 
     rich.print(f"Optimizing for {assumptions}")
     fktable.optimize(pineappl.fk_table.FkAssumptions(assumptions))
