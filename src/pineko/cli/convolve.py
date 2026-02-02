@@ -7,13 +7,14 @@ import pineappl
 import rich
 import rich_click as click
 
-from .. import evolve
+from .. import evolve, theory_card
 from ._base import command
 
 
 @command.command("convolve")
 @click.argument("fktable", type=click.Path())
 @click.argument("grid_path", type=click.Path(exists=True))
+@click.argument("theoryid", type=int)
 @click.argument("max_as", type=int)
 @click.argument("max_al", type=int)
 @click.argument("op_paths", type=click.Path(exists=True), nargs=-1)
@@ -37,6 +38,7 @@ from ._base import command
 def subcommand(
     fktable,
     grid_path,
+    theoryid,
     max_as,
     max_al,
     op_paths,
@@ -73,6 +75,7 @@ def subcommand(
     grid = pineappl.grid.Grid.read(grid_path)
     grid.optimize()
     n_ekos = len(op_paths)
+    tcard = theory_card.load(theoryid)
     with eko.EKO.edit(pathlib.Path(op_paths[0])) as first_operator:
         operators = [first_operator]
         path_operators = f"[+] {op_paths[0]}\n"
@@ -101,6 +104,7 @@ def subcommand(
             xir,
             xif,
             xia,
+            theory_meta=tcard,
             assumptions=assumptions,
             comparison_pdfs=pdfs,
             min_as=min_as,

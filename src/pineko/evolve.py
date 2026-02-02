@@ -34,7 +34,6 @@ def sv_scheme(tcard):
     ----------
     tcard : dict
         theory card
-
     """
     modsv_list = {a.value for a in ScaleVariationsMethod}
     xif = tcard["XIF"]
@@ -47,6 +46,25 @@ def sv_scheme(tcard):
     if modsv not in modsv_list:
         return None
     return modsv
+
+
+def construct_atlas(tcard):
+    """Construct the atlas for heavy quarks matching.
+
+    Parameters
+    ----------
+    tcard : dict
+        theory card
+    """
+    masses = np.array([tcard["mc"], tcard["mb"], tcard["mt"]]) ** 2
+    thresholds_ratios = np.array([tcard["kcThr"], tcard["kbThr"], tcard["ktThr"]]) ** 2
+    for q in range(tcard["MaxNfPdf"] + 1, 6 + 1):
+        thresholds_ratios[q - 4] = np.inf
+    atlas = Atlas(
+        matching_scales=heavy_quarks.MatchingScales(masses * thresholds_ratios),
+        origin=(tcard["Q0"] ** 2, tcard["nf0"]),
+    )
+    return atlas
 
 
 def get_convolution_suffix(convolution: pineappl.convolutions.Conv) -> str:
@@ -200,19 +218,12 @@ def write_operator_card(
         raise ValueError("Template declares a value of Q0, nf0 different from theory")
 
     q2_grid = (xif * xif * muf2_grid).tolist()
-    masses = np.array([tcard["mc"], tcard["mb"], tcard["mt"]]) ** 2
-    thresholds_ratios = np.array([tcard["kcThr"], tcard["kbThr"], tcard["ktThr"]]) ** 2
-    for q in range(tcard["MaxNfPdf"] + 1, 6 + 1):
-        thresholds_ratios[q - 4] = np.inf
-    atlas = Atlas(
-        matching_scales=heavy_quarks.MatchingScales(masses * thresholds_ratios),
-        origin=(tcard["Q0"] ** 2, tcard["nf0"]),
-    )
     # If we are producing nFONLL FKs we need to look to NfFF...
     if check.is_num_fonll(tcard["FNS"]):
         nf = tcard["NfFF"]
         operators_card["mugrid"] = [(float(np.sqrt(q2)), int(nf)) for q2 in q2_grid]
     else:
+        atlas = construct_atlas(tcard)
         operators_card["mugrid"] = [
             (float(np.sqrt(q2)), nf_default(q2, atlas)) for q2 in q2_grid
         ]
@@ -287,9 +298,9 @@ def evolve_grid(
     xir: float,
     xif: float,
     xia: float,
+    theory_meta: dict,
     assumptions="Nf6Ind",
     comparison_pdfs: Optional[list[str]] = None,
-    meta_data=None,
     min_as=None,
 ):
     """Convolute grid with EKO from file paths.
@@ -312,12 +323,12 @@ def evolve_grid(
         factorization scale variation
     xia : float
         fragmentation scale variation
+    tcard: dict
+        card containing the theory parameters
     assumptions : str
         assumptions on the flavor dimension
     comparison_pdfs : list(str) or None
         if given, a comparison table (with / without evolution) will be printed
-    meta_data : None or dict
-        if given, additional meta data written to the FK table
     min_as: None or int
         minimum power of strong coupling
     """
@@ -335,6 +346,7 @@ def evolve_grid(
     if "integrability_version" in grid.metadata:
         x_grid = np.append(x_grid, 1.0)
 
+    muf2_grid = evol_info.fac1
     mur2_grid = evol_info.ren1
     xif = 1.0 if operators[0].operator_card.configs.scvar_method is not None else xif
     tcard = operators[0].theory_card
@@ -356,9 +368,12 @@ def evolve_grid(
     # To compute the alphas values we are first reverting the factorization scale shift
     # and then obtaining the renormalization scale using xir.
     ren_grid2 = xir * xir * mur2_grid
-    # NOTE: Currently, getting `nfgrid` from the first Operator is correct but this
-    # might need to be addressed in the future
-    nfgrid = [x[1] for x in operators[0].operator_card.mugrid]
+    if check.is_num_fonll(theory_meta["FNS"]):
+        nfgrid = [int(theory_meta["NfFF"]) for _ in mur2_grid]
+    else:
+        q2mur_grid = (xir * xir * mur2_grid).tolist()
+        atlas = construct_atlas(theory_meta)
+        nfgrid = [nf_default(q2, atlas) for q2 in q2mur_grid]
     alphas_values = [
         4.0 * np.pi * sc.a_s(mur2, nf_to=nf) for mur2, nf in zip(ren_grid2, nfgrid)
     ]
@@ -415,9 +430,7 @@ def evolve_grid(
         )
 
     fktable.set_metadata("pineko_version", version.__version__)
-    if meta_data is not None:
-        for k, v in meta_data.items():
-            fktable.set_metadata(k, v)
+    fktable.set_metadata("theory_card", json.dumps(theory_meta))
 
     # compare before/after
     comparison = None

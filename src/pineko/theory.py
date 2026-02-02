@@ -6,7 +6,6 @@ together with other theory ingredients (such as C-factors) are often
 commonly referred to as 'theory'.
 """
 
-import json
 import logging
 import time
 
@@ -563,9 +562,9 @@ class TheoryBuilder:
                 xir=xir,
                 xif=xif,
                 xia=xia,
+                theory_meta=tcard,
                 assumptions=assumptions,
                 comparison_pdfs=pdfs,
-                meta_data={"theory_card": json.dumps(tcard)},
             )
 
             if n_ekos > 1:
