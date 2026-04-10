@@ -264,10 +264,11 @@ def write_operator_card(
 
         # If the change is on the number of iterations, take the template value but warn the user
         template_iter = default_card["configs"].get("ev_op_iterations")
-        if template_iter is not None and template_method != opconf["ev_op_iterations"]:
-            opconf["ev_op_iterations"] = template_iter
-            logger.warning(
-                f"The number of iteration in the theory and template is different, using template value ({template_iter})"
+        if template_iter is not None and int(template_iter) != int(
+            opconf["ev_op_iterations"]
+        ):
+            raise ValueError(
+                f"The number of iteration in the theory and template is different, ({template_iter} vs {opconf['ev_op_iterations']})"
             )
 
     # Some safety checks
