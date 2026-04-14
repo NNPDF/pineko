@@ -66,6 +66,5 @@ CONSTANTS = {
         "time_like": False
     },
     "init": (1.65, 4),
-    "eko_version": "0.14.2",
 }
 
