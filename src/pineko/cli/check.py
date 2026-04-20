@@ -38,7 +38,6 @@ def sub_compatibility(grid_path, operator_path, xif, max_as, max_al):
 
     """
     pineappl_grid = pineappl.grid.Grid.read(grid_path)
-    pineappl_grid.optimize()
     with eko.EKO.read(pathlib.Path(operator_path)) as operators:
         for (q2, _), _ in operators.items():
             try:
@@ -88,7 +87,6 @@ SCVAR_MESSAGES = {
 def sub_scvar(grid_path, scale, max_as_order, max_al_order):
     """Check if PineAPPL grid contains requested scale variations for the requested order."""
     grid = pineappl.grid.Grid.read(grid_path)
-    grid.optimize()
 
     # Call the function
     scaleobj = check.Scale[scale]
