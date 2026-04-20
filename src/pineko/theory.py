@@ -468,7 +468,6 @@ class TheoryBuilder:
         # loading grid
         grid = pineappl.grid.Grid.read(grid_path)
         # remove zero subgrid
-        grid.optimize()
 
         # Do you need one or multiple ekos?
         names = get_eko_names(grid_path, name, filter=False)
