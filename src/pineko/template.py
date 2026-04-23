@@ -58,7 +58,7 @@ xgrid = (
 
 CONSTANTS = {
     "configs": {
-        "ev_op_iterations": 1,
+        "ev_op_iterations": 60,
         "evolution_method": "iterate-exact",
         "inversion_method": "expanded",
         "polarized": False,
