@@ -22,7 +22,7 @@ from eko.io.types import ScaleVariationsMethod
 from eko.matchings import Atlas, nf_default
 from eko.quantities import heavy_quarks
 
-from . import check, comparator, version, template
+from . import check, comparator, template, version
 
 logger = logging.getLogger(__name__)
 
@@ -122,6 +122,7 @@ def write_operator_card_from_file(
     pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
     pineappl_grid.optimize()
     return write_operator_card(pineappl_grid, card_path, tcard)
+
 
 def dump_card(
     card_path: Union[str, os.PathLike],
@@ -239,7 +240,7 @@ def write_operator_card(
             opconf["evolution_method"] = "iterate-exact"
             if "IterEv" in tcard:
                 opconf["ev_op_iterations"] = tcard["IterEv"]
-            elif "ev_op_iterations" not in default_card["configs"]:
+            elif template.CONSTANTS["configs"]["ev_op_iterations"] is None:
                 raise ValueError(
                     "EXA used but IterEv not found in the theory card and not ev_op_iterations set in the template"
                 )
