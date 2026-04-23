@@ -6,7 +6,6 @@ together with other theory ingredients (such as C-factors) are often
 commonly referred to as 'theory'.
 """
 
-import json
 import logging
 import time
 
@@ -21,6 +20,30 @@ from . import check, configs, evolve, parser, scale_variations, theory_card
 from .utils import read_grids_from_nnpdf
 
 logger = logging.getLogger(__name__)
+
+
+def _check_for_scale_variations(tcard, grid_path):
+    """Check that the grid is compatible with the requested scale_variations (if any).
+
+    Parameters
+    ----------
+    tcard : dict
+        theory card
+    grid_path : pathlib.Path
+        path to grid
+    """
+    grid = pineappl.grid.Grid.read(grid_path)
+    xir = tcard["XIR"]
+    xif = tcard["XIF"]
+    max_al = 0  # We don't do SV for alpha
+    max_as = 1 + int(tcard["PTO"])
+    # In FONLL-B we might need to change max_as
+    if check.is_fonll_mixed(tcard["FNS"], grid.convolutions):
+        max_as += 1
+    if not np.isclose(xir, 1.0):
+        check_scvar_evolve(grid, max_as, max_al, check.Scale.REN)
+    if not np.isclose(xif, 1.0) and evolve.sv_scheme(tcard) is None:
+        check_scvar_evolve(grid, max_as, max_al, check.Scale.FACT)
 
 
 def get_eko_names(grid_path, name, filter=True):
@@ -199,7 +222,7 @@ class TheoryBuilder:
         other.mkdir(exist_ok=True)
         self.iterate(self.inherit_grid, other=other)
 
-    def inherit_eko(self, name, grid, other):
+    def inherit_eko(self, name, grid, other, careful=False):
         """Inherit a EKO to a new theory.
 
         Parameters
@@ -210,9 +233,17 @@ class TheoryBuilder:
             path to grid
         other : pathlib.Path
             new folder
+        careful : bool (default: False)
+            check that grid and eko are compatible before forcing the inheritance
         """
         names = get_eko_names(grid, name)
         for name in names:
+            if careful:
+                # Check the operator card of the parent
+                parent_card = self.load_operator_card(name)
+                child_card = self.__class__(other.name, []).load_operator_card(name)
+                assert parent_card == child_card
+
             eko_path = self.ekos_path() / f"{name}.tar"
             new = other / f"{name}.tar"
             if new.exists():
@@ -225,17 +256,19 @@ class TheoryBuilder:
             if new.exists():
                 rich.print(f"[green]Success:[/] Created link at {new}")
 
-    def inherit_ekos(self, target_theory_id):
+    def inherit_ekos(self, target_theory_id, careful=False):
         """Inherit ekos to a new theory.
 
         Parameters
         ----------
         target_theory_id : int
             target theory id
+        careful : bool (default: False)
+            check that grid and eko are compatible before forcing the inheritance
         """
         other = self.ekos_path(target_theory_id)
         other.mkdir(exist_ok=True)
-        self.iterate(self.inherit_eko, other=other)
+        self.iterate(self.inherit_eko, other=other, careful=careful)
 
     def iterate(self, f, **kwargs):
         """Iterate grids in datasets.
@@ -266,6 +299,9 @@ class TheoryBuilder:
         tcard : dict
             theory card
         """
+        # Before creating the operator card, check whether this grid is legal or not
+        _check_for_scale_variations(tcard, grid)
+
         opcard_path = self.operator_cards_path / f"{name}.yaml"
         if opcard_path.exists():
             if not self.overwrite:
@@ -424,7 +460,6 @@ class TheoryBuilder:
 
         # check if grid contains SV if theory is requesting them (in particular
         # if theory is requesting scheme A or C)
-        sv_method = evolve.sv_scheme(tcard)
         xir = tcard["XIR"]
         xif = tcard["XIF"]
         xia = 1.0  # TODO: modify into `tcard["XIA"]`
@@ -461,12 +496,6 @@ class TheoryBuilder:
                 rich.print("[green] Skipping empty grid.")
                 return
 
-        # check for sv
-        if not np.isclose(xir, 1.0):
-            check_scvar_evolve(grid, max_as, max_al, check.Scale.REN)
-        if sv_method is None:
-            if not np.isclose(xif, 1.0):
-                check_scvar_evolve(grid, max_as, max_al, check.Scale.FACT)
         # TODO: Add fragmentation scale variations
         # loading ekos to produce a tmp copy
         n_ekos = len(eko_filename)
@@ -531,9 +560,9 @@ class TheoryBuilder:
                 xir=xir,
                 xif=xif,
                 xia=xia,
+                theory_meta=tcard,
                 assumptions=assumptions,
                 comparison_pdfs=pdfs,
-                meta_data={"theory_card": json.dumps(tcard)},
             )
 
             if n_ekos > 1:

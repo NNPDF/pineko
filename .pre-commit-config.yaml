@@ -2,9 +2,10 @@
 # See https://pre-commit.com/hooks.html for more hooks
 ci:
   autofix_prs: false
+  autoupdate_schedule: monthly
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -16,25 +17,25 @@ repos:
       - id: check-case-conflict
       - id: check-ast
   - repo: https://github.com/hadialqattan/pycln
-    rev: v2.5.0
+    rev: v2.6.0
     hooks:
       - id: pycln
         args: [--config=pyproject.toml]
   - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 25.1.0
+    rev: 26.3.1
     hooks:
       - id: black
   - repo: https://github.com/asottile/blacken-docs
-    rev: 1.19.1
+    rev: 1.20.0
     hooks:
       - id: blacken-docs
   - repo: https://github.com/pycqa/isort
-    rev: 6.0.1
+    rev: 8.0.1
     hooks:
       - id: isort
         args: ["--profile", "black"]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.20.0
+    rev: v3.21.2
     hooks:
       - id: pyupgrade
   - repo: https://github.com/pycqa/pydocstyle
@@ -45,6 +46,6 @@ repos:
         additional_dependencies:
           - toml
   - repo: https://github.com/pre-commit/pre-commit
-    rev: v4.2.0
+    rev: v4.5.1
     hooks:
       - id: validate_manifest

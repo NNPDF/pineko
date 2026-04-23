@@ -29,7 +29,12 @@ def read_grids_from_nnpdf(dataset_name, configs=None):
         return None
 
     # Import NNPDF only if we really want it!
-    from nnpdf_data import legacy_to_new_map, path_commondata
+    from nnpdf_data import legacy_to_new_map
+
+    try:
+        from nnpdf_data.utils import DEFAULT_PATH_VPDATA
+    except ImportError:
+        from nnpdf_data import path_commondata as DEFAULT_PATH_VPDATA
     from nnpdf_data.commondataparser import EXT, parse_new_metadata
 
     # We only need the metadata, so this should be enough.
@@ -37,7 +42,7 @@ def read_grids_from_nnpdf(dataset_name, configs=None):
     dataset_name, variant = legacy_to_new_map(dataset_name)
 
     setname, observable = dataset_name.rsplit("_", 1)
-    metadata_file = path_commondata / setname / "metadata.yaml"
+    metadata_file = DEFAULT_PATH_VPDATA / setname / "metadata.yaml"
     metadata = parse_new_metadata(metadata_file, observable, variant=variant)
     fks = metadata.theory.FK_tables
     # Return it flat
