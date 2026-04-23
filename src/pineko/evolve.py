@@ -252,7 +252,7 @@ def write_operator_card(
             and template_method != opconf["evolution_method"]
         ):
             raise ValueError(
-                f"Your theory has a different evolution method than the default({template_method} vs {opconf['key']})"
+                f"Your theory has a different evolution method than the default({template_method} vs {opconf['evolution_method']})"
             )
 
         # If the change is on the number of iterations, take the template value but warn the user
