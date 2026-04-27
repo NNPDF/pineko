@@ -34,7 +34,7 @@ def benchmark_write_operator_card_from_file_num_fonll(
         with open(tcard_path, encoding="utf-8") as f:
             tcard = yaml.safe_load(f)
         _x_grid, _q2_grid = pineko.evolve.write_operator_card_from_file(
-            pine_path, default_path, target_path, tcard
+            pine_path, target_path, tcard
         )
     # Check if the opcards are ok
     for opcard_path, cfg in zip(
@@ -49,11 +49,10 @@ def benchmark_write_operator_card_from_file_num_fonll(
 
 def benchmark_write_operator_card_from_file(tmp_path, test_files, test_configs):
     pine_path = test_files / "data/grids/400/HERA_NC_225GEV_EP_SIGMARED.pineappl.lz4"
-    default_path = test_files / "data/operator_cards/400/_template.yaml"
     target_path = pathlib.Path(tmp_path / "test_operator.yaml")
     tcard = pineko.theory_card.load(400)
     x_grid, _q2_grid = pineko.evolve.write_operator_card_from_file(
-        pine_path, default_path, target_path, tcard
+        pine_path, target_path, tcard
     )
 
     # Load the operator card
@@ -64,13 +63,12 @@ def benchmark_write_operator_card_from_file(tmp_path, test_files, test_configs):
     wrong_pine_path = test_files / "data/grids/208/HERA_CC_318GEV_EM_wrong.pineappl.lz4"
     with pytest.raises(FileNotFoundError):
         _ = pineko.evolve.write_operator_card_from_file(
-            wrong_pine_path, default_path, target_path, 1.0
+            wrong_pine_path, target_path, 1.0
         )
 
 
 def benchmark_dglap(tmp_path, test_files, test_configs):
     pine_path = test_files / "data/grids/400/HERA_NC_225GEV_EP_SIGMARED.pineappl.lz4"
-    default_path = test_files / "data/operator_cards/400/_template.yaml"
     target_path = pathlib.Path(tmp_path / "test_operator.yaml")
 
     theory_id = 400
@@ -78,7 +76,7 @@ def benchmark_dglap(tmp_path, test_files, test_configs):
     # In order to check if the operator card is enough for eko, let's compute the eko
 
     pineko.evolve.write_operator_card_from_file(
-        pine_path, default_path, target_path, tcard
+        pine_path, target_path, tcard
     )
 
     # Load the opcard
