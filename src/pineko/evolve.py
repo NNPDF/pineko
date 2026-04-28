@@ -1,6 +1,7 @@
 """Tools related to evolution/eko."""
 
 import copy
+import hashlib
 import json
 import logging
 import os
@@ -303,6 +304,7 @@ def evolve_grid(
     assumptions="Nf6Ind",
     comparison_pdfs: Optional[list[str]] = None,
     min_as=None,
+    grid_path: Optional[os.PathLike] = None,
 ):
     """Convolute grid with EKO from file paths.
 
@@ -332,6 +334,8 @@ def evolve_grid(
         if given, a comparison table (with / without evolution) will be printed
     min_as: None or int
         minimum power of strong coupling
+    grid_path : str or os.PathLike or None
+        path to the grid file, used to store grid hash metadata
     """
     order_mask = pineappl.boc.Order.create_mask(grid.orders(), max_as, max_al, True)
     if min_as is not None and min_as > 1:
@@ -432,6 +436,13 @@ def evolve_grid(
 
     fktable.set_metadata("pineko_version", version.__version__)
     fktable.set_metadata("theory_card", json.dumps(theory_meta))
+
+    # Store grid hash and path information
+    if grid_path is not None:
+        grid_path_obj = pathlib.Path(grid_path)
+        grid_hash = hashlib.md5(grid_path_obj.read_bytes()).hexdigest()
+        grid_files = {grid_path_obj.stem: {"hash": grid_hash, "path": str(grid_path_obj.resolve())}}
+        fktable.set_metadata("grid_files", json.dumps(grid_files))
 
     # compare before/after
     comparison = None

@@ -108,6 +108,7 @@ def subcommand(
             assumptions=assumptions,
             comparison_pdfs=pdfs,
             min_as=min_as,
+            grid_path=pathlib.Path(grid_path),
         )
 
         if len(operators) > 1:
