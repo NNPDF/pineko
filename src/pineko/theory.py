@@ -565,6 +565,7 @@ class TheoryBuilder:
                 theory_meta=tcard,
                 assumptions=assumptions,
                 comparison_pdfs=pdfs,
+                grid_path=grid_path,
             )
 
             if n_ekos > 1:
