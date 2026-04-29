@@ -22,17 +22,17 @@ def test_no_central_order():
         for c in range(len(template_grid.channels())):
             for o in range(len(template_grid.orders())):
                 sub = template_grid.subgrid(o, b, c)
-                try:
-                    node_values = sub.node_values
-                    if len(node_values) < 2:
-                        continue
-                    shape = tuple(len(v) for v in node_values)
-                    if any(s == 0 for s in shape):
-                        continue
-                    template_subgrid = sub
-                    break
-                except Exception:
+                if sub.is_empty():
                     continue
+
+                node_values = sub.node_values
+                if len(node_values) < 2:
+                    continue
+                shape = tuple(len(v) for v in node_values)
+                if any(s == 0 for s in shape):
+                    continue
+                template_subgrid = sub
+                break
             if template_subgrid:
                 break
         if template_subgrid:
@@ -140,14 +140,14 @@ def test_evolution_with_eko(tmp_path):
     for b in range(grid_zeroed.bins()):
         for c in range(len(grid_zeroed.channels())):
             sub = grid_zeroed.subgrid(order_idx, b, c)
-            try:
-                nv = sub.node_values
-                if len(nv) > 0:
-                    shape = tuple(len(v) for v in nv)
-                    sub_zero = ImportSubgridV1(array=np.zeros(shape), node_values=nv)
-                    grid_zeroed.set_subgrid(order_idx, b, c, sub_zero.into())
-            except:
+            if sub.is_empty():
                 continue
+
+            nv = sub.node_values
+            if len(nv) > 0:
+                shape = tuple(len(v) for v in nv)
+                sub_zero = ImportSubgridV1(array=np.zeros(shape), node_values=nv)
+                grid_zeroed.set_subgrid(order_idx, b, c, sub_zero.into())
 
     # Grid 2: Optimized (removed) central order
     grid_opt = Grid.read(str(grid_path))
