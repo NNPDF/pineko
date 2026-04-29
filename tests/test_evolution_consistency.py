@@ -4,7 +4,6 @@ import eko
 import numpy as np
 import pineappl
 import pytest
-import yaml
 from pineappl.grid import Grid
 from pineappl.subgrid import ImportSubgridV1
 
@@ -14,7 +13,7 @@ def test_no_central_order():
         "benchmarks/data_files/data/grids/400/HERA_NC_225GEV_EP_SIGMARED.pineappl.lz4"
     )
     if not grid_path.exists():
-        pytest.skip("Test grid not found")
+        pytest.fail("Test grid not found")
 
     template_grid = Grid.read(str(grid_path))
 
@@ -136,7 +135,7 @@ def test_evolution_with_eko(tmp_path):
             break
 
     if order_idx is None:
-        pytest.skip(f"Target order {target_order} not found in grid")
+        pytest.fail(f"Target order {target_order} not found in grid")
 
     for b in range(grid_zeroed.bins()):
         for c in range(len(grid_zeroed.channels())):
