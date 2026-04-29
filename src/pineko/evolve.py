@@ -333,6 +333,31 @@ def evolve_grid(
     min_as: None or int
         minimum power of strong coupling
     """
+
+    def construct_empty_fktable():
+        empty_order = pineappl.boc.Order(0, 0, 0, 0, 0)
+        empty_grid = pineappl.grid.Grid(
+            pid_basis=grid.pid_basis,
+            channels=[pineappl.boc.Channel(c) for c in grid.channels()],
+            orders=[empty_order],
+            bins=grid.bwfl(),
+            convolutions=grid.convolutions,
+            interpolations=grid.interpolations,
+            kinematics=grid.kinematics,
+            scale_funcs=grid.scales,
+        )
+        fktable = pineappl.fk_table.FkTable(empty_grid)
+        fktable.set_metadata("pineko_version", version.__version__)
+        fktable.set_metadata("theory_card", json.dumps(theory_meta))
+        fktable.write_lz4(str(fktable_path))
+        return fktable
+
+    # A grid with no orders is a valid input for some workflows. In that case we
+    # cannot build evolution kinematics, so we directly emit an empty FK table.
+    if len(grid.orders()) == 0:
+        fktable = construct_empty_fktable()
+        return grid, fktable, None
+
     order_mask = pineappl.boc.Order.create_mask(grid.orders(), max_as, max_al, True)
     if min_as is not None and min_as > 1:
         # If using min_as, we want to ignore only orders below that (e.g., if min_as=2
@@ -349,6 +374,14 @@ def evolve_grid(
 
     muf2_grid = evol_info.fac1
     mur2_grid = evol_info.ren1
+
+    # If the grid is effectively empty (no kinematic support), PineAPPL/eko will
+    # panic later when constructing the target interpolation grid. This situation
+    # is valid , so we effectively construct an empty FK table.
+    if (len(x_grid) < 2) or (len(muf2_grid) == 0) or (len(mur2_grid) == 0):
+        fktable = construct_empty_fktable()
+        return grid, fktable, None
+
     xif = 1.0 if operators[0].operator_card.configs.scvar_method is not None else xif
     tcard = operators[0].theory_card
     opcard = operators[0].operator_card

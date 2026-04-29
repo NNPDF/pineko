@@ -71,8 +71,8 @@ SCVAR_ERROR = "[red]Error:[/] grids do not contain"
 
 SCVAR_MESSAGES = {
     check.AvailableAtMax.BOTH: "[green]Success:[/] grids contain",
-    check.AvailableAtMax.CENTRAL: "[orange]Warning:[/] grids do not contain central order for requested",
-    check.AvailableAtMax.SCVAR: SCVAR_ERROR,
+    check.AvailableAtMax.CENTRAL: "[orange]Warning:[/] grids do not contain scale variation order for requested",
+    check.AvailableAtMax.SCVAR: "[orange]Warning:[/] grids do not contain central order for requested",
 }
 
 

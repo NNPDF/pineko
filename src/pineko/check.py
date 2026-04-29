@@ -165,6 +165,8 @@ def orders(grid, max_as, max_al) -> list:
 
 def pure_qcd(orders):
     """Select the QCD LO and pure QCD corrections to it."""
+    if len(orders) == 0:
+        return []
     min_al = min(ord[1] for ord in orders)
     return [ord for ord in orders if ord[1] == min_al]
 
@@ -174,7 +176,14 @@ def contains_sv(
 ) -> Tuple[AvailableAtMax, int]:
     """Check whether renormalization scale-variations are available in the pineappl grid."""
     svindex = sv_type.value.index
-    ords = pure_qcd(orders(grid, max_as, max_al))
+    ords = orders(grid, max_as, max_al)
+    # Empty grids (no orders) are a valid case: we must be able to propagate them and
+    # generate empty FK tables (e.g. for numerical FONLL workflows).
+    if len(ords) == 0:
+        return AvailableAtMax.BOTH, 0
+    ords = pure_qcd(ords)
+    if len(ords) == 0:
+        return AvailableAtMax.BOTH, 0
     max_as = max(ord[0] for ord in ords)
     min_as = min(ord[0] for ord in ords)
     max_as_cen = max(ord[0] for ord in ords if ord[svindex] == 0)
