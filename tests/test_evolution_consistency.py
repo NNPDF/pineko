@@ -4,13 +4,19 @@ import eko
 import numpy as np
 import pineappl
 import pytest
+from nnpdf_data import THEORY_CARDS_PATH
+from nnpdf_data.theorydbutils import fetch_theory
 from pineappl.grid import Grid
 from pineappl.subgrid import ImportSubgridV1
+
+THEORY_ID = 41000010
+HERA225 = "HERA_NC_225GEV_EP_SIGMARED"
+HERA318 = "HERA_NC_318GEV_EP_SIGMARED"
 
 
 def test_no_central_order(toy_xfx, toy_alphas):
     grid_path = pathlib.Path(
-        "benchmarks/data_files/data/grids/400/HERA_NC_225GEV_EP_SIGMARED.pineappl.lz4"
+        f"benchmarks/data_files/data/grids/400/{HERA225}.pineappl.lz4"
     )
     if not grid_path.exists():
         pytest.fail("Test grid not found")
@@ -95,34 +101,11 @@ def test_evolution_with_eko(tmp_path, toy_xfx):
     from pineko import evolve
 
     # Use theory 4100001000 which we know is consistent
-    grid_path = pathlib.Path(
-        "theories/pineko/grids/4100001000/HERA_NC_318GEV_EP_SIGMARED.pineappl.lz4"
-    )
-    eko_path = pathlib.Path(
-        "theories/pineko/ekos/4100001000/HERA_NC_318GEV_EP_SIGMARED.tar"
-    )
+    tcard_meta = fetch_theory(THEORY_CARDS_PATH, THEORY_ID)
+    grid_path = pathlib.Path(f"benchmarks/{THEORY_ID}00/grids/{HERA318}.pineappl.lz4")
+    eko_path = pathlib.Path(f"benchmarks/{THEORY_ID}00/ekos/{HERA318}.tar")
 
-    tcard_meta = {
-        "mc": 1.502,
-        "mb": 4.936,
-        "mt": 172.5,
-        "kcThr": 1.0,
-        "kbThr": 1.0,
-        "ktThr": 1.0,
-        "Q0": 1.65,
-        "nf0": 4,
-        "MaxNfPdf": 5,
-        "PTO": 3,
-        "QED": 0,
-        "FNS": "FONLL-C",
-        "XIF": 1.0,
-        "XIR": 1.0,
-    }
-
-    if not (grid_path.exists() and eko_path.exists()):
-        pytest.skip("Test data not found")
-
-    # Grid 1: Zeroed central order. We use template_grid but zero out order (3,0,0,0,0).
+    # Grid 1: Zeroed central order. Zero out template grid order at (3,0,0,0,0).
     grid_zeroed = Grid.read(str(grid_path))
     target_order = (3, 0, 0, 0, 0)
     order_idx = None
