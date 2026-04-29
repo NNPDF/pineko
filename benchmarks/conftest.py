@@ -65,3 +65,23 @@ def cd():
             os.chdir(prevdir)
 
     return wrapped
+
+
+@pytest.fixture
+def toy_xfx():
+    """Toy PDF callable."""
+
+    def xfx(pid, x, q2):
+        return 1.0
+
+    return xfx
+
+
+@pytest.fixture
+def toy_alphas():
+    """Toy alpha_s callable."""
+
+    def alphas(q2):
+        return 1.0
+
+    return alphas
