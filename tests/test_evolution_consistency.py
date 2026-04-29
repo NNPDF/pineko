@@ -8,7 +8,7 @@ from pineappl.grid import Grid
 from pineappl.subgrid import ImportSubgridV1
 
 
-def test_no_central_order():
+def test_no_central_order(toy_xfx, toy_alphas):
     grid_path = pathlib.Path(
         "benchmarks/data_files/data/grids/400/HERA_NC_225GEV_EP_SIGMARED.pineappl.lz4"
     )
@@ -79,21 +79,18 @@ def test_no_central_order():
             grid_zeroed.set_subgrid(1, b, c, subgrid_1.into())
             grid_opt.set_subgrid(0, b, c, subgrid_1.into())
 
-    xfx = lambda pid, x, q2: 1.0
-    alphas = lambda q2: 1.0
     mask_zeroed = pineappl.boc.Order.create_mask(grid_zeroed.orders(), 2, 0, True)
     mask_opt = pineappl.boc.Order.create_mask(grid_opt.orders(), 2, 0, True)
     pdg_convs = template_grid.convolutions
-    xfxs = [xfx] * len(pdg_convs)
+    xfxs = [toy_xfx] * len(pdg_convs)
 
-    res_zeroed = grid_zeroed.convolve(pdg_convs, xfxs, alphas, mask_zeroed)
-    res_opt = grid_opt.convolve(pdg_convs, xfxs, alphas, mask_opt)
+    res_zeroed = grid_zeroed.convolve(pdg_convs, xfxs, toy_alphas, mask_zeroed)
+    res_opt = grid_opt.convolve(pdg_convs, xfxs, toy_alphas, mask_opt)
 
     np.testing.assert_allclose(res_zeroed, res_opt)
-    print("Evolution consistency check (optimized vs zeroed) PASSED!")
 
 
-def test_evolution_with_eko(tmp_path):
+def test_evolution_with_eko(tmp_path, toy_xfx):
     """Check that evolution with a real EKO gives identical results for zeroed vs optimized grids."""
     from pineko import evolve
 
@@ -186,11 +183,13 @@ def test_evolution_with_eko(tmp_path):
     fk_zeroed = pineappl.fk_table.FkTable.read(str(fk_zeroed_path))
     fk_opt = pineappl.fk_table.FkTable.read(str(fk_opt_path))
 
-    xfx = lambda pid, x, q2: 1.0
     res_zeroed = fk_zeroed.convolve(
-        fk_zeroed.convolutions, [xfx] * len(fk_zeroed.convolutions)
+        fk_zeroed.convolutions,
+        [toy_xfx] * len(fk_zeroed.convolutions),
     )
-    res_opt = fk_opt.convolve(fk_opt.convolutions, [xfx] * len(fk_opt.convolutions))
+    res_opt = fk_opt.convolve(
+        fk_opt.convolutions,
+        [toy_xfx] * len(fk_opt.convolutions),
+    )
 
     np.testing.assert_allclose(res_zeroed, res_opt)
-    print("FK Table evolution consistency check PASSED!")

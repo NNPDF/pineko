@@ -43,3 +43,23 @@ def fake_configs(tmp_path):
         "root": tmp_path,
     }
     return fake_configs
+
+
+@pytest.fixture
+def toy_xfx():
+    """Toy PDF callable."""
+
+    def xfx(pid, x, q2):
+        return 1.0
+
+    return xfx
+
+
+@pytest.fixture
+def toy_alphas():
+    """Toy alpha_s callable."""
+
+    def alphas(q2):
+        return 1.0
+
+    return alphas
