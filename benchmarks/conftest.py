@@ -15,6 +15,11 @@ def test_files():
 
 
 @pytest.fixture
+def test_4100001000():
+    return pathlib.Path(__file__).parents[0] / "4100001000/"
+
+
+@pytest.fixture
 def test_empty_proj(test_files):
     path = test_files / "empty_proj/"
     yield path
