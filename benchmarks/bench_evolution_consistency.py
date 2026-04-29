@@ -9,6 +9,8 @@ from nnpdf_data.theorydbutils import fetch_theory
 from pineappl.grid import Grid
 from pineappl.subgrid import ImportSubgridV1
 
+from pineko import check
+
 HERA225 = "HERA_NC_225GEV_EP_SIGMARED"
 HERA318 = "HERA_NC_318GEV_EP_SIGMARED"
 
@@ -93,8 +95,9 @@ def test_no_central_order(test_files, toy_xfx, toy_alphas):
     np.testing.assert_allclose(res_zeroed, res_opt)
 
 
-def test_evolution_with_eko(test_4100001000, tmp_path, toy_xfx):
-    """Check that evolution with a real EKO gives identical results for zeroed vs optimized grids."""
+def test_evolution_no_central_order(test_4100001000, tmp_path, toy_xfx):
+    """Check that evolution with a real EKO gives identical results for zeroed
+    vs optimized central order grids."""
     from pineko import evolve
 
     # Use theory 4100001000 which we know is consistent
@@ -173,3 +176,95 @@ def test_evolution_with_eko(test_4100001000, tmp_path, toy_xfx):
     )
 
     np.testing.assert_allclose(res_zeroed, res_opt)
+
+
+def test_contains_sv_empty_grid_orders():
+    class EmptyGrid:
+        def orders(self):
+            return []
+
+    available, max_as_effective = check.contains_sv(
+        EmptyGrid(),
+        max_as=4,
+        max_al=0,
+        sv_type=check.Scale.REN,
+    )
+    assert available is check.AvailableAtMax.BOTH
+    assert max_as_effective == 0
+
+
+def test_evolution_no_orders(test_4100001000, tmp_path, toy_xfx):
+    """Compare evolution of: (a) a grid with orders, but all subgrids explicitly
+    set to zero with (b) the same grid after deleting all orders (no orders at all).
+
+    This test effectively checks how to construct a completely empty FK table from
+    a completely empty grid.
+    """
+    from pineko import evolve
+
+    tcard_meta = fetch_theory(THEORY_CARDS_PATH, 41000010)
+    grid_path = pathlib.Path(f"{test_4100001000}/grids/{HERA318}.pineappl.lz4")
+    eko_path = pathlib.Path(f"{test_4100001000}/ekos/{HERA318}.tar")
+
+    if not (grid_path.exists() and eko_path.exists()):
+        pytest.skip("Test data not found")
+
+    def zero_all_subgrids(grid: Grid) -> None:
+        for o in range(len(grid.orders())):
+            for b in range(grid.bins()):
+                for c in range(len(grid.channels())):
+                    sub = grid.subgrid(o, b, c)
+                    if sub.is_empty():
+                        continue
+                    nv = sub.node_values
+                    shape = tuple(len(v) for v in nv)
+                    sub_zero = ImportSubgridV1(array=np.zeros(shape), node_values=nv)
+                    grid.set_subgrid(o, b, c, sub_zero.into())
+
+    grid_zeroed = Grid.read(str(grid_path))
+    zero_all_subgrids(grid_zeroed)
+
+    grid_no_orders = Grid.read(str(grid_path))
+    grid_no_orders.delete_orders(list(range(len(grid_no_orders.orders()))))
+
+    with eko.EKO.read(eko_path) as operator:
+        fk_zeroed_path = tmp_path / "fk_zeroed_subgrids_no_orders_ref.pineappl.lz4"
+        fk_no_orders_path = tmp_path / "fk_no_orders.pineappl.lz4"
+
+        evolve.evolve_grid(
+            grid_zeroed,
+            [operator],
+            str(fk_zeroed_path),
+            max_as=4,
+            max_al=0,
+            xir=1.0,
+            xif=1.0,
+            xia=1.0,
+            theory_meta=tcard_meta,
+        )
+
+        evolve.evolve_grid(
+            grid_no_orders,
+            [operator],
+            str(fk_no_orders_path),
+            max_as=4,
+            max_al=0,
+            xir=1.0,
+            xif=1.0,
+            xia=1.0,
+            theory_meta=tcard_meta,
+        )
+
+    fk_zeroed = pineappl.fk_table.FkTable.read(str(fk_zeroed_path))
+    fk_no_orders = pineappl.fk_table.FkTable.read(str(fk_no_orders_path))
+
+    res_zeroed = fk_zeroed.convolve(
+        fk_zeroed.convolutions,
+        [toy_xfx] * len(fk_zeroed.convolutions),
+    )
+    res_no_orders = fk_no_orders.convolve(
+        fk_no_orders.convolutions,
+        [toy_xfx] * len(fk_no_orders.convolutions),
+    )
+
+    np.testing.assert_allclose(res_zeroed, res_no_orders)
