@@ -29,5 +29,5 @@ def subcommand(pineappl_path, default_card_path, thcard_path, opcard_path):
     tcard = yaml.safe_load(pathlib.Path(thcard_path).read_text(encoding="utf-8"))
     opcard_path = pathlib.Path(opcard_path)
     _x_grid, q2_grid = evolve.write_operator_card_from_file(
-        pineappl_path, default_card_path, opcard_path, tcard
+        pineappl_path, opcard_path, tcard
     )
