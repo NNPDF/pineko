@@ -261,8 +261,9 @@ def write_operator_card(
         if template_iter is not None and int(template_iter) != int(
             opconf["ev_op_iterations"]
         ):
-            raise ValueError(
-                f"Warning! The number of iteration in the theory and template is different, ({template_iter} vs {opconf['ev_op_iterations']})"
+            logger.warning(
+                f"Warning! The number of iteration in the theory and template is different, ({template_iter} vs {opconf['ev_op_iterations']})."
+                 f"The evolution method will be set to the default value {template_iter}, check if this is what you want"
             )
 
     # Some safety checks

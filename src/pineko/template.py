@@ -1,6 +1,5 @@
 """Default settings and interpolation xgrid (previously in _template.yaml)."""
 import yaml
-from eko.interpolation import XGrid
 
 # Define the interpolation x-grid as previously defined as 'xgrid' in _template.yaml
 xgrid = (
