@@ -202,10 +202,18 @@ def write_operator_card(
     operators_card["configs"]["scvar_method"] = sv_scheme(tcard)
 
     operators_card["init"] = (tcard["Q0"], tcard["nf0"])
-    operators_card["configs"]["ev_op_max_order"] = template.CONSTANTS["configs"]["ev_op_max_order"]
-    operators_card["configs"]["inversion_method"] = template.CONSTANTS["configs"]["inversion_method"]
-    operators_card["configs"]["interpolation_polynomial_degree"] = template.CONSTANTS["configs"]["interpolation_polynomial_degree"]
-    operators_card["configs"]["interpolation_is_log"] = template.CONSTANTS["configs"]["interpolation_is_log"]
+    operators_card["configs"]["ev_op_max_order"] = template.CONSTANTS["configs"][
+        "ev_op_max_order"
+    ]
+    operators_card["configs"]["inversion_method"] = template.CONSTANTS["configs"][
+        "inversion_method"
+    ]
+    operators_card["configs"]["interpolation_polynomial_degree"] = template.CONSTANTS[
+        "configs"
+    ]["interpolation_polynomial_degree"]
+    operators_card["configs"]["interpolation_is_log"] = template.CONSTANTS["configs"][
+        "interpolation_is_log"
+    ]
     operators_card["debug"] = template.CONSTANTS["debug"]
     if template.CONSTANTS["init"] is not None and template.CONSTANTS["init"] != (
         tcard["Q0"],
@@ -258,7 +266,7 @@ def write_operator_card(
         ):
             logger.warning(
                 f"Your theory has a different evolution method than the default({template_method} vs {opconf['evolution_method']})."
-                 f"The evolution method will be set to the default value {template_method}, check if this is what you want"
+                f"The evolution method will be set to the default value {template_method}, check if this is what you want"
             )
 
         # If the change is on the number of iterations, take the template value but warn the user
@@ -268,7 +276,7 @@ def write_operator_card(
         ):
             logger.warning(
                 f"Warning! The number of iteration in the theory and template is different, ({template_iter} vs {opconf['ev_op_iterations']})."
-                 f"The evolution method will be set to the default value {template_iter}, check if this is what you want"
+                f"The evolution method will be set to the default value {template_iter}, check if this is what you want"
             )
 
     # Some safety checks

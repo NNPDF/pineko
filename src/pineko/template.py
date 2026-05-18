@@ -1,9 +1,8 @@
 """Default settings and interpolation xgrid (previously in _template.yaml)."""
-import yaml
 
 # Define the interpolation x-grid as previously defined as 'xgrid' in _template.yaml
-xgrid = (
-    [1.9999999999999954e-07,
+xgrid = [
+    1.9999999999999954e-07,
     3.034304765867952e-07,
     4.6035014748963906e-07,
     6.984208530700364e-07,
@@ -52,8 +51,8 @@ xgrid = (
     0.7956242522922756,
     0.8627839323906108,
     0.9309440808717544,
-    1]
-    )
+    1,
+]
 
 CONSTANTS = {
     "configs": {
@@ -69,8 +68,7 @@ CONSTANTS = {
     },
     "init": (1.65, 4),
     "debug": {
-        "skip_non_singlet": True,
-        "skip_singlet": True,
+        "skip_non_singlet": False,
+        "skip_singlet": False,
     },
 }
-

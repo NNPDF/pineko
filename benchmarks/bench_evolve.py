@@ -75,9 +75,7 @@ def benchmark_dglap(tmp_path, test_files, test_configs):
     tcard = pineko.theory_card.load(theory_id)
     # In order to check if the operator card is enough for eko, let's compute the eko
 
-    pineko.evolve.write_operator_card_from_file(
-        pine_path, target_path, tcard
-    )
+    pineko.evolve.write_operator_card_from_file(pine_path, target_path, tcard)
 
     # Load the opcard
     myopcard = yaml.safe_load(target_path.read_text(encoding="utf-8"))

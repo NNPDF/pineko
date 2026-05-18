@@ -70,7 +70,7 @@ class _FakePDF:
         return np.power(x, alpha) * np.power(1 - x, beta)
 
 
-def _trim_template(template_card, take_points=10):
+def _trim_template(template_card, take_points=30):
     """Trim the template card so that the number of x-values to compute is much smaller"""
     raw_card = safe_load(template_card.read_text(encoding="utf-8"))
     raw_card["init"] = (raw_card["mu0"], 4)

@@ -50,5 +50,3 @@ class FakePine:
     @property
     def metadata(self):
         return {"convolution_particle_1": 2212, "convolution_particle_2": 11}
-
-
