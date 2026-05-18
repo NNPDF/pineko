@@ -62,8 +62,15 @@ CONSTANTS = {
         "inversion_method": "expanded",
         "polarized": False,
         "scvar_method": "null",
-        "time_like": False
+        "time_like": False,
+        "ev_op_max_order": (10, 0),
+        "interpolation_polynomial_degree": 4,
+        "interpolation_is_log": True,
     },
     "init": (1.65, 4),
+    "debug": {
+        "skip_non_singlet": True,
+        "skip_singlet": True,
+    },
 }
 

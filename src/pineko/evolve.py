@@ -202,6 +202,11 @@ def write_operator_card(
     operators_card["configs"]["scvar_method"] = sv_scheme(tcard)
 
     operators_card["init"] = (tcard["Q0"], tcard["nf0"])
+    operators_card["configs"]["ev_op_max_order"] = template.CONSTANTS["configs"]["ev_op_max_order"]
+    operators_card["configs"]["inversion_method"] = template.CONSTANTS["configs"]["inversion_method"]
+    operators_card["configs"]["interpolation_polynomial_degree"] = template.CONSTANTS["configs"]["interpolation_polynomial_degree"]
+    operators_card["configs"]["interpolation_is_log"] = template.CONSTANTS["configs"]["interpolation_is_log"]
+    operators_card["debug"] = template.CONSTANTS["debug"]
     if template.CONSTANTS["init"] is not None and template.CONSTANTS["init"] != (
         tcard["Q0"],
         tcard["nf0"],
