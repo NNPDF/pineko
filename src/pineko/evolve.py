@@ -214,7 +214,10 @@ def write_operator_card(
     operators_card["configs"]["interpolation_is_log"] = template.CONSTANTS["configs"][
         "interpolation_is_log"
     ]
+    operators_card["configs"]["n_integration_cores"] = template.CONSTANTS["configs"]["n_integration_cores"]
     operators_card["debug"] = template.CONSTANTS["debug"]
+    operators_card["configs"]["time_like"] = template.CONSTANTS["configs"]["time_like"]
+    operators_card["configs"]["polarized"] = template.CONSTANTS["configs"]["polarized"]
     if template.CONSTANTS["init"] is not None and template.CONSTANTS["init"] != (
         tcard["Q0"],
         tcard["nf0"],
@@ -268,6 +271,7 @@ def write_operator_card(
                 f"Your theory has a different evolution method than the default({template_method} vs {opconf['evolution_method']})."
                 f"The evolution method will be set to the default value {template_method}, check if this is what you want"
             )
+            opconf["evolution_method"]=template_method
 
         # If the change is on the number of iterations, take the template value but warn the user
         template_iter = template.CONSTANTS["configs"]["ev_op_iterations"]
@@ -276,9 +280,9 @@ def write_operator_card(
         ):
             logger.warning(
                 f"Warning! The number of iteration in the theory and template is different, ({template_iter} vs {opconf['ev_op_iterations']})."
-                f"The evolution method will be set to the default value {template_iter}, check if this is what you want"
+                f"The number of iterations will be set to default value {template_iter}, check if this is what you want"
             )
-
+            opconf["ev_op_iterations"]=template_iter
     # Some safety checks
     if (
         operators_card["configs"]["evolution_method"] == "truncated"
@@ -294,7 +298,6 @@ def write_operator_card(
 
     for conv in convolutions:
         dump_card(card_path, operators_card, conv)
-
     return operators_card["xgrid"], q2_grid
 
 
