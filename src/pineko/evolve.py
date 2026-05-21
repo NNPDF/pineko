@@ -266,14 +266,15 @@ def write_operator_card(
 
     # Choose the evolution method according to the theory if the key is included
     if "ModEv" in tcard:
-        opconf = operators_card["configs"]
         if tcard["ModEv"] == "TRN":
-            opconf["evolution_method"] = "truncated"
-            opconf["ev_op_iterations"] = 1
+            operators_card["configs"]["evolution_method"] = "truncated"
+            operators_card["configs"]["ev_op_iterations"] = 1
+            operators_card["configs"]["inversion_method"] = "expanded"
         elif tcard["ModEv"] == "EXA":
-            opconf["evolution_method"] = "iterate-exact"
+            operators_card["configs"]["evolution_method"] = "iterate-exact"
+            operators_card["configs"]["inversion_method"] = "exact"
             if "IterEv" in tcard:
-                opconf["ev_op_iterations"] = tcard["IterEv"]
+                operators_card["configs"]["ev_op_iterations"] = tcard["IterEv"]
             else:
                 raise ValueError(
                     "EXA used but IterEv not found in the theory card"
@@ -282,17 +283,6 @@ def write_operator_card(
         raise ValueError(
             "Evolution method not set in theory card"
         )
-    
-    if "inversion_method" in tcard:
-        opconf = operators_card["configs"]
-        opconf["inversion_method"] = tcard["inversion_method"]
-    else:
-        opconf["inversion_method"] = opcard_template.CONSTANTS["configs"]["inversion_method"]
-        logger.warning(
-            "Inversion method not set in theory card, it's being set to default value "
-            f"{opcard_template.CONSTANTS['configs']['inversion_method']}. "
-            "Check if that is what you want."
-            )
 
     # Some safety checks
     if (
