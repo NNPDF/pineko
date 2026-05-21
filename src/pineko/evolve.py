@@ -221,11 +221,7 @@ def write_operator_card(
     xif = 1.0 if sv_method is not None else tcard["XIF"]
     # update scale variation method
     operators_card["configs"]["scvar_method"] = sv_scheme(tcard)
-    for key in ["polarized", 
-                "time_like", 
-                "ev_op_max_order", 
-                ]:
-        operators_card["configs"][key] = opcard_template.CONSTANTS["configs"][key]
+    operators_card["configs"]["ev_op_max_order"] = opcard_template.CONSTANTS["configs"]["ev_op_max_order"]
     operators_card["debug"] = opcard_template.CONSTANTS["debug"]
     operators_card["init"] = (tcard["Q0"], tcard["nf0"])
     # setting the parameters from the cli

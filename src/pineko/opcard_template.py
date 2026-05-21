@@ -56,10 +56,7 @@ xgrid = [
 
 CONSTANTS = {
     "configs": {
-        "inversion_method": "expanded",
-        "polarized": False,
         "scvar_method": "null",
-        "time_like": False,
         "ev_op_max_order": [10, 0],
     },
     "init": (1.65, 4),
