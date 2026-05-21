@@ -56,18 +56,11 @@ xgrid = [
 
 CONSTANTS = {
     "configs": {
-        "ev_op_iterations": 60,
-        "evolution_method": "iterate-exact",
         "inversion_method": "expanded",
         "polarized": False,
         "scvar_method": "null",
         "time_like": False,
         "ev_op_max_order": [10, 0],
-        "interpolation_polynomial_degree": 4,
-        "interpolation_is_log": True,
-        "n_integration_cores": 1,
-        "polarized": False, 
-        "time_like": False,
     },
     "init": (1.65, 4),
     "debug": {

@@ -25,7 +25,6 @@ def benchmark_write_operator_card_from_file_num_fonll(
         / "400"
         / "HERA_NC_225GEV_EP_SIGMARED.pineappl.lz4"
     )
-    default_path = test_files / "data" / "operator_cards" / "400" / "_template.yaml"
     num_opcard = 7 if is_mixed else 5
     targets_path_list = [
         tmp_path / f"test_opcard_{num}.yaml" for num in range(num_opcard)

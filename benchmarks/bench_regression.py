@@ -16,7 +16,6 @@ import numpy as np
 import pytest
 from eko.interpolation import XGrid
 from eko.io.runcards import OperatorCard
-from pineko.evolve import write_operator_card
 from pineappl.fk_table import FkTable
 from yaml import dump, safe_load
 

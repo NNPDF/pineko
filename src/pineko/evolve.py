@@ -22,7 +22,7 @@ from eko.io.types import ScaleVariationsMethod
 from eko.matchings import Atlas, nf_default
 from eko.quantities import heavy_quarks
 
-from . import check, comparator, template, version
+from . import check, comparator, opcard_template, version
 
 logger = logging.getLogger(__name__)
 
@@ -96,6 +96,9 @@ def write_operator_card_from_file(
     pineappl_path: os.PathLike,
     card_path: os.PathLike,
     tcard: dict,
+    ipd=4,
+    iil=True,
+    int_cores=1,
 ):
     """Generate operator card for a grid.
 
@@ -107,6 +110,15 @@ def write_operator_card_from_file(
         target path
     tcard: dict
         theory card for the run
+    ipd:
+        interpolation polynomial degree, taken from cli. 
+        Set to default value
+    iil:
+        interpolation is log, taken from cli. 
+        Set to default value
+    int_cores:
+        number of integration cores, taken 
+        from cli. Set to default value
 
     Returns
     -------
@@ -121,7 +133,7 @@ def write_operator_card_from_file(
         raise FileNotFoundError(pineappl_path)
     pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
     pineappl_grid.optimize()
-    return write_operator_card(pineappl_grid, card_path, tcard)
+    return write_operator_card(pineappl_grid, card_path, tcard, ipd, iil, int_cores)
 
 
 def dump_card(
@@ -161,6 +173,9 @@ def write_operator_card(
     pineappl_grid: pineappl.grid.Grid,
     card_path: Union[str, os.PathLike],
     tcard: dict,
+    ipd, 
+    iil, 
+    int_cores
 ):
     """Generate operator card for this grid.
 
@@ -173,6 +188,12 @@ def write_operator_card(
     tcard: dict
         theory card for the run, since some information in EKO is now required
         in operator card, but before was in the theory card
+    ipd:
+        interpolation polynomial degree, taken from cli
+    iil:
+        interpolation is log, taken from cli
+    int_cores:
+        number of integration cores, taken from cli
 
     Returns
     -------
@@ -200,29 +221,26 @@ def write_operator_card(
     xif = 1.0 if sv_method is not None else tcard["XIF"]
     # update scale variation method
     operators_card["configs"]["scvar_method"] = sv_scheme(tcard)
-
+    for key in ["polarized", 
+                "time_like", 
+                "ev_op_max_order", 
+                ]:
+        operators_card["configs"][key] = opcard_template.CONSTANTS["configs"][key]
+    operators_card["debug"] = opcard_template.CONSTANTS["debug"]
     operators_card["init"] = (tcard["Q0"], tcard["nf0"])
-    operators_card["configs"]["ev_op_max_order"] = template.CONSTANTS["configs"][
-        "ev_op_max_order"
-    ]
-    operators_card["configs"]["inversion_method"] = template.CONSTANTS["configs"][
-        "inversion_method"
-    ]
-    operators_card["configs"]["interpolation_polynomial_degree"] = template.CONSTANTS[
-        "configs"
-    ]["interpolation_polynomial_degree"]
-    operators_card["configs"]["interpolation_is_log"] = template.CONSTANTS["configs"][
-        "interpolation_is_log"
-    ]
-    operators_card["configs"]["n_integration_cores"] = template.CONSTANTS["configs"]["n_integration_cores"]
-    operators_card["debug"] = template.CONSTANTS["debug"]
-    operators_card["configs"]["time_like"] = template.CONSTANTS["configs"]["time_like"]
-    operators_card["configs"]["polarized"] = template.CONSTANTS["configs"]["polarized"]
-    if template.CONSTANTS["init"] is not None and template.CONSTANTS["init"] != (
+    # setting the parameters from the cli
+    operators_card["configs"]["interpolation_polynomial_degree"] = ipd
+    operators_card["configs"]["interpolation_is_log"] = iil
+    operators_card["configs"]["n_integration_cores"] = int_cores
+    if opcard_template.CONSTANTS["init"] is not None and opcard_template.CONSTANTS["init"] != (
         tcard["Q0"],
         tcard["nf0"],
     ):
-        raise ValueError("Q0, nf0 from theory different than default")
+        raise logger.warning(
+            f"Warning! Q0 and nf0 from your theory are different "
+            f"than default settings ({tcard['Q0']}, {tcard['nf0']} vs "
+            f"{opcard_template.CONSTANTS['init']}). Check if this is really what you want!"
+            )
 
     q2_grid = (xif * xif * muf2_grid).tolist()
     # If we are producing nFONLL FKs we need to look to NfFF...
@@ -240,7 +258,7 @@ def write_operator_card(
         operators_card["configs"]["interpolation_polynomial_degree"] = 1
         operators_card["xgrid"] = x_grid.tolist()
     else:
-        operators_card["xgrid"] = template.xgrid
+        operators_card["xgrid"] = opcard_template.xgrid
 
     # Add the version of eko and pineko to the operator card
     # using importlib.metadata.version to get the correct tag in editable mode
@@ -256,33 +274,26 @@ def write_operator_card(
             opconf["evolution_method"] = "iterate-exact"
             if "IterEv" in tcard:
                 opconf["ev_op_iterations"] = tcard["IterEv"]
-            elif template.CONSTANTS["configs"]["ev_op_iterations"] is None:
+            else:
                 raise ValueError(
-                    "EXA used but IterEv not found in the theory card and not ev_op_iterations set in the template"
+                    "EXA used but IterEv not found in the theory card"
                 )
-
-        # If the evolution method is defined in the template and it is different, fail
-        template_method = template.CONSTANTS["configs"]["evolution_method"]
-        if (
-            template_method is not None
-            and template_method != opconf["evolution_method"]
-        ):
-            logger.warning(
-                f"Your theory has a different evolution method than the default({template_method} vs {opconf['evolution_method']})."
-                f"The evolution method will be set to the default value {template_method}, check if this is what you want"
+    else:
+        raise ValueError(
+            "Evolution method not set in theory card"
+        )
+    
+    if "inversion_method" in tcard:
+        opconf = operators_card["configs"]
+        opconf["inversion_method"] = tcard["inversion_method"]
+    else:
+        opconf["inversion_method"] = opcard_template.CONSTANTS["configs"]["inversion_method"]
+        logger.warning(
+            "Inversion method not set in theory card, it's being set to default value "
+            f"{opcard_template.CONSTANTS['configs']['inversion_method']}. "
+            "Check if that is what you want."
             )
-            opconf["evolution_method"]=template_method
 
-        # If the change is on the number of iterations, take the template value but warn the user
-        template_iter = template.CONSTANTS["configs"]["ev_op_iterations"]
-        if template_iter is not None and int(template_iter) != int(
-            opconf["ev_op_iterations"]
-        ):
-            logger.warning(
-                f"Warning! The number of iteration in the theory and template is different, ({template_iter} vs {opconf['ev_op_iterations']})."
-                f"The number of iterations will be set to default value {template_iter}, check if this is what you want"
-            )
-            opconf["ev_op_iterations"]=template_iter
     # Some safety checks
     if (
         operators_card["configs"]["evolution_method"] == "truncated"
