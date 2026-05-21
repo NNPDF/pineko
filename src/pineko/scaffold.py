@@ -2,9 +2,11 @@
 
 import dataclasses
 import pathlib
+import logging
 
 from .configs import NEEDED_FILES, NEEDED_KEYS
 
+logger = logging.getLogger(__name__)
 
 @dataclasses.dataclass
 class CheckResult:
@@ -45,6 +47,10 @@ def set_up_project(configs):
                     path[log_path].mkdir(parents=True, exist_ok=True)
                 else:
                     raise TypeError(f"Not recognized entry {log_path} in configs")
+        elif path == "_template.yaml":
+            logger.warning(f"{path} is no longer a supported method for setting up "
+                           "your operator card, remove it from your configuration"
+                           )
         else:
             raise TypeError(f"Not recognized entry {path} in configs")
 

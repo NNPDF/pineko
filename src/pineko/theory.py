@@ -287,7 +287,7 @@ class TheoryBuilder:
                 f(name, grid, **kwargs)
             rich.print()
 
-    def opcard(self, name, grid, tcard):
+    def opcard(self, name, grid, tcard, ipd=4, iil=True, int_cores=1):
         """Write a single operator card.
 
         Parameters
@@ -309,17 +309,18 @@ class TheoryBuilder:
                 return
         _x_grid, q2_grid = evolve.write_operator_card_from_file(
             grid,
-            self.operator_cards_path
-            / configs.configs["paths"]["operator_card_template_name"],
             opcard_path,
             tcard,
+            ipd,
+            iil,
+            int_cores,
         )
 
-    def opcards(self):
+    def opcards(self, ipd=4, iil=True, int_cores=1):
         """Write operator cards."""
         tcard = theory_card.load(self.theory_id)
         self.operator_cards_path.mkdir(exist_ok=True)
-        self.iterate(self.opcard, tcard=tcard)
+        self.iterate(self.opcard, tcard=tcard, ipd=ipd, iil=iil, int_cores=int_cores)
 
     def load_operator_card(self, name):
         """Read current operator card.
