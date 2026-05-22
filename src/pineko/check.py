@@ -27,10 +27,12 @@ class Scale(Enum):
 class AvailableAtMax(Enum):
     """Hold the information of a scale variation check.
 
-    BOTH means that both the central order and the scale variation order are contained in the grid.
-    CENTRAL means that only the central order is present.
-    SCVAR means that only the scale variation order is present.
-
+    - ``AvailableAtMax.BOTH`` : both the central order and the SV order are
+      present (or the grid is at LO where no SV is expected).
+    - ``AvailableAtMax.CENTRAL`` : only the central order is present; the SV
+      order is missing.
+    - ``AvailableAtMax.SCVAR`` : only the SV order is present; the central
+      order is missing.
     """
 
     BOTH = auto()
@@ -174,7 +176,43 @@ def pure_qcd(orders):
 def contains_sv(
     grid: pineappl.grid.Grid, max_as: int, max_al: int, sv_type: Scale
 ) -> Tuple[AvailableAtMax, int]:
-    """Check whether renormalization scale-variations are available in the pineappl grid."""
+    """Check whether scale variations of the given type are available in a PineAPPL grid.
+
+    Orders are first filtered by ``max_as`` and ``max_al``, then reduced to pure
+    QCD orders (i.e. those sharing the minimum power of alpha).  The function
+    compares the highest alpha_s power among central orders against the highest
+    alpha_s power among scale-variation orders to decide availability.
+
+    Parameters
+    ----------
+    grid : pineappl.grid.Grid
+        PineAPPL grid object.
+    max_as : int
+        Maximum number of QCD perturbative steps to consider.  Uses the
+        pineko convention where 1 = LO, 2 = NLO, 3 = NNLO, etc.
+    max_al : int
+        Maximum power of alpha to consider when filtering orders.
+    sv_type : Scale
+        Type of scale variation to check: ``Scale.REN`` for renormalization,
+        ``Scale.FACT`` for factorization, or ``Scale.FRAG`` for fragmentation.
+        The corresponding index in the order tuple is taken from
+        ``sv_type.value.index``.
+
+    Returns
+    -------
+    checkres : AvailableAtMax
+        Availability of the scale variation at the maximum order present. For
+        fully empty grids, we simply return ``AvailableAtMax.BOTH`` as a
+        placeholder so that callers treating missing SV as an error do not
+        raise.
+    max_as_effective : int
+        Effective perturbative order of the grid expressed in the same
+        convention as ``max_as``.  Concretely, it is
+        ``max_as_power - min_as_power + 1`` over the pure-QCD orders that
+        survive the filter, so it equals ``max_as`` when the grid reaches the
+        requested order and is smaller when it does not.  For fully empty grids
+        we thus simply return 0.
+    """
     svindex = sv_type.value.index
     ords = orders(grid, max_as, max_al)
     # Empty grids (no orders) are a valid case: we must be able to propagate them and
@@ -191,15 +229,18 @@ def contains_sv(
     if max_as_cen == max_as:
         if max_as_sv == max_as:
             checkres = AvailableAtMax.BOTH
-        # This is the LO case so for both FACT and REN we do not expect sv orders at all
+        # This is the LO case so for both FACT and REN we do not expect sv orders at all.
         elif max_as == min_as:
             checkres = AvailableAtMax.BOTH
-        # For renormalization scale variations, the NLO sv order is not present if the first non zero order is at alpha^0
+        # For renormalization scale variations, the NLO sv order is not present if the
+        # first non zero order is at alpha^0.
         elif max_as == 1 and sv_type is Scale.REN and min_as == 0:
             checkres = AvailableAtMax.BOTH
         else:
             checkres = AvailableAtMax.CENTRAL
     else:
         checkres = AvailableAtMax.SCVAR
-    # Since max_as_effective will be compared to max_as and we are using different conventions for the two, here we sum 1 to max_as_effective and make it relative to the first non zero order
+    # Since `max_as_effective` will be compared to `max_as` and we are using different
+    # conventions for the two, here we sum 1 to max_as_effective and make it relative
+    # to the first non zero order.
     return checkres, max_as - min_as + 1

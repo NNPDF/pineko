@@ -68,7 +68,22 @@ def construct_atlas(tcard):
 
 
 def construct_empty_fktable(grid, theory_meta, fktable_path):
-    """Construct an empty FK table from a given grid.
+    """Construct and write a structurally valid but numerically empty FK table.
+
+    "Empty" means the FK table carries a single trivial order ``(0,0,0,0,0)``
+    and no subgrid entries, so every bin evaluates to zero when convolved with
+    any PDF.  The channel list, bin edges, convolution types, kinematics, and
+    interpolation settings are copied from ``grid`` so that the result is
+    compatible with the rest of the pipeline.
+
+    This is the correct output in two situations that arise during evolution:
+
+    - The input grid has **no orders at all** (e.g. a channel that is
+      intentionally absent in a numerical FONLL workflow).
+    - The input grid has orders but **all subgrids are empty** after applying
+      the order mask (e.g. when all subgrids were explicitly zeroed), which
+      causes ``evolve_info`` to return empty x / Q2 arrays that cannot be used
+      to build interpolation grids.
 
     Parameters
     ----------
@@ -78,6 +93,11 @@ def construct_empty_fktable(grid, theory_meta, fktable_path):
         target path for convolved grid
     theory_meta: dict
         a dictionary containing the theory metadata
+
+    Returns
+    -------
+    fktable : pineappl.fk_table.FkTable
+        The empty FK table that was written to ``fktable_path``.
     """
     empty_order = pineappl.boc.Order(0, 0, 0, 0, 0)
     empty_grid = pineappl.grid.Grid(
@@ -362,6 +382,19 @@ def evolve_grid(
         if given, a comparison table (with / without evolution) will be printed
     min_as: None or int
         minimum power of strong coupling
+
+    Returns
+    -------
+    grid : pineappl.grid.Grid
+        The original unconvolved grid, returned unchanged.
+    fktable : pineappl.fk_table.FkTable
+        The evolved FK table written to ``fktable_path``.  If the grid has no
+        orders, or if all subgrids are absent, an empty FK table is returned
+        instead (see :func:`construct_empty_fktable`).
+    comparison : pd.DataFrame or None
+        Bin-by-bin comparison of the grid and FK table predictions, produced
+        when ``comparison_pdfs`` is given.  Always ``None`` for empty FK
+        tables, since there is nothing to compare.
     """
     # A grid with no orders is a valid input for some workflows. In that case we
     # cannot build evolution kinematics, so we directly emit an empty FK table.
