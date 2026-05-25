@@ -261,34 +261,24 @@ def write_operator_card(
     operators_card["eko_version"] = metadata.version("eko")
 
     # Choose the evolution method according to the theory if the key is included
-    if "ModEv" in tcard:
-        if tcard["ModEv"] == "TRN":
-            operators_card["configs"]["evolution_method"] = "truncated"
-            operators_card["configs"]["ev_op_iterations"] = 1
-            operators_card["configs"]["inversion_method"] = "expanded"
-        elif tcard["ModEv"] == "EXA":
-            operators_card["configs"]["evolution_method"] = "iterate-exact"
-            operators_card["configs"]["inversion_method"] = "exact"
-            if "IterEv" in tcard:
-                operators_card["configs"]["ev_op_iterations"] = tcard["IterEv"]
-            else:
-                raise ValueError(
-                    "EXA used but IterEv not found in the theory card"
-                )
-    else:
+    if "ModEv" not in tcard:
         raise ValueError(
             "Evolution method not set in theory card"
-        )
+            )
+    if "IterEv" not in tcard and "ModEv" == "EXA":
+            raise ValueError(
+            "EXA used but IterEv not found in the theory card"
+            )
+    
+    if tcard["ModEv"] == "TRN":
+        operators_card["configs"]["evolution_method"] = "truncated"
+        operators_card["configs"]["ev_op_iterations"] = 1
+        operators_card["configs"]["inversion_method"] = "expanded"
+    elif tcard["ModEv"] == "EXA":
+        operators_card["configs"]["evolution_method"] = "iterate-exact"
+        operators_card["configs"]["ev_op_iterations"] = tcard["IterEv"]
+        operators_card["configs"]["inversion_method"] = "exact"
 
-    # Some safety checks
-    if (
-        operators_card["configs"]["evolution_method"] == "truncated"
-        and operators_card["configs"]["ev_op_iterations"] > 1
-    ):
-        logger.warning(
-            "Warning! You are setting evolution_method=truncated with ev_op_iterations>1,"
-            "are you sure that's what you want?"
-        )
 
     # Get the types of convolutions required for this Grid
     convolutions = pineappl_grid.convolutions
