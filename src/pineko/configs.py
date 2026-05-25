@@ -20,7 +20,6 @@ NEEDED_KEYS = [
     "fktables",
     "ekos",
 ]
-NEEDED_FILES = []
 
 GENERIC_OPTIONS = "general"
 

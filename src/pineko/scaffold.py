@@ -4,7 +4,7 @@ import dataclasses
 import pathlib
 import logging
 
-from .configs import NEEDED_FILES, NEEDED_KEYS
+from .configs import NEEDED_KEYS
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ def set_up_project(configs):
         configs dictionary containing all the paths to be set up
     """
     for path_key, path in configs["paths"].items():
-        if path_key == "root" or path_key in NEEDED_FILES:
+        if path_key == "root":
             continue
         if isinstance(path, pathlib.Path):
             path.mkdir(parents=True, exist_ok=True)
@@ -73,10 +73,7 @@ def check_folders(configs):
         if key not in configs["paths"]:
             wrong_confs.append(key)
         else:
-            if key in NEEDED_FILES:
-                continue
-            if not configs["paths"][key].exists():
-                wrong_folders[key] = configs["paths"][key]
+            wrong_folders[key] = configs["paths"][key]
     if "logs" not in configs["paths"]:
         print("WARNING: logs folder is not spelled out in the config file")
     else:
