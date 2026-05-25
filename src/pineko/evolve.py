@@ -161,13 +161,13 @@ def write_operator_card_from_file(
     tcard: dict
         theory card for the run
     ipd:
-        interpolation polynomial degree, taken from cli. 
+        interpolation polynomial degree, taken from cli.
         Set to default value
     iil:
-        interpolation is log, taken from cli. 
+        interpolation is log, taken from cli.
         Set to default value
     int_cores:
-        number of integration cores, taken 
+        number of integration cores, taken
         from cli. Set to default value
 
     Returns
@@ -223,9 +223,9 @@ def write_operator_card(
     pineappl_grid: pineappl.grid.Grid,
     card_path: Union[str, os.PathLike],
     tcard: dict,
-    ipd, 
-    iil, 
-    int_cores
+    ipd,
+    iil,
+    int_cores,
 ):
     """Generate operator card for this grid.
 
@@ -271,14 +271,18 @@ def write_operator_card(
     xif = 1.0 if sv_method is not None else tcard["XIF"]
     # update scale variation method
     operators_card["configs"]["scvar_method"] = sv_scheme(tcard)
-    operators_card["configs"]["ev_op_max_order"] = opcard_template.CONSTANTS["configs"]["ev_op_max_order"]
+    operators_card["configs"]["ev_op_max_order"] = opcard_template.CONSTANTS["configs"][
+        "ev_op_max_order"
+    ]
     operators_card["debug"] = opcard_template.CONSTANTS["debug"]
     operators_card["init"] = (tcard["Q0"], tcard["nf0"])
     # setting the parameters from the cli
     operators_card["configs"]["interpolation_polynomial_degree"] = ipd
     operators_card["configs"]["interpolation_is_log"] = iil
     operators_card["configs"]["n_integration_cores"] = int_cores
-    if opcard_template.CONSTANTS["init"] is not None and opcard_template.CONSTANTS["init"] != (
+    if opcard_template.CONSTANTS["init"] is not None and opcard_template.CONSTANTS[
+        "init"
+    ] != (
         tcard["Q0"],
         tcard["nf0"],
     ):
@@ -286,7 +290,7 @@ def write_operator_card(
             f"Warning! Q0 and nf0 from your theory are different "
             f"than default settings ({tcard['Q0']}, {tcard['nf0']} vs "
             f"{opcard_template.CONSTANTS['init']}). Check if this is really what you want!"
-            )
+        )
 
     q2_grid = (xif * xif * muf2_grid).tolist()
     # If we are producing nFONLL FKs we need to look to NfFF...
@@ -312,17 +316,13 @@ def write_operator_card(
 
     # Choose the evolution method according to the theory if the key is included
     if "ModEv" not in tcard:
-        raise ValueError(
-            "Evolution method not set in theory card"
-            )
+        raise ValueError("Evolution method not set in theory card")
     if "IterEv" not in tcard and "ModEv" == "EXA":
-            raise ValueError(
-            "EXA used but IterEv not found in the theory card"
-            )
-    
+        raise ValueError("EXA used but IterEv not found in the theory card")
+
     if tcard["ModEv"] == "TRN":
         operators_card["configs"]["evolution_method"] = "truncated"
-        # TO DO: we impose a default for ev_op_iterations and inversion_method 
+        # TO DO: we impose a default for ev_op_iterations and inversion_method
         # now, but we may at later point allow the user to choose (e.g. via CLI)
         operators_card["configs"]["ev_op_iterations"] = 1
         operators_card["configs"]["inversion_method"] = "expanded"
@@ -330,7 +330,6 @@ def write_operator_card(
         operators_card["configs"]["evolution_method"] = "iterate-exact"
         operators_card["configs"]["ev_op_iterations"] = tcard["IterEv"]
         operators_card["configs"]["inversion_method"] = "exact"
-
 
     # Get the types of convolutions required for this Grid
     convolutions = pineappl_grid.convolutions

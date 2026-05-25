@@ -1,12 +1,13 @@
 """Tools related to generation and managing of a pineko project."""
 
 import dataclasses
-import pathlib
 import logging
+import pathlib
 
 from .configs import NEEDED_KEYS
 
 logger = logging.getLogger(__name__)
+
 
 @dataclasses.dataclass
 class CheckResult:
@@ -48,9 +49,10 @@ def set_up_project(configs):
                 else:
                     raise TypeError(f"Not recognized entry {log_path} in configs")
         elif path == "_template.yaml":
-            logger.warning(f"{path} is no longer a supported method for setting up "
-                           "your operator card, remove it from your configuration"
-                           )
+            logger.warning(
+                f"{path} is no longer a supported method for setting up "
+                "your operator card, remove it from your configuration"
+            )
         else:
             raise TypeError(f"Not recognized entry {path} in configs")
 

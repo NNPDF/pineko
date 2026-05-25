@@ -14,12 +14,16 @@ from ._base import command
 @click.argument("pineappl-path", metavar="PINEAPPL", type=click.Path(exists=True))
 @click.argument("thcard-path", metavar="THCARD", type=click.Path())
 @click.argument("opcard-path", metavar="OPCARD", type=click.Path())
-@click.option("--ipd", default=4, show_default=True, help="interpolation polynomial degree")
+@click.option(
+    "--ipd", default=4, show_default=True, help="interpolation polynomial degree"
+)
 @click.option("--iil", default=True, show_default=True, help="interpolation is log")
-@click.option("--int-cores", default=1, show_default=True, help="number of integration cores")
+@click.option(
+    "--int-cores", default=1, show_default=True, help="number of integration cores"
+)
 def subcommand(
-    pineappl_path, 
-    thcard_path, 
+    pineappl_path,
+    thcard_path,
     opcard_path,
     ipd,
     iil,
@@ -27,7 +31,7 @@ def subcommand(
 ):
     """Write EKO card for PineAPPL grid.
 
-    Writes an operator card OPCARD from the information in 
+    Writes an operator card OPCARD from the information in
     opcard_template.py and the theory card.
 
     A THCARD is required, since some of the EKO's OPCARD information come from
