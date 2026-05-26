@@ -68,7 +68,7 @@ def construct_atlas(tcard):
     return atlas
 
 
-def construct_empty_fktable(grid, theory_meta, fktable_path):
+def construct_empty_fktable(grid, theory_meta, fktable_path, grid_path=None):
     """Construct and write a structurally valid but numerically empty FK table.
 
     "Empty" means the FK table carries a single trivial order ``(0,0,0,0,0)``
@@ -114,6 +114,21 @@ def construct_empty_fktable(grid, theory_meta, fktable_path):
     fktable = pineappl.fk_table.FkTable(empty_grid)
     fktable.set_metadata("pineko_version", version.__version__)
     fktable.set_metadata("theory_card", json.dumps(theory_meta))
+    if grid_path is not None:
+        grid_path_obj = pathlib.Path(grid_path).resolve()
+        grid_hash = hashlib.md5(grid_path_obj.read_bytes()).hexdigest()
+        grid_path_parts = grid_path_obj.parts
+        if "pineko" in grid_path_parts:
+            pineko_idx = grid_path_parts.index("pineko")
+            display_path = str(pathlib.Path("/", *grid_path_parts[pineko_idx + 1 :]))
+        elif "data" in grid_path_parts:
+            data_idx = grid_path_parts.index("data")
+            display_path = str(pathlib.Path("/", *grid_path_parts[data_idx:]))
+        else:
+            display_path = grid_path_obj.name
+        fktable.set_metadata("grid_hash", grid_hash)
+        fktable.set_metadata("grid_theory", grid_path_obj.parent.name)
+        fktable.set_metadata("grid_path", display_path)
     fktable.write_lz4(str(fktable_path))
     return fktable
 
@@ -403,7 +418,9 @@ def evolve_grid(
     # A grid with no orders is a valid input for some workflows. In that case we
     # cannot build evolution kinematics, so we directly emit an empty FK table.
     if len(grid.orders()) == 0:
-        fktable = construct_empty_fktable(grid, theory_meta, fktable_path)
+        fktable = construct_empty_fktable(
+            grid, theory_meta, fktable_path, grid_path=grid_path
+        )
         return grid, fktable, None
 
     order_mask = pineappl.boc.Order.create_mask(grid.orders(), max_as, max_al, True)
@@ -427,7 +444,9 @@ def evolve_grid(
     # `XGrid` requires at least 2 points, otherwise it panics. In this case, we
     # simply return an empty FK table instead.
     if (len(x_grid) < 2) or (len(muf2_grid) == 0) or (len(mur2_grid) == 0):
-        fktable = construct_empty_fktable(grid, theory_meta, fktable_path)
+        fktable = construct_empty_fktable(
+            grid, theory_meta, fktable_path, grid_path=grid_path
+        )
         return grid, fktable, None
 
     xif = 1.0 if operators[0].operator_card.configs.scvar_method is not None else xif
@@ -514,12 +533,22 @@ def evolve_grid(
     fktable.set_metadata("pineko_version", version.__version__)
     fktable.set_metadata("theory_card", json.dumps(theory_meta))
 
-    # Store grid hash and path information
+    # Store grid hash, theory folder, and repo-style grid path information
     if grid_path is not None:
-        grid_path_obj = pathlib.Path(grid_path)
+        grid_path_obj = pathlib.Path(grid_path).resolve()
         grid_hash = hashlib.md5(grid_path_obj.read_bytes()).hexdigest()
-        grid_files = {grid_path_obj.stem: {"hash": grid_hash, "path": str(grid_path_obj.resolve())}}
-        fktable.set_metadata("grid_files", json.dumps(grid_files))
+        grid_path_parts = grid_path_obj.parts
+        if "pineko" in grid_path_parts:
+            pineko_idx = grid_path_parts.index("pineko")
+            display_path = str(pathlib.Path("/", *grid_path_parts[pineko_idx + 1 :]))
+        elif "data" in grid_path_parts:
+            data_idx = grid_path_parts.index("data")
+            display_path = str(pathlib.Path("/", *grid_path_parts[data_idx:]))
+        else:
+            display_path = grid_path_obj.name
+        fktable.set_metadata("grid_hash", grid_hash)
+        fktable.set_metadata("grid_theory", grid_path_obj.parent.name)
+        fktable.set_metadata("grid_path", display_path)
 
     # compare before/after
     comparison = None
