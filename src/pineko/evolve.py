@@ -68,6 +68,56 @@ def construct_atlas(tcard):
     return atlas
 
 
+def construct_empty_fktable(grid, theory_meta, fktable_path):
+    """Construct and write a structurally valid but numerically empty FK table.
+
+    "Empty" means the FK table carries a single trivial order ``(0,0,0,0,0)``
+    and no subgrid entries, so every bin evaluates to zero when convolved with
+    any PDF.  The channel list, bin edges, convolution types, kinematics, and
+    interpolation settings are copied from ``grid`` so that the result is
+    compatible with the rest of the pipeline.
+
+    This is the correct output in two situations that arise during evolution:
+
+    - The input grid has **no orders at all** (e.g. a channel that is
+      intentionally absent in a numerical FONLL workflow).
+    - The input grid has orders but **all subgrids are empty** after applying
+      the order mask (e.g. when all subgrids were explicitly zeroed), which
+      causes ``evolve_info`` to return empty x / Q2 arrays that cannot be used
+      to build interpolation grids.
+
+    Parameters
+    ----------
+    gird : pineappl.grid.Grid
+        a PineAPPL Grid object
+    fktable_path : str
+        target path for convolved grid
+    theory_meta: dict
+        a dictionary containing the theory metadata
+
+    Returns
+    -------
+    fktable : pineappl.fk_table.FkTable
+        The empty FK table that was written to ``fktable_path``.
+    """
+    empty_order = pineappl.boc.Order(0, 0, 0, 0, 0)
+    empty_grid = pineappl.grid.Grid(
+        pid_basis=grid.pid_basis,
+        channels=[pineappl.boc.Channel(c) for c in grid.channels()],
+        orders=[empty_order],
+        bins=grid.bwfl(),
+        convolutions=grid.convolutions,
+        interpolations=grid.interpolations,
+        kinematics=grid.kinematics,
+        scale_funcs=grid.scales,
+    )
+    fktable = pineappl.fk_table.FkTable(empty_grid)
+    fktable.set_metadata("pineko_version", version.__version__)
+    fktable.set_metadata("theory_card", json.dumps(theory_meta))
+    fktable.write_lz4(str(fktable_path))
+    return fktable
+
+
 def get_convolution_suffix(convolution: pineappl.convolutions.Conv) -> str:
     """Get the correct suffix for a given convolution.
 
@@ -326,7 +376,7 @@ def evolve_grid(
         factorization scale variation
     xia : float
         fragmentation scale variation
-    tcard: dict
+    theory_metadata: dict
         card containing the theory parameters
     assumptions : str
         assumptions on the flavor dimension
@@ -336,7 +386,26 @@ def evolve_grid(
         minimum power of strong coupling
     grid_path : str or os.PathLike or None
         path to the grid file, used to store grid hash metadata
+
+    Returns
+    -------
+    grid : pineappl.grid.Grid
+        The original unconvolved grid, returned unchanged.
+    fktable : pineappl.fk_table.FkTable
+        The evolved FK table written to ``fktable_path``.  If the grid has no
+        orders, or if all subgrids are absent, an empty FK table is returned
+        instead (see :func:`construct_empty_fktable`).
+    comparison : pd.DataFrame or None
+        Bin-by-bin comparison of the grid and FK table predictions, produced
+        when ``comparison_pdfs`` is given.  Always ``None`` for empty FK
+        tables, since there is nothing to compare.
     """
+    # A grid with no orders is a valid input for some workflows. In that case we
+    # cannot build evolution kinematics, so we directly emit an empty FK table.
+    if len(grid.orders()) == 0:
+        fktable = construct_empty_fktable(grid, theory_meta, fktable_path)
+        return grid, fktable, None
+
     order_mask = pineappl.boc.Order.create_mask(grid.orders(), max_as, max_al, True)
     if min_as is not None and min_as > 1:
         # If using min_as, we want to ignore only orders below that (e.g., if min_as=2
@@ -353,6 +422,14 @@ def evolve_grid(
 
     muf2_grid = evol_info.fac1
     mur2_grid = evol_info.ren1
+
+    # `evolve_info` returns empty arrays when all subgrids are absent. However,
+    # `XGrid` requires at least 2 points, otherwise it panics. In this case, we
+    # simply return an empty FK table instead.
+    if (len(x_grid) < 2) or (len(muf2_grid) == 0) or (len(mur2_grid) == 0):
+        fktable = construct_empty_fktable(grid, theory_meta, fktable_path)
+        return grid, fktable, None
+
     xif = 1.0 if operators[0].operator_card.configs.scvar_method is not None else xif
     tcard = operators[0].theory_card
     opcard = operators[0].operator_card

@@ -15,6 +15,11 @@ def test_files():
 
 
 @pytest.fixture
+def test_4100001000():
+    return pathlib.Path(__file__).parents[0] / "4100001000/"
+
+
+@pytest.fixture
 def test_empty_proj(test_files):
     path = test_files / "empty_proj/"
     yield path
@@ -65,3 +70,23 @@ def cd():
             os.chdir(prevdir)
 
     return wrapped
+
+
+@pytest.fixture
+def toy_xfx():
+    """Toy PDF callable."""
+
+    def xfx(pid, x, q2):
+        return 1.0
+
+    return xfx
+
+
+@pytest.fixture
+def toy_alphas():
+    """Toy alpha_s callable."""
+
+    def alphas(q2):
+        return 1.0
+
+    return alphas
