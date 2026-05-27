@@ -322,7 +322,7 @@ def write_operator_card(
 
     if tcard["ModEv"] == "TRN":
         operators_card["configs"]["evolution_method"] = "truncated"
-        # TO DO: we impose a default for ev_op_iterations and inversion_method
+        # TODO: we impose a default for ev_op_iterations and inversion_method
         # now, but we may at later point allow the user to choose (e.g. via CLI)
         operators_card["configs"]["ev_op_iterations"] = 1
         operators_card["configs"]["inversion_method"] = "expanded"
