@@ -68,6 +68,20 @@ def construct_atlas(tcard):
     return atlas
 
 
+def set_fktable_metadata(fktable, theory_meta, grid_path=None):
+    """Store the common FK metadata and, if available, grid provenance."""
+    fktable.set_metadata("pineko_version", version.__version__)
+    fktable.set_metadata("theory_card", json.dumps(theory_meta))
+    if grid_path is None:
+        return
+
+    grid_path_obj = pathlib.Path(grid_path).resolve()
+    grid_hash = hashlib.md5(grid_path_obj.read_bytes()).hexdigest()
+    fktable.set_metadata("grid_hash", grid_hash)
+    fktable.set_metadata("grid_theory", grid_path_obj.parent.name)
+    fktable.set_metadata("grid_name", grid_path_obj.name)
+
+
 def construct_empty_fktable(grid, theory_meta, fktable_path, grid_path=None):
     """Construct and write a structurally valid but numerically empty FK table.
 
@@ -112,23 +126,7 @@ def construct_empty_fktable(grid, theory_meta, fktable_path, grid_path=None):
         scale_funcs=grid.scales,
     )
     fktable = pineappl.fk_table.FkTable(empty_grid)
-    fktable.set_metadata("pineko_version", version.__version__)
-    fktable.set_metadata("theory_card", json.dumps(theory_meta))
-    if grid_path is not None:
-        grid_path_obj = pathlib.Path(grid_path).resolve()
-        grid_hash = hashlib.md5(grid_path_obj.read_bytes()).hexdigest()
-        grid_path_parts = grid_path_obj.parts
-        if "pineko" in grid_path_parts:
-            pineko_idx = grid_path_parts.index("pineko")
-            display_path = str(pathlib.Path("/", *grid_path_parts[pineko_idx + 1 :]))
-        elif "data" in grid_path_parts:
-            data_idx = grid_path_parts.index("data")
-            display_path = str(pathlib.Path("/", *grid_path_parts[data_idx:]))
-        else:
-            display_path = grid_path_obj.name
-        fktable.set_metadata("grid_hash", grid_hash)
-        fktable.set_metadata("grid_theory", grid_path_obj.parent.name)
-        fktable.set_metadata("grid_path", display_path)
+    set_fktable_metadata(fktable, theory_meta, grid_path=grid_path)
     fktable.write_lz4(str(fktable_path))
     return fktable
 
@@ -530,25 +528,7 @@ def evolve_grid(
             f"eko_operator_card{suffix}", json.dumps(operator.operator_card.raw)
         )
 
-    fktable.set_metadata("pineko_version", version.__version__)
-    fktable.set_metadata("theory_card", json.dumps(theory_meta))
-
-    # Store grid hash, theory folder, and repo-style grid path information
-    if grid_path is not None:
-        grid_path_obj = pathlib.Path(grid_path).resolve()
-        grid_hash = hashlib.md5(grid_path_obj.read_bytes()).hexdigest()
-        grid_path_parts = grid_path_obj.parts
-        if "pineko" in grid_path_parts:
-            pineko_idx = grid_path_parts.index("pineko")
-            display_path = str(pathlib.Path("/", *grid_path_parts[pineko_idx + 1 :]))
-        elif "data" in grid_path_parts:
-            data_idx = grid_path_parts.index("data")
-            display_path = str(pathlib.Path("/", *grid_path_parts[data_idx:]))
-        else:
-            display_path = grid_path_obj.name
-        fktable.set_metadata("grid_hash", grid_hash)
-        fktable.set_metadata("grid_theory", grid_path_obj.parent.name)
-        fktable.set_metadata("grid_path", display_path)
+    set_fktable_metadata(fktable, theory_meta, grid_path=grid_path)
 
     # compare before/after
     comparison = None
