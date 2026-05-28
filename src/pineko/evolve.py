@@ -148,7 +148,6 @@ def write_operator_card_from_file(
     tcard: dict,
     ipd=4,
     iil=True,
-    int_cores=1,
 ):
     """Generate operator card for a grid.
 
@@ -183,7 +182,7 @@ def write_operator_card_from_file(
         raise FileNotFoundError(pineappl_path)
     pineappl_grid = pineappl.grid.Grid.read(pineappl_path)
     pineappl_grid.optimize()
-    return write_operator_card(pineappl_grid, card_path, tcard, ipd, iil, int_cores)
+    return write_operator_card(pineappl_grid, card_path, tcard, ipd, iil)
 
 
 def dump_card(
@@ -225,7 +224,6 @@ def write_operator_card(
     tcard: dict,
     ipd,
     iil,
-    int_cores,
 ):
     """Generate operator card for this grid.
 
@@ -242,8 +240,6 @@ def write_operator_card(
         interpolation polynomial degree, taken from cli
     iil:
         interpolation is log, taken from cli
-    int_cores:
-        number of integration cores, taken from cli
 
     Returns
     -------
@@ -279,7 +275,6 @@ def write_operator_card(
     # setting the parameters from the cli
     operators_card["configs"]["interpolation_polynomial_degree"] = ipd
     operators_card["configs"]["interpolation_is_log"] = iil
-    operators_card["configs"]["n_integration_cores"] = int_cores
     if opcard_template.CONSTANTS["init"] is not None and opcard_template.CONSTANTS[
         "init"
     ] != (

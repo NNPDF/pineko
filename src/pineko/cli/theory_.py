@@ -33,14 +33,9 @@ def inherit_grids(source_theory_id, target_theory_id, datasets, overwrite):
     "--ipd", default=4, show_default=True, help="interpolation polynomial degree"
 )
 @click.option("--iil", default=True, show_default=True, help="interpolation is log")
-@click.option(
-    "--int-cores", default=1, show_default=True, help="number of integration cores"
-)
-def opcards(theory_id, datasets, overwrite, ipd, iil, int_cores):
+def opcards(theory_id, datasets, overwrite, ipd, iil):
     """Write EKO card for all FK tables in all datasets."""
-    theory.TheoryBuilder(theory_id, datasets, overwrite=overwrite).opcards(
-        ipd, iil, int_cores
-    )
+    theory.TheoryBuilder(theory_id, datasets, overwrite=overwrite).opcards(ipd, iil)
 
 
 @theory_.command()
@@ -54,11 +49,14 @@ def opcards(theory_id, datasets, overwrite, ipd, iil, int_cores):
     help="Erease previos logs (instead of appending)",
 )
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
-def ekos(theory_id, datasets, silent, clear_logs, overwrite):
+@click.option(
+    "--int-cores", default=1, show_default=True, help="number of integration cores"
+)
+def ekos(theory_id, datasets, silent, clear_logs, overwrite, int_cores):
     """Compute EKOs for all FK tables in all datasets."""
     theory.TheoryBuilder(
         theory_id, datasets, silent=silent, clear_logs=clear_logs, overwrite=overwrite
-    ).ekos()
+    ).ekos(int_cores)
 
 
 @theory_.command()
