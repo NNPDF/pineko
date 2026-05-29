@@ -18,16 +18,12 @@ from ._base import command
     "--ipd", default=4, show_default=True, help="interpolation polynomial degree"
 )
 @click.option("--iil", default=True, show_default=True, help="interpolation is log")
-@click.option(
-    "--int-cores", default=1, show_default=True, help="number of integration cores"
-)
 def subcommand(
     pineappl_path,
     thcard_path,
     opcard_path,
     ipd,
     iil,
-    int_cores,
 ):
     """Write EKO card for PineAPPL grid.
 
@@ -41,5 +37,5 @@ def subcommand(
     tcard = yaml.safe_load(pathlib.Path(thcard_path).read_text(encoding="utf-8"))
     opcard_path = pathlib.Path(opcard_path)
     _x_grid, q2_grid = evolve.write_operator_card_from_file(
-        pineappl_path, opcard_path, tcard, ipd, iil, int_cores
+        pineappl_path, opcard_path, tcard, ipd, iil
     )

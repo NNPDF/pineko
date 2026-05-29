@@ -35,7 +35,9 @@ def inherit_grids(source_theory_id, target_theory_id, datasets, overwrite):
 @click.option("--iil", default=True, show_default=True, help="interpolation is log")
 def opcards(theory_id, datasets, overwrite, ipd, iil):
     """Write EKO card for all FK tables in all datasets."""
-    theory.TheoryBuilder(theory_id, datasets, overwrite=overwrite).opcards(ipd, iil)
+    theory.TheoryBuilder(theory_id, datasets, overwrite=overwrite).opcards(
+        ipd=ipd, iil=iil
+    )
 
 
 @theory_.command()
@@ -56,7 +58,7 @@ def ekos(theory_id, datasets, silent, clear_logs, overwrite, int_cores):
     """Compute EKOs for all FK tables in all datasets."""
     theory.TheoryBuilder(
         theory_id, datasets, silent=silent, clear_logs=clear_logs, overwrite=overwrite
-    ).ekos(int_cores)
+    ).ekos(int_cores=int_cores)
 
 
 @theory_.command()

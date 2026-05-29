@@ -426,11 +426,11 @@ class TheoryBuilder:
             if eko_filename.exists():
                 rich.print(f"[green]Success:[/] Wrote EKO to {eko_filename}")
 
-    def ekos(self):
+    def ekos(self, int_cores=1):
         """Compute all ekos."""
         tcard = theory_card.load(self.theory_id)
         self.ekos_path().mkdir(exist_ok=True)
-        self.iterate(self.eko, tcard=tcard, int_cores=1)
+        self.iterate(self.eko, tcard=tcard, int_cores=int_cores)
 
     def fk(self, name, grid_path, tcard, pdfs):
         """Compute a single FK table.
