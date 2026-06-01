@@ -325,6 +325,12 @@ def produce_combined_fk(
         Path(configs.configs["paths"]["theory_cards"]) / f"{theoryid}.yaml"
     )
     update_fk_theorycard(combined_fk, input_theorycard_path)
+    grid_hash = " ".join(
+        f"{idx:02d}-{fk.metadata['grid_hash']}"
+        for idx, fk in enumerate(fk_dict.values())
+    )
+    combined_fk.set_metadata("grid_hash", grid_hash)
+    combined_fk.set_metadata("grid_theory", str(theoryid))
     # save final FONLL fktable
     fk_folder = Path(configs.configs["paths"]["fktables"]) / str(theoryid)
     fk_folder.mkdir(exist_ok=True)

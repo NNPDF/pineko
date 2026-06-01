@@ -1,6 +1,7 @@
 """Tools related to evolution/eko."""
 
 import copy
+import hashlib
 import json
 import logging
 import os
@@ -67,7 +68,21 @@ def construct_atlas(tcard):
     return atlas
 
 
-def construct_empty_fktable(grid, theory_meta, fktable_path):
+def set_fktable_metadata(fktable, theory_meta, grid_path=None):
+    """Store the common FK metadata and, if available, grid provenance."""
+    fktable.set_metadata("pineko_version", version.__version__)
+    fktable.set_metadata("theory_card", json.dumps(theory_meta))
+    if grid_path is None:
+        return
+
+    grid_path_obj = pathlib.Path(grid_path).resolve()
+    grid_hash = hashlib.md5(grid_path_obj.read_bytes()).hexdigest()
+    fktable.set_metadata("grid_hash", grid_hash)
+    fktable.set_metadata("grid_theory", grid_path_obj.parent.name)
+    fktable.set_metadata("grid_name", grid_path_obj.name)
+
+
+def construct_empty_fktable(grid, theory_meta, fktable_path, grid_path=None):
     """Construct and write a structurally valid but numerically empty FK table.
 
     "Empty" means the FK table carries a single trivial order ``(0,0,0,0,0)``
@@ -111,8 +126,7 @@ def construct_empty_fktable(grid, theory_meta, fktable_path):
         scale_funcs=grid.scales,
     )
     fktable = pineappl.fk_table.FkTable(empty_grid)
-    fktable.set_metadata("pineko_version", version.__version__)
-    fktable.set_metadata("theory_card", json.dumps(theory_meta))
+    set_fktable_metadata(fktable, theory_meta, grid_path=grid_path)
     fktable.write_lz4(str(fktable_path))
     return fktable
 
@@ -353,6 +367,7 @@ def evolve_grid(
     assumptions="Nf6Ind",
     comparison_pdfs: Optional[list[str]] = None,
     min_as=None,
+    grid_path: Optional[os.PathLike] = None,
 ):
     """Convolute grid with EKO from file paths.
 
@@ -382,6 +397,8 @@ def evolve_grid(
         if given, a comparison table (with / without evolution) will be printed
     min_as: None or int
         minimum power of strong coupling
+    grid_path : str or os.PathLike or None
+        path to the grid file, used to store grid hash metadata
 
     Returns
     -------
@@ -399,7 +416,9 @@ def evolve_grid(
     # A grid with no orders is a valid input for some workflows. In that case we
     # cannot build evolution kinematics, so we directly emit an empty FK table.
     if len(grid.orders()) == 0:
-        fktable = construct_empty_fktable(grid, theory_meta, fktable_path)
+        fktable = construct_empty_fktable(
+            grid, theory_meta, fktable_path, grid_path=grid_path
+        )
         return grid, fktable, None
 
     order_mask = pineappl.boc.Order.create_mask(grid.orders(), max_as, max_al, True)
@@ -423,7 +442,9 @@ def evolve_grid(
     # `XGrid` requires at least 2 points, otherwise it panics. In this case, we
     # simply return an empty FK table instead.
     if (len(x_grid) < 2) or (len(muf2_grid) == 0) or (len(mur2_grid) == 0):
-        fktable = construct_empty_fktable(grid, theory_meta, fktable_path)
+        fktable = construct_empty_fktable(
+            grid, theory_meta, fktable_path, grid_path=grid_path
+        )
         return grid, fktable, None
 
     xif = 1.0 if operators[0].operator_card.configs.scvar_method is not None else xif
@@ -507,8 +528,7 @@ def evolve_grid(
             f"eko_operator_card{suffix}", json.dumps(operator.operator_card.raw)
         )
 
-    fktable.set_metadata("pineko_version", version.__version__)
-    fktable.set_metadata("theory_card", json.dumps(theory_meta))
+    set_fktable_metadata(fktable, theory_meta, grid_path=grid_path)
 
     # compare before/after
     comparison = None
