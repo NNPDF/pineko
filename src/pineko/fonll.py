@@ -326,7 +326,8 @@ def produce_combined_fk(
     )
     update_fk_theorycard(combined_fk, input_theorycard_path)
     grid_hash = " ".join(
-        f"{idx:02d}-{fk.metadata['grid_hash']}" for idx, fk in enumerate(fk_dict.values())
+        f"{idx:02d}-{fk.metadata['grid_hash']}"
+        for idx, fk in enumerate(fk_dict.values())
     )
     combined_fk.set_metadata("grid_hash", grid_hash)
     combined_fk.set_metadata("grid_theory", str(theoryid))
