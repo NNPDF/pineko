@@ -275,6 +275,7 @@ def write_operator_card(
     # setting the parameters from the cli
     operators_card["configs"]["interpolation_polynomial_degree"] = ipd
     operators_card["configs"]["interpolation_is_log"] = iil
+    operators_card["configs"]["n_integration_cores"] = 1
     if opcard_template.CONSTANTS["init"] is not None and opcard_template.CONSTANTS[
         "init"
     ] != (
