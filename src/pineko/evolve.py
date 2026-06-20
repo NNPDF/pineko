@@ -27,6 +27,16 @@ from . import check, comparator, version
 
 logger = logging.getLogger(__name__)
 
+# EKO marks any heavy quark flavor with index > nf as "intrinsic" (i.e. frozen,
+# identity-evolved) at every scale. However, intrinsic bottom and top must never
+# leak into the FK table, so their flavor-basis columns are masked whenever EKO
+# would otherwise treat them as intrinsic (flavor index > nf). Charm is excluded
+# here, since intrinsic charm is the supported feature.
+_INTRINSIC_HEAVY_FLAVOR_IDX = {
+    5: tuple(basis_rotation.flavor_basis_pids.index(pid) for pid in (-5, 5)),
+    6: tuple(basis_rotation.flavor_basis_pids.index(pid) for pid in (-6, 6)),
+}
+
 
 def sv_scheme(tcard):
     """Infere the factorization scale_variation scheme to be used from the theory card.
@@ -479,7 +489,7 @@ def evolve_grid(
 
     def prepare(operator, convolution_types):
         """Match the raw operator with its relevant metadata."""
-        for (q2, _), op in operator.items():
+        for (q2, nf), op in operator.items():
             # reshape the x-grid output
             op = manipulate.xgrid_reshape(
                 op,
@@ -487,6 +497,11 @@ def evolve_grid(
                 opcard.configs.interpolation_polynomial_degree,
                 targetgrid=XGrid(x_grid),
             )
+            # mask out intrinsic bottom/top before they get mixed into the
+            # evolution basis by `to_evol`
+            for intr_fl, flavor_idx in _INTRINSIC_HEAVY_FLAVOR_IDX.items():
+                if intr_fl > nf:
+                    op.operator[:, :, flavor_idx, :] = 0.0
             # rotate the input to evolution basis
             op = manipulate.to_evol(op, source=True)
             check.check_grid_and_eko_compatible(grid, x_grid, q2, xif, max_as, max_al)
