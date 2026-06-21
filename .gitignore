@@ -133,3 +133,6 @@ dmypy.json
 # Benchmark files
 benchmarks/data_files
 benchmarks/fakepdfs
+# pixi environments
+.pixi/*
+!.pixi/config.toml

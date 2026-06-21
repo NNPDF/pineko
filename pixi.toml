@@ -1,0 +1,13 @@
+[workspace]
+authors = ["Tanjona R. Rabemananjara <tanjona.hepc@gmail.com>"]
+channels = ["conda-forge"]
+name = "pineko"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = "3.13.*"
+lhapdf = ">=6.5.6,<7"
+pip = ">=26.1.2,<27"

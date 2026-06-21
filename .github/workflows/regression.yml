@@ -16,6 +16,12 @@ jobs:
         with:
           # tags needed for dynamic versioning
           fetch-depth: 0
+      - name: Setup pixi 📦
+        uses: prefix-dev/setup-pixi@v0.8.8
+        with:
+          pixi-version: v0.65.0
+          cache: true
+          activate-environment: true
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
         with:
