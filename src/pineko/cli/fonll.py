@@ -76,7 +76,10 @@ def tcards(theoryid):
 @click.argument("theoryID", type=click.INT)
 @click.argument("datasets", type=click.STRING, nargs=-1)
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
-def ekos(theoryid, datasets, overwrite):
+@click.option(
+    "--int-cores", default=1, show_default=True, help="number of integration cores"
+)
+def ekos(theoryid, datasets, overwrite, int_cores, ipd=4, iil=True):
     """Command to generate numerical FONLL ekos.
 
     1. Create all the operator cards for the different flavor patches.
@@ -87,7 +90,7 @@ def ekos(theoryid, datasets, overwrite):
     for nf_id in range(7):
         theory.TheoryBuilder(
             f"{theoryid}0{nf_id}", datasets, overwrite=overwrite
-        ).opcards()
+        ).opcards(ipd=ipd, iil=iil)
 
     # Most of the time only these 3 patches are necessary
     for nf_id in ["00", "04", "05"]:
@@ -98,7 +101,7 @@ def ekos(theoryid, datasets, overwrite):
             silent=False,
             clear_logs=True,
             overwrite=overwrite,
-        ).ekos()
+        ).ekos(int_cores=int_cores)
 
     # Now _attempt_ to inherit the ekos
     # _if_ a discrepancy is found between the eko and the grid, recompute

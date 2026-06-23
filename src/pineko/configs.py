@@ -16,13 +16,11 @@ THEORY_PATH_KEY = "theory_cards"
 NEEDED_KEYS = [
     "operator_cards",
     "grids",
-    "operator_card_template_name",
     THEORY_PATH_KEY,
     "fktables",
     "ekos",
 ]
 
-NEEDED_FILES = ["operator_card_template_name"]
 GENERIC_OPTIONS = "general"
 
 
@@ -87,8 +85,6 @@ def enhance_paths(configs_):
     for key in required_keys:
         if key not in configs_["paths"]:
             raise ValueError(f"Configuration is missing a 'paths.{key}' key")
-        if key in NEEDED_FILES:
-            continue
         if pathlib.Path(configs_["paths"][key]).anchor == "":
             configs_["paths"][key] = configs_["paths"]["root"] / configs_["paths"][key]
         else:

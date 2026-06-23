@@ -123,7 +123,7 @@ def benchmark_eko(test_files, test_configs):
     )
     theory_obj_hera.opcard(grid_name, pathlib.Path(test_files / grid_path), tcard)
 
-    theory_obj_hera.eko(grid_name, grid_path, tcard)
+    theory_obj_hera.eko(grid_name, grid_path, tcard, int_cores=1)
 
     log_path = pathlib.Path(test_files / "logs/eko/400-HERA_NC_225GEV_EP_SIGMARED.log")
     if os.path.exists(log_path):

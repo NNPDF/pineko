@@ -3,7 +3,6 @@
 ymldb = "data/ymldb"
 grids = "data/grids"
 theory_cards = "data/theory_cards"
-operator_card_template_name = "_template.yaml"
 # outputs
 operator_cards = "data/operator_cards"
 ekos = "data/ekos"

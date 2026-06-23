@@ -19,7 +19,6 @@ def test_check_folder(fake_configs_incomplete, fake_configs):
     assert [
         "operator_cards",
         "grids",
-        "operator_card_template_name",
         "theory_cards",
         "fktables",
         "ekos",

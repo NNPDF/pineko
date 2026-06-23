@@ -284,7 +284,7 @@ class TheoryBuilder:
                 f(name, grid, **kwargs)
             rich.print()
 
-    def opcard(self, name, grid, tcard):
+    def opcard(self, name, grid, tcard, ipd=4, iil=True):
         """Write a single operator card.
 
         Parameters
@@ -306,25 +306,27 @@ class TheoryBuilder:
                 return
         _x_grid, q2_grid = evolve.write_operator_card_from_file(
             grid,
-            self.operator_cards_path
-            / configs.configs["paths"]["operator_card_template_name"],
             opcard_path,
             tcard,
+            ipd,
+            iil,
         )
 
-    def opcards(self):
+    def opcards(self, ipd=4, iil=True):
         """Write operator cards."""
         tcard = theory_card.load(self.theory_id)
         self.operator_cards_path.mkdir(exist_ok=True)
-        self.iterate(self.opcard, tcard=tcard)
+        self.iterate(self.opcard, tcard=tcard, ipd=ipd, iil=iil)
 
-    def load_operator_card(self, name):
+    def load_operator_card(self, name, int_cores=1):
         """Read current operator card.
 
         Parameters
         ----------
         name : str
             grid name, i.e. it's true stem
+        int_cores:
+            number of integration cores, taken from cli
 
         Returns
         -------
@@ -334,6 +336,7 @@ class TheoryBuilder:
         opcard_path = self.operator_cards_path / f"{name}.yaml"
         with open(opcard_path, encoding="utf-8") as f:
             ocard = yaml.safe_load(f)
+            ocard["configs"]["n_integration_cores"] = int_cores
         return ocard
 
     def activate_logging(self, path, filename, activated_loggers=()):
@@ -367,7 +370,7 @@ class TheoryBuilder:
             logger_.setLevel(logging.INFO)
         return True
 
-    def eko(self, name, grid, tcard):
+    def eko(self, name, grid, tcard, int_cores):
         """Compute a single eko.
 
         Parameters
@@ -388,7 +391,7 @@ class TheoryBuilder:
         names = get_eko_names(grid, name)
 
         for name in names:
-            ocard = self.load_operator_card(name)
+            ocard = self.load_operator_card(name, int_cores)
             # For nFONLL mixed prescriptions (such as FONLL-B) the PTO written on
             # the tcard is used to produce the grid by yadism and it might be different
             # from the PTO needed for the PDF evolution (and so by EKO). Here we
@@ -423,11 +426,11 @@ class TheoryBuilder:
             if eko_filename.exists():
                 rich.print(f"[green]Success:[/] Wrote EKO to {eko_filename}")
 
-    def ekos(self):
+    def ekos(self, int_cores=1):
         """Compute all ekos."""
         tcard = theory_card.load(self.theory_id)
         self.ekos_path().mkdir(exist_ok=True)
-        self.iterate(self.eko, tcard=tcard)
+        self.iterate(self.eko, tcard=tcard, int_cores=int_cores)
 
     def fk(self, name, grid_path, tcard, pdfs):
         """Compute a single FK table.
