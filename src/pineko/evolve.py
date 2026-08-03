@@ -296,7 +296,7 @@ def write_operator_card(
         tcard["Q0"],
         tcard["nf0"],
     ):
-        raise logger.warning(
+        logger.warning(
             f"Warning! Q0 and nf0 from your theory are different "
             f"than default settings ({tcard['Q0']}, {tcard['nf0']} vs "
             f"{opcard_template.CONSTANTS['init']}). Check if this is really what you want!"
