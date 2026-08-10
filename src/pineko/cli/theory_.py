@@ -91,12 +91,18 @@ def inherit_ekos(source_theory_id, target_theory_id, datasets, overwrite):
     help="Erease previos logs (instead of appending)",
 )
 @click.option("--overwrite", is_flag=True, help="Allow files to be overwritten")
-def fks(theory_id, datasets, pdfs, silent, clear_logs, overwrite):
+@click.option(
+    "--separate-cfactor",
+    default=None,
+    type=click.STRING,
+    help="PDF set to compute a separate C-factor file (NNLO / NLO)",
+)
+def fks(theory_id, datasets, pdfs, silent, clear_logs, overwrite, separate_cfactor):
     """Compute FK tables in all datasets."""
     pdfs = pdfs.split(",") if pdfs is not None else pdfs
     theory.TheoryBuilder(
         theory_id, datasets, silent=silent, clear_logs=clear_logs, overwrite=overwrite
-    ).fks(pdfs)
+    ).fks(pdfs, separate_cfactor=separate_cfactor)
 
 
 @theory_.command()

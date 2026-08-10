@@ -8,6 +8,7 @@ commonly referred to as 'theory'.
 
 import logging
 import time
+from datetime import date
 
 import eko
 import numpy as np
@@ -432,7 +433,7 @@ class TheoryBuilder:
         self.ekos_path().mkdir(exist_ok=True)
         self.iterate(self.eko, tcard=tcard, int_cores=int_cores)
 
-    def fk(self, name, grid_path, tcard, pdfs):
+    def fk(self, name, grid_path, tcard, pdfs, separate_cfactor=None):
         """Compute a single FK table.
 
         Parameters
@@ -445,6 +446,9 @@ class TheoryBuilder:
             theory card
         pdfs : list[str]
             list of PDF set for comparisons
+        separate_cfactor : str or None
+            if present, a c-factor will be computed using the given PDF
+            which will be written to a separate file. The FkTable will be NLO.
         """
         # activate logging
         paths = configs.configs["paths"]
@@ -485,6 +489,10 @@ class TheoryBuilder:
             grid.convolutions,
         ):
             max_as += 1
+
+        # When computing separate C-factor, FK table is produced at NLO only
+        if separate_cfactor is not None:
+            max_as = 2
 
         # NB: This would not happen for nFONLL
         max_al = 0
@@ -588,17 +596,23 @@ class TheoryBuilder:
         if fk_filename.exists():
             rich.print(f"[green]Success:[/] Wrote FK table to {fk_filename}")
 
-    def fks(self, pdfs):
+        if separate_cfactor is not None:
+            self._compute_cfactor(name, grid, separate_cfactor, max_as, max_al)
+
+    def fks(self, pdfs, separate_cfactor=None):
         """Compute all FK tables.
 
         Parameters
         ----------
         pdfs : list(str)
             list of PDF sets to be used for the comparisons
+        separate_cfactor : str or None
+            if given, the PDF set name to use for computing the C-factor
+            (grid @ NNLO / grid @ NLO) and writing it to a separate file
         """
         tcard = theory_card.load(self.theory_id)
         self.fks_path.mkdir(exist_ok=True)
-        self.iterate(self.fk, tcard=tcard, pdfs=pdfs)
+        self.iterate(self.fk, tcard=tcard, pdfs=pdfs, separate_cfactor=separate_cfactor)
 
     def construct_ren_sv_grids(self, flavors):
         """Construct renormalization scale variations terms for all the grids in a dataset."""
@@ -610,3 +624,76 @@ class TheoryBuilder:
         max_as = int(tcard["PTO"])
         rich.print(f"Computing renormalization scale variations for {name}")
         scale_variations.compute_ren_sv_grid(grid_path, max_as, flavors)
+
+    def _compute_cfactor(self, name, grid, pdf_name, max_as, max_al):
+        """Compute C-factor as grid @ NNLO / grid @ NLO and write to file.
+
+        Parameters
+        ----------
+        name : str
+            grid name, i.e. it's true stem
+        grid : pineappl.grid.Grid
+            the unconvolved grid
+        pdf_name : str
+            PDF set name for computing the predictions
+        max_as : int
+            maximum power of strong coupling used in the FK table
+        max_al : int
+            maximum power of electro-weak coupling used in the FK table
+        """
+        import lhapdf  # pylint: disable=import-error,import-outside-toplevel
+
+        # C-factor is NNLO / NLO
+        # In pineappl conventions: NLO = max_as=2, NNLO = max_as=3
+        grid_orders = grid.orders()
+
+        nnlo_mask = pineappl.boc.Order.create_mask(grid_orders, 3, max_al, True)
+        nlo_mask = pineappl.boc.Order.create_mask(grid_orders, 2, max_al, True)
+
+        # Check whether there is any NNLO actually in the grid
+        nnlo_only = np.array(nnlo_mask) & ~np.array(nlo_mask)
+        if not nnlo_only.any():
+            logger.warning("No NNLO orders in grid {name}, skipping C-factor")
+            return
+
+        # Load the PDF and compute the predictions at NLO and NNLO for the central scale
+        pdf = lhapdf.mkPDF(pdf_name, 0)
+        scales = (1.0, 1.0, 1.0)
+
+        predictions_nlo = grid.convolve(
+            pdg_convs=grid.convolutions,
+            xfxs=[pdf.xfxQ2],
+            alphas=pdf.alphasQ2,
+            order_mask=nlo_mask,
+            xi=[scales],
+        )
+        predictions_nnlo = grid.convolve(
+            pdg_convs=grid.convolutions,
+            xfxs=[pdf.xfxQ2],
+            alphas=pdf.alphasQ2,
+            order_mask=nnlo_mask,
+            xi=[scales],
+        )
+
+        nlo_array = np.array(predictions_nlo)
+        nnlo_array = np.array(predictions_nnlo)
+
+        with np.errstate(divide="ignore", invalid="ignore"):
+            cfactor = np.where(nlo_array != 0, nnlo_array / nlo_array, np.nan)
+
+        # The cfactor is written in the fk directory with the NNPDF format
+        cfactor_path = self.fks_path / f"CF_QCD_{name}.dat"
+        separator = "*" * 80
+        with open(cfactor_path, "w", encoding="utf-8") as f:
+            f.write(f"{separator}\n")
+            f.write(f"SetName:     {name}\n")
+            f.write("Author:      AUTHOR\n")
+            f.write(f"Date:        {date.today():%B %Y}\n")
+            f.write("CodesUsed:   pineko\n")
+            f.write(f"TheoryInput: {self.theory_id}\n")
+            f.write(f"PDFset:      {pdf_name}\n")
+            f.write(f"{separator}\n")
+            for val in cfactor:
+                f.write(f"{val:.5f} 0.00000\n")
+
+        rich.print(f"[green]Success:[/] Wrote C-factor to {cfactor_path}")

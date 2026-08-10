@@ -475,6 +475,16 @@ def evolve_grid(
     def prepare(operator, convolution_types):
         """Match the raw operator with its relevant metadata."""
         for (q2, _), op in operator.items():
+            # This check allows the user to generate an EKO with the NXLO grid
+            # and then apply it to the NYLO with Y < X
+            # For instance, the EKO generated with the full NNLO grid but then
+            # used against the LO coefficient.
+            q2_is_required = check.in1d(
+                np.array([q2]), xif * xif * np.asarray(muf2_grid)
+            )[0]
+            if not q2_is_required:
+                continue
+
             # reshape the x-grid output
             op = manipulate.xgrid_reshape(
                 op,

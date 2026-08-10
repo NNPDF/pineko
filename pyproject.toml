@@ -7,14 +7,7 @@ name = "pineko"
 version = "0.0.0"
 description = "Combine PineAPPL grids and EKOs into FK tables"
 readme = "README.md"
-authors = [
-  "Alessandro Candido <alessandro.candido@mi.infn.it>",
-  "Andrea Barontini <andrea.barontini@mi.infn.it>",
-  "Felix Hekhorn <felix.hekhorn@mi.infn.it>",
-  "Giacomo Magni <gmagni@nikhef.nl>",
-  "Roy Stegeman <r.stegeman@ed.ac.uk>",
-  "Juan Cruz-Martinez <juacrumar@lairen.eu>",
-]
+authors = ["NNPDF collaboration"]
 classifiers = [
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
@@ -22,11 +15,11 @@ classifiers = [
   "Topic :: Scientific/Engineering :: Physics",
   "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
 ]
-repository = "https://github.com/N3PDF/pineko"
+repository = "https://github.com/NNPDF/pineko"
 packages = [{ include = "pineko", from = "src" }]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.14"
+python = ">=3.10,<3.15"
 eko = "^0.15.3"
 pineappl = "^1.4.0"
 PyYAML = "^6.0"
