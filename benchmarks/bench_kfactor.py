@@ -1,4 +1,4 @@
-import lhapdf
+from neopdf.pdf import PDF as lhapdf
 import numpy as np
 import pineappl
 

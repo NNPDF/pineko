@@ -331,7 +331,7 @@ def apply_to_dataset(
     order_exists: bool
         True if the order to update is already present
     """
-    import lhapdf  # pylint: disable=import-error,import-outside-toplevel
+    from neopdf.pdf import PDF as lhapdf # pylint: disable=import-error,no-name-in-module
 
     # Extracting info from yaml file
     grid_list = utils.read_grids_from_nnpdf(dataset, configs.configs)

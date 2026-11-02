@@ -45,7 +45,7 @@ def test_pdf():
 def lhapdf_path():
     @contextmanager
     def wrapped(newdir):
-        import lhapdf  # pylint: disable=import-error, import-outside-toplevel
+        from neopdf.pdf import PDF as lhapdf
 
         paths = lhapdf.paths()
         lhapdf.pathsPrepend(str(newdir))
