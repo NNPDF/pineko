@@ -45,7 +45,7 @@ def compare(
     df : pd.DataFrame
         comparison table
     """
-    from neopdf.pdf import PDF as lhapdf
+    from neopdf.pdf import PDF as lhapdf # pylint: disable=import-error,no-name-in-module
 
     pdfsets = [lhapdf.mkPDF(pdf, 0) for pdf in pdfs]
 
