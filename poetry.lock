@@ -69,14 +69,14 @@ dev = ["backports.zoneinfo ; python_version < \"3.9\"", "freezegun (>=1.0,<2.0)"
 
 [[package]]
 name = "banana-hep"
-version = "0.6.17"
+version = "0.6.18"
 description = "Benchmark QCD physics"
 optional = false
-python-versions = "<4.0,>=3.9"
+python-versions = "<4.0,>=3.11"
 groups = ["test"]
 files = [
-    {file = "banana_hep-0.6.17-py3-none-any.whl", hash = "sha256:2a0e370ed4cd8e62923d50cd7c963ddb21cb705e1b408c051c70a001961717b0"},
-    {file = "banana_hep-0.6.17.tar.gz", hash = "sha256:aabfe4f37baf40fb3ebeed85805424d6d8de446448dd0c0e75535bd8f42086ef"},
+    {file = "banana_hep-0.6.18-py3-none-any.whl", hash = "sha256:66a5c07db000af62c58e2de7207646354d47cc9f50ec493d2760631fcc950edd"},
+    {file = "banana_hep-0.6.18.tar.gz", hash = "sha256:241933be38c32e3f1d004523e8ff891744b3fcfe9c9877b6d2f87cc60777c3bb"},
 ]
 
 [package.dependencies]
@@ -1632,6 +1632,46 @@ files = [
 ]
 
 [[package]]
+name = "neopdf-hep"
+version = "0.4.0"
+description = ""
+optional = true
+python-versions = ">=3.7"
+groups = ["main"]
+files = [
+    {file = "neopdf_hep-0.4.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d7a6e7fd5d744e78fa70b04935012476ee139c064f5f6c67a98fc4e2e92954ba"},
+    {file = "neopdf_hep-0.4.0-cp310-cp310-win_amd64.whl", hash = "sha256:5ee2b983d47bcbfd6496be621cabdd1c9daec5c45b0a39e2f2ca1c55387df7ad"},
+    {file = "neopdf_hep-0.4.0-cp311-cp311-macosx_10_12_x86_64.whl", hash = "sha256:c444c38b537620650b6895086579def43e32be7f8c5f9452cc6119aab39af025"},
+    {file = "neopdf_hep-0.4.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:01b2b50b878114a9bf492dca584598747a839faf252a957719202196774f4137"},
+    {file = "neopdf_hep-0.4.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:1ad4618ca53f7f5f37ec1e421abc76383b08a3ee605d346ccf7a346f26e79766"},
+    {file = "neopdf_hep-0.4.0-cp311-cp311-win_amd64.whl", hash = "sha256:5b196fd03d11cb79088a82bd391fc757b7d56ea00232d83de1414b5bf783878f"},
+    {file = "neopdf_hep-0.4.0-cp312-cp312-macosx_10_12_x86_64.whl", hash = "sha256:cf35e4e39fd21dc3d34b35af536f09ebe1da8966370e4a4d9a2528df3884c216"},
+    {file = "neopdf_hep-0.4.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:44eeeea1175b8511b8fe8c0f96adfa366d48001f43887a2110493c20a6624bf6"},
+    {file = "neopdf_hep-0.4.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e9d1d6cbd764068f066bcd0079e9f11b6b6edf63b870a6f7d18ea4ecd438eb34"},
+    {file = "neopdf_hep-0.4.0-cp312-cp312-win_amd64.whl", hash = "sha256:bd49c7acfbc479db4799d61c8e1a8859f9a0b0ec1ed692374cc229f227c2cdad"},
+    {file = "neopdf_hep-0.4.0-cp313-cp313-macosx_10_12_x86_64.whl", hash = "sha256:0b8a0581793080ed28572b4c2b84324e01041e1a6eb727cf3ffabd2ff5f66c94"},
+    {file = "neopdf_hep-0.4.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:8c48cdce5b1bdb73f1cbe078e69fd5c3eb2510c0180aa10aa2a81a41d0d9c487"},
+    {file = "neopdf_hep-0.4.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a738a21e197eb418e5feba0e7281f1e00ac8e4c8a7081caf5f2d7913a78f37c9"},
+    {file = "neopdf_hep-0.4.0-cp313-cp313-win_amd64.whl", hash = "sha256:7b4d97b4bec44fd71cf9795c39c42442e74e6143b3e2cb1fd4c3a272735c65e3"},
+    {file = "neopdf_hep-0.4.0-cp314-cp314-macosx_10_12_x86_64.whl", hash = "sha256:621fb02bcaeddd339fe36517f322e5f2dadac4df9989421920d83b882e050737"},
+    {file = "neopdf_hep-0.4.0-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:333c9d9e5e4465d840f5f6661878ffdae6fd0f96138a05cde7c0fec9278849aa"},
+    {file = "neopdf_hep-0.4.0-cp314-cp314-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:fb415285342d87d1dc541a4f65d4a2862c73f2241efa91cee80142a5bca342b3"},
+    {file = "neopdf_hep-0.4.0-cp314-cp314-win_amd64.whl", hash = "sha256:de33617d2bf978ff9df62c5615dfdb69dfc51817177d8c414401a8c3824ec59d"},
+    {file = "neopdf_hep-0.4.0-cp314-cp314t-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:aaf0fbbff0394524056482013405bc7fe3f448200fa5c68cd7e32a1502e008f3"},
+    {file = "neopdf_hep-0.4.0-cp315-cp315-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3eaf4159b2a3049100f673d3fba8e02b243e38f18a92ddd687d26d64fa273907"},
+    {file = "neopdf_hep-0.4.0-cp315-cp315t-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3c83c7b7c5d9fc6e81c2a411a6f7035a901d9b470216eb78af81387dfee36a71"},
+    {file = "neopdf_hep-0.4.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9ad30a8db7ed2956d72c4adc455f031807dfa5604c341d8f9e61705dc868bc1b"},
+    {file = "neopdf_hep-0.4.0-pp311-pypy311_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:6e01da6d987557cb5e62a88b24990387756dff4a61d159d4313e0db779b2dcb5"},
+    {file = "neopdf_hep-0.4.0.tar.gz", hash = "sha256:fb3d184fa518a0fc7d4d39afb7f7e2ead1ab5e1defc3f9a476e78db92e0c8e41"},
+]
+
+[package.dependencies]
+numpy = ">=1.16.0"
+
+[package.extras]
+test = ["matplotlib", "pydantic (>=2.0)", "pytest", "pytest-cov", "pytest-mpl"]
+
+[[package]]
 name = "nnpdf-data"
 version = "4.1.5"
 description = "The NNPDF data repository"
@@ -2295,14 +2335,14 @@ files = [
 
 [[package]]
 name = "platformdirs"
-version = "4.13.6"
+version = "4.14.3"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a `user data dir`."
 optional = false
 python-versions = ">=3.11"
 groups = ["test"]
 files = [
-    {file = "platformdirs-4.13.6-py3-none-any.whl", hash = "sha256:21fc198fb09f3e78cadcdfd8a6ae4fd65cadc64a3cba78b694321c2996114a3e"},
-    {file = "platformdirs-4.13.6.tar.gz", hash = "sha256:211d176e24674b5895dedf9021c262bcf9fad008a70610bfb147d4a8d6d8fe1b"},
+    {file = "platformdirs-4.14.3-py3-none-any.whl", hash = "sha256:cba2d05fe5e18b26b1fa6f376b8e6234c012abe1f8696c486fface7d0054e931"},
+    {file = "platformdirs-4.14.3.tar.gz", hash = "sha256:021add1ab113483edbcd4694f5fbb2d688b893ea30d35e1155bb371cf4be0be8"},
 ]
 
 [[package]]
@@ -2539,30 +2579,29 @@ pytest = ">=2.6.0"
 
 [[package]]
 name = "python-dateutil"
-version = "3.0.0"
+version = "4.0.0"
 description = "Extensions to the standard Python datetime module"
 optional = false
-python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
+python-versions = ">=3.11"
 groups = ["main", "test"]
 files = [
-    {file = "python_dateutil-3.0.0-py2.py3-none-any.whl", hash = "sha256:3c79630202e4152c6add678446984236efe4f57e84d8e892aab0637bab82e9fd"},
-    {file = "python_dateutil-3.0.0.tar.gz", hash = "sha256:7ebcb3c29a92f3ceafe79a7a48a5c45677e9e004bbeec5742ac0bbb00560b7a2"},
+    {file = "python_dateutil-4.0.0-py3-none-any.whl", hash = "sha256:a5e246f79eb80475e691bf93862cead98decd8a498cf53ba0516fcdc0f50dc1c"},
+    {file = "python_dateutil-4.0.0.tar.gz", hash = "sha256:d7295ff14fdc0f92f662100bfb6c551d160ca090f2939f1ec5b9794265c03f06"},
 ]
 
 [package.dependencies]
-six = ">=1.6"
 tzdata = "*"
 
 [[package]]
 name = "pytz"
-version = "2026.5"
+version = "2026.6"
 description = "World timezone definitions, modern and historical"
 optional = false
 python-versions = "*"
 groups = ["main", "test"]
 files = [
-    {file = "pytz-2026.5-py2.py3-none-any.whl", hash = "sha256:e658af3757f9e26a9d25dd2aff38335acd92bc9104f890a894b2c1ba28311b03"},
-    {file = "pytz-2026.5.tar.gz", hash = "sha256:fa23724b9c486543b9ff54a327ee7569ac83ade54bb9afd0fc18676620401c86"},
+    {file = "pytz-2026.6-py2.py3-none-any.whl", hash = "sha256:7fed3fee8fd6bd4a2b7b75a8d56021d0624127bf69bd5691f115db929ac570b3"},
+    {file = "pytz-2026.6.tar.gz", hash = "sha256:3b0fc2727707663d6e517936f444fd8a8b240f1fc32f4bf7ee03274245945284"},
 ]
 
 [[package]]
@@ -2901,18 +2940,6 @@ files = [
 docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (>=1,<2)", "sphinx-reredirects", "sphinxcontrib-towncrier"]
 testing = ["build[virtualenv]", "filelock (>=3.4.0)", "importlib-metadata", "ini2toml[lite] (>=0.9)", "jaraco.develop (>=7.21) ; python_version >= \"3.9\" and sys_platform != \"cygwin\"", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "mypy (==1.9)", "packaging (>=23.2)", "pip (>=19.1)", "pytest (>=6,!=8.1.1)", "pytest-checkdocs (>=2.4)", "pytest-cov ; platform_python_implementation != \"PyPy\"", "pytest-enabler (>=2.2)", "pytest-home (>=0.5)", "pytest-mypy", "pytest-perf ; sys_platform != \"cygwin\"", "pytest-ruff (>=0.2.1) ; sys_platform != \"cygwin\"", "pytest-timeout", "pytest-xdist (>=3)", "tomli", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel"]
 testing-integration = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "packaging (>=23.2)", "pytest", "pytest-enabler", "pytest-xdist", "tomli", "virtualenv (>=13.0.0)", "wheel"]
-
-[[package]]
-name = "six"
-version = "1.17.0"
-description = "Python 2 and 3 compatibility utilities"
-optional = false
-python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
-groups = ["main", "test"]
-files = [
-    {file = "six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274"},
-    {file = "six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81"},
-]
 
 [[package]]
 name = "snowballstemmer"
@@ -3332,14 +3359,14 @@ files = [
 
 [[package]]
 name = "tzdata"
-version = "2026.5"
+version = "2026.6"
 description = "Provider of IANA time zone data"
 optional = false
 python-versions = ">=2"
 groups = ["main", "test"]
 files = [
-    {file = "tzdata-2026.5-py2.py3-none-any.whl", hash = "sha256:b683bd1b6659ddcd810ff02ad09ba821d4bf1065072805063eb35c49617905ac"},
-    {file = "tzdata-2026.5.tar.gz", hash = "sha256:8cc73c0a0bfca7dbfa59235d60b2eff82231dee33f53d206db1acd9173cfc0a7"},
+    {file = "tzdata-2026.6-py2.py3-none-any.whl", hash = "sha256:0a10eec6e13ef16b627fabed9a5f2ba61a62b1c67f327305f4e7e412a70b4aec"},
+    {file = "tzdata-2026.6.tar.gz", hash = "sha256:85d2cd9c09f81f0bb29db27759fc83af4f1e620efb814f8c5bf8b4cc4feece6d"},
 ]
 
 [[package]]
@@ -3423,4 +3450,4 @@ nnpdf = ["nnpdf-data"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.15"
-content-hash = "aa0aeddb7286f7522042555038862db4d3f4710307c0566ad7d0c358fe3c1f17"
+content-hash = "f4a194007ab1b0be6219daaa5a4372e65c75d756d23cc9c0d7164e38691b3cb8"
