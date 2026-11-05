@@ -327,10 +327,14 @@ def write_operator_card(
     # Choose the evolution method according to the theory if the key is included
     if "ModEv" not in tcard:
         raise ValueError("Evolution method not set in theory card")
-    if "IterEv" not in tcard and "ModEv" == "EXA":
+    if "IterEv" not in tcard and tcard["ModEv"] == "EXA":
         raise ValueError("EXA used but IterEv not found in the theory card")
 
     if tcard["ModEv"] == "TRN":
+        if tcard.get("IterEv", 1) > 1:
+            raise ValueError(
+                f"Truncated evolution method does not support number of iterations > 1, but IterEv={tcard['IterEv']} was specified in theory card"
+            )
         operators_card["configs"]["evolution_method"] = "truncated"
         # TODO: we impose a default for ev_op_iterations and inversion_method
         # now, but we may at later point allow the user to choose (e.g. via CLI)
@@ -340,6 +344,8 @@ def write_operator_card(
         operators_card["configs"]["evolution_method"] = "iterate-exact"
         operators_card["configs"]["ev_op_iterations"] = tcard["IterEv"]
         operators_card["configs"]["inversion_method"] = "exact"
+    else:
+        raise ValueError(f"Unknown or unsupported evolution method: '{tcard['ModEv']}'")
 
     # Get the types of convolutions required for this Grid
     convolutions = pineappl_grid.convolutions
