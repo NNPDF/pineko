@@ -1,10 +1,14 @@
 """Tools to compare grids and FK tables."""
 
+import logging
+
 import numpy as np
 import pandas as pd
 import pineappl
 
 from .check import is_dis
+
+logger = logging.getLogger(__name__)
 
 
 class GridtoFKError(Exception):
@@ -105,7 +109,7 @@ def compare(
         else df
     )
     if (check_df["permille_error"].abs() >= threshold).any():
-        print(check_df)
+        logger.error("\n%s", check_df)
         raise GridtoFKError(
             f"The difference between the Grid and FK is above {threshold} permille."
         )

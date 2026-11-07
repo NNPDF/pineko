@@ -77,7 +77,7 @@ def check_folders(configs):
         elif not configs["paths"][key].exists():
             wrong_folders[key] = configs["paths"][key]
     if "logs" not in configs["paths"]:
-        print("WARNING: logs folder is not spelled out in the config file")
+        logger.warning("logs folder is not spelled out in the config file")
     else:
         wrong_folders["logs"] = {}
         for key, folder in configs["paths"]["logs"].items():

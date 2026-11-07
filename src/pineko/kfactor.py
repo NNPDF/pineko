@@ -4,10 +4,12 @@ import io
 
 import numpy as np
 import pineappl
-import rich
+import logging
 
 from . import configs, fonll, scale_variations, utils
 from .scale_variations import orders_as_tuple
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_PDF_SET = "NNPDF40_nnlo_as_01180"
 
@@ -233,10 +235,10 @@ def apply_to_grid(
 
     # Prevent summing orders incoherently
     if is_in and not order_exists:
-        rich.print("[green] Success: Requested order already in the grid.")
+        logger.info("Requested order already in the grid.")
         return
     if not is_in and order_exists:
-        rich.print("[red] Abort: order exists is True but order not in the grid.")
+        logger.error("Abort: order exists is True but order not in the grid.")
         return
 
     # loop on all the order to update
@@ -277,18 +279,16 @@ def to_list(grid, central_kfactors):
         list of kfactor for each point
     """
     if grid.bins() == len(central_kfactors):
-        rich.print("The number of bins match the length of the kfactor.")
+        logger.info("The number of bins match the length of the kfactor.")
         return central_kfactors
     if grid.bins() < len(central_kfactors):
-        rich.print(
-            "[yellow] The number of bins is less than the length of the kfactor."
-        )
+        logger.warning("The number of bins is less than the length of the kfactor.")
         if not len(np.unique(central_kfactors)) == 1:
             # This case is actually wrong.
             raise ValueError("kfactor contains too many different values.")
         return central_kfactors
 
-    rich.print("[yellow] The number of bins is more than the length of the kfactor.")
+    logger.warning("The number of bins is more than the length of the kfactor.")
 
     # This is the last case in which grid.bins() > len(centrals_kfactor)
     # Note that sometimes there are more bins in the grid than in the kfactor file -

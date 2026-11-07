@@ -12,7 +12,6 @@ import time
 import eko
 import numpy as np
 import pineappl
-import rich
 import yaml
 from eko.runner.managed import solve
 
@@ -199,13 +198,13 @@ class TheoryBuilder:
         new = other / f"{name}.{parser.EXT}"
         if new.exists():
             if not self.overwrite:
-                rich.print(f"Skipping existing grid {new}")
+                logger.info("Skipping existing grid %s", new)
                 return
             new.unlink()
         # link
         new.symlink_to(grid)
         if new.exists():
-            rich.print(f"[green]Success:[/] Created link at {new}")
+            logger.info("Created link at %s", new)
 
     def inherit_grids(self, target_theory_id):
         """Inherit grids to a new theory.
@@ -245,13 +244,13 @@ class TheoryBuilder:
             new = other / f"{name}.tar"
             if new.exists():
                 if not self.overwrite:
-                    rich.print(f"Skipping existing eko {new}")
+                    logger.info("Skipping existing eko %s", new)
                     return
                 new.unlink()
             # link
             new.symlink_to(eko_path)
             if new.exists():
-                rich.print(f"[green]Success:[/] Created link at {new}")
+                logger.info("Created link at %s", new)
 
     def inherit_ekos(self, target_theory_id, careful=False):
         """Inherit ekos to a new theory.
@@ -278,11 +277,10 @@ class TheoryBuilder:
             iterated callable recieving name and grid as argument
         """
         for ds in self.datasets:
-            rich.print(f"Analyze {ds}")
+            logger.info("Analyze %s", ds)
             grids = self.load_grids(ds)
             for name, grid in grids.items():
                 f(name, grid, **kwargs)
-            rich.print()
 
     def opcard(self, name, grid, tcard, ipd=4, iil=True):
         """Write a single operator card.
@@ -302,7 +300,7 @@ class TheoryBuilder:
         opcard_path = self.operator_cards_path / f"{name}.yaml"
         if opcard_path.exists():
             if not self.overwrite:
-                rich.print(f"Skipping existing operator card {opcard_path}")
+                logger.info("Skipping existing operator card %s", opcard_path)
                 return
         _x_grid, q2_grid = evolve.write_operator_card_from_file(
             grid,
@@ -410,7 +408,7 @@ class TheoryBuilder:
             eko_filename = self.ekos_path() / f"{name}.tar"
             if eko_filename.exists():
                 if not self.overwrite:
-                    rich.print(f"Skipping existing operator {eko_filename}")
+                    logger.info("Skipping existing operator %s", eko_filename)
                     return
                 eko_filename.unlink()
             # do it!
@@ -424,7 +422,7 @@ class TheoryBuilder:
                 time.perf_counter() - start_time,
             )
             if eko_filename.exists():
-                rich.print(f"[green]Success:[/] Wrote EKO to {eko_filename}")
+                logger.info("Wrote EKO to %s", eko_filename)
 
     def ekos(self, int_cores=1):
         """Compute all ekos."""
@@ -476,7 +474,7 @@ class TheoryBuilder:
         fk_filename = self.fks_path / f"{name}.{parser.EXT}"
         if fk_filename.exists():
             if not self.overwrite:
-                rich.print(f"Skipping existing FK Table {fk_filename}")
+                logger.info("Skipping existing FK Table %s", fk_filename)
                 return
         max_as = 1 + int(tcard["PTO"])
         # Check if we are computing FONLL-B fktable and eventually change max_as
@@ -495,7 +493,7 @@ class TheoryBuilder:
                 pineappl.boc.Order.create_mask(grid.orders(), max_as, max_al, True).size
                 == 0
             ):
-                rich.print("[green] Skipping empty grid.")
+                logger.info("Skipping empty grid")
                 return
 
         # TODO: Add fragmentation scale variations
@@ -504,7 +502,7 @@ class TheoryBuilder:
         with eko.EKO.read(eko_filename[0]) as first_operator:
             # Skip the computation of the fktable if the eko is empty
             if len(first_operator.mu2grid) == 0 and check.is_num_fonll(tcard["FNS"]):
-                rich.print("[green] Skipping empty eko for nFONLL.")
+                logger.info("Skipping empty eko for nFONLL")
                 return
 
             first_eko_tmp_path = (
@@ -538,14 +536,16 @@ class TheoryBuilder:
                 xia,
             )
             start_time = time.perf_counter()
-            rich.print(
-                rich.panel.Panel.fit(
-                    "Computing ...", style="magenta", box=rich.box.SQUARE
-                ),
-                f"   {grid_path}\n",
-                f"+ {eko_filename}\n",
-                f"= {fk_filename}\n",
-                f"with max_as={max_as}, max_al={max_al}, xir={xir}, xif={xif}, xia={xia}",
+            logger.info(
+                "Computing %s + %s = %s with max_as=%d, max_al=%d, xir=%f, xif=%f, xia=%f",
+                grid_path,
+                eko_filename,
+                fk_filename,
+                max_as,
+                max_al,
+                xir,
+                xif,
+                xia,
             )
 
             operators = [first_operator]
@@ -586,7 +586,7 @@ class TheoryBuilder:
                 f"Comparison with PDFs: {comb_pdf_logs}: \n {comparison.to_string()}"
             )
         if fk_filename.exists():
-            rich.print(f"[green]Success:[/] Wrote FK table to {fk_filename}")
+            logger.info("Wrote FK table to %s", fk_filename)
 
     def fks(self, pdfs):
         """Compute all FK tables.
@@ -608,5 +608,5 @@ class TheoryBuilder:
     def construct_ren_sv_grid(self, name, grid_path, tcard, flavors):
         """Construct renormalization scale variations terms for a grid."""
         max_as = int(tcard["PTO"])
-        rich.print(f"Computing renormalization scale variations for {name}")
+        logger.info("Computing renormalization scale variations for %s", name)
         scale_variations.compute_ren_sv_grid(grid_path, max_as, flavors)
