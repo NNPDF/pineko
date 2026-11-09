@@ -45,14 +45,15 @@ def test_pdf():
 def lhapdf_path():
     @contextmanager
     def wrapped(newdir):
-        from neopdf.pdf import PDF as lhapdf
-
-        paths = lhapdf.paths()
-        lhapdf.pathsPrepend(str(newdir))
+        old_path = os.environ.get("NEOPDF_DATA_PATH")
+        os.environ["NEOPDF_DATA_PATH"] = str(newdir)
         try:
             yield
         finally:
-            lhapdf.setPaths(paths)
+            if old_path is None:
+                os.environ.pop("NEOPDF_DATA_PATH", None)
+            else:
+                os.environ["NEOPDF_DATA_PATH"] = old_path
 
     return wrapped
 

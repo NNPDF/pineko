@@ -50,7 +50,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: data_files
-          key: data_files-v5
+          key: data_files-v6
 
       - name: Download data files
         if: steps.cache-data_files.outputs.cache-hit != 'true'
@@ -58,6 +58,8 @@ jobs:
           sh download_test_data.sh
 
       - name: Test with pytest
+        env:
+          NEOPDF_DATA_PATH: ${{ github.workspace }}/benchmarks/fakepdfs
         run: |
           poe bench
 

@@ -331,7 +331,7 @@ def apply_to_dataset(
     order_exists: bool
         True if the order to update is already present
     """
-    from neopdf.pdf import PDF as lhapdf # pylint: disable=import-error,no-name-in-module
+    from neopdf.pdf import PDF as lhapdf  # pylint: disable=import-error,no-name-in-module
 
     # Extracting info from yaml file
     grid_list = utils.read_grids_from_nnpdf(dataset, configs.configs)
@@ -354,7 +354,7 @@ def apply_to_dataset(
 
         central_kfactor, pdf_set = read_from_file(kfactor_path)
         central_kfactor_filtered = to_list(current_grid, central_kfactor)
-        alphas = lhapdf.mkAlphaS(pdf_set)
+        alphas = lhapdf.mkPDF(pdf_set, 0)
 
         apply_to_grid(
             central_kfactor_filtered,
