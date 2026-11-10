@@ -53,7 +53,7 @@ jobs:
           key: data_files-v6
 
       - name: Download data files
-        if: steps.cache-data_files.outputs.cache-hit != 'true'
+        if: steps.cache-data-files.outputs.cache-hit != 'true'
         run: |
           sh download_test_data.sh
 
