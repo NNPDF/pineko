@@ -1,6 +1,6 @@
 # How to Contribute
 
-:tada: Thanks, for considering to contribute to PINEKO!
+:tada: Thanks, for considering to contribute to pineko!
 
 :pray: For the sake of simplicity we switch below to imperative
 language, however, please read a "Please" in front of everything.
@@ -11,6 +11,8 @@ language, however, please read a "Please" in front of everything.
   Conduct](https://github.com/N3PDF/pineko/blob/master/.github/CODE_OF_CONDUCT.md)
   and use the provided [Issue
   Templates](https://github.com/N3PDF/pineko/issues/new/choose)
+- :robot: Follow the policy for AI/LLM contributions of NNPDF - see [here](https://docs.nnpdf.science/contributing/rules.html#llm-usage-guidelines)
+- :1234: Use the _almost_ standard [SemVer](https://semver.org/) for version numbers
 
 ## Tools
 
