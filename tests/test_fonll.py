@@ -124,7 +124,7 @@ def test_theorycard_no_fns_pto_compatible(monkeypatch):
             "PTO": 3,
         }
     )
-    # card3 does not have XIA set (issue #232 / PR #232)
+    # card3 does not have XIA set (see also PR #232)
     card3.pop("XIA", None)
 
     grid1 = FakeGrid(metadata={"theory": json.dumps(card1)})
