@@ -9,7 +9,6 @@ from pathlib import Path
 
 import numpy as np
 import pineappl
-import rich
 import yaml
 
 from . import configs, parser, theory_card
@@ -272,9 +271,7 @@ def assembly_combined_fk(
         new_fk_path = configs.configs["paths"]["fktables"] / str(theoryid) / grid
         if new_fk_path.exists():
             if not overwrite:
-                rich.print(
-                    f"[green]Success:[/] skipping existing FK Table {new_fk_path}"
-                )
+                logger.info("Skipping existing FK Table %s", new_fk_path)
                 continue
         produce_combined_fk(
             *(
@@ -293,9 +290,9 @@ def assembly_combined_fk(
             damp=(tcard["DAMP"], tcard["DAMPPOWERc"], tcard["DAMPPOWERb"]),
         )
         if new_fk_path.exists():
-            rich.print(f"[green]Success:[/] Wrote FK table to {new_fk_path}")
+            logger.info("Wrote FK table to %s", new_fk_path)
         else:
-            rich.print("[red]Failure:[/]")
+            logger.error("Failed to write FK table to %s", new_fk_path)
 
 
 def produce_combined_fk(
@@ -410,5 +407,5 @@ def dump_tcards(tcard, tcard_parent_path, theoryid):
         with open(theorycard_path, "w", encoding="UTF-8") as f:
             yaml.safe_dump(theorycard, f)
         paths_list.append(theorycard_path)
-        rich.print(f"[green]Wrote theory card to {theorycard_path}")
+        logger.info("Wrote theory card to %s", theorycard_path)
     return paths_list

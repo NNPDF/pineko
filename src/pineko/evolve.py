@@ -12,9 +12,6 @@ from typing import Optional, Union
 import eko
 import numpy as np
 import pineappl
-import rich
-import rich.box
-import rich.panel
 import yaml
 from eko import basis_rotation
 from eko.interpolation import XGrid
@@ -227,8 +224,10 @@ def dump_card(
         f.write(f"# {pineko_version=}")
 
     if card_path.exists():
-        rich.print(
-            f"[green]Success:[/] Wrote card with {len(operators_card['mugrid'])} Q2 points to {card_path}"
+        logger.info(
+            "Wrote card with %d Q2 points to %s",
+            len(operators_card["mugrid"]),
+            card_path,
         )
 
 
@@ -518,7 +517,7 @@ def evolve_grid(
         alphas=alphas_values,
     )
 
-    rich.print(f"Optimizing for {assumptions}")
+    logger.info("Optimizing for %s", assumptions)
     fktable.optimize(pineappl.fk_table.FkAssumptions(assumptions))
     fktable.set_metadata("eko_version", operators[0].metadata.version)
     fktable.set_metadata("eko_theory_card", json.dumps(operators[0].theory_card.raw))
