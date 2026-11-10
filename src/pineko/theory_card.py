@@ -85,6 +85,5 @@ def construct_assumptions(tcard):
         act_flav = 3
         if ic:
             act_flav += 1
-            mod = "Sym"
     hash_ += str(act_flav) + mod
     return hash_
