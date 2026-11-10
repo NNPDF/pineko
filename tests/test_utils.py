@@ -26,11 +26,6 @@ def test_read_grids_from_nnpdf_disabled():
     """Test read_grids_from_nnpdf returns None when nnpdf is disabled in configs."""
     cfg = {configs.GENERIC_OPTIONS: {"nnpdf": False}}
     assert utils.read_grids_from_nnpdf("SOME_DATASET", configs=cfg) is None
-
-
-def test_load_nnpdf_theory_disabled():
-    """Test load_nnpdf_theory returns None when nnpdf is disabled in configs."""
-    cfg = {configs.GENERIC_OPTIONS: {"nnpdf": False}}
     assert utils.load_nnpdf_theory(53, configs=cfg) is None
 
 
