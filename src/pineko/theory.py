@@ -197,7 +197,10 @@ class TheoryBuilder:
             new folder
         """
         new = other / f"{name}.{parser.EXT}"
-        if new.exists():
+        if new.is_symlink() and not new.exists():
+            rich.print(f"[yellow]Warning:[/] Overwriting stale symlink {new}")
+            new.unlink()
+        elif new.exists() or new.is_symlink():
             if not self.overwrite:
                 rich.print(f"Skipping existing grid {new}")
                 return
@@ -243,10 +246,13 @@ class TheoryBuilder:
 
             eko_path = self.ekos_path() / f"{name}.tar"
             new = other / f"{name}.tar"
-            if new.exists():
+            if new.is_symlink() and not new.exists():
+                rich.print(f"[yellow]Warning:[/] Overwriting stale symlink {new}")
+                new.unlink()
+            elif new.exists() or new.is_symlink():
                 if not self.overwrite:
                     rich.print(f"Skipping existing eko {new}")
-                    return
+                    continue
                 new.unlink()
             # link
             new.symlink_to(eko_path)
@@ -408,7 +414,12 @@ class TheoryBuilder:
             new_theory = legacy_class.new_theory
             new_op = eko.io.runcards.OperatorCard.from_dict(ocard)
             eko_filename = self.ekos_path() / f"{name}.tar"
-            if eko_filename.exists():
+            if eko_filename.is_symlink() and not eko_filename.exists():
+                rich.print(
+                    "[yellow]Warning:[/] Overwriting stale symlink" f" {eko_filename}"
+                )
+                eko_filename.unlink()
+            elif eko_filename.exists() or eko_filename.is_symlink():
                 if not self.overwrite:
                     rich.print(f"Skipping existing operator {eko_filename}")
                     return
