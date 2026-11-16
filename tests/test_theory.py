@@ -27,6 +27,49 @@ def builder(tmp_path, monkeypatch):
     return TheoryBuilder(theory_id=100, datasets=["test_dataset"])
 
 
+def test_prepare_path_nonexistent(builder):
+    """Test prepare_path returns True when path does not exist."""
+    mock_path = MagicMock(spec=Path)
+    mock_path.is_symlink.return_value = False
+    mock_path.exists.return_value = False
+
+    assert builder.prepare_path(mock_path, "test") is True
+    mock_path.unlink.assert_not_called()
+
+
+def test_prepare_path_stale_symlink(builder):
+    """Test prepare_path unlinks stale symlink and returns True."""
+    builder.overwrite = False
+    mock_path = MagicMock(spec=Path)
+    mock_path.is_symlink.return_value = True
+    mock_path.exists.return_value = False
+
+    assert builder.prepare_path(mock_path, "test") is True
+    mock_path.unlink.assert_called_once()
+
+
+def test_prepare_path_existing_no_overwrite(builder):
+    """Test prepare_path returns False when path exists and overwrite=False."""
+    builder.overwrite = False
+    mock_path = MagicMock(spec=Path)
+    mock_path.is_symlink.return_value = False
+    mock_path.exists.return_value = True
+
+    assert builder.prepare_path(mock_path, "test") is False
+    mock_path.unlink.assert_not_called()
+
+
+def test_prepare_path_existing_overwrite(builder):
+    """Test prepare_path unlinks existing file when overwrite=True."""
+    builder.overwrite = True
+    mock_path = MagicMock(spec=Path)
+    mock_path.is_symlink.return_value = False
+    mock_path.exists.return_value = True
+
+    assert builder.prepare_path(mock_path, "test") is True
+    mock_path.unlink.assert_called_once()
+
+
 def test_inherit_grid_new(builder, tmp_path):
     """Test inherit_grid when target does not exist."""
     grid = tmp_path / "source" / "test.pineappl.lz4"
