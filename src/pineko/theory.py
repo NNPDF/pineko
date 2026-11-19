@@ -429,7 +429,7 @@ class TheoryBuilder:
             new_op = eko.io.runcards.OperatorCard.from_dict(ocard)
             eko_filename = self.ekos_path() / f"{name}.tar"
             if not self.prepare_path(eko_filename, "operator"):
-                return
+                continue
             # do it!
             logger.info("Start computation of %s", name)
             start_time = time.perf_counter()
