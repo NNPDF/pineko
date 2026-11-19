@@ -184,6 +184,32 @@ class TheoryBuilder:
         grids = {grid.stem.rsplit(".", 1)[0]: grid for grid in grids}
         return grids
 
+    def prepare_path(self, path, item="file"):
+        """Prepare destination path for writing or linking.
+
+        Parameters
+        ----------
+        path : pathlib.Path
+            destination path
+        item : str
+            description of the item (e.g. 'grid', 'eko', 'operator')
+
+        Returns
+        -------
+        bool :
+            True if creation should proceed, False if existing path should be skipped
+        """
+        if path.is_symlink() and not path.exists():
+            rich.print(f"[yellow]Warning:[/] Overwriting stale symlink {path}")
+            path.unlink()
+            return True
+        if path.exists():
+            if not self.overwrite:
+                rich.print(f"Skipping existing {item} {path}")
+                return False
+            path.unlink()
+        return True
+
     def inherit_grid(self, name, grid, other):
         """Inherit a grid to a new theory.
 
@@ -197,11 +223,8 @@ class TheoryBuilder:
             new folder
         """
         new = other / f"{name}.{parser.EXT}"
-        if new.exists():
-            if not self.overwrite:
-                rich.print(f"Skipping existing grid {new}")
-                return
-            new.unlink()
+        if not self.prepare_path(new, "grid"):
+            return
         # link
         new.symlink_to(grid)
         if new.exists():
@@ -243,11 +266,8 @@ class TheoryBuilder:
 
             eko_path = self.ekos_path() / f"{name}.tar"
             new = other / f"{name}.tar"
-            if new.exists():
-                if not self.overwrite:
-                    rich.print(f"Skipping existing eko {new}")
-                    return
-                new.unlink()
+            if not self.prepare_path(new, "eko"):
+                continue
             # link
             new.symlink_to(eko_path)
             if new.exists():
@@ -408,11 +428,8 @@ class TheoryBuilder:
             new_theory = legacy_class.new_theory
             new_op = eko.io.runcards.OperatorCard.from_dict(ocard)
             eko_filename = self.ekos_path() / f"{name}.tar"
-            if eko_filename.exists():
-                if not self.overwrite:
-                    rich.print(f"Skipping existing operator {eko_filename}")
-                    return
-                eko_filename.unlink()
+            if not self.prepare_path(eko_filename, "operator"):
+                continue
             # do it!
             logger.info("Start computation of %s", name)
             start_time = time.perf_counter()
