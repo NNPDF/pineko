@@ -77,6 +77,29 @@ def set_fktable_metadata(fktable, theory_meta, grid_path=None):
 
     grid_path_obj = pathlib.Path(grid_path).resolve()
     grid_hash = hashlib.md5(grid_path_obj.read_bytes()).hexdigest()
+
+    # Check that the grid's hash agrees with the stored hash (if present) (#267)
+    txt_candidates = [
+        grid_path_obj.parent / f"{grid_path_obj.name}.txt",
+        grid_path_obj.with_suffix(".txt"),
+    ]
+    stem_name = grid_path_obj.name
+    for ext in (".pineappl.lz4", ".pineappl", ".lz4"):
+        if stem_name.endswith(ext):
+            stem_name = stem_name[: -len(ext)]
+            txt_candidates.append(grid_path_obj.parent / f"{stem_name}.txt")
+            break
+
+    for txt_path in txt_candidates:
+        if txt_path.is_file():
+            stored_hash = txt_path.read_text().strip().split()[0]
+            if stored_hash != grid_hash:
+                raise ValueError(
+                    f"Grid hash mismatch for '{grid_path_obj.name}': "
+                    f"computed {grid_hash}, but stored hash in '{txt_path.name}' is {stored_hash}"
+                )
+            break
+
     fktable.set_metadata("grid_hash", grid_hash)
     fktable.set_metadata("grid_theory", grid_path_obj.parent.name)
     fktable.set_metadata("grid_name", grid_path_obj.name)
