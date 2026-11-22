@@ -8,12 +8,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
         with:
           # tags needed for dynamic versioning
           fetch-depth: 0
       - name: Install Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ vars.PYTHON_VERSION_WORKFLOWS }}
 
@@ -47,7 +47,7 @@ jobs:
 
       - name: Get data files
         id: cache-data-files
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: data_files
           key: data_files-v6
@@ -64,7 +64,7 @@ jobs:
           poe bench
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v5
         with:
           files: ./coverage.xml
           flags: bench
