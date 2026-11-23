@@ -87,3 +87,33 @@ def construct_assumptions(tcard):
             act_flav += 1
     hash_ += str(act_flav) + mod
     return hash_
+
+
+def qed_running_alpha(tcard):
+    """Return the boundary value at ``Qref`` of the running QED coupling, for EKO.
+
+    This is ``alpha_qed_running_mz`` when the theory card gives it (it then requires
+    ``Qref = MZ``), since ``alphaqed`` is then a fixed electroweak-scheme coupling such as
+    alpha_Gmu that does not obey the QED renormalisation group equation. Otherwise it is
+    ``alphaqed`` (as in NNPDF4.0QED, where alphaqed = 1/128.94 at 91.2 GeV). Must stay
+    consistent with ``nnpdf_data.theory.qed_running_alpha`` (NNPDF/nnpdf#2541).
+
+    Parameters
+    ----------
+    tcard : dict
+        theory card
+
+    Returns
+    -------
+    float
+        alpha_em at ``Qref`` to be used as boundary condition of the QED running
+    """
+    alpha_qed_running_mz = tcard.get("alpha_qed_running_mz")
+    if alpha_qed_running_mz is None:
+        return tcard["alphaqed"]
+    if abs(tcard["MZ"] - tcard["Qref"]) > 1e-6 * tcard["MZ"]:
+        raise ValueError(
+            "alpha_qed_running_mz requires Qref = MZ, "
+            f"got Qref = {tcard['Qref']}, MZ = {tcard['MZ']}"
+        )
+    return alpha_qed_running_mz

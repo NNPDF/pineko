@@ -402,6 +402,8 @@ class TheoryBuilder:
             # Deprecated keys still needed by eko below. TODO: remove them asap.
             tcard["Qedref"] = tcard["Qref"]
             tcard["MaxNfAs"] = tcard["MaxNfPdf"]
+            # EKO runs alphaqed from Qref: give it the running QED coupling
+            tcard["alphaqed"] = theory_card.qed_running_alpha(tcard)
             # The operator card has been already generated in the correct format
             # The theory card needs to be converted to a format that eko can use
             legacy_class = eko.io.runcards.Legacy(tcard, ocard)
