@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased](https://github.com/NNPDF/pineko/compare/v0.6.0...HEAD)
 
 ### Fixed
+- `check_scvar_evolve` now raises when the highest order of a grid has no scale-variation orders (`CENTRAL`) or no central order (`SCVAR`); before, the check could never trigger. ([#271](https://github.com/NNPDF/pineko/pull/271))
 - For `Q0 < mc` with intrinsic charm, FK tables are now optimized with `Nf4Ind` instead of `Nf4Sym`, so they keep the V15 (c-) channel. ([#259](https://github.com/NNPDF/pineko/pull/259))
 
 ### Changed
