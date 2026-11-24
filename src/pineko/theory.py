@@ -80,8 +80,11 @@ def get_eko_names(grid_path, name, filter=True):
 def check_scvar_evolve(grid, max_as, max_al, kind: check.Scale):
     """Check scale variations and central orders consistency."""
     available, max_as_effective = check.contains_sv(grid, max_as, max_al, kind)
-    if max_as < max_as_effective and available is not check.AvailableAtMax.BOTH:
-        raise ValueError("No available central order or sv order.")
+    if max_as_effective == max_as and available is not check.AvailableAtMax.BOTH:
+        raise ValueError(
+            f"{kind.name} scale variations inconsistent at the highest order: "
+            f"{available.name} only (CENTRAL: sv orders missing, SCVAR: central order missing)."
+        )
 
 
 class TheoryBuilder:

@@ -1,4 +1,5 @@
 import pineappl
+import pytest
 
 import pineko.check
 import pineko.theory
@@ -48,12 +49,13 @@ def test_check_scvar_evolve():
             Order((2, 0, 0, 0, 0)),
         ]
     )
-    pineko.theory.check_scvar_evolve(
-        grid_central,
-        max_as,
-        max_al,
-        pineko.check.Scale.REN,
-    )
+    with pytest.raises(ValueError, match="CENTRAL only"):
+        pineko.theory.check_scvar_evolve(
+            grid_central,
+            max_as,
+            max_al,
+            pineko.check.Scale.REN,
+        )
 
     grid_scvar = Fake_grid(
         [
@@ -62,12 +64,13 @@ def test_check_scvar_evolve():
             Order((2, 0, 1, 0, 0)),
         ]
     )
-    pineko.theory.check_scvar_evolve(
-        grid_scvar,
-        max_as,
-        max_al,
-        pineko.check.Scale.REN,
-    )
+    with pytest.raises(ValueError, match="SCVAR only"):
+        pineko.theory.check_scvar_evolve(
+            grid_scvar,
+            max_as,
+            max_al,
+            pineko.check.Scale.REN,
+        )
 
     pineko.theory.check_scvar_evolve(
         grid_scvar,
