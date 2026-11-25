@@ -13,11 +13,11 @@ def test_convolve_cli_reads_operators_without_edit(tmp_path):
     Verifies that multiple operators are supported without calling EKO.edit.
     """
     grid_path = tmp_path / "grid.pineappl.lz4"
-    grid_path.write_text("dummy")
+    grid_path.write_text("dummy grid")
     op1 = tmp_path / "op1.tar"
-    op1.write_text("dummy1")
+    op1.write_text("dummy op1")
     op2 = tmp_path / "op2.tar"
-    op2.write_text("dummy2")
+    op2.write_text("dummy op2")
     fk_path = tmp_path / "fk.pineappl.lz4"
 
     runner = CliRunner()
@@ -57,7 +57,7 @@ def test_convolve_cli_reads_operators_without_edit(tmp_path):
 def test_convolve_cli_requires_operators(tmp_path):
     """Test that convolve reports error when no operators are given."""
     grid_path = tmp_path / "grid.pineappl.lz4"
-    grid_path.write_text("dummy")
+    grid_path.write_text("dummy grid")
     fk_path = tmp_path / "fk.pineappl.lz4"
 
     runner = CliRunner()
