@@ -26,6 +26,7 @@
     theory/fonll
     theory/scalevar
     theory/kfactors
+    theory/qed
 
 
     zzz-refs

@@ -400,10 +400,10 @@ class TheoryBuilder:
             if tcard.get("PTOEKO") is not None:
                 tcard["PTO"] = tcard["PTOEKO"]
             # Deprecated keys still needed by eko below. TODO: remove them asap.
+            # Qedref = Qref makes eko run alpha_em from alphaqed at Qref, so alphaqed must be
+            # the running MSbar coupling, not the fixed G_mu-scheme coupling of the grids
             tcard["Qedref"] = tcard["Qref"]
             tcard["MaxNfAs"] = tcard["MaxNfPdf"]
-            # EKO runs alphaqed from Qref: give it the running QED coupling
-            tcard["alphaqed"] = theory_card.qed_running_alpha(tcard)
             # The operator card has been already generated in the correct format
             # The theory card needs to be converted to a format that eko can use
             legacy_class = eko.io.runcards.Legacy(tcard, ocard)
