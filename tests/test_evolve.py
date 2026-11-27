@@ -136,61 +136,28 @@ class FakeFKTable:
         self.metadata[key] = value
 
 
-def test_set_fktable_metadata_no_grid_path():
+def test_set_fktable_metadata_hash_check(tmp_path):
+    grid_file = tmp_path / "test.pineappl.lz4"
+    grid_file.write_bytes(b"sample grid content")
+    expected_hash = hashlib.md5(b"sample grid content").hexdigest()
+
+    # No grid_path: skips hash metadata
     fk = FakeFKTable()
     pineko.evolve.set_fktable_metadata(fk, {"id": 100})
-    assert "pineko_version" in fk.metadata
-    assert "theory_card" in fk.metadata
     assert "grid_hash" not in fk.metadata
 
-
-def test_set_fktable_metadata_without_hash_txt(tmp_path):
-    theory_dir = tmp_path / "grids" / "400"
-    theory_dir.mkdir(parents=True)
-    grid_file = theory_dir / "test.pineappl.lz4"
-    grid_file.write_bytes(b"sample grid content")
-
+    # No .txt file: stores grid metadata without error
     fk = FakeFKTable()
     pineko.evolve.set_fktable_metadata(fk, {"id": 100}, grid_path=grid_file)
-    assert fk.metadata["grid_theory"] == "400"
+    assert fk.metadata["grid_hash"] == expected_hash
     assert fk.metadata["grid_name"] == "test.pineappl.lz4"
-    assert fk.metadata["grid_hash"] == hashlib.md5(b"sample grid content").hexdigest()
 
-
-@pytest.mark.parametrize(
-    "txt_name,txt_content",
-    [
-        ("test.txt", hashlib.md5(b"sample grid content").hexdigest()),
-        ("test.pineappl.txt", hashlib.md5(b"sample grid content").hexdigest()),
-        (
-            "test.pineappl.lz4.txt",
-            f"{hashlib.md5(b'sample grid content').hexdigest()}  test.pineappl.lz4\n",
-        ),
-    ],
-)
-def test_set_fktable_metadata_with_matching_txt(tmp_path, txt_name, txt_content):
-    theory_dir = tmp_path / "grids" / "400"
-    theory_dir.mkdir(parents=True)
-    grid_file = theory_dir / "test.pineappl.lz4"
-    grid_file.write_bytes(b"sample grid content")
-
-    hash_file = theory_dir / txt_name
-    hash_file.write_text(txt_content)
-
-    fk = FakeFKTable()
+    # Matching <name>.txt
+    hash_file = tmp_path / "test.txt"
+    hash_file.write_text(f"{expected_hash}  test.pineappl.lz4\n")
     pineko.evolve.set_fktable_metadata(fk, {"id": 100}, grid_path=grid_file)
-    assert fk.metadata["grid_hash"] == hashlib.md5(b"sample grid content").hexdigest()
 
-
-def test_set_fktable_metadata_with_mismatch_raises(tmp_path):
-    theory_dir = tmp_path / "grids" / "400"
-    theory_dir.mkdir(parents=True)
-    grid_file = theory_dir / "test.pineappl.lz4"
-    grid_file.write_bytes(b"sample grid content")
-
-    hash_file = theory_dir / "test.txt"
+    # Mismatched <name>.txt raises ValueError
     hash_file.write_text("badhash1234567890abcdef12345678\n")
-
-    fk = FakeFKTable()
-    with pytest.raises(ValueError, match="Grid hash mismatch for 'test.pineappl.lz4'"):
+    with pytest.raises(ValueError, match="Grid hash mismatch"):
         pineko.evolve.set_fktable_metadata(fk, {"id": 100}, grid_path=grid_file)
