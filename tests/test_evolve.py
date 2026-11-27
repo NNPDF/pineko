@@ -1,3 +1,5 @@
+import hashlib
+
 import numpy as np
 import pineappl
 import pytest
@@ -124,3 +126,38 @@ def test_write_operator_card_evolution_methods(tmp_path, base_tcard):
     )
     assert len(xgrid) == 50
     assert len(q2grid) == 1
+
+
+class FakeFKTable:
+    def __init__(self):
+        self.metadata = {}
+
+    def set_metadata(self, key, value):
+        self.metadata[key] = value
+
+
+def test_set_fktable_metadata_hash_check(tmp_path):
+    grid_file = tmp_path / "test.pineappl.lz4"
+    grid_file.write_bytes(b"sample grid content")
+    expected_hash = hashlib.md5(b"sample grid content").hexdigest()
+
+    # No grid_path: skips hash metadata
+    fk = FakeFKTable()
+    pineko.evolve.set_fktable_metadata(fk, {"id": 100})
+    assert "grid_hash" not in fk.metadata
+
+    # No .txt file: stores grid metadata without error
+    fk = FakeFKTable()
+    pineko.evolve.set_fktable_metadata(fk, {"id": 100}, grid_path=grid_file)
+    assert fk.metadata["grid_hash"] == expected_hash
+    assert fk.metadata["grid_name"] == "test.pineappl.lz4"
+
+    # Matching <name>.txt
+    hash_file = tmp_path / "test.txt"
+    hash_file.write_text(f"{expected_hash}  test.pineappl.lz4\n")
+    pineko.evolve.set_fktable_metadata(fk, {"id": 100}, grid_path=grid_file)
+
+    # Mismatched <name>.txt raises ValueError
+    hash_file.write_text("badhash1234567890abcdef12345678\n")
+    with pytest.raises(ValueError, match="Grid hash mismatch"):
+        pineko.evolve.set_fktable_metadata(fk, {"id": 100}, grid_path=grid_file)
